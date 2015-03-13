@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+<data>
+
+	<template id="assets_backend" inherit_id="mail.assets_backend">
+		<xpath expr="//script[@src='/mail/static/src/js/announcement.js']" position="attributes">
+			<attribute name="src">/web_disable_announcement/static/src/js/announcement.js</attribute>
+		</xpath>
+	</template>
+
+</data>
+</openerp>
