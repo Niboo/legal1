@@ -1,0 +1,8 @@
+import account
+import ir_attachment
+import res_company
+import res_partner
+import sale
+import stock
+import xx_document_layout
+import xx_partner_document_layout

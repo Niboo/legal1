@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="view_xx_document_layout_tree" model="ir.ui.view">
+      <field name="name">xx.document.layout.tree</field>
+      <field name="model">xx.document.layout</field>
+      <field name="arch" type="xml">
+        <tree string="Print Layout" version="7.0">
+          <field name="document_type" />
+          <field name="jasper_report" />
+          <field name="nb_of_copies" />
+        </tree>
+      </field>
+    </record>
+    <record id="view_xx_document_layout_form" model="ir.ui.view">
+      <field name="name">xx.document.layout.form</field>
+      <field name="model">xx.document.layout</field>
+      <field name="arch" type="xml">
+        <form string="Print Layout" version="7.0">
+          <sheet>
+            <group>
+              <field name="document_type" />
+              <field name="jasper_report" />
+              <field name="nb_of_copies" />
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+    <record id="view_xx_email_layout_tree" model="ir.ui.view">
+      <field name="name">xx.email.layout.tree</field>
+      <field name="model">xx.email.layout</field>
+      <field name="arch" type="xml">
+        <tree string="E-mail Layout" version="7.0">
+          <field name="document_type" />
+          <field name="email_template" />
+        </tree>
+      </field>
+    </record>
+    <record id="view_xx_email_layout_form" model="ir.ui.view">
+      <field name="name">xx.email.layout.form</field>
+      <field name="model">xx.email.layout</field>
+      <field name="arch" type="xml">
+        <form string="E-mail Layout" version="7.0">
+          <sheet>
+            <group>
+              <field name="document_type" />
+              <field name="email_template" />
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+  </data>
+</openerp>

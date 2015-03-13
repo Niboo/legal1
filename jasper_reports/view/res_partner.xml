@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="view_partner_form_jasper_reports" model="ir.ui.view">
+      <field name="name">res.partner.form.jasper_reports</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="base.view_partner_form" />
+      <field name="arch" type="xml">
+        <page name="sales_purchases" position="after">
+          <page string="Document Layout">
+            <group>
+              <field name="xx_communication_type" />
+              <field name="xx_partner_document_layouts" />
+              <field name="xx_partner_email_layouts" />
+            </group>
+          </page>
+        </page>
+      </field>
+    </record>
+  </data>
+</openerp>

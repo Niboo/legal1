@@ -1,0 +1,8 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+"access_ir_actions_report_xml_file_all","ir_actions_report_xml_file","model_ir_actions_report_xml_file","base.group_user",1,0,0,0
+"access_xx_document_layout_all","xx_document_layout","model_xx_document_layout","base.group_user",1,0,0,0
+"access_xx_document_layout_root","xx_document_layout","model_xx_document_layout","base.user_root",1,1,1,1
+"access_xx_partner_document_layout_all","xx_partner_document_layout","model_xx_partner_document_layout","base.group_user",1,1,1,1
+"access_xx_email_layout_all","xx_email_layout","model_xx_email_layout","base.group_user",1,0,0,0
+"access_xx_email_layout_root","xx_email_layout","model_xx_email_layout","base.user_root",1,1,1,1
+"access_xx_partner_email_layout_all","xx_partner_email_layout","model_xx_partner_email_layout","base.group_user",1,1,1,1

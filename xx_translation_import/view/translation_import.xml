@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="xx_translation_import_form_view" model="ir.ui.view">
+      <field name="name">xx.translation.import.form</field>
+      <field name="model">xx.translation.import</field>
+      <field name="arch" type="xml">
+        <form string="Custom Translations Import" version="7.0">
+          <group>
+            <field name="custom_location" />
+            <field name="remember_location" />
+            <button name="do_import_translations" type="object" string="Import Translations" icon="gtk-convert" />
+          </group>
+        </form>
+      </field>
+    </record>
+
+    <record id="xx_translation_import_action" model="ir.actions.act_window">
+      <field name="name">Custom Translations Import</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">xx.translation.import</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">form</field>
+      <field name="view_id" eval="False" />
+      <field name="target">new</field>
+      <field name="context">{}</field>
+      <field name="help"></field>
+    </record>
+
+    <menuitem action="xx_translation_import_action" id="xx_translation_import_menu" parent="base.menu_translation" sequence="1" groups="base.group_system" />
+  </data>
+</openerp>
