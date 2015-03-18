@@ -23,7 +23,7 @@
 					<page string="Extra Images" autofocus="autofocus">
 						<separator string="Classification Images" colspan="2"/>
 						<newline/>						
-						<field name = "tmpl_extra_image"  mode="kanban" context="{'default_product_id':active_id}" widget="one2many">		
+						<field name = "tmpl_extra_image"  mode="kanban" context="{'default_product_id':active_id}" widget="one2many">
 						<kanban>
 							<field name="name" />
 		  					<field name="image" />
@@ -75,7 +75,7 @@
 					<page string="Extra Images" autofocus="autofocus">
 						<separator string="Classification Images" colspan="2"/>
 						<newline/>						
-						<field name = "pro_extra_image"  mode="kanban" context="{'default_pro_id':active_id}"  widget="one2many">		
+						<field name = "pro_extra_image"  mode="kanban" context="{'default_pro_id':active_id}"  widget="one2many">
 						<kanban>
 							<field name="name" />
 		  					<field name="image" />
