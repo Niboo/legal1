@@ -25,7 +25,7 @@ from openerp import SUPERUSER_ID
 from openerp import pooler
 from openerp import models, fields, api, _
 
-DEVELOP = True
+DEVELOP = False
 TEST = False
 
 
