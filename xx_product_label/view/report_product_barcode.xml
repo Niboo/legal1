@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="report_product_barcode">
+            <t t-call="report.layout">
+                <t t-foreach="docs" t-as="o">
+                    <t>
+                        <div class="page">
+                            <div class="oe_structure" />
+                            <div class="row">
+                                <div class="col-xs-12 mt32 text-center">
+                                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 200, 100)" style="width:300px;height:50px" />
+                                    <p t-field="o.name"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</openerp>

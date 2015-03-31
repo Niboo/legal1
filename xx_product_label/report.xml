@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <report id="action_report_product_barcode"
+                model="product.product"
+                report_type="qweb-pdf"
+                name="xx_product_label.report_product_barcode"
+                string="Product BarCode"
+                file="xx_product_label.report_product_barcode" />
+        <record id="paperformat_product_label" model="report.paperformat">
+            <field name="name">Product Label</field>
+            <field name="default" eval="True" />
+            <field name="format">custom</field>
+            <field name="page_height">50</field>
+            <field name="page_width">100</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">2</field>
+            <field name="margin_bottom">2</field>
+            <field name="margin_left">2</field>
+            <field name="margin_right">2</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">0</field>
+            <field name="dpi">80</field>
+        </record>
+        <record id="xx_product_label.action_report_product_barcode" model="ir.actions.report.xml">
+            <field name="paperformat_id" ref="xx_product_label.paperformat_product_label" />
+        </record>
+    </data>
+</openerp>
