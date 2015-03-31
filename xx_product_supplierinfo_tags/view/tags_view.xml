@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <!-- TAGS ! -->
+        <record model="ir.ui.view" id="view_product_supplierinfo_tags_tree">
+            <field name="name">xx.product.supplierinfo.tags.tree</field>
+            <field name="model">xx.product.supplierinfo.tags</field>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <tree string="Tags">
+                    <field name="name" string="Barcode" />
+                    <field name="res_model" invisible="1" />
+                    <field name="res_id" invisible="1" />
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_product_supplierinfo_tags_form">
+            <field name="name">xx.product.supplierinfo.tags.form</field>
+            <field name="model">xx.product.supplierinfo.tags</field>
+            <field name="arch" type="xml">
+                <form string="Tags Form">
+                    <sheet>
+                        <group>
+                            <field name="name" string="Barcode" />
+                            <field name="res_model" invisible="1" />
+                            <field name="res_id" invisible="1" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="product_supplierinfo_form_view" model="ir.ui.view">
+            <field name="inherit_id" ref="product.product_supplierinfo_form_view" />
+            <field name="model">product.supplierinfo</field>
+            <field name="arch" type="xml">
+                <field name="company_id" position="after">
+                    <field name="xx_tag_ids" context="{'default_res_id': active_id, 'default_res_model': active_model}" />
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
