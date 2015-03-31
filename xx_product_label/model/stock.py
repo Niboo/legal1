@@ -27,17 +27,20 @@ class stock_pack_operation(models.Model):
     def write(self, values):
         if 'qty_done' in values:
             if values.get('qty_done') > self.qty_done:
-                self.product_id.action_print_product_barcode()
+                ctx = self._context.copy()
+                supplier_product = self.product_id.seller_ids.search([('name','=', self.picking_id.partner_id.id)])
+                if supplier_product:
+                    ctx.update({'supplier_product_code': supplier_product[0].product_code})
+                self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, [self.product_id.id], context=ctx)
         return super(stock_pack_operation, self).write(values)
 
 class product_product(models.Model):
     _inherit = "product.product"
 
-    @api.one
-    def action_print_product_barcode(self):
+    def action_print_product_barcode(self, cr, uid, ids, context=None):
         report_name = 'xx_product_label.report_product_barcode'
         try:
-            self.pool['report'].print_document(self._cr,self._uid,[self.id],report_name)
+            self.pool['report'].print_document(cr, uid, ids, report_name, context=context)
         except:
             pass
         return True

@@ -5,12 +5,26 @@
             <t t-call="report.layout">
                 <t t-foreach="docs" t-as="o">
                     <t>
-                        <div class="page">
-                            <div class="oe_structure" />
+                        <div class="page" style="margin: 0; padding: 0;">
                             <div class="row">
-                                <div class="col-xs-12 mt32 text-center">
-                                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 200, 100)" style="width:300px;height:50px" />
-                                    <p t-field="o.name"></p>
+                                <div class="col-xs-8 mt2 text-left">
+                                    <div t-esc="get_supplier_product_code()" style="font-size: 12;" />
+                                </div>
+                                <div class="col-xs-4 mt2 text-right">
+                                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="max-height: 40px;" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-7 mt2 text-left">
+                                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 100, 40)" style="width:100px;height:40px" />
+                                </div>
+                                <div class="col-xs-5 mt2 text-right">
+                                    <div t-field="o.loc_rack" class="text-right" style="font-size: 16;"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 mt2 text-left">
+                                    <span t-field="o.default_code"></span>
                                 </div>
                             </div>
                         </div>

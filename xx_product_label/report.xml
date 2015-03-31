@@ -11,13 +11,13 @@
             <field name="name">Product Label</field>
             <field name="default" eval="True" />
             <field name="format">custom</field>
-            <field name="page_height">50</field>
-            <field name="page_width">100</field>
+            <field name="page_height">31</field>
+            <field name="page_width">57</field>
             <field name="orientation">Portrait</field>
-            <field name="margin_top">2</field>
-            <field name="margin_bottom">2</field>
-            <field name="margin_left">2</field>
-            <field name="margin_right">2</field>
+            <field name="margin_top">1</field>
+            <field name="margin_bottom">1</field>
+            <field name="margin_left">1</field>
+            <field name="margin_right">1</field>
             <field name="header_line" eval="False" />
             <field name="header_spacing">0</field>
             <field name="dpi">80</field>
