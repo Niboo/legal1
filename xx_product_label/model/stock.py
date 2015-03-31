@@ -27,11 +27,15 @@ class stock_pack_operation(models.Model):
     def write(self, values):
         if 'qty_done' in values:
             if values.get('qty_done') > self.qty_done:
+                qty = int(values.get('qty_done') - self.qty_done)
                 ctx = self._context.copy()
                 supplier_product = self.product_id.seller_ids.search([('name','=', self.picking_id.partner_id.id)])
                 if supplier_product:
                     ctx.update({'supplier_product_code': supplier_product[0].product_code})
-                self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, [self.product_id.id], context=ctx)
+                product_ids = []
+                for x in xrange(qty):  # @UnusedVariable
+                    product_ids.append(self.product_id.id)
+                self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
         return super(stock_pack_operation, self).write(values)
 
 class product_product(models.Model):
