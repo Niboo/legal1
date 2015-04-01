@@ -34,6 +34,8 @@ class stock_picking(models.Model):
     _inherit = "stock.picking"
     
     def process_barcode_from_ui(self, cr, uid, picking_id, barcode_str, visible_op_ids, context=None):
+        if context is None:
+            context = {}
         ctx = context.copy()
         ctx.update({
             "process_barcode_from_ui_picking_id": picking_id,
@@ -45,6 +47,8 @@ class product_product(models.Model):
     _inherit = 'product.product'
     
     def search(self, cr, uid, search_args, offset=0, limit=None, order=None, context=None, count=False):        
+        if context is None:
+            context = {}
         ctx = context.copy()
         product_ids = super(product_product, self).search(cr, uid, search_args, offset=offset, limit=limit, order=order, context=ctx, count=count)
         
