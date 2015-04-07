@@ -22,7 +22,7 @@ from openerp import models, api
 
 class stock_pack_operation(models.Model):
     _inherit = "stock.pack.operation"
-    
+
     @api.one
     def write(self, values):
         if 'qty_done' in values:
@@ -31,7 +31,9 @@ class stock_pack_operation(models.Model):
                 ctx = self._context.copy()
                 supplier_product = self.product_id.seller_ids.search([('name','=', self.picking_id.partner_id.id)])
                 if supplier_product:
-                    ctx.update({'supplier_product_code': supplier_product[0].product_code})
+                    ctx.update({
+                        'supplier_product_code': supplier_product[0].product_code,
+                    })
                 product_ids = []
                 for x in xrange(qty):  # @UnusedVariable
                     product_ids.append(self.product_id.id)

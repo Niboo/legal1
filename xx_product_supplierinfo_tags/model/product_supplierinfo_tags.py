@@ -41,17 +41,17 @@ class stock_picking(models.Model):
             "process_barcode_from_ui_picking_id": picking_id,
             "process_barcode_from_ui_barcode_str": barcode_str,
         })
-        return super(stock_picking, self).process_barcode_from_ui(cr, uid, picking_id, barcode_str, visible_op_ids, context=ctx)    
+        return super(stock_picking, self).process_barcode_from_ui(cr, uid, picking_id, barcode_str, visible_op_ids, context=ctx)
 
 class product_product(models.Model):
     _inherit = 'product.product'
-    
-    def search(self, cr, uid, search_args, offset=0, limit=None, order=None, context=None, count=False):        
+
+    def search(self, cr, uid, search_args, offset=0, limit=None, order=None, context=None, count=False):
         if context is None:
             context = {}
         ctx = context.copy()
         product_ids = super(product_product, self).search(cr, uid, search_args, offset=offset, limit=limit, order=order, context=ctx, count=count)
-        
+
         if 'process_barcode_from_ui_picking_id' in ctx:
             cr.execute("""
             SELECT pp.id
@@ -65,5 +65,23 @@ class product_product(models.Model):
             """ % (ctx.get('process_barcode_from_ui_barcode_str'), ctx.get('process_barcode_from_ui_picking_id')))
             query_result = cr.fetchall()
             product_ids += ([x[0] for x in query_result if x[0] not in product_ids])
+        else:
+            for arg in search_args:
+                if arg[0] in ['name','default_code']:
+                    cr.execute("""
+                    SELECT DISTINCT pp.id
+                    FROM product_product pp
+                        LEFT JOIN product_supplierinfo psi
+                            ON psi.product_tmpl_id = pp.product_tmpl_id
+                        LEFT JOIN xx_product_supplierinfo_tags psit
+                            ON psit.res_id = psi.id AND psit.res_model like 'product.supplierinfo'
+                    WHERE
+                        pp.name_template ilike '%%{needle}%%' OR
+                        pp.default_code ilike '%%{needle}%%' OR
+                        psi.product_code ilike '%%{needle}%%' OR
+                        psit.name ilike '%%{needle}%%'
+                    """.format(needle=arg[2].strip()))
+                    query_result = cr.fetchall()
+                    product_ids += ([x[0] for x in query_result if x[0] not in product_ids])
 
         return product_ids
