@@ -36,7 +36,7 @@
 			<!-- <field eval="True" name="object"/> -->
 		</record>
 		
-			<!--~~~~~~~ Server action for update category mapping ~~~~~~~~~-->
+				<!--~~~~~~~ Server action for update category mapping ~~~~~~~~~-->
 		
 		<record id="action_change_category_update_status" model="ir.actions.server">
 			<field name="name">Change Update Status</field>
@@ -53,7 +53,7 @@
 			<!-- <field eval="True" name="object"/> -->
 		</record>
 		
-					<!--~~~~~~~~~~~  Server action for bulk category export ~~~~~~~~~-->
+				<!--~~~~~~~~~~~  Server action for bulk category export ~~~~~~~~~-->
 		
 		<record id="action_sync_category_bulk" model="ir.actions.server">
 			<field name="name">Synchronize To Magento</field>
@@ -69,30 +69,14 @@
 			<field eval="'ir.actions.server,%d'%action_sync_category_bulk" name="value"/>
 			<!-- <field eval="True" name="object"/> -->
 		</record>
-		
-					<!--   Server action for bulk Product export-->
-		
-<!-- 		<record id="action_sync_product_bulk" model="ir.actions.server">
-			<field name="name">Synchronize To Magento</field>
-			<field name="model_id" ref="product.model_product_product"/>
-			<field name="state">code</field>
-			<field name="code">action = pool.get("magento.synchronization").export_bulk_product(cr,uid,context=context)</field>
-		</record>
 
-		<record id="ir_open_bulk_product" model="ir.values">
-			<field eval="'client_action_multi'" name="key2"/>
-			<field eval="'product.product'" name="model"/>
-			<field name="name">Synchronize Product</field>
-			<field eval="'ir.actions.server,%d'%action_sync_product_bulk" name="value"/>
-		</record> -->
-			
-			<!--   Server action for bulk Product template export-->
+				<!--   Server action for bulk Product template export-->
 		
 		<record id="action_sync_product_template_bulk" model="ir.actions.server">
 			<field name="name">Synchronize To Magento</field>
 			<field name="model_id" ref="product.model_product_template"/>
 			<field name="state">code</field>
-			<field name="code">action = pool.get("magento.synchronization").export_bulk_product_template(cr,uid,context=context)</field>
+			<field name="code">action = pool.get("magento.synchronization").export_bulk_product_template(cr, uid, context=context)</field>
 		</record>
 
 		<record id="ir_open_bulk_product_template" model="ir.values">

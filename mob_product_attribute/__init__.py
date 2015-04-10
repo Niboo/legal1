@@ -7,11 +7,6 @@
 #				www.webkul.com	
 #
 ##############################################################################
-import mob
-import core_overrides
-import bridge_backbone
-import wizard
-import mob_synchronization
-
+import mob_product_attributes
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

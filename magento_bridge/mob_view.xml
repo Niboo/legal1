@@ -1,51 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-    <data>	
-		<!-- Product Inherit for multi category page -->
-	 <record id="product_template_form_view" model="ir.ui.view">
-        <field name="name">product.template.form.view.inherit</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_form_view"/>
-		<field name="arch" type="xml">
-			<field name="list_price" position="after">
-				<field name="prod_type"/>				
-			</field>
-			<page string="Information" position="after">
-				<page string="Extra Categories">
-					<separator string="Magento Extra Categories" colspan="2"/>
-					<newline/>
-					<field name="categ_ids" nolabel="1" colspan="2"/>
-				</page>
-			</page>
-		</field>
-	</record>
-
-	<record id="product_template_form_view2" model="ir.ui.view">
-        <field name="name">product.template.form.view.inherit2</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_only_form_view"/>
-		<field name="arch" type="xml">
-			<field name="attribute_line_ids" position="before">
-				<group>
-					<group>
-						<field name="attribute_set_id" attr="{readonly:[('attribute_line_ids','=',True)]}"/>
-					</group>
-					<group>
-					</group>
-				</group>
-			</field>
-			<field name="attribute_line_ids" position="replace">
-				<field name="attribute_line_ids" widget="one2many_list">
-	                <tree string="Variants" editable="bottom">
-	                    <field name="attribute_id"  on_change="onchange_attribute_set_id(parent.attribute_set_id, context)"/>
-	                    <field name="value_ids" widget="many2many_tags" options="{'no_create_edit': True}" domain="[('attribute_id', '=', attribute_id)]" context="{'default_attribute_id': attribute_id}"/>
-	                </tree>
-	            </field>	
-	        </field>
-		</field>
-	</record>
+    <data>
 		<!-- Magento configuration -->
-		
 		<record id="magento_configure_form" model="ir.ui.view">
             <field name="name">magento.configure.form</field>
             <field name="model">magento.configure</field>
@@ -69,7 +25,7 @@
 							<field name="credential"/>
 						</group>
 						<notebook>
-							<page string="Credentials" attrs="{'invisible': [('credential','!=', True)]}">
+							<page string="API Credentials" attrs="{'invisible': [('credential','!=', True)]}">
 								<group>
 									<group>
 										<label for="user"/>
@@ -80,6 +36,8 @@
 										<h3><field name="pwd" placeholder="Example: apipassword"/></h3>
 									</group>
 								</group>
+							</page>
+							<page string="Sales Settings" attrs="{'invisible': [('credential','!=', True)]}">
 								<div class="oe_horizontal_separator oe_clear">
 									Sales Orders Related Settings
 								</div>
@@ -100,18 +58,34 @@
 										<label for="inventory_sync"/>
 										<h4><field name="inventory_sync"/></h4>
 									</group>
+									<group>
+										<label for="notify"/>
+										<h4><field name="notify"/></h4>
+									</group>									
 								</group>
+							</page>
+							<page string="Default Settings" attrs="{'invisible': [('credential','!=', True)]}">
 								<div class="oe_horizontal_separator oe_clear">
 									Default Settings
 								</div>
 								<group>
 									<group>
+										<field name="store_id" readonly="1"/>
+										<field name="website_id" widget="selection"/>				
+									</group>
+								</group>
+								<group>
+									<group>
 										<label for="language"/>
-										<h4><field name="language" widget="selection"/></h4>
+										<h4><field name="language" required="1" widget="selection"/></h4>
 									</group>
 									<group>
 										<label for="category"/>
-										<h4><field name="category" widget="selection"/></h4>
+										<h4><field name="category" required="1" widget="selection"/></h4>
+									</group>
+									<group>
+										<label for="warehouse_id"/>
+										<h4><field name="warehouse_id" required="1" widget="selection"/></h4>
 									</group>									
 								</group>
 							</page>
@@ -173,73 +147,66 @@
 								<label string="Before synchronization, Please Configure your Magento Connection."/>
 							</p>
 						</div><br/>
-						<div>
-							<h2><font color="#324259"><label for="id" string="Categories Synchronization"/></font></h2>
-							<group>								
-								<div>
-									<button icon="gtk-go-forward" class="oe_highlight" name="export_categories" string="Export categories" type="object" help="It'll Export All Odoo Category at Magento."/> or	
-									<button icon="gtk-apply" class="oe_highlight" name="update_categories" string="Update categories" type="object" help="It'll Only Update Category at Magento, when Need Sync value is set to Yes."/>
-								</div>
-							</group>
-						</div><br/>
-						<div>
-							<h2><font color="#324259"><label for="id" string="Attributes Synchronization"/></font></h2>
-							<group>
-								<div>
-									<div>
-										<button icon="gtk-go-forward" name="export_attributes_and_their_values" string="Synchronize All Attributes and their Values" type="object" class="oe_highlight" help="Export / Update Attribute and their Values to Magento"/>
-									</div>
-									<separator/>
-									<div>
-										<button icon="gtk-apply" name="sync_template_attribute_set" string="Assign Attribute Sets To All Existing Template" type="object" class="oe_highlight" help="It'll Assign Attribute Set to Existing Template on behalf of it's Attributes."/>
-									</div>
-									<h4><p>Note: 
-										   <p>
-												1. For best practice please first sync all Attribute Sets from Your Magento Site.
-											</p>
-											<p>
-												2. After that "Synchronize Attribute and their Values" and Assign Attribute Sets.
-											</p>
-										</p>
-									</h4>
-								</div>	
-							</group>
-						</div><br/>
-						<div>
-							<h2><font color="#324259"><label for="id" string="Products Synchronization"/></font></h2>
-							<group>
-								<div>
-									<button icon="gtk-go-forward" class="oe_highlight" name="export_products" string="Export Products" type="object" help="Export products button will synch all unsynched products at magento"/> or
-									<button icon="gtk-apply" class="oe_highlight" name="update_products" string="Update Products" type="object" help="Update products button will update all synced products at magento, which requires to be update at magento"/>
-								</div>
-							</group>
+						<group name="d" col="4">
+
+							<label for="id" string="Export Attributes and Values"/>
 							<div>
-							<div class="oe_inline">
-								<h4>
-									Note:
-									<p>
-										1. Before starting Product synchronization, it's highly recommended to do all "Attribute Synchronization".
-									</p>
-									<p>
-										2. If All Attributes Are Already Synced And Assigned then no need to do Attribute Sync operation.
-									</p>
-								</h4>								
+								<button icon="gtk-go-forward" name="export_attributes_and_their_values" string="Export All Attributes and their Values" type="object" class="oe_highlight" help="Export / Update Attribute and their Values to Magento"/>
+								<label for="export_attributes_and_their_values"/>
+							</div><newline/>
+							<label for="id" string="Assign Attribute Sets"/>
+							<div>
+								<button icon="gtk-apply" name="sync_template_attribute_set" string="Assign Attribute Sets To All Existing Template" type="object" class="oe_highlight" help="It'll Assign Attribute Set to Existing Template on behalf of it's Attributes."/>
+								<label for="sync_template_attribute_set"/>
+							</div><newline/>
+
+							<label for="id" string="Export Categories"/>
+							<div>
+								<button icon="gtk-go-forward" class="oe_highlight" name="export_categories" string="Export categories" type="object" help="It'll Export All Odoo Category at Magento."/>
+								<label for="export_categories"/>
 							</div>
-						</div>
-						</div><br/>
-						<div>
-							<h2><font color="#324259"><label for="id" string="Import Regions / Update Customers"/></font></h2>
-							<group>								
-								<div>									
-									<button icon="gtk-apply" class="oe_highlight" name="update_Customers" string="Update Customers" type="object"/> or 
-									<button icon="gtk-go-back" class="oe_highlight" name="%(action_synchronize_now)d" string="Import Regions" type="action"/>
-								</div>
-							</group>
+							<label for="id" string="Update Categories"/>
+							<div>
+								<button icon="gtk-apply" class="oe_highlight" name="update_categories" string="Update categories" type="object" help="It'll Only Update Category at Magento, when Need Sync value is set to Yes."/>
+								<label for="update_categories"/>
+							</div><newline/>
+
+							<label for="id" string="Export Products"/>
+							<div>
+								<button icon="gtk-go-forward" class="oe_highlight" name="export_products" string="Export Products" type="object" help="Export products button will synch all unsynched products at magento"/> 
+							</div>
+							<label for="id" string="Update Products"/>
+							<div>
+								<button icon="gtk-apply" class="oe_highlight" name="update_products" string="Update Products" type="object" help="Update products button will update all synced products at magento, which requires to be update at magento"/>
+							</div><newline/>
+							
+							<label for="id" string="Import Magento Regions"/>
+							<div> 
+								<button icon="gtk-go-back" class="oe_highlight" name="%(action_synchronize_now)d" string="Import Regions" type="action"/>
+							</div>
+						</group>
+						<div class="oe_inline">
+							<separator string="NOTE :"/>
+							<h4>
+								<p>
+									1. For best practice please first sync all Attribute Sets from Your Magento Site.
+								</p>
+								<p>
+									2. After that "Synchronize Attribute and their Values" and Assign Attribute Sets.
+								</p>
+								<p>
+									3. Before starting Product synchronization, it's highly recommended to do all "Attribute Synchronization".
+								</p>
+								<p>
+									4. If All Attributes Are Already Synced And Assigned then no need to do Attribute Sync operation.
+								</p>
+							</h4>
 						</div>
 					</sheet>
 				</form>
 			</field>			
         </record>
+
 		<record id="magento_synchronization_action" model="ir.actions.act_window">
             <field name="name">magento Synchronization</field>
             <field name="res_model">magento.synchronization</field>
@@ -248,7 +215,8 @@
             <field name="view_id" ref="magento_synchronization_form"/>
         </record>
 
-        		<!-- Magento and erp product template Mapping-->
+        <!--~~======================== Template Mapping ======================~~~-->
+
    		<record id="magento_product_template_form" model="ir.ui.view">
             <field name="name">magento_product_template.form</field>
             <field name="model">magento.product.template</field>
@@ -257,12 +225,11 @@
                 <form string="Template Mapping" edit="false">
                 	<group>
 						<field name="template_name" required="1" />
-						<newline/>
 						<field name="mage_product_id" readonly="1" />
 						<field name="erp_template_id" readonly="1"/>
 						<field name="need_sync" invisible="1"/>
 						<field name="base_price" invisible="1"/>
-						<field name="is_variants" readonly="1"/>									
+						<field name="is_variants" readonly="1"/>
 					</group>
 				</form>
 			</field>
@@ -282,7 +249,7 @@
 					<field name="base_price"/>
 					<field name="is_variants"/>
 					<field name="created_by" readonly="1"/>
-					<field name="create_date" readonly="1"/>						
+					<field name="create_date" readonly="1"/>
 					<field name="write_date" readonly="1"/>	
 					<field name="need_sync"/>
 				</tree>
@@ -298,142 +265,8 @@
         </record>
 
 
-       	<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~magento_attribute_set~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-		<record id="magento_attribute_set_form" model="ir.ui.view">
-            <field name="name">magento.attribute.set.form</field>
-            <field name="model">magento.attribute.set</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Attribute Set Type" >
-                	<sheet>
-                		<group>
-						<field name="name" />	
-						<field name="set_id" />	
-						<field name="created_by" />							
-						</group>
-						<notebook>
-							<page string="Magento Attributes">
-								<field name="attribute_ids" nolabel="1" colspan="2"/>
-							</page>
-						</notebook>
-					</sheet>
-				</form>
-			</field>			
-        </record>
+        <!--~~====================== Product Mapping ======================~~~-->
 		
-		<record id="magento_attribute_set_tree" model="ir.ui.view">
-            <field name="name">magento.attribute.set.tree</field>
-            <field name="model">magento.attribute.set</field>
-            <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <tree create="false" string="Product Attribute">	
-					<field name="name"/>
-					<field name="set_id"/>
-					<field name="created_by" readonly="1"/>
-					<field name="create_date" readonly="1"/>						
-					<field name="write_date" readonly="1"/>	
-				</tree>
-			</field>
-			
-        </record>
-		<record id="magento_attribute_set_action" model="ir.actions.act_window">
-            <field name="name">Magento Attribute Set</field>
-            <field name="res_model">magento.attribute.set</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="magento_attribute_set_tree"/>
-        </record>
-
-
-       	<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~product_attribute~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-		<record id="magento_product_attribute_form" model="ir.ui.view">
-            <field name="name">magento.product.attribute.form</field>
-            <field name="model">magento.product.attribute</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Dimension Type" >
-                	<group>
-						<field name="name" readonly="1"/>	
-						<newline/>
-						<field name="mage_id" readonly="1"/>
-						<field name="erp_id" readonly="1"/>
-						<!-- <field name="mage_attribute_set_name" readonly="1"/> -->
-					</group>
-				</form>
-			</field>			
-        </record>
-		
-		<record id="magento_product_attribute_tree" model="ir.ui.view">
-            <field name="name">magento.product.attribute.tree</field>
-            <field name="model">magento.product.attribute</field>
-            <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <tree create="false" string="Product Attribute">	
-					<field name="id"/>	
-					<field name="name"/>
-					<field name="erp_id"/>	
-					<field name="mage_id"/>	
-					<!-- <field name="mage_attribute_set_name"/> -->
-					<field name="created_by" readonly="1"/>
-					<field name="create_date" readonly="1"/>						
-					<field name="write_date" readonly="1"/>	
-				</tree>
-			</field>
-			
-        </record>
-		<record id="magento_product_attribute_action" model="ir.actions.act_window">
-            <field name="name">Magento Product Attribute</field>
-            <field name="res_model">magento.product.attribute</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="magento_product_attribute_tree"/>
-        </record>
-		
-		<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~product_attribute~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-		<record id="magento_product_attribute_value_form" model="ir.ui.view">
-            <field name="name">magento_product_attribute.value.form</field>
-            <field name="model">magento.product.attribute.value</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-		        <form string="Attribute Value" >
-		        	<group>
-						<field name="name" readonly="1"/>	
-						<newline/>
-						<field name="mage_id" readonly="1"/>
-						<field name="erp_id" readonly="1"/>
-					</group>
-				</form>
-			</field>
-        </record>
-		
-		<record id="magento_product_attribute_value_tree" model="ir.ui.view">
-            <field name="name">magento.product.attribute.value.tree</field>
-            <field name="model">magento.product.attribute.value</field>
-            <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <tree create="false" string="Dimension Option">	
-					<field name="id"/>	
-					<field name="name"/>				
-					<field name="erp_id"/>	
-					<field name="mage_id"/>
-					<field name="created_by" readonly="1"/>
-					<field name="create_date" readonly="1"/>						
-					<field name="write_date" readonly="1"/>	
-				</tree>
-			</field>
-        </record>
-        
-		<record id="magento_product_attribute_value_action" model="ir.actions.act_window">
-            <field name="name">Magento Attribute Value</field>
-            <field name="res_model">magento.product.attribute.value</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="magento_product_attribute_value_tree"/>
-        </record>
-		
-		
-		
-		<!-- Magento and erp product Mapping-->
 		<record id="map_product_form" model="ir.ui.view">
             <field name="name">magento.product.form</field>
             <field name="model">magento.product</field>
@@ -449,6 +282,7 @@
 				</form>
 			</field>
         </record>
+
 		<record id="map_product_tree" model="ir.ui.view">
             <field name="name">magento.product.tree</field>
             <field name="model">magento.product</field>
@@ -460,8 +294,8 @@
 					<field name="oe_product_id"/>
 					<field name="mag_product_id"/>
 					<field name="created_by" readonly="1"/>
-					<field name="create_date" readonly="1"/>						
-					<field name="write_date" readonly="1"/>	
+					<field name="create_date" readonly="1"/>
+					<field name="write_date" readonly="1"/>
 					<field name="need_sync"/>
 				</tree>
 			</field>
@@ -471,40 +305,41 @@
             <field name="name">Magento product Mapping</field>
             <field name="res_model">magento.product</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>          
+            <field name="view_mode">tree,form</field>
             <field name="view_id" ref="map_product_tree"/>
         </record>
 		
-		<!-- Magento and erp category Mapping-->
+		<!--~~=================== Category Mapping ======================~~~-->
+
 		<record id="map_category_form" model="ir.ui.view">
-            <field name="name">magento.category.form</field>
-            <field name="model">magento.category</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Category Mapping" >	
-                	<group>					
+			<field name="name">magento.category.form</field>
+			<field name="model">magento.category</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<form string="Category Mapping" >
+					<group>
 						<field name="cat_name" readonly="1"/>
 						<field name="oe_category_id" readonly="1"/>	
 						<field name="mag_category_id" readonly="1"/>
 						<field name="need_sync" readonly="1"/>
 					</group>
 				</form>
-			</field>			
-        </record>
+			</field>
+		</record>
 		
 		<record id="map_category_tree" model="ir.ui.view">
-            <field name="name">magento.category.tree</field>
-            <field name="model">magento.category</field>
-            <field name="type">tree</field>
-            <field name="arch" type="xml">
-                <tree create="false" string="Category Mapping" colors="red:need_sync=='Yes'">
+			<field name="name">magento.category.tree</field>
+			<field name="model">magento.category</field>
+			<field name="type">tree</field>
+			<field name="arch" type="xml">
+				<tree create="false" string="Category Mapping" colors="red:need_sync=='Yes'">
 					<field name="id"/>
 					<field name="cat_name"/>
 					<field name="oe_category_id"/>
 					<field name="mag_category_id"/>
 					<field name="created_by" readonly="1"/>
-					<field name="create_date" readonly="1"/>						
-					<field name="write_date" readonly="1"/>	
+					<field name="create_date" readonly="1"/>
+					<field name="write_date" readonly="1"/>
 					<field name="need_sync"/>
 				</tree>
 			</field>
@@ -514,11 +349,148 @@
             <field name="name">Magento Category Mapping</field>
             <field name="res_model">magento.category</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>          
+            <field name="view_mode">tree,form</field>
             <field name="view_id" ref="map_category_tree"/>
-        </record>	
+        </record>
+
+
+       	<!--~~=================== Magento Attribute Set Mapping ======================~~~-->
+
+		<record id="magento_attribute_set_form" model="ir.ui.view">
+            <field name="name">magento.attribute.set.form</field>
+            <field name="model">magento.attribute.set</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Attribute Set Type" >
+                	<sheet>
+                		<group>
+							<field name="name" />
+							<field name="set_id" />
+						</group>
+						<notebook>
+							<page string="Magento Attributes">
+								<field name="attribute_ids" nolabel="1" colspan="2"/>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+        </record>
 		
-		<!-- Magento and erp customer Mapping-->
+		<record id="magento_attribute_set_tree" model="ir.ui.view">
+			<field name="name">magento.attribute.set.tree</field>
+			<field name="model">magento.attribute.set</field>
+			<field name="type">tree</field>
+			<field name="arch" type="xml">
+			    <tree create="false" string="Product Attribute">
+					<field name="name"/>
+					<field name="set_id"/>
+					<field name="created_by" readonly="1"/>
+					<field name="create_date" readonly="1"/>
+					<field name="write_date" readonly="1"/>	
+				</tree>
+			</field>
+        </record>
+
+		<record id="magento_attribute_set_action" model="ir.actions.act_window">
+            <field name="name">Magento Attribute Set</field>
+            <field name="res_model">magento.attribute.set</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="magento_attribute_set_tree"/>
+        </record>
+
+
+       	<!--~~=========== Magento Product Attribute Mapping ======================~~~-->
+
+		<record id="magento_product_attribute_form" model="ir.ui.view">
+            <field name="name">magento.product.attribute.form</field>
+            <field name="model">magento.product.attribute</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Dimension Type" >
+                	<group>
+						<field name="name" readonly="1"/>
+						<newline/>
+						<field name="mage_id" readonly="1"/>
+						<field name="erp_id" readonly="1"/>
+					</group>
+				</form>
+			</field>
+        </record>
+		
+		<record id="magento_product_attribute_tree" model="ir.ui.view">
+            <field name="name">magento.product.attribute.tree</field>
+            <field name="model">magento.product.attribute</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree create="false" string="Product Attribute">
+					<field name="id"/>	
+					<field name="name"/>
+					<field name="erp_id"/>
+					<field name="mage_id"/>
+					<field name="created_by" readonly="1"/>
+					<field name="create_date" readonly="1"/>
+					<field name="write_date" readonly="1"/>	
+				</tree>
+			</field>
+			
+        </record>
+
+		<record id="magento_product_attribute_action" model="ir.actions.act_window">
+            <field name="name">Magento Product Attribute</field>
+            <field name="res_model">magento.product.attribute</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="magento_product_attribute_tree"/>
+        </record>
+		
+		<!--~~=========== Magento Product Attribute Value Mapping ======================~~~-->
+
+		<record id="magento_product_attribute_value_form" model="ir.ui.view">
+            <field name="name">magento_product_attribute.value.form</field>
+            <field name="model">magento.product.attribute.value</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+		        <form string="Attribute Value" >
+		        	<group>
+						<field name="name" readonly="1"/>
+						<newline/>
+						<field name="mage_id" readonly="1"/>
+						<field name="erp_id" readonly="1"/>
+					</group>
+				</form>
+			</field>
+        </record>
+		
+		<record id="magento_product_attribute_value_tree" model="ir.ui.view">
+            <field name="name">magento.product.attribute.value.tree</field>
+            <field name="model">magento.product.attribute.value</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree create="false" string="Attribute Value">	
+					<field name="id"/>
+					<field name="name"/>
+					<field name="erp_id"/>
+					<field name="mage_id"/>
+					<field name="created_by" readonly="1"/>
+					<field name="create_date" readonly="1"/>
+					<field name="write_date" readonly="1"/>
+				</tree>
+			</field>
+        </record>
+        
+		<record id="magento_product_attribute_value_action" model="ir.actions.act_window">
+            <field name="name">Magento Attribute Value</field>
+            <field name="res_model">magento.product.attribute.value</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="magento_product_attribute_value_tree"/>
+        </record>
+
+		
+		<!--========== Magento Customer Mapping ===============-->
+
 		<record id="map_customer_form" model="ir.ui.view">
             <field name="name">magento.customers.form</field>
             <field name="model">magento.customers</field>
@@ -530,29 +502,30 @@
 						<field name="oe_customer_id" readonly="1"/>
 						<field name="mag_customer_id" readonly="1"/>
 						<field name="mag_address_id" readonly="1"/>
-						<field name="need_sync" readonly="1"/>
+						<!-- <field name="need_sync" readonly="1"/> -->
 					</group>
 				</form>
 			</field>
 			
         </record>
+
 		<record id="map_customer_tree" model="ir.ui.view">
             <field name="name">magento.customers.tree</field>
             <field name="model">magento.customers</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <tree create="false" string="Magento Customer Mapping" colors="red:need_sync=='Yes'">
+                <tree create="false" string="Magento Customer Mapping">
 					<field name="id"/>
 					<field name="cus_name"/>
 					<field name="oe_customer_id"/>
 					<field name="mag_customer_id"/>
 					<field name="mag_address_id"/>
 					<field name="created_by" readonly="1"/>
-					<field name="create_date" readonly="1"/>						
+					<field name="create_date" readonly="1"/>
 					<field name="write_date" readonly="1"/>	
-					<field name="need_sync"/>
+					<!-- <field name="need_sync"/> -->
 				</tree>
-			</field>			
+			</field>
         </record>
 		
 		<record id="magento_customer_tree_action" model="ir.actions.act_window">
@@ -564,22 +537,22 @@
             <field name="view_id" ref="map_customer_tree"/>
         </record>
 		
-		<!-- Magento Region Mapping-->
+		<!--======================= Magento Region Mapping ==================-->
 		
 		<record id="map_region_form" model="ir.ui.view">
             <field name="name">magento.region.form</field>
             <field name="model">magento.region</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Region Mapping">		
-	                <group>												
+                <form string="Region Mapping">
+	                <group>
 						<field name="mag_region_id" readonly="1"/>
 						<field name="country_code" readonly="1"/>
 						<field name="region_code" readonly="1"/>
 						<field name="name" readonly="1"/>
 					</group>
 				</form>
-			</field>			
+			</field>
         </record>
 		
 		<record id="map_region_tree" model="ir.ui.view">
@@ -593,8 +566,8 @@
 					<field name="region_code"/>
 					<field name="name"/>
 					<field name="created_by" readonly="1"/>
-					<field name="create_date" readonly="1"/>						
-					<field name="write_date" readonly="1"/>	
+					<field name="create_date" readonly="1"/>
+					<field name="write_date" readonly="1"/>
 				</tree>
 			</field>
         </record>
@@ -604,7 +577,6 @@
             <field name="res_model">magento.region</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-          
             <field name="view_id" ref="map_region_tree"/>
         </record>
 		
@@ -615,11 +587,11 @@
             <field name="model">magento.orders</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <form string="Order Mapping">	
-	                <group>			
+                <form string="Order Mapping">
+	                <group>
 						<field name="order_ref" readonly="1"/>
 						<field name="oe_order_id" readonly="1"/>
-						<field name="mag_orderIncrement_Id" readonly="1"/>
+						<field name="mage_increment_id" readonly="1"/>
 					</group>
 				</form>
 			</field>
@@ -634,7 +606,7 @@
 					<field name="id"/>
 					<field name="order_ref"/>
 					<field name="oe_order_id"/>
-					<field name="mag_orderIncrement_Id"/>
+					<field name="mage_increment_id"/>
 					<field name="create_date"/>
 					<field name="write_date"/>
 				</tree>
@@ -650,7 +622,7 @@
         </record>
 		
 		
-	<!-- 						magento_sync_history 							-->
+		<!--====================	Synchronization History ==================-->
 	
 		<record id="magento_sync_history_form" model="ir.ui.view">
             <field name="name">magento.sync.history</field>
@@ -664,11 +636,11 @@
 						<field name="action" readonly="1"/>
 						<field name="create_date" readonly="1"/>
 						<field name="error_message" readonly="1"/>	
-					</group>								
+					</group>
 				</form>
 			</field>
-			
         </record>
+
 		<record id="magento_sync_history_tree" model="ir.ui.view">
             <field name="name">magento.sync.history</field>
             <field name="model">magento.sync.history</field>
@@ -681,7 +653,7 @@
 					<field name="create_date" />
 					<field name="error_message" />
 				</tree>
-			</field>			
+			</field>
         </record>
 		
 		<record id="filter_magento_openerp_mapping" model="ir.ui.view">
@@ -705,7 +677,7 @@
         </record>	
 		
 
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~magento_delivery_carrier~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+		<!--~~~~=================== Magento Delivery Carrier ================================-->
 		<record id="magento_delivery_carrier_form" model="ir.ui.view">
             <field name="name">magento.delivery.carrier.form</field>
             <field name="model">magento.delivery.carrier</field>
@@ -714,13 +686,13 @@
                 <form string="Magento Delivery Carrier" >
                 	<sheet>
                 		<group>
-							<field name="name" />	
+							<field name="name" />
 							<field name="product_id"/>
 							<field name="magento_id"/>
 						</group>
 					</sheet>
 				</form>
-			</field>			
+			</field>
         </record>
 		
 		<record id="magento_delivery_carrier_tree" model="ir.ui.view">
@@ -729,11 +701,11 @@
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree create="false" string="Magento Delivery Carrier">	
-					<field name="name" />	
+					<field name="name" />
 					<field name="product_id"/>
 					<field name="magento_id"/>
 				</tree>
-			</field>			
+			</field>
         </record>
 
 		<record id="magento_delivery_carrier_action" model="ir.actions.act_window">
@@ -743,31 +715,32 @@
             <field name="view_mode">tree,form</field>
             <field name="view_id" ref="magento_delivery_carrier_tree"/>
         </record>
-		<!--      Menu      -->
-		<menuitem id="magento_parent_menu" name="Magento Odoo Bridge" groups="group_magento_openerp"/>				
+
+
+		<!--     Bridge Menu      -->
+		<menuitem id="magento_parent_menu" name="Magento Odoo Bridge" groups="group_magento_openerp"/>		
 					
-					<menuitem  id="menu_magento_id2" name="Magento Synchronization" parent="magento_parent_menu" sequence="1"/>
-						<menuitem  id="mag_id0" name="Magento Synchronization" parent="menu_magento_id2" action="magento_synchronization_action"/>
-						
-						
-					<menuitem  id="menu_mapping_id" name="Mapping" parent="magento_parent_menu" sequence="2"/>
-						<menuitem  id="mapping_id1" name="Region Mapping" parent="menu_mapping_id" action="magento_region_tree_action" sequence="1"/>
-						<menuitem  id="mapping_id2" name="Category Mapping" parent="menu_mapping_id" action="magento_category_tree_action" sequence="2"/>
-						<menuitem  id="mapping_id3" name="Product Attribute" parent="menu_mapping_id" action="magento_product_attribute_action" sequence="3"/>
-						<menuitem  id="mapping_id4" name="Product Attribute Value" parent="menu_mapping_id" action="magento_product_attribute_value_action" sequence="4"/>
-						<menuitem  id="mapping_id5" name="Product Template Mapping" parent="menu_mapping_id" action="magento_product_template_action" sequence="5"/>
-						<menuitem  id="mapping_id6" name="Product Mapping" parent="menu_mapping_id" action="magento_product_tree_action" sequence="6"/>			
-						<menuitem  id="mapping_id7" name="Customer Mapping" parent="menu_mapping_id" action="magento_customer_tree_action" sequence="7"/>
-						<menuitem id="mapping_id8" name="Sales Order Mapping" parent="menu_mapping_id" action="magento_order_tree_action" sequence="8"/>
-					
-					<menuitem  id="id_synchro" name="History" parent="magento_parent_menu" sequence="3" />						
-						<menuitem  id="sync_history" name="Synchronisation History" parent="id_synchro" action="magento_sync_history_action"/>
-						
-						
-					<menuitem  id="menu_magento_id1" name="Configuration" parent="magento_parent_menu" sequence="4"/>
-						<menuitem  id="mag_id1" name="Magento Connection" parent="menu_magento_id1" action="magento_configure_tree_action" sequence="1"/>		
-						<menuitem  id="product_id3" name="Magento Attribute Sets" parent="menu_magento_id1" action="magento_attribute_set_action"/>
-						<menuitem  id="product_id4" name="Magento Delivery Carrier" parent="menu_magento_id1" action="magento_delivery_carrier_action"/>
+			<menuitem  id="menu_magento_id2" name="Synchronization" parent="magento_parent_menu" sequence="1"/>
+				<menuitem  id="mag_id0" name="Magento Synchronization" parent="menu_magento_id2" action="magento_synchronization_action"/>
+				
+				
+			<menuitem  id="menu_mapping_id" name="Mapping" parent="magento_parent_menu" sequence="2"/>
+				<menuitem  id="mapping_id1" name="Region Mapping" parent="menu_mapping_id" action="magento_region_tree_action" sequence="1"/>
+				<menuitem  id="mapping_id2" name="Category Mapping" parent="menu_mapping_id" action="magento_category_tree_action" sequence="2"/>
+				<menuitem  id="mapping_id3" name="Product Attribute" parent="menu_mapping_id" action="magento_product_attribute_action" sequence="3"/>
+				<menuitem  id="mapping_id4" name="Product Attribute Value" parent="menu_mapping_id" action="magento_product_attribute_value_action" sequence="4"/>
+				<menuitem  id="mapping_id5" name="Product Template Mapping" parent="menu_mapping_id" action="magento_product_template_action" sequence="5"/>
+				<menuitem  id="mapping_id6" name="Product Mapping" parent="menu_mapping_id" action="magento_product_tree_action" sequence="6"/>
+				<menuitem  id="mapping_id7" name="Customer Mapping" parent="menu_mapping_id" action="magento_customer_tree_action" sequence="7"/>
+				<menuitem id="mapping_id8" name="Sales Order Mapping" parent="menu_mapping_id" action="magento_order_tree_action" sequence="8"/>
+			
+			<menuitem  id="id_synchro" name="History" parent="magento_parent_menu" sequence="3" />
+				<menuitem  id="sync_history" name="Synchronisation History" parent="id_synchro" action="magento_sync_history_action"/>
+				
+			<menuitem  id="menu_magento_id1" name="Configuration" parent="magento_parent_menu" sequence="4"/>
+				<menuitem  id="mag_id1" name="Magento Connection" parent="menu_magento_id1" action="magento_configure_tree_action" sequence="1"/>
+				<menuitem  id="product_id3" name="Magento Attribute Sets" parent="menu_magento_id1" action="magento_attribute_set_action"/>
+				<menuitem  id="product_id4" name="Magento Delivery Carrier" parent="menu_magento_id1" action="magento_delivery_carrier_action"/>
 		</data>
 </openerp>
 		

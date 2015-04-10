@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_product_custom_options_user,product.custom_options,model_product_custom_options,magento_bridge.group_bridge_user,1,0,0,0
+access_product_attributes_user,product.attributes,model_product_attributes,magento_bridge.group_bridge_user,1,0,0,0
+access_magento_attributes_user,magento.attributes,model_magento_attributes,magento_bridge.group_bridge_user,1,0,0,0
+
+access_product_custom_options_manager,product.custom_options,model_product_custom_options,magento_bridge.group_magento_openerp,1,1,1,1
+access_product_attributes_manager,product.attributes,model_product_attributes,magento_bridge.group_magento_openerp,1,1,1,1
+access_magento_attributes_manager,magento.attributes,model_magento_attributes,magento_bridge.group_magento_openerp,1,1,1,1
+

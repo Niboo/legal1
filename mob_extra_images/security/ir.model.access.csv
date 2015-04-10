@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_mob_extra_image_user,mob.extra.image,model_mob_extra_image,magento_bridge.group_bridge_user,1,0,0,0
+access_mob_image_type_user,mob.image.type,model_mob_image_type,magento_bridge.group_bridge_user,1,0,0,0
+
+access_mob_extra_image_manager,mob.extra.image,model_mob_extra_image,magento_bridge.group_magento_openerp,1,1,1,1
+access_mob_image_type_manager,mob.image.type,model_mob_image_type,magento_bridge.group_magento_openerp,1,1,1,1
+
+
