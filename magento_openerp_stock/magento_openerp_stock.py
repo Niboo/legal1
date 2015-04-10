@@ -36,26 +36,22 @@ class stock_move(osv.osv):
 			for id in ids:			
 				data=self.browse(cr,uid,id)
 				erp_product_id = data.product_id.id
-				flag=1
+				flag = 1
 				if data.origin!=False:
 					if data.origin.startswith('SO'):
 						sale_id = self.pool.get('sale.order').search(cr,uid,[('name','=',data.origin)])
 						if sale_id:
-							got_id = self.pool.get('magento.orders').search(cr,uid,[('order_ref','=',sale_id[0])])
-							flag = 0 
-							if not got_id:
-								product_qty = int(data.product_qty)
-								if 'OUT' in data.picking_id.name:
-									product_qty = int(-product_qty)
-								self.synch_quantity(cr, uid, erp_product_id, product_qty)
+							get_channel = self.pool.get('sale.order').browse(cr,uid,sale_id[0]).channel
+							if get_channel == 'magento':
+								flag=0 # no need to update quantity.
 				else:
-					flag=2 # no origin		
-				if flag==1:
+					flag = 2 # no origin
+				if flag == 1:
 					product_qty = int(data.product_qty)
 					if 'OUT' in data.picking_id.name:
 						product_qty = int(-product_qty)
 					self.synch_quantity(cr, uid, erp_product_id, product_qty)
-				if flag==2:				
+				if flag == 2:				
 					check_in = self.pool.get('stock.warehouse').search(cr,uid,[('lot_stock_id','=',data.location_dest_id.id),('company_id','=',data.company_id.id)],limit=1)
 					if check_in:
 						# Getting Goods.

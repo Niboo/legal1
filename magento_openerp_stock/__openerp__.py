@@ -8,22 +8,29 @@
 #
 ##############################################################################
 {
-    'name': 'Magento-OpenERP Stock Management',
-    'version': '2.3.5',
+    'name': 'MOB Stock Management',
+    'version': '2.4',
     'category': 'Generic Modules',
     'sequence': 1,
-    'summary': 'Manage Stock with MOB',
+    'summary': 'MOB Stock Extension',
     'description': """	
-    This Module helps in maintaining stock between openerp and magento with real time.
+MOB Stock Extesnion
+=========================
+    Stock Management From Odoo To Magento.
+
+    This module will automatically manage stock from odoo to magento during below operations.
+
+    1. Sales Order
+    2. Purchase Order
+    3. Point Of Sales
 	
 	NOTE : This module works very well with latest version of magento 1.9 and latest version of Odoo 8.0.
     """,
     'author': 'Webkul Software Pvt Ltd.',
     'depends': ['magento_bridge'],
     'website': 'http://www.webkul.com',
-    'data': ['magento_openerp_stock_view.xml'],
+    'data': [],
     'installable': True,
     'active': False,
-    #'certificate': '0084849360985',
 }
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
