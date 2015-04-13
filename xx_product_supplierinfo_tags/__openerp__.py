@@ -14,6 +14,8 @@
         "security/ir.model.access.csv",
         "view/tags_view.xml",
     ],
+    "demo": [
+        "demo/product_supplierinfo.yml"],
     "installable": True,
     "auto_install": False,
 }

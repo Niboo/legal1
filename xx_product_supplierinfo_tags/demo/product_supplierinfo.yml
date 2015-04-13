@@ -1,0 +1,20 @@
+-
+  Create some tags
+-
+  !record {model: xx.product.supplierinfo.tags, id: tag_id_1000}:
+    name: 1000
+    res_model: 'xx.product.supplierinfo.tags'
+    res_id: !eval ref("product.product_supplierinfo_2")
+-
+  !record {model: xx.product.supplierinfo.tags, id: tag_id_1001}:
+    name: 1001
+    res_model: 'xx.product.supplierinfo.tags'
+    res_id: !eval ref("product.product_supplierinfo_2")
+-
+  !record {model: xx.product.supplierinfo.tags, id: tag_id_1003}:
+    name: 1003
+    res_model: 'xx.product.supplierinfo.tags'
+    res_id: !eval ref("product.product_supplierinfo_2")
+    
+  # !record {model: product.supplierinfo, id: product_supplierinfo_2}:
+  #   - xx_tag_ids: [[6,0,[ref('tag_id_1000'), ref('tag_id_1001'),ref('tag_id_1002')]]]

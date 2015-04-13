@@ -51,7 +51,6 @@ class product_product(models.Model):
             context = {}
         ctx = context.copy()
         product_ids = super(product_product, self).search(cr, uid, search_args, offset=offset, limit=limit, order=order, context=ctx, count=count)
-
         if 'process_barcode_from_ui_picking_id' in ctx:
             cr.execute("""
             SELECT pp.id
