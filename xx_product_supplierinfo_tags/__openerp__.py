@@ -16,6 +16,7 @@
     ],
     "demo": [
         "demo/product_supplierinfo.yml"],
+    'test': [],
     "installable": True,
     "auto_install": False,
 }
