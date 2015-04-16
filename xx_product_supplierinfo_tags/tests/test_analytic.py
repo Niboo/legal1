@@ -50,10 +50,10 @@ class test_function(TransactionCase):
         self.assertEqual(model1002.name, 'xx_1002')
 
         self.ProductObj = self.env['product.product']
-        self.productA = self.ProductObj.create({'name': 'Product A'})
-        self.productB = self.ProductObj.create({'name': 'Product B'})
-        self.productC = self.ProductObj.create({'name': 'Product C'})
-        self.productD = self.ProductObj.create({'name': 'Product D'})
+        self.productA = self.ProductObj.create({'name': 'Product A','default_code': 'B123456'})
+        self.productB = self.ProductObj.create({'name': 'Product B','default_code': 'B123456'})
+        self.productC = self.ProductObj.create({'name': 'Product C','default_code': 'C123456'})
+        self.productD = self.ProductObj.create({'name': 'Product D','default_code': 'D123456'})
         self.PartnerObj = self.env['res.partner']
         self.Supplier1 = self.PartnerObj.create({'name': 'Supplier 1'})
 
@@ -66,9 +66,12 @@ class test_function(TransactionCase):
             'xx_tag_ids': [(6,0,[model1000.id,model1001.id,model1002.id])]
         })
 
-        # Test on seach product via barcode
+        # Test on search product via barcode
         product_product_obj = self.env['product.product']
-        import pdb; pdb.set_trace()
         f_id = product_product_obj.search([('name','=','xx_1000')])
         self.assertEqual(f_id[0].id, self.productA.id)
+        f_id = product_product_obj.search([('name','=','Product B')])
+        self.assertEqual(f_id[0].id, self.productB.id)        
+        f_id = product_product_obj.search([('default_code','=','C123456')])
+        self.assertEqual(f_id[0].id, self.productC.id)
 
