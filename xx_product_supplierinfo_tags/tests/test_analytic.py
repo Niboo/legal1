@@ -27,6 +27,12 @@ class test_base_supplier_info_tags(TransactionCase):
 class test_function(TransactionCase):
     def test_10_index(self):
         """ Check functions on product_supplierinfo. """
+        company_id1 = self.ref('base.main_company')
+        #create company 2
+        self.CompanyObj = self.env['res.company']
+        self.company2 = self.CompanyObj.create({'name': 'test company A'})
+        company_id2 = self.company2.id
+        
         model = self.env['xx.product.supplierinfo.tags']
 
         r_id = self.ref("product.product_supplierinfo_1")
@@ -50,10 +56,10 @@ class test_function(TransactionCase):
         self.assertEqual(model1002.name, 'xx_1002')
 
         self.ProductObj = self.env['product.product']
-        self.productA = self.ProductObj.create({'name': 'Product A','default_code': 'B123456'})
-        self.productB = self.ProductObj.create({'name': 'Product B','default_code': 'B123456'})
-        self.productC = self.ProductObj.create({'name': 'Product C','default_code': 'C123456'})
-        self.productD = self.ProductObj.create({'name': 'Product D','default_code': 'D123456'})
+        self.productA = self.ProductObj.create({'name': 'Product A','default_code': 'B123456', 'company_id': company_id1})
+        self.productB = self.ProductObj.create({'name': 'Product B','default_code': 'B123456', 'company_id': company_id2})
+        self.productC = self.ProductObj.create({'name': 'Product C','default_code': 'C123456', 'company_id': company_id1})
+        self.productD = self.ProductObj.create({'name': 'Product D','default_code': 'D123456',  'company_id': company_id1})
         self.PartnerObj = self.env['res.partner']
         self.Supplier1 = self.PartnerObj.create({'name': 'Supplier 1'})
 
@@ -66,12 +72,18 @@ class test_function(TransactionCase):
             'xx_tag_ids': [(6,0,[model1000.id,model1001.id,model1002.id])]
         })
 
-        # Test on search product via barcode
+        # Test on search product via barcode -- company1
         product_product_obj = self.env['product.product']
-        f_id = product_product_obj.search([('name','=','xx_1000')])
-        self.assertEqual(f_id[0].id, self.productA.id)
-        f_id = product_product_obj.search([('name','=','Product B')])
-        self.assertEqual(f_id[0].id, self.productB.id)        
-        f_id = product_product_obj.search([('default_code','=','C123456')])
+        f_id = product_product_obj.search([('name','=','xx_1000'),('company_id','=', company_id1)])
+        self.assertEqual(f_id[0].id, self.productA.id,"Product with name xx_1000 should exist in main company")
+        #
+        f_id = product_product_obj.search([('name','=','xx_1000'),('company_id',"=", company_id2)])
+        self.assertEqual(len(f_id),0,"This search must give no results because product is in other company")
+
+        f_id = product_product_obj.search([('name','=','Product B'),('company_id','=', company_id1)])
+        self.assertEqual(f_id[0].id, self.productB.id)      
+
+        f_id = product_product_obj.search([('default_code','=','C123456'),('company_id','=', company_id1)])
         self.assertEqual(f_id[0].id, self.productC.id)
+
 
