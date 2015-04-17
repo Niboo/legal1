@@ -1,5 +1,5 @@
-from . import test_analytic
+from . import test_supplierinfo
 
 fast_suite = [
-    test_analytic,
+    test_supplierinfo,
 ]
