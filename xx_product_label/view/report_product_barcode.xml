@@ -4,29 +4,29 @@
         <template id="report_product_barcode">
             <t t-call="report.layout">
                 <t t-foreach="docs" t-as="o">
-                    <div class="page" style="margin: 0; padding: 0;">
+                    <div class="page" style="margin: 0; padding: 0;font-size: 16px;">
                         <div class="row">
                             <div class="col-xs-8 mt2 text-left">
-                                <div t-esc="get_supplier_product_code()" style="font-size: 12;overflow:hidden;" />
+                                <div t-esc="get_supplier_product_code()" style="overflow:hidden;font-weight: bold;" />
                             </div>
                             <div class="col-xs-4 mt2 text-right">
                                 <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="max-height: 40px;" />
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-xs-7 mt2 text-left">
+                        <div class="row" style="padding: 5px 0;">
+                            <div class="col-xs-12 mt2 text-left">
                                 <img
-                                    t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s'%('Code128', o.default_code, 150, 40)"
-                                    style='margin-left:-15;width:150;'
+                                    t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s'%('Code128', o.default_code, 1500, 400)"
+                                    style='margin-left:-15;width:300;height:60;'
                                     />
-                            </div>
-                            <div class="col-xs-5 mt2 text-right" style="overflow:hidden;">
-                                <span t-field="o.loc_rack"></span>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12 mt2 text-left">
-                                <span t-field="o.default_code"></span>
+                            <div class="col-xs-7 mt2 text-left" style="overflow:hidden;">
+                                <span t-field="o.default_code" style="font-weight:bold;overflow:hidden;"/>
+                            </div>
+                            <div class="col-xs-5 mt2 text-right" style="overflow:hidden;">
+                                <span t-field="o.loc_rack" style="font-weight:bold;font-size:22px;overflow:hidden;"/>
                             </div>
                         </div>
                     </div>

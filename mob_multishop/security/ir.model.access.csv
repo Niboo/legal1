@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_language_mapping_user,language.mapping,model_language_mapping,magento_bridge.group_bridge_user,1,0,0,0
+
+
+access_language_mapping_manager,language.mapping,model_language_mapping,magento_bridge.group_magento_openerp,1,1,1,1
+
+

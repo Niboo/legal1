@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_mob_config_settings" model="ir.ui.view">
+            <field name="name">MOB Settings</field>
+            <field name="model">mob.config.settings</field>
+            <field name="arch" type="xml">
+                <form string="Configure Magento Bridge" version="7.0" class="oe_form_configuration">
+                    <header>
+                        <button string="Apply" type="object" name="execute" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" type="object" name="cancel" class="oe_link"/>
+                    </header>                    
+                    <separator string="Default Products used by Magento Odoo Bridge"/>
+                        <p>
+                            Select Service Type Product to be used by MOB, when exporting Order from Magento to Odoo.
+                        </p>
+                        <group>
+                            <label for="id" string="Service Products"/>
+                            <div>
+                                <div>
+                                    <field name="mob_delivery_product" class="oe_inline"/>
+                                    <label string="used for Delivery/Shipping purposes"/>
+                                </div>
+                                <div>
+                                    <field name="mob_discount_product" class="oe_inline"/>
+                                    <label string="used for Discount purposes"/>
+                                </div>
+                                <div>
+                                    <field name="mob_coupon_product" class="oe_inline"/>
+                                    <label string="Used for Coupon purposes"/>
+                                </div>
+                            </div>
+                        </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_mob_config" model="ir.actions.act_window">
+            <field name="name">Configure Magento Bridge</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mob.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+        </record>
+
+        <menuitem id="menu_mob_config" name="Magento Bridge" parent="base.menu_config"
+            sequence="14" action="action_mob_config"/>
+
+    </data>
+</openerp>
