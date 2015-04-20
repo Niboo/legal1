@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+	<data>
+        <record id="mob_multishop_template_form_view" model="ir.ui.view">
+            <field name="name">product.template.form.view.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="Websites">
+                        <separator string="Product In Websites"/>
+                        <group>
+                            <field name="wk_websites_id" widget="many2many_tags"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+        <record id="mob_shop_quotation_view_tree" model="ir.ui.view">
+            <field name="name">sale.order</field>
+            <field name="model">sale.order</field>
+            <field name="type">tree</field>
+            <field name="inherit_id" ref="sale.view_quotation_tree"/>
+            <field name="arch" type="xml">  
+                <field name="date_order" position="after">
+                    <field name="wk_shop"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="mob_shop_add_view_tree" model="ir.ui.view">
+            <field name="name">sale.order</field>
+            <field name="model">sale.order</field>
+            <field name="type">tree</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="arch" type="xml">  
+                <field name="date_order" position="after">
+                    <field name="wk_shop"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="mob_shop_add_view_form" model="ir.ui.view">
+            <field name="name">sale.order</field>
+            <field name="model">sale.order</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">  
+                <field name="pricelist_id" position="after">
+                    <field name="wk_shop"/>
+                </field>
+            </field>
+        </record>
+
+		<record id="magento_store_view_mapping_form" model="ir.ui.view">
+            <field name="name">magento.store.view.form</field>
+            <field name="model">magento.store.view</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Store Mapping">
+                	<group>
+						<field name="name" required="1"/>
+                        <field name="code" readonly="1"/>
+						<field name="group_id" readonly="1"/>
+						<field name="create_date" readonly="1"/>
+					</group>
+				</form>
+			</field>
+        </record>
+		
+		<record id="magento_store_view_mapping_tree" model="ir.ui.view">
+            <field name="name">magento.store.view.tree</field>
+            <field name="model">magento.store.view</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree create="false" string="Store Mapping">
+					<field name="name" required="1"/>
+					<field name="code" readonly="1"/>
+                    <field name="group_id" readonly="1"/>
+					<field name="create_date" readonly="1"/>
+				</tree>
+			</field>
+        </record>
+
+		<record id="magento_store_view_mapping_action" model="ir.actions.act_window">
+            <field name="name">Store Mapping</field>
+            <field name="res_model">magento.store.view</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="magento_store_view_mapping_tree"/>
+        </record>
+
+        <menuitem id="menu_magento_store" name="Magento Store" parent="magento_bridge.menu_magento_id1" action="magento_store_view_mapping_action" sequence="2"/>
+	</data>
+</openerp>
+

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+		<record id="mob_stock_view_order_form" model="ir.ui.view">
+			<field name="name">sale.order</field>
+			<field name="model">sale.order</field>
+			<field name="type">form</field>
+			<field name="inherit_id" ref="sale.view_order_form"/>
+			<field name="arch" type="xml">  
+			    <field name="name" position="after">
+				<field name="channel" invisible="1"/>
+			    </field>
+			</field>
+		</record>
+
+			<!-- Product Inherit for multi category page -->
+		<record id="mob_product_template_form_view" model="ir.ui.view">
+			<field name="name">product.template.form.view.inherit</field>
+			<field name="model">product.template</field>
+			<field name="inherit_id" ref="product.product_template_form_view"/>
+			<field name="arch" type="xml">
+				<field name="list_price" position="before">
+					<field name="prod_type"/>
+				</field>
+				<field name="description" position="replace">
+					<separator string="Description"/>
+						<field name="description" placeholder="describe the product characteristics..."  widget="html" />
+				</field>
+				<notebook position="inside">
+					<page string="Extra Categories">
+						<separator string="Magento Extra Categories" colspan="2"/>
+						<newline/>
+						<field name="categ_ids" nolabel="1" colspan="2"/>
+					</page>
+				</notebook>
+			</field>
+		</record>
+
+		<record id="product_template_form_view2" model="ir.ui.view">
+			<field name="name">product.template.form.view.inherit2</field>
+			<field name="model">product.template</field>
+			<field name="inherit_id" ref="product.product_template_only_form_view"/>
+			<field name="arch" type="xml">
+				<field name="attribute_line_ids" position="before">
+					<group>
+						<group>
+							<field name="attribute_set_id" attr="{readonly:[('attribute_line_ids','=',True)]}"/>
+						</group>
+						<group>
+						</group>
+					</group>
+				</field>
+				<field name="attribute_line_ids" position="replace">
+					<field name="attribute_line_ids" widget="one2many_list">
+				<tree string="Variants" editable="bottom">
+				    <field name="attribute_id"  on_change="onchange_attribute_set_id(parent.attribute_set_id, context)"/>
+				    <field name="value_ids" widget="many2many_tags" options="{'no_create_edit': True}" domain="[('attribute_id', '=', attribute_id)]" context="{'default_attribute_id': attribute_id}"/>
+				</tree>
+			    </field>
+			</field>
+			</field>
+		</record>
+	</data>
+</openerp>
+		

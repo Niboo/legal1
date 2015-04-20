@@ -1,0 +1,43 @@
+<openerp>
+<data>
+
+    <record id="form_view_partner_fix_1" model="ir.ui.view">
+        <field name="name">form_view_partner_fix_1.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <page string="Contacts" position="attributes">
+                <attribute name="attrs">{'invisible': [('parent_id', '!=', False)]}</attribute>
+            </page>
+
+            <xpath expr="//sheet/notebook/page/field[@name='child_ids']/form/sheet/group/div[@name='div_type']" position="after">
+                <label for="wk_company"/>
+                <div name="div_company">
+                    <field class="oe_inline" name="wk_company" />
+                </div>
+            </xpath>
+          
+            <xpath expr="//sheet/notebook/page[@name='sales_purchases']/group/group/field[@name='customer']" position="after">
+                <field class="oe_inline" name="wk_address" />
+            </xpath>
+
+            <field name="website" position="after">
+                <field name="wk_company" placeholder="eg. webkul software" attrs="{'invisible': [('wk_address', '=', False)]}"/>
+            </field>
+
+        </field>
+    </record>
+
+    <record id="address_search_view_res_partner_filter" model="ir.ui.view">
+        <field name="name">address_search.filter</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <filter name="customer" position="after">
+                <filter string="Addresses" name="wk_address" domain="[('wk_address','=',1)]" help="Customer Address"/>
+            </filter>
+       </field>
+    </record>
+
+</data>
+</openerp>
