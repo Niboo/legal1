@@ -50,6 +50,7 @@ This module works very well with latest version of magento 1.9.* and Odoo 8.0
 				'wk_base_partner_patch',
 			],
 	'data': [	
+				'res_config_view.xml',
 				'security/bridge_security.xml',
 				'security/ir.model.access.csv',
 				'wizard/message_wizard_view.xml',

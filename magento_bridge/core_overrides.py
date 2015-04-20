@@ -67,7 +67,7 @@ class product_template(osv.osv):
 			if vals.has_key('description_sale'):
 				vals['description_sale'] = _unescape(vals['description_sale'])
 			if vals.has_key('category_ids') and vals.get('category_ids'):
-				categ_ids = vals.get('category_ids')
+				categ_ids = list(set(vals.get('category_ids')))
 				vals['categ_id'] = max(categ_ids)
 				categ_ids.remove(max(categ_ids))
 				vals['categ_ids'] = [(6, 0, categ_ids)]
@@ -96,7 +96,7 @@ class product_template(osv.osv):
 			if vals.has_key('description_sale'):
 				vals['description_sale'] = _unescape(vals['description_sale'])
 			if vals.has_key('category_ids') and vals.get('category_ids'):
-				categ_ids = vals.get('category_ids')
+				categ_ids = list(set(vals.get('category_ids')))
 				vals['categ_id'] = max(categ_ids)
 				categ_ids.remove(max(categ_ids))
 				vals['categ_ids'] = [(6, 0, categ_ids)]
@@ -125,7 +125,7 @@ class product_product(osv.osv):
 			if vals.has_key('default_code'):
 				vals['default_code'] = _unescape(vals['default_code'])
 			if vals.has_key('category_ids') and vals.get('category_ids'):
-				categ_ids = vals.get('category_ids')
+				categ_ids = list(set(vals.get('category_ids')))
 				vals['categ_id'] = max(categ_ids)
 				categ_ids.remove(max(categ_ids))
 				vals['categ_ids'] = [(6, 0, categ_ids)]
@@ -176,7 +176,7 @@ class product_product(osv.osv):
 			if vals.has_key('default_code'):
 				vals['default_code'] = _unescape(vals['default_code'])
 			if vals.has_key('category_ids') and vals.get('category_ids'):
-				categ_ids = vals.get('category_ids')
+				categ_ids = list(set(vals.get('category_ids')))
 				vals['categ_id'] = max(categ_ids)
 				categ_ids.remove(max(categ_ids))
 				vals['categ_ids'] = [(6, 0, categ_ids)]
@@ -215,6 +215,20 @@ class product_category(osv.osv):
 		return super(product_category,self).write(cr, uid, ids, vals, context=context)
 
 product_category()
+
+class delivery_carrier(osv.osv):
+	_inherit = 'delivery.carrier'
+	
+	def create(self, cr, uid, vals, context=None):
+		if context is None:
+			context = {}
+		if context.has_key('magento'):
+			vals['name'] = _unescape(vals['name'])
+			vals['partner_id'] = self.pool.get('res.users').browse(cr, uid, uid).company_id.partner_id.id
+			vals['product_id'] = self.pool.get('bridge.backbone')._get_virtual_product_id(cr,uid,{'name':'Shipping'})
+		return super(delivery_carrier, self).create(cr, uid, vals, context=context)
+	
+delivery_carrier()
 
 class account_invoice(osv.osv):
 	_inherit = 'account.invoice'

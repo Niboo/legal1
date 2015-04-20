@@ -8,6 +8,7 @@
 #
 ##############################################################################
 import mob
+import res_config
 import core_overrides
 import bridge_backbone
 import wizard

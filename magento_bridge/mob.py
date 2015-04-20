@@ -137,7 +137,7 @@ class magento_store_view(osv.osv):
 			view_id = self.create(cr, uid, view_dict)
 		return view_id
 
-magento_store()
+magento_store_view()
 
 class magento_configure(osv.osv):
 	_name = "magento.configure"
@@ -198,10 +198,13 @@ class magento_configure(osv.osv):
 							"And after filling the details you can hide the Tab."),
 		'auto_invoice':fields.boolean('Auto Invoice',
 							help="If Enabled, Order will automatically Invoiced on Magento "
-							" when Odoo order Get invoiced."),
+								" when Odoo order Get invoiced."),
 		'auto_ship':fields.boolean('Auto Shipment', 
 							help="If Enabled, Order will automatically shipped on Magento" 
-							" when Odoo order Get Delivered."),
+								" when Odoo order Get Delivered."),
+		'notify':fields.boolean('Notify Customer By Email', 
+							help="If True, customer will be notify" 
+								"during order shipment and invoice, else it won't."),
 		'language':fields.selection(_lang_get, "Default Language", help="Selected language is loaded in the system, "
 							"all documents related to this contact will be synched in this language."),
 		'category':fields.many2one('product.category', "Default Category", help="Selected Category will be set default category for odoo's product, "
@@ -213,8 +216,7 @@ class magento_configure(osv.osv):
 								'Inventory Update', 
 								help="If Enable, Invetory will Forcely Update During Product Update Operation.", size=100),
 		'warehouse_id':fields.many2one('stock.warehouse','Warehouse', 
-									help="Used During Inventory Sync From Magento."),
-		'notify':fields.boolean('Notify Customer By Email', help="If True, customer will be notify during order shipment and invoice, else it won't."),
+									help="Used During Inventory Synchronization From Magento to Odoo."),
 		'create_date':fields.datetime('Created Date'),
 	}
 	_defaults = {
@@ -226,7 +228,8 @@ class magento_configure(osv.osv):
 		'category':_default_category,
 		'state':'enable',
 		'inventory_sync':'enable',
-		'notify':lambda *a: 1,	
+		'notify':lambda *a: 1,
+		'warehouse_id':lambda self, cr, uid, c: self.pool.get('sale.order')._get_default_warehouse(cr, uid, context=c),
 	}
 	
 	def write(self, cr, uid, ids, vals, context=None):
@@ -643,17 +646,6 @@ class magento_region(osv.osv):
 	}
 magento_region()
 	############# Customer Model End #############################
-
-class magento_delivery_carrier(osv.osv):
-	_name = 'magento.delivery.carrier'
-	_description = 'Magento Delivery Carrier'
-
-	_columns = {
-		'name':fields.many2one('delivery.carrier','Odoo Delivery Carrier'),
-		'product_id':fields.many2one('product.product','Odoo Delivery Product'),
-		'magento_id':fields.char('Magento Carrier Id'),
-	}
-magento_delivery_carrier()
 
 class magento_orders(osv.osv):
 	_name="magento.orders"
