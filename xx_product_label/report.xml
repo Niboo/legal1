@@ -20,7 +20,7 @@
             <field name="margin_right">1</field>
             <field name="header_line" eval="False" />
             <field name="header_spacing">0</field>
-            <field name="dpi">80</field>
+            <field name="dpi">203</field>
         </record>
         <record id="xx_product_label.action_report_product_barcode" model="ir.actions.report.xml">
             <field name="paperformat_id" ref="xx_product_label.paperformat_product_label" />
