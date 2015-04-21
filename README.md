@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/OCA/product-attribute.svg?branch=8.0)](https://travis-ci.org/OCA/product-attribute)
-[![Coverage Status](https://coveralls.io/repos/OCA/product-attribute/badge.png?branch=8.0)](https://coveralls.io/r/OCA/product-attribute?branch=8.0)
+# owodoo_custom
+Custom Odoo modules for Onderdelenwinkel
 
-Odoo Product Attribute
-======================
+Feature : 
 
-Various addons related to attribute management for products.
+Bedoeling is om enkele csv layouts te verankeren zodat die gemakkelijk kunnen worden geinstalleerd in product.
+
