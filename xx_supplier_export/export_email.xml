@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<openerp>
+    <!-- Mail template is done in a NOUPDATE block
+         so users can freely customize/delete them -->
+    <data noupdate="1">
+        <!--Email template -->
+        
+        <record id="email_beekman" model="email.template">
+            <field name="name">DO NOT SEND THIS EMAIL - CSV EXPORT</field>
+            <field name="body_html">
+sku, aantal,referentie
+%for line in object.order_line:
+%for seller in line.product_id.seller_ids:
+%if seller.name == object.partner_id:
+${seller.product_code},${line.product_qty},${object.name}
+%endif
+%endfor
+%endfor
+            </field>
+        </record>
+        <record id="email_vedelec" model="email.template">
+            <field name="name">DO NOT SEND THIS EMAIL - VEDELEC CSV EXPORT</field>
+            <field name="body_html">
+sku, aantal,referentie
+%for line in object.order_line:
+%for seller in line.product_id.seller_ids:
+%if seller.name == object.partner_id:
+${seller.product_code},${line.product_qty},${object.name}
+%endif
+%endfor
+%endfor
+            </field>
+        </record>
+        <record id="email_aswo" model="email.template">
+            <field name="name">DO NOT SEND THIS EMAIL - ASWO CSV EXPORT</field>
+            <field name="body_html">
+sku, aantal,referentie
+%for line in object.order_line:
+%for seller in line.product_id.seller_ids:
+%if seller.name == object.partner_id:
+${seller.product_code},${line.product_qty},${object.name}
+%endif
+%endfor
+%endfor
+            </field>
+        </record>
+    </data>
+</openerp>
