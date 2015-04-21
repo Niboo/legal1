@@ -18,27 +18,33 @@ ${seller.product_code},${line.product_qty},${object.name}
 %endfor
             </field>
         </record>
+
+<!-- PRODID,QUANTITY,REMARK,RefArt 0016834 ,1,700005185,Art1 Remark = (Nu) klantordernummer uit magento - moet worden PO (purchase order odoo). Art1 is schijnbaar een vaste instelling. -->
+
         <record id="email_vedelec" model="email.template">
             <field name="name">DO NOT SEND THIS EMAIL - VEDELEC CSV EXPORT</field>
             <field name="body_html">
-sku, aantal,referentie
+PRODID,QUANTITY,REMARK,RefArt
 %for line in object.order_line:
 %for seller in line.product_id.seller_ids:
 %if seller.name == object.partner_id:
-${seller.product_code},${line.product_qty},${object.name}
+${seller.product_code},${line.product_qty},${object.name},Art1
 %endif
 %endfor
 %endfor
             </field>
         </record>
+
+<!-- Voor aswo geen hoofding - wel vast 24085 / SKU / referentie
+24085;6016678;1;300029302 -->
+
         <record id="email_aswo" model="email.template">
             <field name="name">DO NOT SEND THIS EMAIL - ASWO CSV EXPORT</field>
             <field name="body_html">
-sku, aantal,referentie
 %for line in object.order_line:
 %for seller in line.product_id.seller_ids:
 %if seller.name == object.partner_id:
-${seller.product_code},${line.product_qty},${object.name}
+24085;${seller.product_code},${line.product_qty},${object.name}
 %endif
 %endfor
 %endfor
