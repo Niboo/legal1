@@ -128,6 +128,4 @@ class product_product(models.Model):
                         comp=self.pool.get('res.users').browse(cr,uid,[uid],context=context)[0].company_id.id))
                     query_result = cr.fetchall()
                     product_ids += [x[0] for x in query_result]
-        unq = set()
-        unq_add = unq.add
-        return [ x for x in product_ids if not (x in unq or unq_add(x))]
+        return product_ids

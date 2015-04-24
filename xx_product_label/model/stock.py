@@ -29,7 +29,7 @@ class stock_pack_operation(models.Model):
             if values.get('qty_done') > self.qty_done:
                 qty = int(values.get('qty_done') - self.qty_done)
                 ctx = self._context.copy()
-                supplier_product = self.product_id.seller_ids.search([('name','=', self.picking_id.partner_id.id)])
+                supplier_product = [ x for x in self.product_id.seller_ids if x.name == self.picking_id.partner_id ]
                 if supplier_product:
                     ctx.update({
                         'supplier_product_code': supplier_product[0].product_code,
@@ -39,6 +39,23 @@ class stock_pack_operation(models.Model):
                     product_ids.append(self.product_id.id)
                 self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
         return super(stock_pack_operation, self).write(values)
+
+    @api.model
+    def create(self, values):
+        me = super(stock_pack_operation, self).create(values)
+        if values.get('qty_done',False):
+            qty = int(values.get('qty_done'))
+            ctx = self._context.copy()
+            supplier_product = [ x for x in me.product_id.seller_ids if x.name == me.picking_id.partner_id ]
+            if supplier_product:
+                ctx.update({
+                    'supplier_product_code': supplier_product[0].product_code,
+                })
+            product_ids = []
+            for x in xrange(qty):  # @UnusedVariable
+                product_ids.append(me.product_id.id)
+            self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
+        return me
 
 class product_product(models.Model):
     _inherit = "product.product"
