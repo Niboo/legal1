@@ -91,41 +91,40 @@ class test_function(TransactionCase):
             'partner_id': self.Supplier1.id,
             'picking_type_id': self.picking_type_in})
 
-        
+
 #incoming picking
 # test with standard odoo client
         context = {}
 
-        f_id = self.product_product_obj.search([('name','=','xx_1000'),('company_id','=', company_id1)],context=context)
+        f_id = self.product_product_obj.search([('name','=','xx_1000'),('company_id','=', company_id1)])
         self.assertEqual(len(f_id),2,"should find 2 results")
         self.assertEqual(f_id[0].id, self.productA.id,"1 Product with name xx_1000 should exist in main company")
         #
         # f_id = self.product_product_obj.search([('name','=','xx_1000'),('company_id',"=", company_id2)],context=context)
         # self.assertEqual(len(f_id),0,"This search must give no results because product is in other company")
 
-        f_id = self.product_product_obj.search([('name','=','Product B'),('company_id','=', company_id1)],context=context)
-        self.assertEqual(f_id[0].id, self.productB.id)      
+        f_id = self.product_product_obj.search([('name','=','Product B'),('company_id','=', company_id1)])
+        self.assertEqual(f_id[0].id, self.productB.id)
 
         f_id = self.product_product_obj.search([('default_code','=','C123456'),('company_id','=', company_id1)],context=context)
         self.assertEqual(f_id[0].id, self.productC.id)
 
 # test barcode client - type incoming
-        context = {'process_barcode_from_ui_barcode_str': '','process_barcode_from_ui_picking_id': picking_in.id }
-        f_id = self.product_product_obj.search([('name','=','xx_1000'),('company_id','=', company_id1)],context=context)
-        import pdb; pdb.set_trace()
-        self.assertEqual(len(f_id),1,"should find 1 result")        
+        prod = self.env['product.product'].with_context({'process_barcode_from_ui_barcode_str': 'xx_1000','process_barcode_from_ui_picking_id': picking_in.id })
+        f_id = prod.search([('name','=','xx_1000'),('company_id','=', company_id1)])
+        self.assertEqual(len(f_id),1,"should find 1 result")
         self.assertEqual(f_id[0].id, self.productA.id,"2 Product with name xx_1000 should exist in main company")
         #
         # f_id = self.product_product_obj.search([('name','=','xx_1000'),('company_id',"=", company_id2)],context=context)
         # self.assertEqual(len(f_id),0,"This search must give no results because product is in other company")
 
         f_id = self.product_product_obj.search([('name','=','Product B'),('company_id','=', company_id1)],context=context)
-        self.assertEqual(f_id[0].id, self.productB.id)      
+        self.assertEqual(f_id[0].id, self.productB.id)
 
         f_id = self.product_product_obj.search([('default_code','=','C123456'),('company_id','=', company_id1)],context=context)
         self.assertEqual(f_id[0].id, self.productC.id)
 
-#outgoing picking 
+#outgoing picking
         self.picking_type_out = self.PickingtypeObj.xmlid_to_res_id('stock.picking_type_out')
         picking_out = self.PickingObj.create({
             'partner_id': self.Customer1.id,
@@ -139,7 +138,7 @@ class test_function(TransactionCase):
         # self.assertEqual(len(f_id),0,"This search must give no results because product is in other company")
 
         f_id = self.product_product_obj.search([('name','=','Product B'),('company_id','=', company_id1)],context=context)
-        self.assertEqual(f_id[0].id, self.productB.id)      
+        self.assertEqual(f_id[0].id, self.productB.id)
 
         f_id = self.product_product_obj.search([('default_code','=','C123456'),('company_id','=', company_id1)],context=context)
         self.assertEqual(f_id[0].id, self.productC.id)

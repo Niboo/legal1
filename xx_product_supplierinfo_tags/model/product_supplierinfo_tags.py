@@ -32,7 +32,7 @@ class product_supplierinfo(models.Model):
 
 class stock_picking(models.Model):
     _inherit = "stock.picking"
-    
+
     def process_barcode_from_ui(self, cr, uid, picking_id, barcode_str, visible_op_ids, context=None):
         if context is None:
             context = {}
@@ -52,18 +52,60 @@ class product_product(models.Model):
         ctx = context.copy()
         product_ids = super(product_product, self).search(cr, uid, search_args, offset=offset, limit=limit, order=order, context=ctx, count=count)
         if 'process_barcode_from_ui_picking_id' in ctx:
-            cr.execute("""
-            SELECT pp.id
-              FROM stock_picking sp
-                   INNER JOIN product_supplierinfo ps ON ps.name = sp.partner_id
-                   INNER JOIN xx_product_supplierinfo_tags xpst ON xpst.res_id = ps.id
-                                                               AND xpst.res_model = 'product.supplierinfo'
-                                                               AND xpst.name like '%%%s%%'
-                   INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
-             WHERE sp.id = %s
-            """ % (ctx.get('process_barcode_from_ui_barcode_str'), ctx.get('process_barcode_from_ui_picking_id')))
-            query_result = cr.fetchall()
-            product_ids += ([x[0] for x in query_result if x[0] not in product_ids])
+            sp = self.pool.get('stock.picking').browse(cr,uid,[ctx.get('process_barcode_from_ui_picking_id')], context=context)[0]
+            if sp.picking_type_id.code == 'incoming':
+                cr.execute("""
+                SELECT pp.id
+                FROM stock_picking sp
+                    INNER JOIN product_supplierinfo ps ON ps.name = sp.partner_id
+                    INNER JOIN xx_product_supplierinfo_tags xpst ON xpst.res_id = ps.id
+                                                                AND xpst.res_model = 'product.supplierinfo'
+                                                                AND xpst.name like '%%%(needle)s%%'
+                    INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
+                    INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
+                WHERE sp.id = %(p_id)s AND pt.company_id = sp.company_id
+                UNION
+                SELECT pp.id
+                FROM stock_picking sp
+                    INNER JOIN product_supplierinfo ps ON ps.name = sp.partner_id
+                    INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
+                    INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
+                WHERE sp.id = %(p_id)s  AND pt.company_id = sp.company_id AND ps.product_code ilike '%%%(needle)s%%'
+                UNION
+                SELECT pp.id
+                FROM stock_picking sp
+                    INNER JOIN product_supplierinfo ps ON ps.name = sp.partner_id
+                    INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
+                    INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
+                WHERE sp.id = %(p_id)s  AND pt.company_id = sp.company_id AND pt.manufacturer_pref ilike '%%%(needle)s%%'
+                UNION
+                SELECT pp.id
+                FROM stock_picking sp
+                    INNER JOIN product_supplierinfo ps ON ps.name = sp.partner_id
+                    INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
+                    INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
+                WHERE sp.id = %(p_id)s  AND pt.company_id = sp.company_id AND (
+                            pp.ean13 ilike '%%%(needle)s%%' OR
+                            pp.default_code ilike '%%%(needle)s%%'
+                        )
+                """ % {'needle':ctx.get('process_barcode_from_ui_barcode_str'), 'p_id':ctx.get('process_barcode_from_ui_picking_id')})
+                query_result = cr.fetchall()
+                product_ids = [x[0] for x in query_result]
+            else:
+                cr.execute("""
+                SELECT pp.id
+                FROM stock_picking sp
+                    INNER JOIN product_supplierinfo ps ON ps.name = sp.partner_id
+                    INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
+                    INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
+                WHERE sp.id = %(p_id)s  AND pt.company_id = sp.company_id AND (
+                            pp.ean13 ilike '%%%(needle)s%%' OR
+                            pp.default_code ilike '%%%(needle)s%%'
+                        )
+                """ % {'needle':ctx.get('process_barcode_from_ui_barcode_str'), 'p_id':ctx.get('process_barcode_from_ui_picking_id')})
+                query_result = cr.fetchall()
+                product_ids = [x[0] for x in query_result]
+
         else:
             for arg in search_args:
                 if arg[0] in ['name','default_code']:
@@ -74,13 +116,18 @@ class product_product(models.Model):
                             ON psi.product_tmpl_id = pp.product_tmpl_id
                         LEFT JOIN xx_product_supplierinfo_tags psit
                             ON psit.res_id = psi.id AND psit.res_model like 'product.supplierinfo'
+                        INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
                     WHERE
+                        pt.company_id = {comp} AND (
                         pp.name_template ilike '%%{needle}%%' OR
                         pp.default_code ilike '%%{needle}%%' OR
+                        pp.ean13 ilike '%%{needle}%%' OR
                         psi.product_code ilike '%%{needle}%%' OR
-                        psit.name ilike '%%{needle}%%'
-                    """.format(needle=arg[2].strip()))
+                        psit.name ilike '%%{needle}%%')
+                    """.format(needle=arg[2].strip(),
+                        comp=self.pool.get('res.users').browse(cr,uid,[uid],context=context)[0].company_id.id))
                     query_result = cr.fetchall()
-                    product_ids += ([x[0] for x in query_result if x[0] not in product_ids])
-
-        return product_ids
+                    product_ids.append([x[0] for x in query_result])
+        unq = set()
+        unq_add = unq.add
+        return [ x for x in product_ids if not (x in unq or unq_add(x))]
