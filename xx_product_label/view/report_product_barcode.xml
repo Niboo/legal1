@@ -7,7 +7,7 @@
                     <div class="page" style="margin: 0; padding: 0;font-size: 16px;">
                         <div class="row">
                             <div class="col-xs-8 mt2 text-left">
-                                <div t-esc="get_supplier_product_code()" style="overflow:hidden;font-weight: bold;" />
+                                <div t-esc="get_supplier_product_code()" style="overflow:hidden;font-weight: bold;white-space: nowrap;" />
                             </div>
                             <div class="col-xs-4 mt2 text-right">
                                 <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="max-height: 40px;" />
@@ -23,10 +23,10 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-7 mt2 text-left" style="overflow:hidden;">
-                                <span t-field="o.default_code" style="font-weight:bold;overflow:hidden;"/>
+                                <span t-field="o.default_code" style="font-weight:bold;white-space: nowrap;"/>
                             </div>
                             <div class="col-xs-5 mt2 text-right" style="overflow:hidden;">
-                                <span t-field="o.loc_rack" style="font-weight:bold;font-size:22px;overflow:hidden;"/>
+                                <span t-field="o.loc_rack" style="font-weight:bold;font-size:22px;white-space: nowrap;"/>
                             </div>
                         </div>
                     </div>
