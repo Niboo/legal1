@@ -104,10 +104,10 @@ class test_function(TransactionCase):
         # self.assertEqual(len(f_id),0,"This search must give no results because product is in other company")
 
         f_id = self.product_product_obj.search([('name','=','Product B'),('company_id','=', company_id1)])
-        self.assertEqual(f_id[0].id, self.productB.id)
+        self.assertEqual(len(f_id),0,"Product B should not be found in company 1")
 
         f_id = self.product_product_obj.search([('default_code','=','C123456'),('company_id','=', company_id1)],context=context)
-        self.assertEqual(f_id[0].id, self.productC.id)
+        self.assertEqual(f_id[0].id, self.productC.id,"Code C123456 should return product c on company 1")
 
 # test barcode client - type incoming
         prod = self.env['product.product'].with_context({'process_barcode_from_ui_barcode_str': 'xx_1000','process_barcode_from_ui_picking_id': picking_in.id })
@@ -119,10 +119,10 @@ class test_function(TransactionCase):
         # self.assertEqual(len(f_id),0,"This search must give no results because product is in other company")
 
         f_id = self.product_product_obj.search([('name','=','Product B'),('company_id','=', company_id1)],context=context)
-        self.assertEqual(f_id[0].id, self.productB.id)
+        self.assertEqual(len(f_id),0,"Product B should not be found in company 1")
 
         f_id = self.product_product_obj.search([('default_code','=','C123456'),('company_id','=', company_id1)],context=context)
-        self.assertEqual(f_id[0].id, self.productC.id)
+        self.assertEqual(f_id[0].id, self.productC.id,"Code C123456 should return product c on company 1")
 
 #outgoing picking
         self.picking_type_out = self.PickingtypeObj.xmlid_to_res_id('stock.picking_type_out')
@@ -138,7 +138,7 @@ class test_function(TransactionCase):
         # self.assertEqual(len(f_id),0,"This search must give no results because product is in other company")
 
         f_id = self.product_product_obj.search([('name','=','Product B'),('company_id','=', company_id1)],context=context)
-        self.assertEqual(f_id[0].id, self.productB.id)
+        self.assertEqual(len(f_id),0,"Product B should not be found in company 1")
 
         f_id = self.product_product_obj.search([('default_code','=','C123456'),('company_id','=', company_id1)],context=context)
         self.assertEqual(f_id[0].id, self.productC.id)
