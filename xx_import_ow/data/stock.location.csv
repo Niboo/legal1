@@ -1,2 +1,3 @@
-"id","location_id/id","name","loc_barcode","usage","posx","posy","posz","comment","putaway_strategy_id/id","removal_strategy_id/id"
-"__ff_location.stock_location_21","__export__.stock_location_20","Stock","","Internal Location","","","","","","stock.removal_fifo"
+"id","name","usage","loc_barcode","location_id/id","putaway_strategy_id/id","removal_strategy_id/id","posx","posy","posz"
+"stock.stock_location_stock","Stock","Internal Location","","__export__.stock_location_11","__export__.product_putaway_1","stock.removal_fifo","","",""
+"stock.location_refrigerator_small","Label Test Location","Internal Location","","stock.stock_location_14","","stock.removal_fifo","","",""

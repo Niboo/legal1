@@ -1,2 +1,2 @@
-"id","putaway_id/id","fixed_location_id/id","sequence","product_id/id"
-"__export__.stock_fixed_putaway_byprod_strat_1","__export__.product_putaway_1","stock.stock_location_stock","","__export__.product_product_2"
+"id","fixed_location_id/id","product_id/id","putaway_id/id","sequence"
+"__export__.stock_fixed_putaway_byprod_strat_1","stock.location_refrigerator_small","product.product_product_8","__export__.product_putaway_1",""

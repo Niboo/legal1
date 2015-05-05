@@ -2,32 +2,34 @@
     "name": "Import Setup Data OW",
     "version": "1.0",
     "depends": [
-        "base",
+        "xx_product_supplierinfo_tags",
+        "putaway_apply",
     ],
     "description": """
-    Important
-    =========
-    DO not install this module unless you know what you are doing
-    This module will import csv files for
-        - stock location
-        - product putaway strategy (header)
-        - product putaway produclist (detail)
-        - product supplierinfo
-        - product supplier tags
-        - product supplier info pricelines 
+        Do not install this module unless you know what you are doing
+        This module uploads in BULK all the data in the csv files and this should only be done once.
+        Before installing this module export first the WH location, else this module will give a traceback.
     """,
     "author": "DynApps",
     "category": "DynApps/Customizations",
     "website": "http://www.dynapps.be",
     "data": [
     ],
+    'demo': [
+        'demo/product.putaway.csv',
+        'demo/stock.location.csv',
+        'demo/stock.fixed.putaway.byprod.strat.csv',
+        'demo/product.supplierinfo.csv',
+        'demo/xx.product.supplierinfo.tags.csv',
+        'demo/pricelist.partnerinfo.csv',
+    ],
     'init': [
-        'stock.location.csv',
-        'product.putaway.csv',
-        'stock.fixed.putaway.byprod.strat.csv',
-        'product.supplierinfo.csv',
-        'xx.product.supplierinfo.tags.csv',
-        'pricelist.partnerinfo.csv',
+        'data/product.putaway.csv',
+        'data/stock.location.csv',
+        'data/stock.fixed.putaway.byprod.strat.csv',
+        'data/product.supplierinfo.csv',
+        'data/xx.product.supplierinfo.tags.csv',
+        'data/pricelist.partnerinfo.csv',
     ],
     "installable": True,
     "auto_install": False,

@@ -1,2 +1,4 @@
-id,name/id,delay,min_qty,product_code,product_name,product_tmpl_id/id,sequence
-__ow__.product_supplierinfo_2_23420,_ow__.supplier_2,1,1.0,14095,AANSLUITKAST,__export__.product_template_4270,1
+"id","name/id","product_tmpl_id/id","min_qty","delay"
+"product.product_supplierinfo_2","base.res_partner_4","product.product_product_6_product_template","1.0","3"
+"product.product_supplierinfo_3","base.res_partner_1","product.product_product_7_product_template","1.0","3"
+"product.product_supplierinfo_4","base.res_partner_4","product.product_product_7_product_template","1.0","3"
