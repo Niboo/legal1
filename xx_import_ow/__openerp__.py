@@ -15,20 +15,13 @@
     "website": "http://www.dynapps.be",
     "data": [
             'data/product.putaway.csv',
+            'data/stock.fixed.putaway.byprod.strat.csv',
             'data/xx.product.supplierinfo.tags.csv',
             'data/product.supplierinfo.csv',
             'data/pricelist.partnerinfo.csv',
     ],
     'demo': [
     ],
-    'init': [
-        'data/product.putaway.csv',
-        'data/stock.fixed.putaway.byprod.strat.csv',
-        'data/product.supplierinfo.csv',
-    ],
     "installable": True,
     "auto_install": False,
 }
-        # 'demo/stock.location.csv',
-        # 'demo/stock.fixed.putaway.byprod.strat.csv',
-        # 'demo/product.supplierinfo.csv',
