@@ -9,6 +9,11 @@
         Do not install this module unless you know what you are doing
         This module uploads in BULK all the data in the csv files and this should only be done once.
         Before installing this module export first the WH location, else this module will give a traceback.
+        In batch mode : 
+        login in op de staging server (of ooit eenmalig op de productieserver)
+        cd /etc/init
+        stop odoo-owodoost (indien het de productieserver is -> odoo-owodoo
+        python /data/vhosts/odoo-staging.onderdelenwinkel.nl/odoo/odoo.py --addons-path=/data/vhosts/odoo-staging.onderdelenwinkel.nl/odoo/openerp/addons,/data/vhosts/odoo-staging.onderdelenwinkel.nl/odoo/addons,/data/vhosts/odoo-staging.onderdelenwinkel.nl/custom -i xx_import_ow --stop-after-init
     """,
     "author": "DynApps",
     "category": "DynApps/Customizations",
