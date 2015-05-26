@@ -12,8 +12,12 @@
         In batch mode : 
         login in op de staging server (of ooit eenmalig op de productieserver)
         cd /etc/init
-        stop odoo-owodoost (indien het de productieserver is -> odoo-owodoo
+        stop odoo-owodoost (indien het de productieserver is -> odoo-owodoo)
         python /data/vhosts/odoo-staging.onderdelenwinkel.nl/odoo/odoo.py --addons-path=/data/vhosts/odoo-staging.onderdelenwinkel.nl/odoo/openerp/addons,/data/vhosts/odoo-staging.onderdelenwinkel.nl/odoo/addons,/data/vhosts/odoo-staging.onderdelenwinkel.nl/custom -i xx_import_ow --stop-after-init
+        Als het script is beeindigd
+	login again
+        cd /etc/init
+	start odoo-owodoost (indien het productiesrever is -> odoo-owodoo)
     """,
     "author": "DynApps",
     "category": "DynApps/Customizations",
