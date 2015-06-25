@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_xx_product_supplierinfo_tags_user,xx.product.supplierinfo.tags.user,model_xx_product_supplierinfo_tags,base.group_user,1,0,0,0

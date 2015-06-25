@@ -1,0 +1,2 @@
+import stock
+import report_product_barcode

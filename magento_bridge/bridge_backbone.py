@@ -92,94 +92,58 @@ class bridge_backbone(models.Model):
 			payment_id = self.pool.get('account.journal').create(cr, uid, data, context)
 		return payment_id
 
-	def _get_product_id(self, cr, uid, product_data, context):
-		pro_dic = {}
-		default_code = _unescape(product_data['sku'])
-		prod_pool = self.pool.get('product.product')
-		product_ids = prod_pool.search(cr,uid,[('default_code','=',default_code),('active','=',False)], context=context)
-		if not product_ids:
-			pro_dic['name'] = _unescape(product_data['name'])
-			if product_data['product_type'] != 'simple':
-				pro_dic['type'] = 'service'
-			else:
-				pro_dic['type'] = 'product'
-			pro_dic['list_price'] = 0.00
-			pro_dic['active'] = False
-			pro_dic['default_code'] = default_code
-			attribute_set_search = self.pool.get('magento.attribute.set').search(cr, uid, [])
-			if attribute_set_search:
-				pro_dic['attribute_set_id'] = attribute_set_search[0]
-			categ_ids = self.pool.get('product.category').search(cr, uid, [('name','=','Shipping/Voucher')], context=context)
-			if not categ_ids:
-				category_id = self.pool.get('product.category').create(cr, uid, {'name':'Shipping/Voucher','type':'normal'}, context)
-				pro_dic['categ_id'] = category_id
-				self.pool.get('magento.category').create(cr, uid, {'cat_name':category_id,'oe_category_id':category_id,'mag_category_id':'-1'})
-			else:
-				pro_dic['categ_id'] = categ_ids[0]
 
-			product_id = prod_pool.create(cr, uid, pro_dic, context)
-			tmpl_id = prod_pool.browse(cr, uid, product_id).product_tmpl_id.id
-			if tmpl_id:
-				self.pool.get('product.template').write(cr, uid, tmpl_id, {'active':False})
-			self.pool.get('magento.product').create(cr, uid, {'pro_name':product_id, 'oe_product_id':product_id, 'mag_product_id':'-1'})
-			return product_id
-		else:
-			return product_ids[0]
-			
+	def _get_virtual_product_id(self, cr, uid, data):
+		erp_product_id = False
+		ir_values = self.pool.get('ir.values')
+		if data['name'].startswith('S'):
+			erp_product_id = ir_values.get_default(cr, uid, 'product.product', 'mob_delivery_product')
+		if data['name'].startswith('D'):
+			erp_product_id = ir_values.get_default(cr, uid, 'product.product', 'mob_discount_product')
+		if data['name'].startswith('V'):
+			erp_product_id = ir_values.get_default(cr, uid, 'product.product', 'mob_coupon_product')
+		if not erp_product_id:
+			temp_dic={'sale_ok':False, 'name':data.get('name'), 'type':'service', 'list_price':0.0}
+			object_name = ''
+			if data['name'].startswith('S'):
+				object_name = 'mob_delivery_product'
+				temp_dic['description']='Service Type product used by Magento Odoo Bridge for Shipping Purposes'
+			if data['name'].startswith('D'):
+				object_name = 'mob_discount_product'
+				temp_dic['description']='Service Type product used by Magento Odoo Bridge for Discount Purposes'
+			if data['name'].startswith('V'):
+				object_name = 'mob_coupon_product'
+				temp_dic['description']='Service Type product used by Magento Odoo Bridge for Gift Voucher Purposes'
+			erp_product_id = self.pool.get('product.product').create(cr, uid, temp_dic)
+			ir_values.set_default(cr, uid, 'product.product', object_name, erp_product_id)
+			cr.commit()
+		return erp_product_id
+
 	def extra_order_line(self, cr, uid, data, context=None):
+		"""create sale order line by any webservice like xmlrpc.
+		@param data: dictionary of Odoo Order ID and line information.
+		@param context: A standard dictionary
+		@return: line_id
+		"""
 		if context is None:
 			context = {}
 		line_dic = {}
-		carrier_id = 0
-		product_id = 0
-		shipping_description = 'Default_Shipping'
-		delivery_carrier = self.pool.get('delivery.carrier')
 		sale_order_line = self.pool.get('sale.order.line')
-		if data.has_key('coupon_code'):
-			line_dic['name'] = data['coupon_code']
-		if data.has_key('shipping_description') and data['shipping_description']:
-			shipping_description = _unescape(data['shipping_description'])
-			line_dic['name'] = shipping_description
-		if data.has_key('discount'):
-			line_dic['discount'] = data.get('discount')
-		if data['product_type'] == 'shipping':
-			mapping_carrier_pool = self.pool.get('magento.delivery.carrier')
-			carrier_ids = delivery_carrier.search(cr, uid, [('name','=',shipping_description)])
-			product_id = self._get_product_id(cr, uid, data, context)
-			if carrier_ids:
-				carrier_id  = carrier_ids[0]
-				search_carrier = mapping_carrier_pool.search(cr, uid, [('name','=',carrier_id)])
-				if search_carrier:
-					product_id = mapping_carrier_pool.browse(cr, uid, search_carrier[0]).product_id.id
-				else:
-					mapping_carrier_pool.create(cr, uid, {'name':carrier_id, 'product_id':product_id, 'magento_id':'-1'})
-			else:				
-				dc_dict = {	
-							'name':shipping_description, 
-							'product_id':product_id, 
-							'partner_id':data['customer_id'],
-							'normal_price':100.00
-						}
-				carrier_id  = delivery_carrier.create(cr, uid, dc_dict, context)
-				mapping_carrier_pool.create(cr, uid, {	'name':carrier_id, 
-														'product_id':product_id, 
-														'magento_id':'-1'
-													})
-		if product_id:
-			line_dic['order_id'] = data['order_id']
-			line_dic['price_unit'] = data['price_unit']
-			line_dic['product_id'] = product_id
-			line_dic['product_uom_qty'] =  1
-			line_dic['product_uom'] = self.pool.get('product.product').browse(cr, uid, product_id).uom_id.id or 1
-			if data.has_key('tax_id'):
-				taxes = data.get('tax_id')
-				if type(taxes) != list:
-					taxes = [data.get('tax_id')]
-				line_dic['tax_id'] = [(6,0,taxes)]
-			line_id = sale_order_line.create(cr, uid, line_dic, context)
-			if carrier_id:
-				self.pool.get('sale.order').write(cr, uid, data['order_id'], {'carrier_id':carrier_id})
-			return line_id
+		product_id = self._get_virtual_product_id(cr, uid, data)
+		line_dic['product_id'] = product_id
+		line_dic['order_id'] = data['order_id']
+		line_dic['name'] = _unescape(data['description'])
+		line_dic['price_unit'] = data['price_unit']
+		line_dic['product_uom_qty'] = 1
+		line_dic['product_uom'] = self.pool.get('product.product').browse(cr, uid, product_id).uom_id.id or 1
+		if data.has_key('tax_id'):
+			taxes = data.get('tax_id')
+			if type(taxes) != list:
+				taxes = [data.get('tax_id')]
+			line_dic['tax_id'] = [(6,0,taxes)]
+
+		line_id = sale_order_line.create(cr, uid, line_dic, context)
+		return line_id
 
 	def create_order_line(self, cr, uid, data, context=None):
 		"""create sale order line by any webservice like xmlrpc.
