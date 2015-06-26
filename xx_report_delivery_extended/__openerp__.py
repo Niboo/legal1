@@ -26,8 +26,9 @@
     "category": 'Warehouse Management',
     "description":'This module will add a delivery slip.',
     "website": "http://www.bubbles-it.be",
-    "depends" : ["stock","sale_stock"],
+    "depends" : ["stock","sale_stock","base_report_to_printer","delivery",],
     "data": [
+              'views/layouts_stockpicking.xml',
               "report_view.xml",
               "views/report_stockpicking.xml",
              ],
