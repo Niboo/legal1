@@ -5,7 +5,7 @@
             string="Delivery report" 
             id="action_report_delivery" 
             model="stock.picking" 
-            report_type="qweb-html"
+            report_type="qweb-pdf"
             name="xx_report_delivery_extended.report_delivery" 
             file="xx_report_delivery_extended.report_delivery"/>
     </data>
