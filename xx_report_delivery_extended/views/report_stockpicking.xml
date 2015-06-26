@@ -4,6 +4,7 @@
         <template id="report_delivery">
             <t t-call="report.html_container">
                 <t t-foreach="docs" t-as="o">
+		    <!--t t-raw="translate_doc(o, doc_model, 'partner_id.lang','xx_report_delivery_extended.report_delivery')"/-->
                     <t t-call="xx_report_delivery_extended.external_layout_stockpicking">
 			<br/>
 			<br/>
@@ -184,7 +185,7 @@
                                 <tr t-foreach="o.pack_operation_ids" t-as="pack_operation">
                                     <td>
                                         <span t-if="pack_operation.product_id and not pack_operation.lot_id">
-                                            <img t-field="pack_operation.product_id.image_small" t-field-options="{&quot;widget&quot;: &quot;image&quot;, &quot;class&quot;: &quot;img-rounded&quot;}"/>
+                                            <img t-field="pack_operation.product_id.image_small" t-field-options="{&quot;widget&quot;: &quot;image&quot;, &quot;class&quot;: &quot;img-rounded&quot;}" style="width:50;height:50px;"/>
                                         </span>
                                     </td>
                                     <td><span t-field="pack_operation.product_id"/>
