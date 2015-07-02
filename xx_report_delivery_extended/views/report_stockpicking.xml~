@@ -3,6 +3,9 @@
     <data>
         <template id="report_delivery">
             <t t-call="report.html_container">
+                <t t-foreach="doc_ids" t-as="doc_id">
+		    <t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang','xx_report_delivery_extended.external_layout_stockpicking')"/>
+		</t>
                 <t t-foreach="docs" t-as="o">
                     <t t-call="xx_report_delivery_extended.external_layout_stockpicking">
 			<br/>
@@ -86,22 +89,6 @@
                                   </td>
                                   </tbody>
                                 </div>
-                                <!--div class="col-xs-5 col-xs-offset-1">
-                                    <div t-if="o.move_lines and o.move_lines[0].partner_id and o.move_lines[0].partner_id.id != o.partner_id.id">
-                                      <div style="background-color: grey; border:1px solid black;">
-                                        <span><strong>Delivery Address:</strong></span>
-                                      </div>
-                                        <div style="border:1px solid black;" t-field="o.move_lines[0].partner_id"
-                                            t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true}'/>
-                                    </div>
-                                    <div t-if="o.picking_type_id.code != 'internal' and (not o.move_lines or not o.move_lines[0].partner_id) and o.picking_type_id.warehouse_id.partner_id">
-                                      <div style="background-color: grey; border:1px solid black;">
-                                        <span><strong>Warehouse Address:</strong></span>
-                                      </div>
-                                        <div style="border:1px solid black;" t-field="o.picking_type_id.warehouse_id.partner_id"
-                                            t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true}'/>
-                                    </div>
-                                </div-->
                             </div>
                             </table>
 			    <br/>
@@ -125,6 +112,13 @@
                                     </td>
                                     <td>
                                         <span t-field="o.origin"/>
+				        <!--t t-if="o.origin and get_sale_order(o.origin)"-->
+				           <tr>
+					       <td>
+						    <b t-esc="'%s-%s-%s' % (o.origin, get_client_order_ref(o.origin), o.origin)"></b>
+					       </td>
+				           </tr>
+				        <!--/t-->
                                     </td>
                                     <td>
                                         <span t-field="o.date"/>
