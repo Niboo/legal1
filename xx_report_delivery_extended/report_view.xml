@@ -6,8 +6,8 @@
             id="action_report_delivery" 
             model="stock.picking" 
             report_type="qweb-pdf"
-            name="xx_report_delivery_extended.report_delivery" 
-            file="xx_report_delivery_extended.report_delivery"/>
+            name="xx_report_delivery_extended.report_delivery_master" 
+            file="xx_report_delivery_extended.report_delivery_master"/>
     </data>
 </openerp>
 

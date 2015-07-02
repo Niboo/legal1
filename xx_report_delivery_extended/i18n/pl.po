@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-02 11:57+0000\n"
-"PO-Revision-Date: 2015-07-02 11:57+0000\n"
+"POT-Creation-Date: 2015-07-02 13:58+0000\n"
+"PO-Revision-Date: 2015-07-02 13:58+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -21,29 +21,29 @@ msgid "&bull;"
 msgstr "&bull;"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Carrier"
-msgstr "Transporteur"
+msgstr "Przewoźnik"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Commitment Date"
-msgstr "Date de l'engagement"
+msgstr "Data dostawy"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Delivery Address:"
-msgstr "Adresse De Livraison:"
+msgstr "Delivery Address:"
 
 #. module: xx_report_delivery_extended
 #: model:ir.actions.report.xml,name:xx_report_delivery_extended.action_report_delivery
 msgid "Delivery report"
-msgstr "Bon de livraison"
+msgstr "Delivery report"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Destination"
-msgstr "Destination"
+msgstr "Strefa docelowa"
 
 #. module: xx_report_delivery_extended
 #: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
@@ -53,95 +53,95 @@ msgstr "Email:"
 #. module: xx_report_delivery_extended
 #: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
 msgid "Fax:"
-msgstr "Fax:"
+msgstr "Faks:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Image"
 msgstr "Image"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Move Type"
-msgstr "Type de mouvement"
+msgstr "Move Type"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Order (Origin)"
-msgstr "Ordre ( Origine )"
+msgstr "Zamówienie (pochodzenie)"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Order Date:"
-msgstr "Date De Commande:"
+msgstr "Order Date:"
 
 #. module: xx_report_delivery_extended
 #: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
 msgid "Page:"
-msgstr "Page:"
+msgstr "Strona:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Payment State"
-msgstr "État de paiement"
+msgstr "Payment State"
 
 #. module: xx_report_delivery_extended
 #: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
 msgid "Phone:"
-msgstr "Téléphone:"
+msgstr "Telefon:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Picking Number:"
-msgstr "Nombre picking:"
+msgstr "Picking Number:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Picking Type:"
 msgstr "Picking Type:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Product"
-msgstr "Article"
+msgstr "Produkt"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Product Image"
-msgstr "Image Produit"
+msgstr "Product Image"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Quantity"
-msgstr "Quantité"
+msgstr "Ilość"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Scheduled Date"
-msgstr "Date prévue"
+msgstr "Zaplanowana data"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Source"
-msgstr "Origine"
+msgstr "Źródło"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Supplier Address:"
-msgstr "Adresse Fournisseur:"
+msgstr "Adres dostawcy:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "VAT:"
-msgstr "TVA:"
+msgstr "VAT:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Warehouse Address:"
-msgstr "Addresse Entrepôt:"
+msgstr "Adres magazynu:"
 
 #. module: xx_report_delivery_extended
 #: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
 msgid "Website:"
-msgstr "Site Internet:"
+msgstr "Strona WWW:"
 

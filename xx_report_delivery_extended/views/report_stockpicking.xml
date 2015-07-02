@@ -3,8 +3,10 @@
     <data>
         <template id="report_delivery">
             <t t-call="report.html_container">
+                <t t-foreach="doc_ids" t-as="doc_id">
+		    <t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang','xx_report_delivery_extended.external_layout_stockpicking')"/>
+		</t>
                 <t t-foreach="docs" t-as="o">
-		    <!--t t-raw="translate_doc(o, doc_model, 'partner_id.lang','xx_report_delivery_extended.report_delivery')"/-->
                     <t t-call="xx_report_delivery_extended.external_layout_stockpicking">
 			<br/>
 			<br/>
@@ -209,6 +211,14 @@
                     </t>
                  </t>
              </t>
+        </template>
+
+        <template id="report_delivery_master">
+            <t t-call="report.html_container">
+                <t t-foreach="doc_ids" t-as="doc_id">
+		    <t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang','xx_report_delivery_extended.report_delivery')"/>
+		</t>
+	    </t>
         </template>
     </data>
 </openerp>
