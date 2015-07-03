@@ -97,8 +97,8 @@ msgstr "Pickingnummer:"
 
 #. module: xx_report_delivery_extended
 #: view:website:xx_report_delivery_extended.report_delivery
-msgid "Picking Type"
-msgstr "Pickingtype"
+msgid "Picking Type:"
+msgstr "Pickingtype:"
 
 #. module: xx_report_delivery_extended
 #: view:website:xx_report_delivery_extended.report_delivery
