@@ -160,25 +160,25 @@
 								<label for="sync_template_attribute_set"/>
 							</div><newline/>
 
-							<label for="id" string="Export Categories"/>
+							<label for="id" string="Synchronize Categories"/>
 							<div>
-								<button icon="gtk-go-forward" class="oe_highlight" name="export_categories" string="Export categories" type="object" help="It'll Export All Odoo Category at Magento."/>
+								<button icon="gtk-go-forward" class="oe_highlight" name="%(id_magento_action)d" string="Synchronize Categories" type="action" help="It'll Export/Update All Odoo Category at Magento."/>
 								<label for="export_categories"/>
 							</div>
-							<label for="id" string="Update Categories"/>
+							<!-- <label for="id" string="Update Categories"/>
 							<div>
 								<button icon="gtk-apply" class="oe_highlight" name="update_categories" string="Update categories" type="object" help="It'll Only Update Category at Magento, when Need Sync value is set to Yes."/>
 								<label for="update_categories"/>
-							</div><newline/>
+							</div> --><newline/>
 
-							<label for="id" string="Export Products"/>
+							<label for="id" string="Synchronize Products"/>
 							<div>
-								<button icon="gtk-go-forward" class="oe_highlight" name="export_products" string="Export Products" type="object" help="Export products button will synch all unsynched products at magento"/> 
+								<button icon="gtk-go-forward" class="oe_highlight" name="%(id_magento_product_action)d" string="Synchronize Products" type="action" help="Export/Update products button will synch all unsynched products at magento"/> 
 							</div>
-							<label for="id" string="Update Products"/>
+<!-- 							<label for="id" string="Update Products"/>
 							<div>
 								<button icon="gtk-apply" class="oe_highlight" name="update_products" string="Update Products" type="object" help="Update products button will update all synced products at magento, which requires to be update at magento"/>
-							</div><newline/>
+							</div> --><newline/>
 							
 							<label for="id" string="Import Magento Regions"/>
 							<div> 
@@ -245,7 +245,7 @@
 					<field name="id"/>	
 					<field name="template_name"/>
 					<field name="erp_template_id"/>	
-					<field name="mage_product_id"/>
+					<field name="mage_product_id"/>					
 					<field name="base_price"/>
 					<field name="is_variants"/>
 					<field name="created_by" readonly="1"/>
@@ -292,7 +292,7 @@
 					<field name="id"/>
 					<field name="pro_name"/>
 					<field name="oe_product_id"/>
-					<field name="mag_product_id"/>
+					<field name="mag_product_id"/>					
 					<field name="created_by" readonly="1"/>
 					<field name="create_date" readonly="1"/>
 					<field name="write_date" readonly="1"/>
@@ -593,6 +593,11 @@
 						<field name="oe_order_id" readonly="1"/>
 						<field name="mage_increment_id" readonly="1"/>
 					</group>
+					<group>
+						<field name="order_status" readonly="1"/>
+						<field name="paid_status" readonly="1"/>
+						<field name="ship_status" readonly="1"/>
+					</group>
 				</form>
 			</field>
         </record>
@@ -607,8 +612,11 @@
 					<field name="order_ref"/>
 					<field name="oe_order_id"/>
 					<field name="mage_increment_id"/>
+					<field name="order_status"/>
+					<field name="paid_status"/>
+					<field name="ship_status"/>
+					<field name="order_total"/>
 					<field name="create_date"/>
-					<field name="write_date"/>
 				</tree>
 			</field>
         </record>
