@@ -10,6 +10,7 @@
 
 import xmlrpclib
 from mob import _unescape
+from mob import XMLRPC_API
 from openerp import workflow
 from openerp.osv import fields, osv
 from openerp.tools.translate import _
@@ -75,12 +76,21 @@ class product_template(osv.osv):
 			if vals.has_key('mage_id'):
 				mage_id = vals.get('mage_id')
 				vals.pop('mage_id')
-		# _logger.info("Template Attribute: %r", vals)
-		template_id = super(product_template, self).create(cr, uid, vals, context=context)
+		#_logger.info("Template Attribute: %r", vals)
+		template_id = super(product_template, self).create(cr, uid, vals, context=context)		
 		if context.has_key('magento') and context.has_key('configurable'):
 			mapping_pool = self.pool.get('magento.product.template')
-			mapping_pool.create(cr, uid, {'template_name':template_id,'erp_template_id':template_id,'mage_product_id':mage_id,'base_price':vals['list_price'],'is_variants':True})
-			self._inactive_default_variant(cr, uid, template_id, context)
+			mapping_data = {
+							'template_name':template_id,
+							'erp_template_id':template_id,
+							'mage_product_id':mage_id,
+							'base_price':vals['list_price'],
+							'is_variants':True,
+							'instance_id':context.get('instance_id'),
+							'created_by':'Magento'
+						}
+			mapping_pool.create(cr, uid, mapping_data)
+			self._inactive_default_variant(cr, uid, template_id, context)		
 		return template_id
 
 	def write(self, cr, uid, ids, vals, context=None):
@@ -159,10 +169,17 @@ class product_product(osv.osv):
 						price = 0
 						if vals.has_key('list_price'):
 							price = vals['list_price']
-						mage_temp_pool.create(cr, uid, {'template_name':template_id,'erp_template_id':template_id,'mage_product_id':mage_id,'base_price':price})
+						mage_temp_pool.create(cr, uid, {
+														'template_name':template_id,
+														'erp_template_id':template_id,
+														'mage_product_id':mage_id,
+														'base_price':price,
+														'instance_id':context.get('instance_id'),
+														'created_by':'Magento'
+														})
 					else:
 						mage_temp_pool.write(cr, uid,search_ids[0], {'need_sync':'No'})
-					mapping_pool.create(cr, uid, {'pro_name':product_id,'oe_product_id':product_id,'mag_product_id':mage_id})
+					mapping_pool.create(cr, uid, {'pro_name':product_id,'oe_product_id':product_id,'mag_product_id':mage_id,'instance_id':context.get('instance_id'),'created_by':'Magento'})
 					
 		return product_id
 
@@ -206,6 +223,10 @@ class product_category(osv.osv):
 			context = {}
 		if isinstance(ids, (int, long)):
 			ids = [ids]
+		if context.has_key('magento'):
+			if vals.has_key('name'):
+				vals['name'] = _unescape(vals['name'])
+
 		if not context.has_key('magento'):
 			category_map_pool = self.pool.get('magento.category')
 			for id in ids:
@@ -239,28 +260,26 @@ class account_invoice(osv.osv):
 			invoices = self.read(cr, uid, inv_id, ['origin','state'])
 			if invoices['origin']:
 				sale_ids = sale_obj.search(cr, uid, [('name','=',invoices['origin'])])
-		##### manual_magento_invoice method is used to create an invoice on magento end #########
-				if sale_ids:
-					config_id = self.pool.get('magento.configure').search(cr,uid,[('state','=','enable'),('auto_invoice','=',True)])
-					if len(config_id)>0:
-						mage_invoice = self.manual_magento_invoice(cr, uid, sale_ids, context)
+				order_id = self.pool.get('magento.orders').search(cr, uid,[('order_ref','=',sale_ids)])
+				if order_id:
+					instance_id = self.pool.get('magento.orders').browse(cr, uid, order_id[0]).instance_id.id
+			##### manual_magento_invoice method is used to create an invoice on magento end #########
+					if sale_ids:
+						mage_invoice = self.manual_magento_invoice(cr, uid, sale_ids, instance_id, context)
 						if mage_invoice:
 							return True
 		return True
 
-	def manual_magento_invoice(self, cr, uid, ids, context=None):		
+	def manual_magento_invoice(self, cr, uid, ids, instance_id, context=None):		
 		text = ''
 		status = 'no'
 		session = 0
 		mage_invoice = False
-		config_id = self.pool.get('magento.configure').search(cr,uid,[('state','=','enable')])
-		if len(config_id)>1:
-			text = 'Sorry, only one Active Configuration setting is allowed.'
-		if not config_id:
+		obj = self.pool.get('magento.configure').browse(cr, uid, instance_id)
+		if obj.state != 'enable':
 			text = 'Please create the configuration part for connection!!!'
 		else:
-			obj = self.pool.get('magento.configure').browse(cr, uid, config_id[0])
-			url = obj.name+'/index.php/api/xmlrpc'
+			url = obj.name + XMLRPC_API
 			user = obj.user
 			pwd = obj.pwd
 			email = obj.notify
@@ -274,7 +293,7 @@ class account_invoice(osv.osv):
 			except Exception,e:
 				text = 'Invoice on magento cannot be done, due to error in Magento Connection.'
 			if session:
-				map_id = self.pool.get('magento.orders').search(cr,uid,[('oe_order_id','in',ids)])
+				map_id = self.pool.get('magento.orders').search(cr,uid,[('oe_order_id','in',ids),('instance_id','=',instance_id)])
 				if map_id:
 					map_obj = self.pool.get('magento.orders').browse(cr,uid,map_id[0])
 					increment_id = map_obj.mage_increment_id
@@ -311,23 +330,20 @@ class sale_order(osv.osv):
 	}
 
 	# to do  still waiting for magento invoice cancel.......
-	def manual_magento_order_cancel(self,cr,uid,ids,context=None):
+	def manual_magento_order_cancel(self, cr, uid, ids, instance_id, context=None):
 		text = ''
 		status = 'no'
 		session = 0
-		config_id=self.pool.get('magento.configure').search(cr,uid,[('active','=',True)])
-		if len(config_id)>1:
-			text = 'Sorry, only one Active Configuration setting is allowed.'
-		if not config_id:
+		obj = self.pool.get('magento.configure').browse(cr, uid, instance_id)
+		if obj.state != 'enable':
 			text = 'Please create the configuration part for connection!!!'
 		else:
-			obj = self.pool.get('magento.configure').browse(cr,uid,config_id[0])
-			url = obj.name+'/index.php/api/xmlrpc'
+			url = obj.name + XMLRPC_API
 			user = obj.user
 			pwd = obj.pwd
 			try:
 				server = xmlrpclib.Server(url)
-				session = server.login(user,pwd)
+				session = server.login(user, pwd)
 			except xmlrpclib.Fault, e:
 				text = 'Error, %s Magento details are Invalid.'%e
 			except IOError, e:
@@ -335,9 +351,9 @@ class sale_order(osv.osv):
 			except Exception,e:
 				text = 'Error in Magento Connection.'
 			if session:
-				map_id=self.pool.get('magento.orders').search(cr,uid,[('oe_order_id','=',ids[0])])
+				map_id=self.pool.get('magento.orders').search(cr,uid,[('oe_order_id','=',ids[0]),('instance_id','=',instance_id)])
 				if map_id:
-					map_obj=self.pool.get('magento.orders').browse(cr,uid,map_id[0])
+					map_obj=self.pool.get('magento.orders').browse(cr, uid, map_id[0])
 					increment_id = map_obj.mage_increment_id
 					self.pool.get('bridge.backbone').release_mage_order_from_hold(cr, uid, increment_id,  url, session)
 					try:
@@ -349,41 +365,44 @@ class sale_order(osv.osv):
 				else:
 					text = 'Order cannot be canceled from magento, cause %s order is created from Odoo.'%ids[0]		
 			cr.commit()
-			self.pool.get('magento.sync.history').create(cr,uid,{'status':status,'action_on':'order','action':'b','error_message':text})	
+			self.pool.get('magento.sync.history').create(cr, uid, {'status':status,'action_on':'order','action':'b','error_message':text})	
 		return True
 
 	def action_cancel(self, cr, uid, ids, context=None):
 		super(sale_order, self).action_cancel(cr, uid, ids, context)
 
 		######## manual_magento_order_cancel method is used to cancel an order on magento end ######
-		config_id = self.pool.get('magento.configure').search(cr,uid,[('state','=','enable')])
-		if len(config_id)>0:
-			self.manual_magento_order_cancel(cr, uid, ids, context)
-		return True
+		for order_id in ids:
+			order_ids = self.pool.get('magento.orders').search(cr, uid,[('order_ref','=',order_id)])
+			if order_ids:
+				config_obj = self.pool.get('magento.orders').browse(cr, uid, order_ids[0])
+				instance_id = config_obj.instance_id.id
+				self.manual_magento_order_cancel(cr, uid, ids, instance_id, context)
+				return True
 
 	def magento_ship_trigger(self, cr, uid, ids, context=None):
 		for sale_id in ids:
-			config_id = self.pool.get('magento.configure').search(cr,uid,[('state','=','enable'),('auto_ship','=',True)])
-			if len(config_id)==1:
+			order_ids = self.pool.get('magento.orders').search(cr, uid,[('order_ref','=',sale_id)])
+			if order_ids:
+				config_obj = self.pool.get('magento.orders').browse(cr, uid, order_ids[0])
+				instance_id = config_obj.instance_id.id
 				order_name = self.browse(cr, uid, sale_id).name
-				if order_name:
-					cr.commit()
-					self.manual_magento_shipment(cr, uid, ids, order_name, context)
+				picking_ids = self.browse(cr, uid, sale_id).picking_ids.id				
+				if order_name and picking_ids:
+					magento_shipment = self.manual_magento_shipment(cr, uid, ids, order_name, instance_id, context)
+					self.pool.get('stock.picking').write(cr, uid, picking_ids, {'magento_shipment':magento_shipment})
 		return True
 
-	def manual_magento_shipment(self, cr, uid, ids, order_name, context=None):
+	def manual_magento_shipment(self, cr, uid, ids, order_name, instance_id, context=None):
 		text = ''
 		status = 'no'
 		session = False
 		mage_shipment = False
-		config_id = self.pool.get('magento.configure').search(cr,uid,[('state','=','enable')])
-		if len(config_id)>1:
-			text = 'Sorry, only one Active Configuration setting is allowed.'
-		if not config_id:
+		obj = self.pool.get('magento.configure').browse(cr, uid, instance_id)
+		if obj.state != 'enable' and not obj.auto_ship:
 			text = 'Please create the configuration part for connection!!!'
 		else:
-			obj = self.pool.get('magento.configure').browse(cr, uid, config_id[0])
-			url = obj.name+'/index.php/api/xmlrpc'
+			url = obj.name + XMLRPC_API
 			user = obj.user
 			pwd = obj.pwd
 			email = obj.notify
@@ -402,7 +421,7 @@ class sale_order(osv.osv):
 					if map_id:
 						map_obj = self.pool.get('magento.orders').browse(cr, uid, map_id[0])
 						increment_id = map_obj.mage_increment_id
-						h = self.pool.get('bridge.backbone').release_mage_order_from_hold(cr, uid, increment_id,  url, session)
+						self.pool.get('bridge.backbone').release_mage_order_from_hold(cr, uid, increment_id,  url, session)
 						try:
 							ship_array = [increment_id, [], 'Shipped From Odoo', email]
 							mage_shipment = server.call(session,'order_shipment.create', ship_array)
@@ -417,7 +436,82 @@ class sale_order(osv.osv):
 					else:
 						text = 'Order cannot be shipped from magento, Cause %s order is created from Odoo.'%order_name
 		cr.commit()
-		self.pool.get('magento.sync.history').create(cr,uid,{'status':status,'action_on':'order','action':'b','error_message':text})
+		self.pool.get('magento.sync.history').create(cr,uid,{'status':status,'action_on':'order','action':'b','error_message':text})		
 		return mage_shipment
 sale_order()
+
+Carrier_Code = [('custom', 'Custom Value'),
+						('dhl', 'DHL (Deprecated)'),
+						('fedex', 'Federal Express'),
+						('ups', 'United Parcel Service'),
+						('usps', 'United States Postal Service'),
+						('dhlint', 'DHL')
+						]
+
+class stock_picking(osv.osv):
+	_inherit = "stock.picking"
+	_columns = {
+		'carrier_code': fields.selection(Carrier_Code, 'Magento Carrier',help="Magento Carrier"),
+		'magento_shipment':fields.char('Magento Shipment', help="Contains Magento Order Shipment Number (eg. 300000008)"),
+		}
+
+	_defaults = {
+		'carrier_code':'custom',
+	}
+
+	def action_sync_tracking_no(self, cr, uid, ids, context=None):
+		if context is None:
+			context = {}
+		text = ''
+		for id in ids:
+			stock_obj = self.browse(cr, uid, id, context)
+			sale_id = stock_obj.sale_id.id
+			magento_shipment = stock_obj.magento_shipment
+			carrier_code = stock_obj.carrier_code
+			carrier_tracking_no = stock_obj.carrier_tracking_ref
+			if not carrier_tracking_no:
+				raise osv.except_osv(_('Warning!'),_('Sorry No Carrier Tracking No. Found!!!'))
+			elif not carrier_code:
+				raise osv.except_osv(_('Warning!'),_('Please Select Magento Carrier!!!'))
+			carrier_title = dict(Carrier_Code)[carrier_code]
+			map_ids = self.pool.get('magento.orders').search(cr, uid, [('oe_order_id','=',sale_id)])
+			if map_ids:
+				instance_id = self.pool.get('magento.orders').browse(cr, uid, map_ids[0]).instance_id.id
+				obj = self.pool.get('magento.configure').browse(cr, uid, instance_id)
+				url = obj.name + XMLRPC_API
+				user = obj.user
+				pwd = obj.pwd
+				email = obj.notify
+				try:
+					server = xmlrpclib.Server(url)
+					session = server.login(user,pwd)
+				except xmlrpclib.Fault, e:
+					text = 'Error, %s Magento details are Invalid.'%e
+				except IOError, e:
+					text = 'Error, %s.'%e
+				except Exception,e:
+					text = 'Error in Magento Connection.'
+				if session:
+					track_array = [magento_shipment, carrier_code, carrier_title, carrier_tracking_no]
+					try:
+						mage_track = server.call(session,'sales_order_shipment.addTrack', track_array)
+						text = 'Tracking number successfully added.'
+					except xmlrpclib.Fault, e:
+						text = "Error While Syncing Tracking Info At Magento. %s"%e
+				partial = self.pool.get('message.wizard').create(cr, uid, {'text':text})
+				return { 
+					'name':_("Message"),
+					'view_mode': 'form',
+					'view_id': False,
+					'view_type': 'form',
+					'res_model': 'message.wizard',
+					'res_id': partial,
+					'type': 'ir.actions.act_window',
+					'nodestroy': True,
+					'target': 'new',
+					'domain': '[]',
+				 }
+
+stock_picking()
+
 # END

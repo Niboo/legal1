@@ -59,7 +59,7 @@
 			<field name="name">Synchronize To Magento</field>
 			<field name="model_id" ref="product.model_product_category"/>
 			<field name="state">code</field>
-			<field name="code">action = pool.get("magento.synchronization").export_bulk_category(cr,uid,context=context)</field>
+			<field name="code">action = pool.get("synchronization.wizard").start_bulk_category_synchronization(cr,uid,context=context)</field>
 		</record>
 
 		<record id="ir_open_bulk_category" model="ir.values">
@@ -76,7 +76,7 @@
 			<field name="name">Synchronize To Magento</field>
 			<field name="model_id" ref="product.model_product_template"/>
 			<field name="state">code</field>
-			<field name="code">action = pool.get("magento.synchronization").export_bulk_product_template(cr, uid, context=context)</field>
+			<field name="code">action = pool.get("synchronization.wizard").start_bulk_product_synchronization(cr,uid,context=context)</field>
 		</record>
 
 		<record id="ir_open_bulk_product_template" model="ir.values">

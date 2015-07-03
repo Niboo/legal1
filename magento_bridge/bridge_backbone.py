@@ -32,30 +32,32 @@ class bridge_backbone(models.Model):
 		if context is None:
 			context = {}
 		currency_ids = self.pool.get('res.currency').search(cr,uid,[('name','=',data['code'])])  or [False]
-		pricelist_ids = self.pool.get('product.pricelist').search(cr,uid,[('currency_id','=',currency_ids[0])], context=context) or [False]
-		if pricelist_ids[0] == False:
-			pricelist_dict = {  'name': 'Mage_'+data['code'],
-						   'active':True,
-						   'type': 'sale',
-						   'currency_id': currency_ids[0],
-					   }
-			pricelist_id = self.pool.get("product.pricelist").create(cr, uid, pricelist_dict, context)
-			version_dict = {
-							'name':data['code']+' Public Pricelist Version',
-							'pricelist_id':pricelist_id,
-							'active':True,
-						}
-			product_version_id = self.pool.get('product.pricelist.version').create(cr,uid,version_dict, context)
-			price_type_id = self.pool.get('product.price.type').search(cr,uid,[('field','=','list_price')], context=context)			
-			item_dict = {
-							'name': data['code']+' Public Pricelist Line',
-							'price_version_id': product_version_id,
-							'base': price_type_id[0],
-						}
-			product_pricelist_item_id = self.pool.get('product.pricelist.item').create(cr, uid, item_dict,context)
-			return pricelist_id
-		else:
-			return pricelist_ids[0]	
+		if currency_ids:
+			pricelist_ids = self.pool.get('product.pricelist').search(cr,uid,[('currency_id','=',currency_ids[0])], context=context) or [False]
+			if pricelist_ids[0] == False:
+				pricelist_dict = {  'name': 'Mage_'+data['code'],
+							   'active':True,
+							   'type': 'sale',
+							   'currency_id': currency_ids[0],
+						   }
+				pricelist_id = self.pool.get("product.pricelist").create(cr, uid, pricelist_dict, context)
+				version_dict = {
+								'name':data['code']+' Public Pricelist Version',
+								'pricelist_id':pricelist_id,
+								'active':True,
+							}
+				product_version_id = self.pool.get('product.pricelist.version').create(cr,uid,version_dict, context)
+				price_type_id = self.pool.get('product.price.type').search(cr,uid,[('field','=','list_price')], context=context)			
+				item_dict = {
+								'name': data['code']+' Public Pricelist Line',
+								'price_version_id': product_version_id,
+								'base': price_type_id[0],
+							}
+				product_pricelist_item_id = self.pool.get('product.pricelist.item').create(cr, uid, item_dict,context)
+				return pricelist_id
+			else:
+				return pricelist_ids[0]
+		return False
 	
 	def _get_journal_code(self, cr, uid, string, sep=' ', context=None):
 		tl = []
@@ -141,6 +143,8 @@ class bridge_backbone(models.Model):
 			if type(taxes) != list:
 				taxes = [data.get('tax_id')]
 			line_dic['tax_id'] = [(6,0,taxes)]
+		else:
+			line_dic['tax_id'] = False
 
 		line_id = sale_order_line.create(cr, uid, line_dic, context)
 		return line_id
@@ -180,6 +184,9 @@ class bridge_backbone(models.Model):
 			if type(taxes) != list:
 				taxes = [data.get('tax_id')]
 			line_dic['tax_id'] = [(6,0,taxes)]
+		else:
+			line_dic['tax_id'] = False
+			
 		line_id = sale_order_line.create(cr, uid, line_dic, context)
 		return line_id
 	
@@ -203,33 +210,41 @@ class bridge_backbone(models.Model):
 		if context is None:
 			context = {}
 		order_name=self.pool.get('sale.order').name_get(cr,uid,[order_id])		
-		pick_id=self.pool.get('stock.picking').search(cr, uid,[('origin','=',order_name[0][1])])
+		pick_id=self.pool.get('stock.picking').search(cr, uid,[('origin','=',order_name[0][1])])		
+		if context.has_key('instance_id'):
+			active_id = context.get('instance_id')
+			state = self.pool.get('magento.configure').browse(cr, uid, active_id).state
+			if state == 'enable':
+				self.pool.get('magento.configure').write(cr, uid, active_id,{'state':'disable'})			
+			if pick_id:
+				pick_cancel=self.pool.get('stock.picking').action_cancel(cr,uid,pick_id)		
+			order_cancel=self.pool.get('sale.order').action_cancel(cr,uid,[order_id])
+			if state == 'enable':
+				self.pool.get('magento.configure').write(cr, uid, active_id, {'state':'enable'})	
+			return True
+		return False
 		
-		active_id=self.pool.get('magento.configure').search(cr, uid,[('state','=','enable')])
-		if active_id:
-			self.pool.get('magento.configure').write(cr, uid,active_id[0],{'state':'disable'})			
-		if pick_id:
-			pick_cancel=self.pool.get('stock.picking').action_cancel(cr,uid,pick_id)		
-		order_cancel=self.pool.get('sale.order').action_cancel(cr,uid,[order_id])
-		if active_id:
-			self.pool.get('magento.configure').write(cr, uid,active_id[0],{'state':'enable'})	
-		return True
-		
-	def create_order_invoice(self,cr,uid,data):
+	def create_order_invoice(self, cr, uid, data, context=None):
 		invoice_id = 0
 		if data.get('order_id'):
-			active_id=self.pool.get('magento.configure').search(cr, uid,[('state','=','enable')])
-			if active_id:
-				self.pool.get('magento.configure').write(cr, uid,active_id[0],{'state':'disable'})
-			inv_ids = self.pool.get('sale.order').manual_invoice(cr,uid,[data.get('order_id')])
-			invoice_id = inv_ids['res_id']
-			if invoice_id:
-				if data.has_key('date'):
-					self.pool.get('account.invoice').write(cr, uid,invoice_id,{'date_invoice':data.get('date'), 'date_due':data.get('date') ,'internal_number':data['mage_inv_number']})
-				self.pool.get('account.invoice').signal_workflow(cr, uid, [invoice_id],'invoice_open')
-			if active_id:
-				self.pool.get('magento.configure').write(cr, uid,active_id[0],{'state':'enable'})
-			workflow.trg_validate(uid, 'sale.order',data.get('order_id'), 'invoice_end', cr)
+			if context.has_key('instance_id'):
+				active_id = context.get('instance_id')
+				state = self.pool.get('magento.configure').browse(cr, uid, active_id).state	
+				if state == 'enable':
+					self.pool.get('magento.configure').write(cr, uid, active_id,{'state':'disable'})
+				sale_order_details = self.pool.get('sale.order').read(cr,uid,data.get('order_id'),['order_policy','invoice_ids'])
+				if sale_order_details.get('order_policy') == 'prepaid':
+					invoice_id = sale_order_details.get('invoice_ids')[0]
+				else:
+					inv_ids = self.pool.get('sale.order').manual_invoice(cr,uid,[data.get('order_id')])
+					invoice_id = inv_ids['res_id']
+				if invoice_id:
+					if data.has_key('date'):
+						self.pool.get('account.invoice').write(cr, uid,invoice_id,{'date_invoice':data.get('date'), 'date_due':data.get('date') ,'internal_number':data['mage_inv_number']})
+					self.pool.get('account.invoice').signal_workflow(cr, uid, [invoice_id],'invoice_open')
+				if state == 'enable':
+					self.pool.get('magento.configure').write(cr, uid, active_id,{'state':'enable'})
+				workflow.trg_validate(uid, 'sale.order',data.get('order_id'), 'invoice_end', cr)
 		return invoice_id
 		
 		# code for Payment an order...... 
@@ -329,18 +344,22 @@ class bridge_backbone(models.Model):
 			context = {}
 		res = False
 		context['stock_from'] = 'magento'
-		active_id = self.pool.get('magento.configure').search(cr,uid,[('state','=','enable')])
-		if active_id:
-			self.pool.get('magento.configure').write(cr, uid, active_id[0], {'state': 'disable'})
-		order_name = self.pool.get('sale.order').name_get(cr, uid, data['order_id'])
-		pick_id = self.pool.get('stock.picking').search(cr, uid,[('origin','=',order_name[0][1])])
-		if pick_id:
-			self.pool.get('stock.picking').do_transfer(cr, uid, pick_id, context)
-			workflow.trg_validate(uid, 'sale.order',data['order_id'], 'ship_end', cr)
-			res =  True
-		if active_id:
-			self.pool.get('magento.configure').write(cr, uid, active_id[0], {'state': 'enable'})
-		return res
+		if context.has_key('instance_id'):
+			active_id = context.get('instance_id')
+			state = self.pool.get('magento.configure').browse(cr, uid, active_id).state
+			if state == 'enable':
+				self.pool.get('magento.configure').write(cr, uid, active_id, {'state': 'disable'})
+			order_name = self.pool.get('sale.order').name_get(cr, uid, data['order_id'])		
+			pick_id = self.pool.get('stock.picking').search(cr, uid,[('origin','=',order_name[0][1])])
+			if pick_id:
+				self.pool.get('stock.picking').do_transfer(cr, uid, pick_id, context)
+				self.pool.get('stock.picking').write(cr, uid, pick_id,{'carrier_tracking_ref':data['carrier_tracking_ref'],'carrier_code':data['carrier_code'],'magento_shipment':data['mage_ship_number']} ,context)
+				workflow.trg_validate(uid, 'sale.order',data['order_id'], 'ship_end', cr)
+				res =  True
+			if state == 'enable':
+				self.pool.get('magento.configure').write(cr, uid, active_id, {'state': 'enable'})
+			return res
+		return False
 
 	# code for update an inventry of a product...... 
 	
@@ -355,54 +374,59 @@ class bridge_backbone(models.Model):
 		"""
 		if context is None:
 			context = {}
-			
+		location_id = 0	
 		rec_id = data.get('product_id')
-		context['stock_from'] = 'magento'
-		assert rec_id, _('Active ID is not set in Context')
-
 		mage_qty = data.get('new_quantity')
+		context['stock_from'] = 'magento'
 		prod_obj_pool = self.pool.get('product.product')
-		res_original = prod_obj_pool.browse(cr, uid, rec_id, context=context)
-		location_id = 0
-		config_ids = self.pool.get('magento.configure').search(cr, uid, [('active','=',True)])
-		if config_ids:
-			warehouse_id = self.pool.get('magento.configure').browse(cr, uid, config_ids[0]).warehouse_id.id
-			location_id = self.pool.get('stock.warehouse').browse(cr, uid, warehouse_id).lot_stock_id.id	
-		else:
-			location_ids = self.pool.get('stock.warehouse').search(cr, uid, [], context=context)
-			location_id = self.pool.get('stock.warehouse').browse(cr, uid, location_ids[0]).lot_stock_id.id	
-		if int(mage_qty) == res_original.qty_available:
-			return True
-		elif int(mage_qty)< res_original.qty_available:
-			product_qty_new = res_original.qty_available - int(mage_qty) 
-			dest_location_id = self.pool.get('stock.location').search(cr, uid, [('usage','=','customer')],context=context)[0]
-			line_data ={
-				'product_uom_qty' : product_qty_new,
-				'location_id' : location_id,
-				'location_dest_id' : dest_location_id,
-				'product_id' : rec_id,
-				'product_uom' : res_original.uom_id.id,
-				'name': res_original.name
-			}
-			move_obj = self.pool.get('stock.move')
-			mv_id =  move_obj.create(cr , uid, line_data, context=context)
-			move_obj.action_done(cr, uid, [mv_id], context=context)	
+		assert rec_id, _('Active ID is not set in Context')
+		if context.has_key('instance_id'):
+			config_ids = context.get('instance_id')
+			config_obj = self.pool.get('magento.configure').browse(cr, uid, config_ids)
+			active = config_obj.active
+			context['warehouse'] = config_obj.warehouse_id.id
+			res_original = prod_obj_pool.browse(cr, uid, rec_id, context=context)		
+			if active:
+				warehouse_id = self.pool.get('magento.configure').browse(cr, uid, config_ids).warehouse_id.id
+				location_id = self.pool.get('stock.warehouse').browse(cr, uid, warehouse_id).lot_stock_id.id	
+			else:
+				location_ids = self.pool.get('stock.warehouse').search(cr, uid, [], context=context)
+				if location_ids:
+					location_id = self.pool.get('stock.warehouse').browse(cr, uid, location_ids[0]).lot_stock_id.id			
+			if int(mage_qty) == res_original.qty_available:
+				return True
+			elif int(mage_qty)< res_original.qty_available:
+				product_qty_new = res_original.qty_available - int(mage_qty) 
+				dest_location_id = self.pool.get('stock.location').search(cr, uid, [('usage','=','customer')],context=context)[0]
+				line_data ={
+					'product_uom_qty' : product_qty_new,
+					'location_id' : location_id,
+					'location_dest_id' : dest_location_id,
+					'product_id' : rec_id,
+					'product_uom' : res_original.uom_id.id,
+					'name': res_original.name
+				}
+				move_obj = self.pool.get('stock.move')
+				mv_id =  move_obj.create(cr , uid, line_data, context=context)
+				move_obj.action_done(cr, uid, [mv_id], context=context)	
 
-		elif int(mage_qty) > res_original.qty_available:
-			inventory_obj = self.pool.get('stock.inventory')
-			inventory_line_obj = self.pool.get('stock.inventory.line')
-			product_qty_new = int(mage_qty) - res_original.qty_available
-			inventory_id = inventory_obj.create(cr , uid, {'name': _('INV: %s') % tools.ustr(res_original.name)}, context=context)
-			line_data ={
-				'inventory_id' : inventory_id,
-				'product_qty' : product_qty_new,
-				'location_id' : location_id,
-				'product_id' : rec_id,
-				'product_uom_id' : res_original.uom_id.id
-			}
-			inventory_line_obj.create(cr , uid, line_data, context=context)
-			inventory_obj.action_done(cr, uid, [inventory_id], context=context)
-		return True
+			elif int(mage_qty) > res_original.qty_available:
+				inventory_obj = self.pool.get('stock.inventory')
+				inventory_line_obj = self.pool.get('stock.inventory.line')
+				product_qty_new = int(mage_qty) - res_original.qty_available
+				inventory_id = inventory_obj.create(cr , uid, {'name': _('INV: %s') % tools.ustr(res_original.name)}, context=context)
+				line_data ={
+					'inventory_id' : inventory_id,
+					'product_qty' : product_qty_new,
+					'location_id' : location_id,
+					'product_id' : rec_id,
+					'product_uom_id' : res_original.uom_id.id
+				}
+				inventory_line_obj.create(cr , uid, line_data, context=context)
+
+				inventory_obj.action_done(cr, uid, [inventory_id], context=context)
+			return True
+		return False
 
 	def release_mage_order_from_hold(self, cr, uid, increment_id, url, session):
 		server = xmlrpclib.Server(url)
