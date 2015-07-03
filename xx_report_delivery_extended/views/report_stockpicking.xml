@@ -108,7 +108,14 @@
                                         <span t-field="o.move_type"/>
                                     </td>
                                     <td>
-                                        <span t-field="o.carrier_id"/>
+				        <t t-if="o.carrier_id">
+                                            <span t-field="o.carrier_id"/>
+				        </t>
+
+				        <t t-else="o.carrier_id">
+                                            <span>Carrier Unknown</span>
+				        </t>
+
                                     </td>
                                     <td>
                                         <span t-field="o.origin"/>
