@@ -141,7 +141,7 @@
                             <table class="table table-condensed" style="border:solid 1px; border-color:black" t-if="not o.pack_operation_ids">
                               <thead style="background-color: grey; border:1px solid black;">
                                 <tr>
-                                    <th><strong>Product image</strong></th>
+                                    <th><strong>Product Image</strong></th>
                                     <th><strong>Product</strong></th>
                                     <th class="text-right"><strong>Quantity</strong></th>
                                     <t t-if="o.picking_type_id.code != 'incoming'"><th><strong>Source</strong></th></t>

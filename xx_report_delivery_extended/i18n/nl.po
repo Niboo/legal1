@@ -21,17 +21,17 @@ msgid "&bull;"
 msgstr "&bull;"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Carrier"
 msgstr "Vervoerder"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Commitment Date"
 msgstr "Datum toegezegd"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Delivery Address:"
 msgstr "Afleveradres:"
 
@@ -41,7 +41,7 @@ msgid "Delivery report"
 msgstr "Zendnota"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Destination"
 msgstr "Bestemming"
 
@@ -56,22 +56,22 @@ msgid "Fax:"
 msgstr "Fax:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Image"
 msgstr "Afbeelding"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Move Type"
 msgstr "Beweging Type"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Order (Origin)"
 msgstr "Order (bron)"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Order Date:"
 msgstr "Order Datum:"
 
@@ -81,7 +81,7 @@ msgid "Page:"
 msgstr "Pagina:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Payment State"
 msgstr "Status Betaling"
 
@@ -91,52 +91,52 @@ msgid "Phone:"
 msgstr "Telefoon:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Picking Number:"
-msgstr "Picking Nummer:"
+msgstr "Pickingnummer:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Picking Type"
-msgstr "Picking Type"
+msgstr "Pickingtype"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Product"
 msgstr "Product"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Product Image"
 msgstr "Productafbeelding"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Quantity"
 msgstr "Hoeveelheid"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Scheduled Date"
 msgstr "Geplande datum"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Source"
 msgstr "Bron"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Supplier Address:"
 msgstr "Adres leverancier:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "VAT:"
 msgstr "BTW:"
 
 #. module: xx_report_delivery_extended
-#: view:website:xx_report_delivery_extended.report_delivery_document
+#: view:website:xx_report_delivery_extended.report_delivery
 msgid "Warehouse Address:"
 msgstr "Adres magazijn:"
 
