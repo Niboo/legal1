@@ -109,13 +109,11 @@
                                     </td>
                                     <td>
 				        <t t-if="o.carrier_id">
-                                            <span t-field="o.carrier_id"/>
+                                            <span t-field="o.carrier_id.name"/>
 				        </t>
-
 				        <t t-else="o.carrier_id">
                                             <span>Carrier Unknown</span>
 				        </t>
-
                                     </td>
                                     <td>
 				        <t t-if="o.origin and get_order_payment_state(o.origin)">
@@ -163,8 +161,20 @@
                                                 <span t-field="move.product_uom_qty"/> <span t-field="move.product_uom" groups="product.group_uom"/>
                                             </t>
                                         </td>
-                                        <t t-if="o.picking_type_id.code != 'incoming'"><td><span t-field="move.location_id.name"/></td></t>
-                                        <t t-if="o.picking_type_id.code != 'outgoing'"><td><span t-field="move.location_dest_id"/></td></t>
+                                            <t t-if="o.picking_type_id.code != 'incoming'">
+                                                <td>
+                                                    <span t-field="move.location_id.location_id.name"/>
+                                                    <span>/</span>
+                                                    <span t-field="move.location_id.name"/>
+                                                </td>
+                                            </t>
+                                            <t t-if="o.picking_type_id.code != 'outgoing'">
+                                                <td>
+                                                    <span t-field="move.location_dest_id.location_id.name"/>
+                                                    <span>/</span>
+                                                    <span t-field="move.location_dest_id.name"/>
+                                                </td>
+                                            </t>
                                     </t>
                                 </tr>
                               </tbody>
@@ -196,7 +206,11 @@
                                         <span t-field="pack_operation.lot_id"/>
                                         </td>
                                     </t>
-                                    <t t-if="o.picking_type_id.code != 'outgoing'"><td><span t-field="pack_operation.location_dest_id"/>
+                                    <t t-if="o.picking_type_id.code != 'outgoing'">
+					<td>
+						<span t-field="pack_operation.location_dest_id.location_id.name"/>
+                                                <span>/</span>
+                                                <span t-field="pack_operation.location_dest_id.name"/>
                                         <span t-if="pack_operation.result_package_id">:</span>
                                         <span t-field="pack_operation.result_package_id"/>
                                     </td></t>
