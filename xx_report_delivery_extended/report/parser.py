@@ -68,7 +68,7 @@ class report_delivery_extended(report_sxw.rml_parse):
         sale_order_id=self.pool.get("sale.order").search(self.cr,self.uid,[('name','=',name)])
 	sale_obj=self.pool.get("sale.order").browse(self.cr,self.uid,sale_order_id,context=None)
 	res = ''
-	if sale_obj:
+	if sale_obj: 
             res = sale_obj.wk_shop
         return res
 

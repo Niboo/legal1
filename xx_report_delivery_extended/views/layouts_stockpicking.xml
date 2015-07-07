@@ -29,7 +29,7 @@
 		<div>                
 		    <t t-if="o.origin and get_order_shop(o.origin)">
 		    	<span><strong>Order Shop:</strong></span>
-			<span t-field="get_order_shop(o.origin).name"/>
+			<span  t-field="get_order_shop(o.origin).name"/>
 		    </t>
 		</div>
             </div>
