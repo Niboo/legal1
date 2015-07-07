@@ -27,9 +27,10 @@
                     t-field-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'/>
                 
 		<div>                
-		    <t t-if="o.origin and get_order_shop(o.origin)">
-		        <span><strong>Order Shop:</strong></span>
-			<span t-field="get_order_shop(o.origin)"/>
+		    <!--t t-if="o.origin and get_order_shop(o.origin)"-->
+		    <t>
+			<span><strong>Order Shop:</strong></span>
+			<span t-field="get_order_shop(o.origin).name"/>
 		    </t>
 		</div>
             </div>
