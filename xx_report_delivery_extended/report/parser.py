@@ -39,6 +39,7 @@ class report_delivery_extended(report_sxw.rml_parse):
             'time': time,
             'get_client_order_ref':self._get_client_order_ref,
             'get_order_payment_state':self._get_order_payment_state,
+            'get_order_shop':self._get_order_shop,
         })
 
     def _get_client_order_ref(self,name):
@@ -60,6 +61,15 @@ class report_delivery_extended(report_sxw.rml_parse):
 	res = ''
 	if sale_obj:
             res = sale_obj.invoiced
+        return res
+
+    def _get_order_shop(self,name):
+        res = ''
+        sale_order_id=self.pool.get("sale.order").search(self.cr,self.uid,[('name','=',name)])
+	sale_obj=self.pool.get("sale.order").browse(self.cr,self.uid,sale_order_id,context=None)
+	res = ''
+	if sale_obj:
+            res = sale_obj.wk_shop
         return res
 
 class report_saleorderqweb(osv.AbstractModel):
