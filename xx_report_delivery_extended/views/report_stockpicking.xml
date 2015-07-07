@@ -118,14 +118,12 @@
 
                                     </td>
                                     <td>
-                                        <span t-field="o.origin"/>
-				        <!--t t-if="o.origin and get_sale_order(o.origin)">
-				           <tr>
-					       <td>
-						    <b t-esc="'%s-%s-%s' % (o.origin, get_client_order_ref(o.origin), o.origin)"></b>
-					       </td>
-				           </tr>
-				        <!/t-->
+				        <t t-if="o.origin and get_order_payment_state(o.origin)">
+					    <span>Order Paid</span>
+				        </t>
+                                        <t t-else="o.origin and get_order_payment_state(o.origin)">
+					    <span>Order Not Paid</span>
+				        </t>
                                     </td>
                                     <td>
                                         <span t-field="o.date"/>

@@ -76,6 +76,16 @@ msgid "Order Date:"
 msgstr "Order Datum:"
 
 #. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Order Paid"
+msgstr "Bestelling betaald"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Order Not Paid"
+msgstr "Bestelling niet betaald"
+
+#. module: xx_report_delivery_extended
 #: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
 msgid "Page:"
 msgstr "Pagina:"

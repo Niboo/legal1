@@ -33,16 +33,38 @@ from openerp.osv import osv
 
 
 class report_delivery_extended(report_sxw.rml_parse):
+    def __init__(self, cr, uid, name, context=None):
+        super(report_delivery_extended, self).__init__(cr, uid, name, context=context)
+        self.localcontext.update({
+            'time': time,
+            'get_client_order_ref':self._get_client_order_ref,
+            'get_order_payment_state':self._get_order_payment_state,
+        })
 
-def get_client_order_ref(self,name):
+    def _get_client_order_ref(self,name):
         res = ''
-        if name not in  self.sale_order :
-            sale_order_id=self.pool.get("sale.order").search(self.cr,self.uid,[('name','=',name)])
-            sale_obj=self.pool.get("sale.order").browse(self.cr,self.uid,sale_order_id,context=None)
-            res =''
-            if sale_obj:
-                res = sale_obj.client_order_ref  or ""
-                res += ' ' + sale_obj.partner_id.name
-                if sale_obj.partner_id.city:
-                    res += ' '+ sale_obj.partner_id.city
+        sale_order_id=self.pool.get("sale.order").search(self.cr,self.uid,[('name','=',name)])
+	sale_obj=self.pool.get("sale.order").browse(self.cr,self.uid,sale_order_id,context=None)
+	res =''
+	if sale_obj:
+	    res = sale_obj.client_order_ref or ""
+	    res += ' ' + sale_obj.partner_id.name
+	if sale_obj.partner_id.city:
+	    res += ' '+ sale_obj.partner_id.city
         return res
+
+    def _get_order_payment_state(self,name):
+        res = ''
+        sale_order_id=self.pool.get("sale.order").search(self.cr,self.uid,[('name','=',name)])
+	sale_obj=self.pool.get("sale.order").browse(self.cr,self.uid,sale_order_id,context=None)
+	res = ''
+	if sale_obj:
+            res = sale_obj.invoiced
+        return res
+
+class report_saleorderqweb(osv.AbstractModel):
+    _name = 'report.xx_report_delivery_extended.report_delivery_master'
+    _inherit = 'report.abstract_report'
+    _template = 'xx_report_delivery_extended.report_delivery_master'
+    _wrapped_report_class = report_delivery_extended
+
