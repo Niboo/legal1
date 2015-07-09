@@ -173,6 +173,8 @@
                                                     <span t-field="move.location_dest_id.location_id.name"/>
                                                     <span>/</span>
                                                     <span t-field="move.location_dest_id.name"/>
+                                                    <span>/</span>
+                                                    <span t-field="move.reserved_quant_ids.location_id.name"/>
                                                 </td>
                                             </t>
                                     </t>
@@ -211,6 +213,8 @@
 						<span t-field="pack_operation.location_dest_id.location_id.name"/>
                                                 <span>/</span>
                                                 <span t-field="pack_operation.location_dest_id.name"/>
+                                                <span>/</span>
+                                                <span t-field="pack_operation.reserved_quant_ids.location_id.name"/>
                                         <span t-if="pack_operation.result_package_id">:</span>
                                         <span t-field="pack_operation.result_package_id"/>
                                     </td></t>
