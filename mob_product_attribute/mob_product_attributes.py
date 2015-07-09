@@ -1,21 +1,10 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 ##############################################################################
-#
-#    OpenERP, Open Source Management Solution
-#    Copyright (C) 2004-2010 Tiny SPRL (<http://tiny.be>).
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#		
+#    Odoo, Open Source Management Solution
+#    Copyright (C) 2013 webkul
+#	 Author :
+#				www.webkul.com	
 #
 ##############################################################################
 
@@ -123,7 +112,7 @@ class product_attributes(osv.osv):
 		elif value:
 			attr_list['value'] = value
 		if mage_attribute_id :
-			attribute_id = self.pool.get('magento.attributes').search(cr,uid,[('mage_id','=',mage_attribute_id)])
+			attribute_id = self.pool.get('magento.attributes').search(cr,uid,[('mage_id','=',mage_attribute_id),('instance_id','=',context.get('instance_id'))])
 			if attribute_id and tmpl_id:
 				search_id = self.search(cr,uid,[('attribute_id','=',attribute_id[0]),('fkey_product','=',tmpl_id)])
 				if search_id:
@@ -139,6 +128,7 @@ class product_attributes(osv.osv):
 					attr_list['attribute_id'] = attribute_id[0]
 					self.create(cr, uid, attr_list)
 				return True
+		return False
 
 class magento_attributes(osv.osv):
 	_name = "magento.attributes"
@@ -149,6 +139,7 @@ class magento_attributes(osv.osv):
 		'name': fields.char('Attribute code' ,size=100 ),
 		'label': fields.char('Label' ,size=100 ),
 		'mage_id': fields.integer('Magento Attribute Id' ,size=100 ),
+		'instance_id' :fields.many2one('magento.configure','Magento Instance'),
 		'create_date': fields.datetime('Created Date'),
 		'write_date': fields.datetime('Updated Date'),
 	}

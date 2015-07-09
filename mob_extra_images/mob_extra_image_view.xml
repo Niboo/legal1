@@ -2,18 +2,6 @@
 
 <openerp>
 	<data>	
-		<record id="magento_configure_form_inherit" model="ir.ui.view">
-            <field name="name">magento.configure.inherit.form</field>
-            <field name="model">magento.configure</field>
-			<field name="inherit_id" ref="magento_bridge.magento_configure_form"/>
-            <field name="arch" type="xml"> 
-        	 	<xpath expr="//group" position="inside">            	 		
-        	 		<field name="auto_image_del"/>  
-        	 	</xpath>
-            </field>
-        </record>
-
-
 		<record id="product_extra_images_ids_view" model="ir.ui.view">
             <field name="name">product.template.multi.image.form</field>
             <field name="model">product.template</field>

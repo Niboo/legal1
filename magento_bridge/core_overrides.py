@@ -39,7 +39,7 @@ class product_template(osv.osv):
 			product_pool = self.pool.get('product.product')
 			att_line_ids = product_pool.browse(cr, uid, vid.id).attribute_line_ids
 			if not att_line_ids:
-				product_pool.write(cr, uid, [vid.id], {'active':False})
+				product_pool.write(cr, uid, [vid.id], {'active':False}, context)
 		return True
 
 	_columns = {
@@ -118,7 +118,7 @@ class product_template(osv.osv):
 			for temp_id in ids:
 				temp_map_ids = map_obj.search(cr, uid, [('template_name', '=', temp_id)])
 				if temp_map_ids:
-					map_obj.write(cr, uid, temp_map_ids[0], {'need_sync':'Yes'})
+					map_obj.write(cr, uid, temp_map_ids[0], {'need_sync':'Yes'}, context)
 		return super(product_template, self).write(cr, uid, ids, vals, context=context)
 
 product_template()
@@ -162,7 +162,7 @@ class product_product(osv.osv):
 						attr_id = attribute_val_pool.browse(cr, uid, attr_val_id).attribute_id.id
 						search_ids = attribute_line_pool.search(cr, uid, [('product_tmpl_id','=',template_id),('attribute_id','=',attr_id)])
 						if search_ids:
-							attribute_line_pool.write(cr, uid, search_ids,{'value_ids':[(4,attr_val_id)]})
+							attribute_line_pool.write(cr, uid, search_ids,{'value_ids':[(4,attr_val_id)]}, context)
 				if mage_id:
 					search_ids = mage_temp_pool.search(cr, uid, [('erp_template_id','=', template_id)])
 					if not search_ids:
@@ -178,7 +178,7 @@ class product_product(osv.osv):
 														'created_by':'Magento'
 														})
 					else:
-						mage_temp_pool.write(cr, uid,search_ids[0], {'need_sync':'No'})
+						mage_temp_pool.write(cr, uid,search_ids[0], {'need_sync':'No'}, context)
 					mapping_pool.create(cr, uid, {'pro_name':product_id,'oe_product_id':product_id,'mag_product_id':mage_id,'instance_id':context.get('instance_id'),'created_by':'Magento'})
 					
 		return product_id
@@ -206,11 +206,11 @@ class product_product(osv.osv):
 			for pro_id in ids:
 				map_ids = product_map_pool.search(cr, uid, [('pro_name', '=', pro_id)])
 				if map_ids:
-					product_map_pool.write(cr, uid, map_ids[0], {'need_sync':'Yes'})	
+					product_map_pool.write(cr, uid, map_ids[0], {'need_sync':'Yes'}, context)	
 				template_id = self.browse(cr, uid, pro_id).product_tmpl_id.id	
 				temp_map_ids = template_map_pool.search(cr, uid, [('template_name', '=', template_id)])
 				if temp_map_ids:
-					template_map_pool.write(cr, uid, temp_map_ids[0], {'need_sync':'Yes'})
+					template_map_pool.write(cr, uid, temp_map_ids[0], {'need_sync':'Yes'}, context)
 		return super(product_product,self).write(cr, uid, ids, vals, context=context)
 
 product_product()
@@ -232,7 +232,7 @@ class product_category(osv.osv):
 			for id in ids:
 				map_ids = category_map_pool.search(cr, uid, [('oe_category_id', '=', id)])
 				if map_ids:
-					category_map_pool.write(cr, uid, map_ids[0], {'need_sync':'Yes'})
+					category_map_pool.write(cr, uid, map_ids[0], {'need_sync':'Yes'}, context)
 		return super(product_category,self).write(cr, uid, ids, vals, context=context)
 
 product_category()
@@ -390,7 +390,7 @@ class sale_order(osv.osv):
 				picking_ids = self.browse(cr, uid, sale_id).picking_ids.id				
 				if order_name and picking_ids:
 					magento_shipment = self.manual_magento_shipment(cr, uid, ids, order_name, instance_id, context)
-					self.pool.get('stock.picking').write(cr, uid, picking_ids, {'magento_shipment':magento_shipment})
+					self.pool.get('stock.picking').write(cr, uid, picking_ids, {'magento_shipment':magento_shipment}, context)
 		return True
 
 	def manual_magento_shipment(self, cr, uid, ids, order_name, instance_id, context=None):
@@ -513,5 +513,56 @@ class stock_picking(osv.osv):
 				 }
 
 stock_picking()
+
+class res_partner(osv.osv):
+	_inherit = 'res.partner'
+
+	def create(self, cr, uid, vals, context=None):
+		if context is None:
+			context = {}
+		if context.has_key('magento'):
+			vals = self.customer_array(cr, uid, vals, context=context)
+		customer_id = super(res_partner, self).create(cr, uid, vals, context=context)
+
+		return customer_id
+
+	def write(self, cr, uid, ids, vals, context=None):
+		if context is None:
+			context = {}
+		if isinstance(ids, (int, long)):
+			ids = [ids]
+		if context.has_key('magento'):
+			vals = self.customer_array(cr, uid, vals, context=context)	
+
+		return super(res_partner, self).write(cr, uid, ids, vals, context=context)
+
+	def customer_array(self, cr, uid, data, context=None):
+		
+		dic = {}
+		if data.has_key('country_code'):
+			country_ids = self.pool.get('res.country').search(cr, uid,[('code','=',data.get('country_code'))])
+			if country_ids:
+				data['country_id'] = country_ids[0]
+				if data.has_key('region') and data['region']:
+					region = _unescape(data.get('region'))
+					state_ids = self.pool.get('res.country.state').search(cr, uid,[('name', '=', region)])
+					if state_ids:
+						data['state_id'] = state_ids[0]
+					else:
+						dic['name'] = region
+						dic['country_id'] = country_ids[0]
+						dic['code'] = region[:2].upper()
+						state_id = self.pool.get('res.country.state').create(cr, uid,dic)
+						data['state_id'] = state_id
+		if data.has_key('tag') and data["tag"]:
+			tag = _unescape(data.get('tag'))
+			tag_ids = self.pool.get('res.partner.category').search(cr,uid,[('name','=',tag)], limit=1)
+			if not tag_ids:
+				tag_id = self.pool.get('res.partner.category').create(cr,uid,{'name':tag})
+			else:
+				tag_id = tag_ids[0]
+			data['category_id'] = [(6,0,[tag_id])]
+
+		return data
 
 # END

@@ -1,23 +1,13 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 ##############################################################################
-#
-#    OpenERP, Open Source Management Solution
-#    Copyright (C) 2004-2010 Tiny SPRL (<http://tiny.be>).
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#		
+#    Odoo, Open Source Management Solution
+#    Copyright (C) 2013 webkul
+#	 Author :
+#				www.webkul.com	
 #
 ##############################################################################
+
 import sys
 import openerp.pooler
 import openerp.netsvc
@@ -45,11 +35,31 @@ class product_template(osv.osv):
         'wk_websites_id': fields.many2many('magento.website','wk_website_rel','store_id','group_id','Websites'),
 	}
 
+	def create(self, cr, uid, vals, context=None):
+		if context is None:
+			context = {}
+		website_ids = []
+		if context.has_key('magento'):
+			website_ids = self.pool.get('magento.website').search(cr, uid, [('website_id','in',vals['wk_websites_id']),('instance_id','=',context.get('instance_id'))])
+			if website_ids:
+				vals['wk_websites_id'] = [(6, 0, website_ids)]
+		return super(product_template, self).create(cr, uid, vals, context=context)
+
 class sale_order(osv.osv):
 	_inherit = "sale.order"
 
 	_columns = {     
 			'wk_shop':fields.many2one('magento.store.view', 'Magento Store')
 		}
+
+class magento_synchronization(osv.osv):
+	_inherit = "magento.synchronization"
+
+	def _get_product_array(self, cr, uid, url, session, obj_pro, get_product_data, context):
+		website_ids = []
+		for website_id in obj_pro.wk_websites_id:			
+			website_ids.append(website_id.website_id)		
+		get_product_data['websites'] = website_ids
+		return super(magento_synchronization, self)._get_product_array(cr, uid, url, session, obj_pro, get_product_data, context)
 
 sale_order()

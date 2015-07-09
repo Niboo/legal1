@@ -48,8 +48,10 @@ class res_partner(osv.osv):
 
 		# get the information that will be injected into the display format
 		# get the address format
-		address_format = address.country_id and address.country_id.address_format or \
-			"%(wk_company)s\n%(street)s\n%(street2)s\n%(city)s %(state_code)s %(zip)s\n%(country_name)s"
+		if address.country_id and address.country_id.address_format:
+			address_format = "%(wk_company)s\n"+address.country_id.address_format
+		else:
+			address_format = "%(wk_company)s\n%(street)s\n%(street2)s\n%(city)s %(state_code)s %(zip)s\n%(country_name)s"
 		args = {
 		    'wk_company': address.wk_company or '',
 		    'state_code': address.state_id and address.state_id.code or '',

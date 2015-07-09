@@ -23,6 +23,7 @@
 							<label for="name"/>
 							<h3><field name="name" colspan="4" placeholder="Example: http://mymagento.com"/></h3>
 							<field name="credential"/>
+							<field name="correct_mapping"/>
 						</group>
 						<notebook>
 							<page string="API Credentials" attrs="{'invisible': [('credential','!=', True)]}">

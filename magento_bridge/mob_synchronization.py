@@ -61,7 +61,7 @@ class magento_synchronization(osv.osv):
 					else:
 						dic['attribute_ids'] = [[5]]
 					dic['instance_id'] = context.get('instance_id')
-					res = set_pool.write(cr, uid, erp_set_id, dic)
+					res = set_pool.write(cr, uid, erp_set_id, dic, context)
 		return res
 
 	#############################################
@@ -215,12 +215,12 @@ class magento_synchronization(osv.osv):
 						else:
 							set_search1 = list(set(set_search1) & set(set_search2))
 					if set_search1:
-						temp_pool.write(cr, uid, temp_id, {'attribute_set_id':set_search1[0]})			
+						temp_pool.write(cr, uid, temp_id, {'attribute_set_id':set_search1[0]}, context)			
 						success_ids.append(temp_id)
 					else:
 						fails_ids.append(temp_id)
 				else:
-					temp_pool.write(cr, uid, temp_id, {'attribute_set_id':default_set})
+					temp_pool.write(cr, uid, temp_id, {'attribute_set_id':default_set}, context)
 					success_ids.append(temp_id)
 		if success_ids:
 			msg = 'Magento Attribute Sets Successfully Assigned to following Product(s) %s.'%success_ids
@@ -326,7 +326,14 @@ class magento_synchronization(osv.osv):
 			return False
 		if mage_cat > 0:
 			##########  Mapping Entry  ###########
-			self.pool.get('magento.category').create(cr, uid, {'cat_name':catg_id,'oe_category_id':catg_id,'mag_category_id':mage_cat,'created_by':'odoo','instance_id':context.get('instance_id')})
+			category_array = {
+								'cat_name':catg_id,
+								'oe_category_id':catg_id,
+								'mag_category_id':mage_cat,
+								'created_by':'odoo',
+								'instance_id':context.get('instance_id')
+							}
+			self.pool.get('magento.category').create(cr, uid, category_array)
 			server.call(session, 'magerpsync.category_map', [{'mage_category_id':mage_cat,'erp_category_id':catg_id}])
 			return mage_cat
 
@@ -469,7 +476,7 @@ class magento_synchronization(osv.osv):
 				server = xmlrpclib.Server(url)
 				cat = server.call(session, 'catalog_category.update', update_data)
 				cat_mv = server.call(session, 'catalog_category.move', move_data)
-				self.pool.get('magento.category').write(cr, uid, id, {'need_sync':'No'})
+				self.pool.get('magento.category').write(cr, uid, id, {'need_sync':'No'}, context)
 			except xmlrpclib.Fault, e:
 				return [0, str(e)]
 			except Exception, e:
@@ -569,7 +576,7 @@ class magento_synchronization(osv.osv):
 			session = connection[1]
 			context['instance_id'] = connection[2]
 			for l in bulk_ids:
-				search = map_obj.search(cr,uid,[('template_name','=',l),('instance_id','=',context.get('instance_id'))])				
+				search = map_obj.search(cr,uid,[('template_name','=',l),('instance_id','=',context.get('instance_id'))])	
 				if not search:
 					pro = self._export_specific_template(cr, uid, l, url, session, context)
 					if pro:
@@ -715,7 +722,7 @@ class magento_synchronization(osv.osv):
 			get_product_data['tax_class_id'] = '0'		
 			if mage_set_id:
 				newprod_data = ['configurable', mage_set_id, template_sku, get_product_data]
-				self.pool.get('product.template').write(cr, uid, id, {'prod_type':'configurable'})	
+				self.pool.get('product.template').write(cr, uid, id, {'prod_type':'configurable'}, context)	
 				try:
 					mage_product_id = server.call(session, 'product.create', newprod_data)
 				except xmlrpclib.Fault, e:
@@ -800,6 +807,23 @@ class magento_synchronization(osv.osv):
 				k = server.call(session,'catalog_product_attribute_media.create',image)			
 				return True
 
+	def _update_product_attribute_media(self, cr, uid, url, session, obj_pro, mage_product_id):
+		if obj_pro.image:
+			server = xmlrpclib.Server(url)
+			file1 = ''
+			pro_img_data = server.call(session,'catalog_product_attribute_media.list',[mage_product_id])			
+			if pro_img_data:
+				file1 = pro_img_data[0]['file']
+				image_file = {'content':obj_pro.image,'mime':'image/jpeg'}			
+				image_type = ['image','small_image','thumbnail']
+				pic = {'file':image_file,'label':'Label', 'position':'100','types':image_type, 'exclude':1}
+				image = [mage_product_id, file1, pic]
+				if image:
+					k = server.call(session,'catalog_product_attribute_media.update',image)
+			else:
+				self._create_product_attribute_media(cr, uid, url, session, obj_pro, mage_product_id)
+			return True
+
 
 	#############################################
 	##    		Specific product sync	       ##
@@ -844,7 +868,7 @@ class magento_synchronization(osv.osv):
 				prodtype = 'simple'
 			else:
 				prodtype = 'virtual'	
-			self.pool.get('product.product').write(cr, uid, id, {'prod_type':prodtype})		
+			self.pool.get('product.product').write(cr, uid, id, {'prod_type':prodtype}, context)		
 			pro = self.prodcreate(cr, uid, url, session, id, prodtype, sku, get_product_data, context)
 			if pro and pro[0] != 0:
 				self._create_product_attribute_media(cr, uid, url, session, obj_pro, pro[1])
@@ -963,14 +987,14 @@ class magento_synchronization(osv.osv):
 						if search_ids:
 							mage_update_ids = self._update_specific_product(cr, uid, search_ids[0], url, session, context=context)			
 						if mage_update_ids and mage_update_ids[0]>0:
-							map_tmpl_pool.write(cr, uid, id, {'need_sync':'No'})
+							map_tmpl_pool.write(cr, uid, id, {'need_sync':'No'}, context)
 						return mage_update_ids
 			else:
 				return [-1, str(id)+' No Variant Ids Found!!!']
 			update_data = [mage_id, get_product_data]
 			try:
 				temp = server.call(session, 'product.update', update_data)
-				map_tmpl_pool.write(cr, uid, id, {'need_sync':'No'})
+				map_tmpl_pool.write(cr, uid, id, {'need_sync':'No'}, context)
 			except xmlrpclib.Fault, e:
 				return [0, str(temp_id)+str(e)]
 			return [1, temp_id]
@@ -1001,7 +1025,11 @@ class magento_synchronization(osv.osv):
 			update_data = [mage_id, get_product_data]
 			try:
 				pro = server.call(session, 'product.update', update_data)
-				self.pool.get('magento.product').write(cr, uid, id, {'need_sync':'No'})
+				if mage_id:
+					check = self._update_product_attribute_media(cr, uid, url, session, obj_pro, mage_id)
+				
+				
+				self.pool.get('magento.product').write(cr, uid, id, {'need_sync':'No'}, context)
 			except xmlrpclib.Fault, e:
 				return [0, str(pro_id)+str(e)]
 			if pro and obj_pro.qty_available>0:

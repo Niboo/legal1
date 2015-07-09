@@ -228,8 +228,10 @@ class magento_configure(osv.osv):
 		'warehouse_id':fields.many2one('stock.warehouse','Warehouse', 
 									help="Used During Inventory Synchronization From Magento to Odoo."),
 		'create_date':fields.datetime('Created Date'),
+		'correct_mapping':fields.boolean('Correct Mapping'),
 	}
 	_defaults = {
+		'correct_mapping':True,
 		'instance_name':_default_instance_name,
 		'active':lambda *a: 1,	
 		'auto_ship':lambda *a: 1,
@@ -265,16 +267,40 @@ class magento_configure(osv.osv):
 		"""
 			Called by Xmlrpc from Magento
 		"""
-		mage_url = re.sub(r'^https?:\/\/', '', vals.get('magento_url'))
-		active_connection_id = self.search(cr, uid, [('active','=',True)])
-		for odoo_id in active_connection_id:
-			act =self.browse(cr, uid, odoo_id).name
-			act = re.sub(r'^https?:\/\/', '', act)
-			active_connection_data = {}
-			if mage_url == act or mage_url[:-1] == act:
-				active_connection_data = self.read(cr, uid, odoo_id, ['language', 'category', 'warehouse_id'])				
-				return active_connection_data
+		if vals.has_key('magento_url'):
+			mage_url = re.sub(r'^https?:\/\/', '', vals.get('magento_url'))
+			active_connection_id = self.search(cr, uid, [('active','=',True)])
+			for odoo_id in active_connection_id:
+				act = self.browse(cr, uid, odoo_id).name
+				act = re.sub(r'^https?:\/\/', '', act)
+				mage_url = re.split('index.php', mage_url)[0]
+				if mage_url == act or mage_url[:-1] == act:
+					return self.read(cr, uid, odoo_id, ['language', 'category', 'warehouse_id'])
 		return False
+
+	def correct_instance_mapping(self, cr, uid, ids, context=None):
+
+		self.mapped_status(cr, uid, ids, "magento.product", context)
+		self.mapped_status(cr, uid, ids, "magento.product.template", context)
+		self.mapped_status(cr, uid, ids, "magento.orders", context)
+		self.mapped_status(cr, uid, ids, "magento.customers", context)
+		self.mapped_status(cr, uid, ids, "magento.product.attribute.value", context)
+		self.mapped_status(cr, uid, ids, "magento.product.attribute", context)
+		self.mapped_status(cr, uid, ids, "magento.category", context)
+		self.mapped_status(cr, uid, ids, "magento.website", context)
+		self.mapped_status(cr, uid, ids, "magento.store", context)
+		self.mapped_status(cr, uid, ids, "magento.store.view", context)
+		self.mapped_status(cr, uid, ids, "magento.attribute.set", context)
+
+		return True
+
+	def mapped_status(self, cr, uid, ids, model, context=None):
+		if isinstance(ids, (int, long)):
+			ids = [ids]
+		rest_ids = self.pool.get(model).search(cr, uid, [('instance_id','=',False)])
+		if ids and rest_ids:
+			self.pool.get(model).write(cr, uid, rest_ids,{'instance_id':ids[0]})
+		return True
 
 	def set_default_magento_website(self, cr, uid, ids, url, session, context=None):
 		if context is None:
@@ -301,6 +327,7 @@ class magento_configure(osv.osv):
 		url = obj.name + XMLRPC_API
 		user = obj.user
 		pwd = obj.pwd
+		check_mapping = obj.correct_mapping
 		try:
 			server = xmlrpclib.Server(url)
 			session = server.login(user, pwd)
@@ -316,6 +343,8 @@ class magento_configure(osv.osv):
 			status = "Congratulation, It's Successfully Connected with Magento Api."
 		self.write(cr, uid, ids[0],{'status':status})
 		partial = self.pool.get('message.wizard').create(cr, uid, {'text':text})
+		if check_mapping:
+			self.correct_instance_mapping(cr, uid, ids, context)
 		return { 'name':_("Information"),
 				 'view_mode': 'form',
 				 'view_id': False,
@@ -627,76 +656,6 @@ class magento_customers(osv.osv):
 		'need_sync': 'No',
 	}
 
-	def create_customer(self, cr, uid, data, context=None):
-		"""Create a customer by any webservice like xmlrpc.
-		@param data: details of customer fields in list.
-		@param context: A standard dictionary
-		@return: Odoo Customer id
-		"""		
-		cus_dic = {}
-		dic = {}
-		customer_id = 0
-		if data.has_key('country_code'):
-			country_ids = self.pool.get('res.country').search(cr, uid,[('code','=',data.get('country_code'))])
-			if country_ids:
-				cus_dic['country_id'] = country_ids[0]
-				if data.has_key('region') and data['region']:
-					region = _unescape(data.get('region'))
-					state_ids = self.pool.get('res.country.state').search(cr, uid,[('name', '=', region)])
-					if state_ids:
-						cus_dic['state_id'] = state_ids[0]
-					else:
-						dic['name'] = region
-						dic['country_id'] = country_ids[0]
-						dic['code'] = region[:2].upper()
-						state_id = self.pool.get('res.country.state').create(cr, uid,dic)
-						cus_dic['state_id'] = state_id
-		if data.has_key('is_company'):
-			cus_dic['is_company'] = data.get('is_company')
-		if data.has_key('use_parent_address'):
-			cus_dic['use_parent_address'] = data.get('use_parent_address')
-		if data.has_key('parent_id'):
-			cus_dic['parent_id'] = data.get('parent_id')
-		if data.has_key('customer'):
-			cus_dic['customer'] = data.get('customer')
-		if data.has_key('address'):
-			cus_dic['wk_address'] = data.get('address')
-		if data.has_key('wk_company'):
-			cus_dic['wk_company'] = _unescape(data.get('wk_company'))
-		if data.has_key('partner_id'):
-			customer_id = data.get('partner_id')
-		if data.has_key('name') and data['name']:
-			cus_dic['name'] = _unescape(data.get('name'))
-		if data.has_key('email') and  data['email']:
-			cus_dic['email'] = _unescape(data.get('email'))
-		if data.has_key('street') and data['street']:
-			cus_dic['street'] = _unescape(data.get('street'))
-		if data.has_key('street2') and data['street2']:
-			cus_dic['street2'] = _unescape(data.get('street2'))
-		if data.has_key('city') and data['city']:
-			cus_dic['city'] = _unescape(data.get('city'))
-		if data.has_key('vat') and data['vat']:
-			cus_dic['vat'] = data.get('vat')
-		cus_dic['type'] = data.get('type',False)
-		cus_dic['zip'] = data.get('zip',False)
-		cus_dic['phone'] = data.get('phone',False)
-		cus_dic['fax'] = data.get('fax',False)
-		cus_dic['lang'] = data.get('lang',False)
-		if data.has_key('tag') and data["tag"]:
-			tag = _unescape(data.get('tag'))
-			tag_ids = self.pool.get('res.partner.category').search(cr,uid,[('name','=',tag)], limit=1)
-			if not tag_ids:
-				tag_id = self.pool.get('res.partner.category').create(cr,uid,{'name':tag})
-			else:
-				tag_id = tag_ids[0]
-			cus_dic['category_id'] = [(6,0,[tag_id])]
-		if data.get('method') == 'create':
-			customer_id = self.pool.get('res.partner').create(cr, uid, cus_dic, context)
-			return customer_id
-		if data.get('method') == 'write':
-			self.pool.get('res.partner').write(cr, uid, customer_id, cus_dic, context)
-			return customer_id
-		return False
 magento_customers()
 
 
