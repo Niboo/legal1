@@ -139,6 +139,7 @@
                                 <tr>
                                     <th><strong>Product Image</strong></th>
                                     <th><strong>Product</strong></th>
+                                    <th><strong>Location</strong></th>
                                     <th class="text-right"><strong>Quantity</strong></th>
                                     <t t-if="o.picking_type_id.code != 'incoming'"><th><strong>Source</strong></th></t>
                                     <t t-if="o.picking_type_id.code != 'outgoing'"><th><strong>Destination</strong></th></t>
@@ -153,6 +154,7 @@
                                             </span>
                                         </td>
                                         <td><span t-field="move.product_id"/></td>
+                                        <td><span t-field="move.reserved_quant_ids.location_id.name"/></td>
                                         <td class="text-right">
                                             <t t-if="o.state == 'partially_available'">
                                                 <span t-field="move.reserved_availability"/> <span t-field="move.product_id.uom_id" groups="product.group_uom"/>
@@ -166,8 +168,6 @@
                                                     <span t-field="move.location_id.location_id.name"/>
                                                     <span>/</span>
                                                     <span t-field="move.location_id.name"/>
-                                                    <span>/</span>
-                                                    <span t-field="move.reserved_quant_ids.location_id.name"/>
                                                 </td>
                                             </t>
                                             <t t-if="o.picking_type_id.code != 'outgoing'">
@@ -175,8 +175,6 @@
                                                     <span t-field="move.location_dest_id.location_id.name"/>
                                                     <span>/</span>
                                                     <span t-field="move.location_dest_id.name"/>
-                                                    <span>/</span>
-                                                    <span t-field="move.reserved_quant_ids.location_id.name"/>
                                                 </td>
                                             </t>
                                     </t>
@@ -188,6 +186,7 @@
                                 <tr>
                                     <th><strong>Product Image</strong></th>
                                     <th><strong>Product</strong></th>
+                                    <th><strong>Location</strong></th>
                                     <th class="text-right"><strong>Quantity</strong></th>
                                     <t t-if="o.picking_type_id.code != 'incoming'"><th><strong>Source</strong></th></t>
                                     <t t-if="o.picking_type_id.code != 'outgoing'"><th><strong>Destination</strong></th></t>
@@ -202,6 +201,9 @@
                                     </td>
                                     <td><span t-field="pack_operation.product_id"/>
                                         <t t-if="not pack_operation.product_id and pack_operation.package_id"><span  t-field="pack_operation.package_id"/></t></td>
+                                    <td>
+                                        <span t-field="pack_operation.reserved_quant_ids.location_id.name"/>
+				    </td>
                                     <td class="text-right"><span t-field="pack_operation.product_qty"/> <span t-field="pack_operation.product_uom_id" groups="product.group_uom"/></td>
                                     <t t-if="o.picking_type_id.code != 'incoming'"><td><span t-field="pack_operation.location_id.name"/>
                                         <span t-if="pack_operation.package_id">:</span>
@@ -214,9 +216,7 @@
 					<td>
 						<span t-field="pack_operation.location_dest_id.location_id.name"/>
                                                 <span>/</span>
-                                                <span t-field="pack_operation.location_dest_id.name"/>
-                                                <span>/</span>
-                                                <span t-field="pack_operation.reserved_quant_ids.location_id.name"/>
+                                                <span t-field="pack_operation.location_dest_id.name"/>                                                
                                         <span t-if="pack_operation.result_package_id">:</span>
                                         <span t-field="pack_operation.result_package_id"/>
                                     </td></t>
