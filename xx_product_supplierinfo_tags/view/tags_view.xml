@@ -108,6 +108,42 @@
                 <p>create a new supplier info tab.</p>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="product_putaway_tree">
+            <field name="name">product_putaway_tree</field>
+            <field name="model">product.putaway</field>
+            <field name="arch" type="xml">
+                <tree string="Putaway">
+                    <!--field name="product_tmpl_id"/-->
+                    <field name="name"/>
+                    <!--field name="delay"/>
+                    <field name="min_qty"/-->
+                </tree>
+            </field>
+        </record>
+        <record id="product_putaway_search" model="ir.ui.view">
+            <field name="name">product_putaway_search</field>
+            <field name="model">product.putaway</field>
+            <field name="arch" type="xml">
+                <search string="Search Model">
+                    <!--field name="product_tmpl_id"/-->
+                    <field name="name"/>
+                       <group expand="0" string="Group By">
+                        <filter name="group_by_product_tmpl_id" string="Product" domain="[]" context="{'group_by': 'product_tmpl_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="action_product_putaway">
+            <field name="name">Putaway Strategy</field>
+            <field name="res_model">product.putaway</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="product_putaway_tree"></field>
+            <field name="search_view_id" ref="product_putaway_search"/>
+            <field name="help" type="html">
+                <p>create a new putaway strategy tab.</p>
+            </field>
+        </record>
         <!-- Top menu item -->
         <menuitem name="Data Import"
             id="menu_import_data"
@@ -115,5 +151,6 @@
         <menuitem id="menu_tags" name="" parent="menu_import_data" sequence="2"/>
         <menuitem id="menu_action_tag" action="action_xx_product_supplierinfo_tags" parent="menu_tags"/>
         <menuitem id="menu_action_supplier_info" action="action_product_supplierinfo" parent="menu_tags"/>
+        <menuitem id="menu_action_putaway" action="action_product_putaway" parent="menu_tags"/>
     </data>
 </openerp>
