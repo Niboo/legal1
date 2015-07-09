@@ -168,6 +168,7 @@
                                                     <span t-field="move.location_id.location_id.name"/>
                                                     <span>/</span>
                                                     <span t-field="move.location_id.name"/>
+                                                    <span t-field="move.location_id"/>
                                                 </td>
                                             </t>
                                             <t t-if="o.picking_type_id.code != 'outgoing'">
@@ -205,7 +206,9 @@
                                         <span t-field="pack_operation.reserved_quant_ids.location_id.name"/>
 				    </td>
                                     <td class="text-right"><span t-field="pack_operation.product_qty"/> <span t-field="pack_operation.product_uom_id" groups="product.group_uom"/></td>
-                                    <t t-if="o.picking_type_id.code != 'incoming'"><td><span t-field="pack_operation.location_id.name"/>
+                                    <t t-if="o.picking_type_id.code != 'incoming'"><td>
+                                        <span t-field="pack_operation.location_id.name"/>
+                                        <span t-field="pack_operation.location_id"/>
                                         <span t-if="pack_operation.package_id">:</span>
                                         <span t-field="pack_operation.package_id"/>
                                         <span t-if="pack_operation.lot_id">:</span>
