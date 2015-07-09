@@ -166,6 +166,8 @@
                                                     <span t-field="move.location_id.location_id.name"/>
                                                     <span>/</span>
                                                     <span t-field="move.location_id.name"/>
+                                                    <span>/---</span>
+                                                    <span t-field="move.reserved_quant_ids.location_id.name"/>
                                                 </td>
                                             </t>
                                             <t t-if="o.picking_type_id.code != 'outgoing'">
