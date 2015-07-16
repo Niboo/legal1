@@ -64,7 +64,7 @@
 						<field name="name" required="1"/>
                         <field name="code" readonly="1"/>
 						<field name="group_id" readonly="1"/>
-						<field name="create_date" readonly="1"/>
+						<field name="create_date" readonly="1"/>                        
 					</group>
 				</form>
 			</field>
@@ -77,7 +77,7 @@
             <field name="arch" type="xml">
                 <tree create="false" string="Store Mapping">
 					<field name="name" required="1"/>
-					<field name="code" readonly="1"/>
+					<field name="code" readonly="1"/>                    
                     <field name="group_id" readonly="1"/>
 					<field name="create_date" readonly="1"/>
 				</tree>

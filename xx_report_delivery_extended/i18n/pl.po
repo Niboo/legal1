@@ -1,0 +1,157 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* xx_report_delivery_extended
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-02 13:58+0000\n"
+"PO-Revision-Date: 2015-07-02 13:58+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
+msgid "&bull;"
+msgstr "&bull;"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Carrier"
+msgstr "Przewoźnik"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Commitment Date"
+msgstr "Data dostawy"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Delivery Address:"
+msgstr "Delivery Address:"
+
+#. module: xx_report_delivery_extended
+#: model:ir.actions.report.xml,name:xx_report_delivery_extended.action_report_delivery
+msgid "Delivery report"
+msgstr "Delivery report"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Destination"
+msgstr "Strefa docelowa"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
+msgid "Email:"
+msgstr "Email:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
+msgid "Fax:"
+msgstr "Faks:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Image"
+msgstr "Image"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Move Type"
+msgstr "Move Type"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Order (Origin)"
+msgstr "Zamówienie (pochodzenie)"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Order Date:"
+msgstr "Order Date:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Order Paid"
+msgstr "Kolejność Płatne"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Order Not Paid"
+msgstr "Kolejność Nie Płatne"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
+msgid "Page:"
+msgstr "Strona:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Payment State"
+msgstr "Payment State"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
+msgid "Phone:"
+msgstr "Telefon:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Picking Number:"
+msgstr "Picking Number:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Picking Type:"
+msgstr "Picking Type:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Product"
+msgstr "Produkt"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Product Image"
+msgstr "Product Image"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Quantity"
+msgstr "Ilość"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Scheduled Date"
+msgstr "Zaplanowana data"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Source"
+msgstr "Źródło"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Supplier Address:"
+msgstr "Adres dostawcy:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "VAT:"
+msgstr "VAT:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.report_delivery
+msgid "Warehouse Address:"
+msgstr "Adres magazynu:"
+
+#. module: xx_report_delivery_extended
+#: view:website:xx_report_delivery_extended.external_layout_footer_stockpicking
+msgid "Website:"
+msgstr "Strona WWW:"
+
