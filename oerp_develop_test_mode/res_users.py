@@ -25,8 +25,8 @@ from openerp import SUPERUSER_ID
 from openerp import pooler
 from openerp import models, fields, api, _
 
-DEVELOP = True
-TEST = False
+DEVELOP = ''
+TEST = True
 
 
 class res_users(models.Model):
@@ -35,12 +35,10 @@ class res_users(models.Model):
     def __set_from_config_test(self, db):
         cr = pooler.get_db(db).cursor()
         config_parameters = self.pool.get("ir.config_parameter")
-        if DEVELOP:
-            config_parameters.set_param(
-                            cr, SUPERUSER_ID, "develop", DEVELOP)
-        if TEST:
-            config_parameters.set_param(
-                            cr, SUPERUSER_ID, "test", TEST)
+        config_parameters.set_param(
+            cr, SUPERUSER_ID, "develop", DEVELOP)
+        config_parameters.set_param(
+            cr, SUPERUSER_ID, "test", TEST)
 
         if not config.get('test'):
             config['test'] = {}
