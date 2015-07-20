@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record  model="ir.ui.view" id="view_group_form">
+            <field name="name">mail.group.form</field>
+            <field name="model">mail.group</field>
+            <field name="inherit_id" ref="mail.view_group_form"/>
+            <field name="arch" type="xml">
+                <xpath  expr="//field[@name='alias_contact']/.." position="after">
+                    <field name="is_chat"/> <label for="is_chat" string="Is Avaiable For Chat ?"/>
+                </xpath>
+                
+            </field>
+        </record>      
+    
+    
+        <record id="view_im_chat_message_form" model="ir.ui.view">
+            <field name="model">im_chat.message</field>
+            <field name="arch" type="xml">
+                <form string="Messages">
+                    <group colpan="4" col="4">
+                        <field name="create_date"/>
+                        <field name="from_id"/>
+                        <field name="to_id"/>
+                        <field name="type"/>
+                        <field name="message"/>
+                        <field name="user_ids" colspan="4" nolabel="1"/>
+                    </group>
+                </form>
+             </field>
+         </record>
+        <record id="view_im_chat_message_search" model="ir.ui.view">
+            <field name="model">im_chat.message</field>
+            <field name="arch" type="xml">
+                <search string="Messages">
+                        <field name="create_date"/>
+                        <field name="from_id"/>
+                        <field name="to_id"/>
+                        <field name="type"/>
+                        <field name="message"/>
+                        
+                        <group expand="0" string="Group By">
+                            <filter string="Owner" icon="terp-personal" domain="[]" context="{'group_by':'from_id'}"/>
+                            <filter string="Type" icon="terp-stock_symbol-selection" domain="[]" context="{'group_by':'type'}" groups="base.group_no_one"/>
+                            <filter string="Creation Month" icon="terp-go-month" domain="[]" context="{'group_by':'create_date'}"/>
+                            <filter string="To" icon="terp-personal" domain="[]" context="{'group_by':'to_id'}"/>
+                            
+                        </group>
+                </search>
+             </field>
+         </record>
+         <record id="view_im_chat_message_tree" model="ir.ui.view">
+            <field name="model">im_chat.message</field>
+            <field name="arch" type="xml">
+                <tree string="Messages">
+                        <field name="create_date"/>
+                        <field name="from_id"/>
+                        <field name="to_id"/>
+                        <field name="type"/>
+                        <field name="message"/>
+                </tree>
+             </field>
+         </record>
+         
+        <record id="action_im_chat_message" model="ir.actions.act_window">
+            <field name="name">Messages</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">im_chat.message</field>
+            <field name="view_type">form</field>
+            <field name="view_id" eval="False"/>
+            <field name="search_view_id" ref="view_im_chat_message_search"/>
+        </record>
+        <menuitem action="action_im_chat_message" id="menu_im_chat_message" parent="resource.menu_resource_config"/>
+    </data>
+</openerp>
