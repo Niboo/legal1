@@ -48,7 +48,9 @@ class product_template(osv.osv):
     									('configurable','Configurable Product'),
     									('virtual','Virtual Product'),
     									('bundle','Bundle Product'),
-    									('downloadable','Downloadable Product')],
+    									('downloadable','Downloadable Product'),
+    									('buyerprotect','Buyer Protect Product'),
+                                    ],
     				'Magento Type', size=100),
 
         'categ_ids': fields.many2many('product.category','product_categ_rel','product_id','categ_id','Product Categories'),
