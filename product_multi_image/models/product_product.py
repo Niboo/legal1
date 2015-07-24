@@ -39,43 +39,55 @@ class ProductProduct(models.Model):
             self.image_medium = self.image_ids[0].image_medium
             self.image_small = self.image_ids[0].image_small
 
-    def _set_image(self, image):
+    @api.one
+    def _set_image(self):
         if self.image:
             if self.image_ids:
-                self.image_ids[0].write({'type': 'db',
-                                         'file_db_store': image})
+                self.image_ids[0].write({'image': self.image,
+                    'name': self.main_image_name})
             else:
-                self.image_ids = [(0, 0, {'type': 'db',
-                                          'file_db_store': image,
-                                          'name': _('Main image')})]
+                self.image_ids = [(0, 0, {'image': self.image,
+                                          'name': self.main_image_name or 'Main Image'})]
         elif self.image_ids:
             self.image_ids[0].unlink()
 
     @api.one
-    def _set_main_image(self):
-        self._set_image(self.product_image)
+    def _set_image_medium(self):
+        if self.image_medium:
+            if self.image_ids:
+                self.image_ids[0].write({'image': self.image_medium,
+                    'name': self.main_image_name})
+            else:
+                self.image_ids = [(0, 0, {'image': self.image_medium,
+                                          'name': self.main_image_name or 'Main Image'})]
+        elif self.image_ids:
+            self.image_ids[0].unlink()
 
     @api.one
-    def _set_main_image_medium(self):
-        self._set_image(self.image_medium)
-
-    @api.one
-    def _set_main_image_small(self):
-        self._set_image(self.image_small)
+    def _set_image_small(self):
+        if self.image_small:
+            if self.image_ids:
+                self.image_ids[0].write({'image': self.image_small,
+                    'name': self.main_image_name})
+            else:
+                self.image_ids = [(0, 0, {'image': self.image_small,
+                                          'name': self.main_image_name or 'Main Image'})]
+        elif self.image_ids:
+            self.image_ids[0].unlink()
 
     image_ids = fields.One2many(
         comodel_name='product.image', inverse_name='product_id',
         string='Product images', copy=True)
-    product_image = fields.Binary(
+    image = fields.Binary(
         string="Main image", compute="_get_main_image", store=False,
-        inverse="_set_main_image")
+        inverse="_set_image")
     image_medium = fields.Binary(
-        compute="_get_main_image", inverse="_set_main_image_medium",
+        compute="_get_main_image", inverse="_set_image_medium",
         store=False)
     image_small = fields.Binary(
-        compute="_get_main_image", inverse="_set_main_image_small",
+        compute="_get_main_image", inverse="_set_image_small",
         store=False)
-
+    main_image_name = fields.Char(string='Image title', required=True)
     @api.multi
     def write(self, vals):
         if 'image_medium' in vals and 'image_ids' in vals:
