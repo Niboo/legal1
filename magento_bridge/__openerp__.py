@@ -43,6 +43,7 @@ This module works very well with latest version of magento 1.9.* and Odoo 8.0
 ------------------------------------------------------------------------------
     """,
 	'depends': [
+				'base_vat',
 				'sale',
 				'stock',
 				'account_accountant',

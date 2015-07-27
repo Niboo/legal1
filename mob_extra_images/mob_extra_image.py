@@ -38,7 +38,7 @@ class product_template(osv.osv):
 					vid = self_obj.product_variant_ids.ids[0] 	
 				image_ids = self_obj.tmpl_extra_image.ids		
 				if not line_ids and vid and image_ids:
-					self.pool.get('product.product').write(cr, uid, vid, {'pro_extra_image':[(6, 0, image_ids )]})	
+					self.pool.get('product.product').write(cr, uid, vid, {'pro_extra_image':[(6, 0, image_ids )]}, context=context)	
 		return res
 
 	def create(self, cr, uid, vals, context=None):	
@@ -52,7 +52,7 @@ class product_template(osv.osv):
 			vid = self_obj.product_variant_ids.ids[0]
 		image_ids = self_obj.tmpl_extra_image.ids		
 		if not line_ids and vid and image_ids:
-			self.pool.get('product.product').write(cr, uid, vid, {'pro_extra_image':[(6, 0, image_ids )]})	
+			self.pool.get('product.product').write(cr, uid, vid, {'pro_extra_image':[(6, 0, image_ids )]}, context=context)	
 		return new_id	
 
 product_template()
@@ -87,7 +87,9 @@ class mob_extra_image(osv.osv):
 		'mage_product_id':0,
 	}
 
-	def create_image(self, cr, uid, mage_product_id, product_id, product_type, image_list):
+	def create_image(self, cr, uid, mage_product_id, product_id, product_type, image_list, context=None):
+		if context is None:
+			context = {}
 		img_ids = []
 		if product_id and product_type and mage_product_id:						
 			for data in image_list:
@@ -117,15 +119,13 @@ class mob_extra_image(osv.osv):
 					product_template_id = self.pool.get('product.product').browse(cr, uid, product_id).product_tmpl_id.id 
 					line_ids = self.pool.get('product.template').browse(cr, uid, product_template_id).attribute_line_ids.ids					
 					if not line_ids and product_template_id:
-						self.pool.get('product.template').write(cr, uid, product_template_id, {'tmpl_extra_image':[(6, 0, img_ids)]})
+						self.pool.get('product.template').write(cr, uid, product_template_id, {'tmpl_extra_image':[(6, 0, img_ids)]}, context=context)
 					else:
-						self.pool.get('product.product').write(cr, uid, product_id, {'pro_extra_image':[(6, 0, img_ids )]})
+						self.pool.get('product.product').write(cr, uid, product_id, {'pro_extra_image':[(6, 0, img_ids )]}, context=context)
 				elif product_type == 'template':
-					self.pool.get('product.template').write(cr, uid, product_id, {'tmpl_extra_image':[(6, 0, img_ids)]})
+					self.pool.get('product.template').write(cr, uid, product_id, {'tmpl_extra_image':[(6, 0, img_ids)]}, context=context)
 			return True
 		return False
-
-
 
 mob_extra_image()
 
