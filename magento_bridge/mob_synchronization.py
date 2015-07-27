@@ -262,20 +262,19 @@ class magento_synchronization(osv.osv):
 			session = connection[1]
 			instance_id = connection[2]
 			context['instance_id'] = instance_id
-			map_id = mage_cat_pool.search(cr,uid,[('instance_id','=',instance_id)])
-			for m in map_id:
-				map_obj = mage_cat_pool.browse(cr, uid, m)
+			map_ids = mage_cat_pool.search(cr,uid,[('instance_id','=',instance_id)])
+			for map_id in map_ids:
+				map_obj = mage_cat_pool.browse(cr, uid, map_id)
 				map_dic.append(map_obj.oe_category_id)
 				catg_map[map_obj.oe_category_id] = map_obj.mag_category_id
-			erp_catg = self.pool.get('product.category').search(cr,uid,[('name','!=','All products'),('id','not in',map_dic)], context=context)
-			
+			erp_catg = self.pool.get('product.category').search(cr,uid,[('id','not in',map_dic)], context=context)
 			if not erp_catg:
 				raise osv.except_osv(_('Information'), _("All category(s) has been already exported on magento."))
-			for l in erp_catg:
-				cat_id = self.sync_categories(cr, uid, url, session, l, context)
+			for categ_id in erp_catg:
+				self.sync_categories(cr, uid, url, session, categ_id, context)
 				length += 1
-			text="%s category(s) has been Exported to magento."%(length)
-			self.pool.get('magento.sync.history').create(cr,uid,{'status':'yes','action_on':'category','action':'b','error_message':text})
+			text = "%s category(s) has been Exported to magento."%(length)
+			self.pool.get('magento.sync.history').create(cr, uid, {'status':'yes','action_on':'category','action':'b','error_message':text})
 			partial = self.pool.get('message.wizard').create(cr, uid, {'text':text})
 			return { 'name':_("Information"),
 					 'view_mode': 'form',
@@ -326,14 +325,7 @@ class magento_synchronization(osv.osv):
 			return False
 		if mage_cat > 0:
 			##########  Mapping Entry  ###########
-			category_array = {
-								'cat_name':catg_id,
-								'oe_category_id':catg_id,
-								'mag_category_id':mage_cat,
-								'created_by':'odoo',
-								'instance_id':context.get('instance_id')
-							}
-			self.pool.get('magento.category').create(cr, uid, category_array)
+			self.pool.get('magento.category').create(cr, uid, {'cat_name':catg_id,'oe_category_id':catg_id,'mag_category_id':mage_cat,'created_by':'odoo','instance_id':context.get('instance_id')})
 			server.call(session, 'magerpsync.category_map', [{'mage_category_id':mage_cat,'erp_category_id':catg_id}])
 			return mage_cat
 
@@ -626,7 +618,7 @@ class magento_synchronization(osv.osv):
 	#############################################
 	##    		Specific template sync	       ##
 	#############################################
-	def _export_specific_template(self, cr, uid, id, url, session, context):
+	def _export_specific_template(self, cr, uid, id, url, session, context=None):
 		"""
 		@param code: product Id.
 		@param context: A standard dictionary
@@ -646,7 +638,7 @@ class magento_synchronization(osv.osv):
 			map_attr_pool = self.pool.get('magento.product.attribute')
 			val_price_pool = self.pool.get('product.attribute.price')
 			obj_pro = self.pool.get('product.template').browse(cr, uid, id, context)			
-			template_sku = obj_pro.default_code or 'Template Ref %s'%id			
+			template_sku = obj_pro.default_code or 'Template Ref %s'%id
 			if obj_pro.product_variant_ids:
 				if obj_pro.attribute_line_ids:
 					set_id = obj_pro.attribute_set_id.id	
@@ -717,7 +709,7 @@ class magento_synchronization(osv.osv):
 				return [-2, str(id)+' No Variant Ids Found!!!']
 			get_product_data['price_changes'] = mage_price_changes
 			get_product_data['visibility'] = 4
-			get_product_data['price'] = obj_pro.list_price or 0.00			
+			get_product_data['price'] = obj_pro.list_price or 0.00
 			get_product_data = self._get_product_array(cr, uid, url, session, obj_pro, get_product_data, context)			
 			get_product_data['tax_class_id'] = '0'		
 			if mage_set_id:
@@ -732,7 +724,7 @@ class magento_synchronization(osv.osv):
 				map_tmpl_pool.create(cr, uid, {'template_name':id, 'erp_template_id':id, 'mage_product_id':mage_product_id, 'base_price': get_product_data['price'], 'is_variants':True, 'instance_id':context.get('instance_id')})
 				server.call(session, 'magerpsync.template_map', [{'mage_template_id':mage_product_id,'erp_template_id':id}])
 				if mage_product_id:
-					self._create_product_attribute_media(cr, uid, url, session, obj_pro, mage_product_id)
+					self._create_product_attribute_media(cr, uid, url, session, obj_pro, mage_product_id, id, context)
 				return [1,mage_product_id]
 			else:
 				return [-3, str(id)+' Attribute Set Name not found!!!']
@@ -796,7 +788,8 @@ class magento_synchronization(osv.osv):
 		return get_product_data
 
 	############# fetch product image ########
-	def _create_product_attribute_media(self, cr, uid, url, session, obj_pro, mage_product_id):
+	def _create_product_attribute_media(self, cr, uid, url, session, obj_pro, mage_product_id, odoo_product_id, context=None):
+
 		if obj_pro.image:
 			server = xmlrpclib.Server(url)
 			file = {'content':obj_pro.image,'mime':'image/jpeg'}
@@ -805,15 +798,27 @@ class magento_synchronization(osv.osv):
 			image = [mage_product_id,pic]
 			if image:
 				k = server.call(session,'catalog_product_attribute_media.create',image)			
+				if k:
+					mage_image_path = 'mage_image_path'
+					
+					self.pool.get(obj_pro._name).write(cr, uid, odoo_product_id,{mage_image_path:k},context)
+					if obj_pro._name == 'product.product':
+						mage_image_path = 'product_image_path'
+						self.pool.get(obj_pro._name).write(cr, uid, odoo_product_id,{mage_image_path:k},context)
 				return True
 
-	def _update_product_attribute_media(self, cr, uid, url, session, obj_pro, mage_product_id):
+	############# Update product image ########
+	def _update_product_attribute_media(self, cr, uid, url, session, obj_pro, mage_product_id, odoo_product_id, context=None):
 		if obj_pro.image:
 			server = xmlrpclib.Server(url)
 			file1 = ''
-			pro_img_data = server.call(session,'catalog_product_attribute_media.list',[mage_product_id])			
-			if pro_img_data:
-				file1 = pro_img_data[0]['file']
+			mage_image_path = obj_pro.mage_image_path
+			if obj_pro._name == 'product.product':
+				mage_image_path = obj_pro.product_image_path
+			else:
+				mage_image_path = obj_pro.mage_image_path
+			if mage_image_path and mage_image_path != "no_image_available":
+				file1 = mage_image_path
 				image_file = {'content':obj_pro.image,'mime':'image/jpeg'}			
 				image_type = ['image','small_image','thumbnail']
 				pic = {'file':image_file,'label':'Label', 'position':'100','types':image_type, 'exclude':1}
@@ -821,7 +826,7 @@ class magento_synchronization(osv.osv):
 				if image:
 					k = server.call(session,'catalog_product_attribute_media.update',image)
 			else:
-				self._create_product_attribute_media(cr, uid, url, session, obj_pro, mage_product_id)
+				self._create_product_attribute_media(cr, uid, url, session, obj_pro, mage_product_id, odoo_product_id, context)			
 			return True
 
 
@@ -856,11 +861,9 @@ class magento_synchronization(osv.osv):
 					search_price_id = self.pool.get('product.attribute.price').search(cr, uid, [('product_tmpl_id','=',obj_pro.product_tmpl_id.id),('value_id','=',value_id.id)])
 					if search_price_id:
 						price_extra += self.pool.get('product.attribute.price').browse(cr,uid, search_price_id[0]).price_extra
-				mage_attr_pool  = self.pool.get('magento.product.attribute')
-				attr_search_ids = mage_attr_pool.search(cr, uid, [('erp_id','=',pro_attr_id)])
-				if attr_search_ids:
-					get_product_data['currentsetname'] = obj_pro.product_tmpl_id.attribute_set_id.name
-					get_product_data['visibility'] = 1
+
+			get_product_data['currentsetname'] = obj_pro.product_tmpl_id.attribute_set_id.name
+			get_product_data['visibility'] = 1
 			get_product_data['price'] = obj_pro.list_price+price_extra or 0.00
 			get_product_data = self._get_product_array(cr, uid, url, session, obj_pro, get_product_data, context)			
 			get_product_data['tax_class_id'] = '0'
@@ -871,7 +874,7 @@ class magento_synchronization(osv.osv):
 			self.pool.get('product.product').write(cr, uid, id, {'prod_type':prodtype}, context)		
 			pro = self.prodcreate(cr, uid, url, session, id, prodtype, sku, get_product_data, context)
 			if pro and pro[0] != 0:
-				self._create_product_attribute_media(cr, uid, url, session, obj_pro, pro[1])
+				self._create_product_attribute_media(cr, uid, url, session, obj_pro, pro[1], id, context)
 			return pro
 
 	#############################################
@@ -989,6 +992,9 @@ class magento_synchronization(osv.osv):
 						if mage_update_ids and mage_update_ids[0]>0:
 							map_tmpl_pool.write(cr, uid, id, {'need_sync':'No'}, context)
 						return mage_update_ids
+				if mage_id:
+					check = self._update_product_attribute_media(cr, uid, url, session, obj_pro, mage_id, temp_id, context)
+				
 			else:
 				return [-1, str(id)+' No Variant Ids Found!!!']
 			update_data = [mage_id, get_product_data]
@@ -1026,9 +1032,7 @@ class magento_synchronization(osv.osv):
 			try:
 				pro = server.call(session, 'product.update', update_data)
 				if mage_id:
-					check = self._update_product_attribute_media(cr, uid, url, session, obj_pro, mage_id)
-				
-				
+					check = self._update_product_attribute_media(cr, uid, url, session, obj_pro, mage_id, pro_id, context)
 				self.pool.get('magento.product').write(cr, uid, id, {'need_sync':'No'}, context)
 			except xmlrpclib.Fault, e:
 				return [0, str(pro_id)+str(e)]

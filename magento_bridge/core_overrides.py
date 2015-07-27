@@ -48,12 +48,14 @@ class product_template(osv.osv):
     									('configurable','Configurable Product'),
     									('virtual','Virtual Product'),
     									('bundle','Bundle Product'),
-    									('downloadable','Downloadable Product')],
+    									('downloadable','Downloadable Product'),
+    									('buyerprotect','Buyer Protect Product'),],
     				'Magento Type', size=100),
 
         'categ_ids': fields.many2many('product.category','product_categ_rel','product_id','categ_id','Product Categories'),
 
         'attribute_set_id': fields.many2one('magento.attribute.set','Magento Attribute Set', help="Magento Attribute Set, Used during configurable product generation at Magento."),
+        'mage_image_path' : fields.char('Mage Image Path'),
 	}
 
 	def create(self, cr, uid, vals, context=None):
@@ -126,6 +128,9 @@ product_template()
 class product_product(osv.osv):	
 	_inherit= 'product.product'
 
+	_columns = {
+    	'product_image_path' : fields.char('Product Image Path'),
+		}
 	def create(self, cr, uid, vals, context=None):
 		if context is None:
 			context = {}
@@ -146,6 +151,8 @@ class product_product(osv.osv):
 			if vals.has_key('mage_id'):
 				mage_id = vals.get('mage_id')
 				vals.pop('mage_id')
+			if vals.has_key('mage_image_path'):				
+				vals.pop('mage_image_path')
 		
 		product_id = super(product_product, self).create(cr, uid, vals, context=context)
 
@@ -541,6 +548,7 @@ class res_partner(osv.osv):
 		dic = {}
 		if data.has_key('country_code'):
 			country_ids = self.pool.get('res.country').search(cr, uid,[('code','=',data.get('country_code'))])
+			data.pop('country_code')
 			if country_ids:
 				data['country_id'] = country_ids[0]
 				if data.has_key('region') and data['region']:
@@ -562,7 +570,19 @@ class res_partner(osv.osv):
 			else:
 				tag_id = tag_ids[0]
 			data['category_id'] = [(6,0,[tag_id])]
-
+			data.pop('tag')
+		if data.has_key('wk_company'):
+			data['wk_company'] = _unescape(data['wk_company'])
+		if data.has_key('name') and data['name']:
+			data['name'] = _unescape(data['name'])
+		if data.has_key('email') and data['email']:
+			data['email'] = _unescape(data['email'])
+		if data.has_key('street') and data['street']:
+			data['street'] = _unescape(data['street'])
+		if data.has_key('street2') and data['street2']:
+			data['street2'] = _unescape(data['street2'])
+		if data.has_key('city') and data['city']:
+			data['city'] = _unescape(data['city'])
 		return data
 
 # END
