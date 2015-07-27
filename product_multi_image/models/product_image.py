@@ -54,9 +54,9 @@ class ProductImage(models.Model):
             copyfile(old_thumb, new_thumb)
         except Exception, e:
             _logger.error("Can not open the image %s, error : %s",
-                          old_path, e, exc_info=True)
+                    old_path, e, exc_info=True)
 
-        return new_id
+            return new_id
 
     @api.multi
     def unlink(self):
@@ -113,10 +113,10 @@ class ProductImage(models.Model):
         local_media_repository = self.env['res.company'].get_local_media_repository()
         if local_media_repository:
             full_path = os.path.join(
-                local_media_repository,
-                str(self.product_id.id),
-                '%s' % (self.name or ''))
-        return full_path
+                    local_media_repository,
+                    str(self.product_id.id),
+                    '%s' % (self.name or ''))
+            return full_path
 
     @api.multi
     def _medium_path(self):
@@ -125,11 +125,11 @@ class ProductImage(models.Model):
         local_media_repository = self.env['res.company'].get_local_media_repository()
         if local_media_repository:
             full_path = os.path.join(
-                local_media_repository,
-                str(self.product_id.id),
-                'mediums',
-                '%s' % (self.name or ''))
-        return full_path
+                    local_media_repository,
+                    str(self.product_id.id),
+                    'mediums',
+                    '%s' % (self.name or ''))
+            return full_path
 
     @api.multi
     def _thumb_path(self):
@@ -138,11 +138,11 @@ class ProductImage(models.Model):
         local_media_repository = self.env['res.company'].get_local_media_repository()
         if local_media_repository:
             full_path = os.path.join(
-                local_media_repository,
-                str(self.product_id.id),
-                'thumbs',
-                '%s' % (self.name or ''))
-        return full_path
+                    local_media_repository,
+                    str(self.product_id.id),
+                    'thumbs',
+                    '%s' % (self.name or ''))
+            return full_path
 
     @api.one
     def get_image(self):
@@ -153,15 +153,15 @@ class ProductImage(models.Model):
             return False
         if not full_path:
             raise osv.except_osv(_('Error'),
-                                 _('Company must be configure first for image display'))
-        if os.path.exists(full_path):
-            try:
-                with open(full_path, 'rb') as f:
-                    img = base64.b64encode(f.read())
-            except Exception, e:
-                _logger.error("Can not open the image %s, error : %s",
-                              full_path, e, exc_info=True)
-                return False
+                    _('Company must be configure first for image display'))
+            if os.path.exists(full_path):
+                try:
+                    with open(full_path, 'rb') as f:
+                        img = base64.b64encode(f.read())
+                except Exception, e:
+                    _logger.error("Can not open the image %s, error : %s",
+                            full_path, e, exc_info=True)
+                    return False
         else:
             _logger.error("The image %s doesn't exist ", full_path)
             return False
@@ -176,16 +176,16 @@ class ProductImage(models.Model):
             return False
         if not full_path:
             raise osv.except_osv(_('Error'),
-                                 _('Company must be configure first for image display'))
+                    _('Company must be configure first for image display'))
 
-        if os.path.exists(full_path):
-            try:
-                with open(full_path, 'rb') as f:
-                    img = base64.b64encode(f.read())
-            except Exception, e:
-                _logger.error("Can not open the thumb %s, error : %s",
-                              full_path, e, exc_info=True)
-                return False
+            if os.path.exists(full_path):
+                try:
+                    with open(full_path, 'rb') as f:
+                        img = base64.b64encode(f.read())
+                except Exception, e:
+                    _logger.error("Can not open the thumb %s, error : %s",
+                            full_path, e, exc_info=True)
+                    return False
         else:
             _logger.error("The thumb %s doesn't exist ", full_path)
             return False
@@ -200,16 +200,16 @@ class ProductImage(models.Model):
             return False
         if not full_path:
             raise osv.except_osv(_('Error'),
-                                 _('Company must be configure first for image display'))
+                    _('Company must be configure first for image display'))
 
-        if os.path.exists(full_path):
-            try:
-                with open(full_path, 'rb') as f:
-                    img = base64.b64encode(f.read())
-            except Exception, e:
-                _logger.error("Can not open the thumb %s, error : %s",
-                              full_path, e, exc_info=True)
-                return False
+            if os.path.exists(full_path):
+                try:
+                    with open(full_path, 'rb') as f:
+                        img = base64.b64encode(f.read())
+                except Exception, e:
+                    _logger.error("Can not open the thumb %s, error : %s",
+                            full_path, e, exc_info=True)
+                    return False
         else:
             _logger.error("The thumb %s doesn't exist ", full_path)
             return False
@@ -261,8 +261,8 @@ class ProductImage(models.Model):
                     os.makedirs(thumb_path)
             except OSError, e:
                 raise exceptions.Warning(
-                    _('The image filestore can not be created, %s') % e)
-        return True
+                        _('The image filestore can not be created, %s') % e)
+                return True
 
     @api.one
     def _set_image(self):
@@ -271,32 +271,99 @@ class ProductImage(models.Model):
         full_path = img._image_path()
         if not full_path:
             raise osv.except_osv(_('Error'),
-                                 _('Product Images needs to be configured first in company'))
-        img._save_file()
+                    _('Product Images needs to be configured first in company'))
+            img._save_file()
 
-    sequence = fields.Integer(string='Sequence')
+    sequence = fields.Integer(string='Sequence', default=999)
     name = fields.Char(string='Image title', required=True)
     image = fields.Binary(
-        compute="_get_image", inverse="_set_image", string="File")
+            compute="_get_image", inverse="_set_image", string="File")
     image_medium = fields.Binary(
-        compute="_get_image", string="Medium-sized image",
-        help="Medium-sized image. It is automatically resized as a 128 x "
-             "128 px image, with aspect ratio preserved, only when the image "
-             "exceeds one of those sizes. Use this field in form views or "
-             "some kanban views.")
+            compute="_get_image", string="Medium-sized image",
+            help="Medium-sized image. It is automatically resized as a 128 x "
+            "128 px image, with aspect ratio preserved, only when the image "
+            "exceeds one of those sizes. Use this field in form views or "
+            "some kanban views.")
     image_small = fields.Binary(
-        compute="_get_image", string="Small-sized image",
-        help="Small-sized image. It is automatically resized as a 64 x 64 px "
-             "image, with aspect ratio preserved. Use this field anywhere a "
-             "small image is required.")
+            compute="_get_image", string="Small-sized image",
+            help="Small-sized image. It is automatically resized as a 64 x 64 px "
+            "image, with aspect ratio preserved. Use this field anywhere a "
+            "small image is required.")
     comments = fields.Text(string='Comments')
     product_id = fields.Many2one(
-        comodel_name='product.template', string='Product', required=True,
-        ondelete='cascade')
+            comodel_name='product.template', string='Product', required=True,
+            ondelete='cascade')
+    variant_id = fields.Many2one(
+            comodel_name='product.product', string='Variant', required=False,
+            ondelete='cascade')
+
+    # converted from mob_extra_images
+    image_type = fields.Many2many(
+        comodel_name='product.img.type',
+        relation='product_img_to_img_type',
+        column1='image_id',
+        column2='type_id',
+        string='Image Type'
+    )
+    mage_file = fields.Char('Magento File Name')
+    mage_product_id = fields.Integer('Magento product ID', default=0)
+
+    @api.model
+    def create_image(self, mage_product_id, product_id, product_type, image_list):
+        type_env = self.env['product.img.type']
+        if product_id and product_type and mage_product_id:
+            tmpl_id = product_id
+            if product_type == 'product':
+                tmpl_id = self.env['product.product'].search([('id','=',product_id)])[0].product_tmpl_id.id
+            else:
+                product_id = None
+
+            for data in image_list:
+                image = self.search([('mage_file','=',data.get('mage_file')),
+                    ('mage_product_id','=',mage_product_id)
+                    ])
+                data['product_id'] = tmpl_id
+                data['variant_id'] = product_id
+                type_ids = []
+                for typ in data.get('types', []):
+                    search_type = type_env.search([('name','=',typ)])
+                    if search_type:
+                        type_ids.append(search_type[0])
+                    else:
+                        type_ids.append(type_env.create({'name':typ}))
+                data.pop('types')
+                image_data = data.get('image')
+                if type_ids:
+                    data['image_type'] = [(6, 0, type_ids)]
+                    data['sequence'] = 0
+                    if image:
+                        image.sequence = 0
+                        image.image_type = [(6, 0, type_ids)]
+                else:
+                    if image:
+                        image.sequence = 999
+                        image.image_type = [(6,0,[])]
+                if not image:
+                    new_image = self.create(data)
+                    new_image.image = image_data
+
+    @api.model
+    def create_image_helper(self, vals):
+        self.create_image(
+                vals.get('mage_product_id'),
+                vals.get('product_id'),
+                vals.get('product_type'),
+                vals.get('image_list')
+            )
 
     _order = 'product_id desc, sequence, id'
 
     _sql_constraints = [
-        ('uniq_name_product_id', 'UNIQUE(product_id, name)',
-         _('A product can have only one image with the same name')),
-    ]
+            ('uniq_name_product_id', 'UNIQUE(product_id, name)',
+                _('A product can have only one image with the same name')),
+            ]
+
+
+    class product_img_type(models.Model):
+        _name = 'product.img.type'
+        name = fields.Char('Type')

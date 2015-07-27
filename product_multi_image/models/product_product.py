@@ -25,17 +25,17 @@ from openerp import models, fields, api, _
 _logger = logging.getLogger(__name__)
 
 
-class ProductProduct(models.Model):
+class ProductImage(models.Model):
     _inherit = "product.template"
 
     @api.one
     @api.depends('image_ids')
     def _get_main_image(self):
-        self.product_image = False
+        self.image = False
         self.image_medium = False
         self.image_small = False
         if self.image_ids:
-            self.product_image = self.image_ids[0].image
+            self.image = self.image_ids[0].image
             self.image_medium = self.image_ids[0].image_medium
             self.image_small = self.image_ids[0].image_small
 
@@ -93,4 +93,99 @@ class ProductProduct(models.Model):
         if 'image_medium' in vals and 'image_ids' in vals:
             # Inhibit the write of the image when images tab has been touched
             del vals['image_medium']
-        return super(ProductProduct, self).write(vals)
+        return super(ProductImage, self).write(vals)
+
+
+class ProductProduct(models.Model):
+    _inherit = "product.product"
+
+    def _get_image_variant(self):
+        self.image = False
+        self.image_medium = False
+        self.image_small = False
+        if self.product_tmpl_id.image_ids:
+            tmpl = self.product_tmpl_id.image_ids[0]
+            own = self.product_tmpl_id.image_ids.filtered(
+                    lambda r: r.variant_id.id == self.id)
+            self.image = own and own[0].image or tmpl.image
+            self.image_medium = own and own[0].image_medium or tmpl.image_medium
+            self.image_small = own and own[0].image_small or tmpl.image_small
+
+    @api.one
+    def _set_image(self):
+        tmpl = self.product_tmpl_id.image_ids
+        own = self.product_tmpl_id.image_ids.filtered(
+                lambda r: r.variant_id.id == self.id)
+        if self.image:
+            if own:
+                own[0].write({'image': self.image,
+                    'name': self.product_tmpl_id.main_image_name,
+                    'variant_id': self.id,})
+            elif tmpl:
+                tmpl = [(0, 0, {'image': self.image,
+                    'name': self.main_image_name or 'Main Image',
+                    'variant_id': self.id,})]
+            else:
+                self.product_tmpl_id.image_ids = [(0, 0, {'image': self.image,
+                    'name': self.main_image_name or 'Main Image'})]
+        elif own:
+            if own:
+                own[0].unlink()
+        elif tmpl:
+            tmpl[0].unlink()
+
+    @api.one
+    def _set_image_medium(self):
+        tmpl = self.product_tmpl_id.image_ids
+        own = self.product_tmpl_id.image_ids.filtered(
+                lambda r: r.variant_id.id == self.id)
+        if self.image_medium:
+            if own:
+                own[0].write({'image': self.image_medium,
+                    'name': self.product_tmpl_id.main_image_name,
+                    'variant_id': self.id,})
+            elif tmpl:
+                tmpl = [(0, 0, {'image': self.image_medium,
+                    'name': self.main_image_name or 'Main Image',
+                    'variant_id': self.id,})]
+            else:
+                self.product_tmpl_id.image_ids = [(0, 0, {'image': self.image_medium,
+                    'name': self.main_image_name or 'Main Image'})]
+        elif own:
+            if own:
+                own[0].unlink()
+        elif tmpl:
+            tmpl[0].unlink()
+
+    @api.one
+    def _set_image_small(self):
+        tmpl = self.product_tmpl_id.image_ids
+        own = self.product_tmpl_id.image_ids.filtered(
+                lambda r: r.variant_id.id == self.id)
+        if self.image_small:
+            if own:
+                own[0].write({'image': self.image_small,
+                    'name': self.product_tmpl_id.main_image_name,
+                    'variant_id': self.id,})
+            elif tmpl:
+                tmpl = [(0, 0, {'image': self.image_small,
+                    'name': self.main_image_name or 'Main Image',
+                    'variant_id': self.id,})]
+            else:
+                self.product_tmpl_id.image_ids = [(0, 0, {'image': self.image_small,
+                    'name': self.main_image_name or 'Main Image'})]
+        elif own:
+            if own:
+                own[0].unlink()
+        elif tmpl:
+            tmpl[0].unlink()
+
+    image = fields.Binary(
+        string="Main image", compute="_get_image_variant", store=False,
+        inverse="_set_image")
+    image_medium = fields.Binary(
+        compute="_get_image_variant", inverse="_set_image_medium",
+        store=False)
+    image_small = fields.Binary(
+        compute="_get_image_variant", inverse="_set_image_small",
+        store=False)

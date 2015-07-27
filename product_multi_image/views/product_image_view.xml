@@ -12,6 +12,8 @@
                             <group>
                                 <group>
                                     <field name="name" />
+                                    <field name="product_id" invisible="1"/>
+                                    <field name="variant_id" domain="[('product_tmpl_id','=',product_id)]"/>
                                 </group>
                             </group>
                             <group>
@@ -38,6 +40,7 @@
             <field name="arch" type="xml">
                 <tree string="Product images">
                     <field name="name" select='1'/>
+                    <field name="variant_id"/>
                 </tree>
             </field>
         </record>

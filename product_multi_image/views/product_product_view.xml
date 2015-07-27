@@ -13,6 +13,7 @@
                             <tree string="images">
                                 <field name='sequence' widget='handle'/>
                                 <field name='name'/>
+                                <field name='variant_id'/>
                             </tree>
                         </field>
                     </page>
