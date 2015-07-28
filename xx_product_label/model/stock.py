@@ -34,6 +34,10 @@ class stock_pack_operation(models.Model):
                     ctx.update({
                         'supplier_product_code': supplier_product[0].product_code,
                     })
+                if self.location_dest_id:
+                    ctx.update({
+                        'location_dest_name': self.location_dest_id.name
+                    })
                 product_ids = []
                 for x in xrange(qty):  # @UnusedVariable
                     product_ids.append(self.product_id.id)
@@ -47,6 +51,12 @@ class stock_pack_operation(models.Model):
             qty = int(values.get('qty_done'))
             ctx = self._context.copy()
             supplier_product = [ x for x in me.product_id.seller_ids if x.name == me.picking_id.partner_id ]
+            location_dest_id = values.get('location_dest_id',False)
+            location_dest_name = ''
+            if location_dest_id:
+                ctx.update({
+                    'location_dest_name': self.env['stock.location'].browse(location_dest_id)['name']
+                })
             if supplier_product:
                 ctx.update({
                     'supplier_product_code': supplier_product[0].product_code,
