@@ -8,7 +8,7 @@
 	        <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">				
 				<notebook position="inside">
-					<page string="Magento Attributes">
+					<page string="Magento Attributes" groups="magento_bridge.group_magento_openerp">
 						<div class="oe_horizontal_separator oe_clear ">
 							User-Defined attributes except(configurable)
 						</div>
@@ -41,7 +41,7 @@
 							</kanban>													
 						</field>						
 					</page>
-					<page string="Custom Options">
+					<page string="Custom Options" groups="magento_bridge.group_magento_openerp">
 						<div class="oe_horizontal_separator oe_clear ">
 							Magento Custom Options
 						</div>
