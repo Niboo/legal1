@@ -55,11 +55,11 @@ class mob_extra_image(osv.osv):
                             cr,uid, pp_srch)[0].product_tmpl_id.id
                     data['variant_id'] = int(product_id)
                     min_seq = min([x.sequence for x in img_pool.search(
-                        cr,uid,[('variant_id','=',product_id)])] + [99])
+                        cr,uid,[('variant_id','=',product_id)])] + [999])
                 else:
                     data['product_id'] = int(product_id)
                     min_seq = min([x.sequence for x in img_pool.search(
-                        cr,uid,[('product_id','=',product_id)])] + [99])
+                        cr,uid,[('product_id','=',product_id)])] + [999])
 
                 if data.has_key('types'):
                     type_pool = self.pool.get('mob.image.type')
@@ -108,7 +108,7 @@ class magento_synchronization(osv.osv):
     def _export_product_extra_images(self, cr, uid, id, pro, url, session, context=None):
         server = xmlrpclib.Server(url)
         obj_pro = self.pool.get('product.product').browse(cr, uid, id, context)	
-        img_pool = self.pool.get('mob.extra.image')
+        img_pool = self.pool.get('product.image')
         image_type_pool = self.pool.get('mob.image.type')
         for i in obj_pro.image_ids:
             obj_img = img_pool.browse(cr, uid, i.id)
@@ -134,7 +134,7 @@ class magento_synchronization(osv.osv):
         obj_pro = self.pool.get('product.product').browse(cr, uid, pro_id, context)
         image_type_pool = self.pool.get('mob.image.type')
         for i in obj_pro.image_ids:
-            img_pool = self.pool.get('mob.extra.image')
+            img_pool = self.pool.get('product.image')
             obj_img = img_pool.browse(cr, uid, i.id, context)
             if not obj_img.mage_file :
                 types = []

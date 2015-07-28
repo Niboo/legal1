@@ -24,6 +24,7 @@ import urllib
 import os
 import logging
 from openerp import models, fields, api, exceptions, _
+from openerp.osv import osv
 from openerp import tools
 from shutil import copyfile
 
@@ -172,7 +173,7 @@ class ProductImage(models.Model):
         try:
             full_path = self._medium_path()
         except Exception, e:
-            _logger.error("Can not find the path for thumb %s: %s", id, e, exc_info=True)
+            _logger.error("Can not find the path for medium %s: %s", id, e, exc_info=True)
             return False
         if not full_path:
             raise osv.except_osv(_('Error'),
@@ -183,11 +184,11 @@ class ProductImage(models.Model):
                     with open(full_path, 'rb') as f:
                         img = base64.b64encode(f.read())
                 except Exception, e:
-                    _logger.error("Can not open the thumb %s, error : %s",
+                    _logger.error("Can not open the medium %s, error : %s",
                             full_path, e, exc_info=True)
                     return False
         else:
-            _logger.error("The thumb %s doesn't exist ", full_path)
+            _logger.error("The medium %s doesn't exist ", full_path)
             return False
         return img
 
@@ -266,13 +267,11 @@ class ProductImage(models.Model):
 
     @api.one
     def _set_image(self):
-        user = self.env['res.users'].browse(self._uid)
-        img = self.with_context(lang=user.lang)
-        full_path = img._image_path()
+        full_path = self._image_path()
         if not full_path:
             raise osv.except_osv(_('Error'),
                     _('Product Images needs to be configured first in company'))
-            img._save_file()
+        self._save_file()
 
     sequence = fields.Integer(string='Sequence', default=999)
     name = fields.Char(string='Image title', required=True)
