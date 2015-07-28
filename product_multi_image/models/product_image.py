@@ -297,73 +297,9 @@ class ProductImage(models.Model):
             comodel_name='product.product', string='Variant', required=False,
             ondelete='cascade')
 
-    # converted from mob_extra_images
-    image_type = fields.Many2many(
-        comodel_name='product.img.type',
-        relation='product_img_to_img_type',
-        column1='image_id',
-        column2='type_id',
-        string='Image Type'
-    )
-    mage_file = fields.Char('Magento File Name')
-    mage_product_id = fields.Integer('Magento product ID', default=0)
-
-    @api.model
-    def create_image(self, mage_product_id, product_id, product_type, image_list):
-        type_env = self.env['product.img.type']
-        if product_id and product_type and mage_product_id:
-            tmpl_id = product_id
-            if product_type == 'product':
-                tmpl_id = self.env['product.product'].search([('id','=',product_id)])[0].product_tmpl_id.id
-            else:
-                product_id = None
-
-            for data in image_list:
-                image = self.search([('mage_file','=',data.get('mage_file')),
-                    ('mage_product_id','=',mage_product_id)
-                    ])
-                data['product_id'] = tmpl_id
-                data['variant_id'] = product_id
-                type_ids = []
-                for typ in data.get('types', []):
-                    search_type = type_env.search([('name','=',typ)])
-                    if search_type:
-                        type_ids.append(search_type[0])
-                    else:
-                        type_ids.append(type_env.create({'name':typ}))
-                data.pop('types')
-                image_data = data.get('image')
-                if type_ids:
-                    data['image_type'] = [(6, 0, type_ids)]
-                    data['sequence'] = 0
-                    if image:
-                        image.sequence = 0
-                        image.image_type = [(6, 0, type_ids)]
-                else:
-                    if image:
-                        image.sequence = 999
-                        image.image_type = [(6,0,[])]
-                if not image:
-                    new_image = self.create(data)
-                    new_image.image = image_data
-
-    @api.model
-    def create_image_helper(self, vals):
-        self.create_image(
-                vals.get('mage_product_id'),
-                vals.get('product_id'),
-                vals.get('product_type'),
-                vals.get('image_list')
-            )
-
     _order = 'product_id desc, sequence, id'
 
     _sql_constraints = [
             ('uniq_name_product_id', 'UNIQUE(product_id, name)',
                 _('A product can have only one image with the same name')),
             ]
-
-
-    class product_img_type(models.Model):
-        _name = 'product.img.type'
-        name = fields.Char('Type')
