@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tree string="Putaway">
+    <field name="product_id" string="Product"/>
+    <field name="display_name"/>
+    <field name="fixed_location_id" string="Location"/>
+</tree>

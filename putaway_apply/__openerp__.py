@@ -21,7 +21,7 @@
 ##############################################################################
 {
     "name" : "Putaway apply",
-    "version" : "0.1",
+    "version" : "0.2",
     "author": "Bubbles-iT.",
     "category": 'Warehouse Management',
     "description":' Usually Putaway strategy works on categories matched to the product on Shipment. This module does it on Product level.',
@@ -31,6 +31,7 @@
              ],
     "data": [
              "putaway_apply_view.xml",
+             "putaway_apply_tree_view.xml"
              'security/ir.model.access.csv',
              ],
     "auto_install": False,
