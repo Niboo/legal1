@@ -1,6 +1,17 @@
 <?xml version="1.0"?>
-<tree string="Putaway">
-    <field name="product_id" string="Product"/>
-    <field name="display_name"/>
-    <field name="fixed_location_id" string="Location"/>
-</tree>
+<openerp>
+    <record id="view_putaway_tree" model="ir.ui.view">
+        <field name="type">tree</field>
+        <field name="name">product.putaway.tree.view</field>
+        <field name="model">stock.fixed.putaway.byprod.strat</field>
+        <field name="mode">Base view</field>
+        <field name="inherit_id" ref="fixed_location"/>
+        <field name="arch" type="xml">
+            <tree string="Putaway">
+                <field name="product_id" string="Product"/>
+                <field name="display_name"/>
+                <field name="fixed_location_id" string="Location"/>
+            </tree>
+         </field>
+    </record>
+</openerp>
