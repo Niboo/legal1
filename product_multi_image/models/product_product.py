@@ -75,12 +75,6 @@ class ProductImage(models.Model):
         elif self.image_ids:
             self.image_ids[0].unlink()
 
-    @api.model
-    def create(self, vals):
-        if vals.get('mage_image_path'):
-            vals['main_image_name'] = vals.get('mage_image_path').split('/')[-1]
-        return super(ProductImage, self).create(vals)
-
     image_ids = fields.One2many(
         comodel_name='product.image', inverse_name='product_id',
         string='Product images', copy=True)
@@ -195,9 +189,3 @@ class ProductProduct(models.Model):
     image_small = fields.Binary(
         compute="_get_image_variant", inverse="_set_image_small",
         store=False)
-
-    @api.model
-    def create(self, vals):
-        if vals.get('mage_image_path'):
-            vals['main_image_name'] = vals.get('mage_image_path').split('/')[-1]
-        return super(ProductProduct, self).create(vals)

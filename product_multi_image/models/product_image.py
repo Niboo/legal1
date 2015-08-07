@@ -24,7 +24,6 @@ import urllib
 import os
 import logging
 from openerp import models, fields, api, exceptions, _
-from openerp.osv import osv
 from openerp import tools
 from shutil import copyfile
 
@@ -173,7 +172,7 @@ class ProductImage(models.Model):
         try:
             full_path = self._medium_path()
         except Exception, e:
-            _logger.error("Can not find the path for medium %s: %s", id, e, exc_info=True)
+            _logger.error("Can not find the path for thumb %s: %s", id, e, exc_info=True)
             return False
         if not full_path:
             raise osv.except_osv(_('Error'),
@@ -184,11 +183,11 @@ class ProductImage(models.Model):
                     with open(full_path, 'rb') as f:
                         img = base64.b64encode(f.read())
                 except Exception, e:
-                    _logger.error("Can not open the medium %s, error : %s",
+                    _logger.error("Can not open the thumb %s, error : %s",
                             full_path, e, exc_info=True)
                     return False
         else:
-            _logger.error("The medium %s doesn't exist ", full_path)
+            _logger.error("The thumb %s doesn't exist ", full_path)
             return False
         return img
 
@@ -267,11 +266,13 @@ class ProductImage(models.Model):
 
     @api.one
     def _set_image(self):
-        full_path = self._image_path()
+        user = self.env['res.users'].browse(self._uid)
+        img = self.with_context(lang=user.lang)
+        full_path = img._image_path()
         if not full_path:
             raise osv.except_osv(_('Error'),
                     _('Product Images needs to be configured first in company'))
-        self._save_file()
+            img._save_file()
 
     sequence = fields.Integer(string='Sequence', default=999)
     name = fields.Char(string='Image title', required=True)
@@ -296,9 +297,73 @@ class ProductImage(models.Model):
             comodel_name='product.product', string='Variant', required=False,
             ondelete='cascade')
 
+    # converted from mob_extra_images
+    image_type = fields.Many2many(
+        comodel_name='product.img.type',
+        relation='product_img_to_img_type',
+        column1='image_id',
+        column2='type_id',
+        string='Image Type'
+    )
+    mage_file = fields.Char('Magento File Name')
+    mage_product_id = fields.Integer('Magento product ID', default=0)
+
+    @api.model
+    def create_image(self, mage_product_id, product_id, product_type, image_list):
+        type_env = self.env['product.img.type']
+        if product_id and product_type and mage_product_id:
+            tmpl_id = product_id
+            if product_type == 'product':
+                tmpl_id = self.env['product.product'].search([('id','=',product_id)])[0].product_tmpl_id.id
+            else:
+                product_id = None
+
+            for data in image_list:
+                image = self.search([('mage_file','=',data.get('mage_file')),
+                    ('mage_product_id','=',mage_product_id)
+                    ])
+                data['product_id'] = tmpl_id
+                data['variant_id'] = product_id
+                type_ids = []
+                for typ in data.get('types', []):
+                    search_type = type_env.search([('name','=',typ)])
+                    if search_type:
+                        type_ids.append(search_type[0])
+                    else:
+                        type_ids.append(type_env.create({'name':typ}))
+                data.pop('types')
+                image_data = data.get('image')
+                if type_ids:
+                    data['image_type'] = [(6, 0, type_ids)]
+                    data['sequence'] = 0
+                    if image:
+                        image.sequence = 0
+                        image.image_type = [(6, 0, type_ids)]
+                else:
+                    if image:
+                        image.sequence = 999
+                        image.image_type = [(6,0,[])]
+                if not image:
+                    new_image = self.create(data)
+                    new_image.image = image_data
+
+    @api.model
+    def create_image_helper(self, vals):
+        self.create_image(
+                vals.get('mage_product_id'),
+                vals.get('product_id'),
+                vals.get('product_type'),
+                vals.get('image_list')
+            )
+
     _order = 'product_id desc, sequence, id'
 
     _sql_constraints = [
             ('uniq_name_product_id', 'UNIQUE(product_id, name)',
                 _('A product can have only one image with the same name')),
             ]
+
+
+    class product_img_type(models.Model):
+        _name = 'product.img.type'
+        name = fields.Char('Type')

@@ -24,8 +24,7 @@ MOB Extra Image Extension
 	'category': 'Generic Modules',
 	'sequence': 1,
 	'depends':[
-				'magento_bridge',
-                'product_multi_image'
+				'magento_bridge'
 			],
 	'data':[	'security/ir.model.access.csv',
 				'mob_extra_image_view.xml'
