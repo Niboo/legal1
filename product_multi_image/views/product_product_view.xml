@@ -9,11 +9,20 @@
             <field name="arch" type="xml">
                 <xpath expr="/form/sheet/notebook" position="inside">
                     <page string="Images">
-                        <field name="image_ids"
-                               nolabel="1"
-                               mode="kanban"/>
+                        <field name="image_ids" nolabel='1'>
+                            <tree string="images">
+                                <field name='sequence' widget='handle'/>
+                                <field name='name'/>
+                                <field name='variant_id'/>
+                            </tree>
+                        </field>
                     </page>
                 </xpath>
+                <field name='image_medium' position='replace'>
+                    <field name="image_medium" widget="image" class="oe_avatar oe_left" filename='main_image_name'/>
+                    <field name='main_image_name' invisible='1'/>
+                </field>
+
             </field>
         </record>
 
