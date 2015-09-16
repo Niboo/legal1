@@ -88,8 +88,6 @@ class ProductImage(models.Model):
                     new_image = super(ProductImage, image).write(vals)
                     if 'image' in vals:
                         # a new image have been loaded we should remove the old image
-                        # TODO it's look like there is something wrong with function
-                        # field in openerp indeed the preview is always added in the write :(
                         if os.path.isfile(old_full_path):
                             os.remove(old_full_path)
                         if os.path.isfile(old_medium_path):
@@ -97,13 +95,14 @@ class ProductImage(models.Model):
                         if os.path.isfile(old_thumb_path):
                             os.remove(old_thumb_path)
                     else:
-                        new_full_path = new_image._image_path()
-                        new_thumb_path = new_image._thumb_path()
+                        new_full_path = image._image_path()
+                        new_medium_path = image._medium_path()
+                        new_thumb_path = image._thumb_path()
                         #we have to rename the image on the file system
                         if os.path.isfile(old_full_path):
                             os.rename(old_full_path, new_full_path)
                         if os.path.isfile(old_medium_path):
-                            os.rename(old_medium_path, new_full_path)
+                            os.rename(old_medium_path, new_medium_path)
                         if os.path.isfile(old_thumb_path):
                             os.rename(old_thumb_path, new_thumb_path)
         return super(ProductImage, self).write(vals)
@@ -313,8 +312,8 @@ class ProductImage(models.Model):
 
     @api.model
     def create_image(self, mage_product_id, product_id, product_type, image_list):
-        type_env = self.env['product.img.type']
-        if product_id and product_type and mage_product_id:
+        type_env = self.env['product.image.type']
+        if product_id:
             tmpl_id = product_id
             if product_type == 'product':
                 tmpl_id = self.env['product.product'].search([('id','=',product_id)])[0].product_tmpl_id.id
@@ -330,11 +329,12 @@ class ProductImage(models.Model):
                 data['variant_id'] = product_id
                 type_ids = []
                 for typ in data.get('types', []):
-                    search_type = type_env.search([('name','=',typ)])
-                    if search_type:
-                        type_ids.append(search_type[0])
-                    else:
-                        type_ids.append(type_env.create({'name':typ}))
+                    if typ:
+                        search_type = type_env.search([('name','=',typ)])
+                        if search_type:
+                            type_ids.append(search_type[0])
+                        else:
+                            type_ids.append(type_env.create({'name':typ}))
                 data.pop('types')
                 image_data = data.get('image')
                 if type_ids:
@@ -359,6 +359,7 @@ class ProductImage(models.Model):
                 vals.get('product_type'),
                 vals.get('image_list')
             )
+        return true
 
     _order = 'product_id desc, sequence, id'
 

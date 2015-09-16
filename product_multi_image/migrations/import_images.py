@@ -93,7 +93,7 @@ def product_images(e):
         for line in reader:
             t += 1
             if t % 500 == 0:
-                print t, " ", line
+                print t, " ", line[0]
 
             data = {
                 'product_id': line[0],
