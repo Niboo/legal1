@@ -95,6 +95,8 @@ class product_attributes(osv.osv):
 	}
 	
 	def link_product_attributes(self, cr, uid, data, context=None):
+		if context is None:
+			context = {}
 		attr_list = {}
 		value = False		
 		tmpl_id = 0
