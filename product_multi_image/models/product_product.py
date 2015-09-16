@@ -25,7 +25,7 @@ from openerp import models, fields, api, _
 _logger = logging.getLogger(__name__)
 
 
-class ProductImage(models.Model):
+class ProductTemplate(models.Model):
     _inherit = "product.template"
 
     @api.one
@@ -87,13 +87,20 @@ class ProductImage(models.Model):
     image_small = fields.Binary(
         compute="_get_main_image", inverse="_set_image_small",
         store=False)
-    main_image_name = fields.Char(string='Image title', required=True)
+    main_image_name = fields.Char(string='Image title')
+
+    @api.model
+    def create(self, vals):
+        if vals.get('mage_image_path'):
+            vals['main_image_name'] = vals.get('mage_image_path').split('/')[-1]
+        return super(ProductTemplate, self).create(vals)
+
     @api.multi
     def write(self, vals):
         if 'image_medium' in vals and 'image_ids' in vals:
             # Inhibit the write of the image when images tab has been touched
             del vals['image_medium']
-        return super(ProductImage, self).write(vals)
+        return super(ProductTemplate, self).write(vals)
 
 
 class ProductProduct(models.Model):

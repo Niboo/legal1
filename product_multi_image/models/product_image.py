@@ -19,13 +19,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+import os
 import base64
 import urllib
-import os
 import logging
+
+from shutil import copyfile
+
 from openerp import models, fields, api, exceptions, _
 from openerp import tools
-from shutil import copyfile
 
 _logger = logging.getLogger(__name__)
 
@@ -154,14 +156,14 @@ class ProductImage(models.Model):
         if not full_path:
             raise osv.except_osv(_('Error'),
                     _('Company must be configure first for image display'))
-            if os.path.exists(full_path):
-                try:
-                    with open(full_path, 'rb') as f:
-                        img = base64.b64encode(f.read())
-                except Exception, e:
-                    _logger.error("Can not open the image %s, error : %s",
-                            full_path, e, exc_info=True)
-                    return False
+        if os.path.exists(full_path):
+            try:
+                with open(full_path, 'rb') as f:
+                    img = base64.b64encode(f.read())
+            except Exception, e:
+                _logger.error("Can not open the image %s, error : %s",
+                        full_path, e, exc_info=True)
+                return False
         else:
             _logger.error("The image %s doesn't exist ", full_path)
             return False
@@ -178,14 +180,14 @@ class ProductImage(models.Model):
             raise osv.except_osv(_('Error'),
                     _('Company must be configure first for image display'))
 
-            if os.path.exists(full_path):
-                try:
-                    with open(full_path, 'rb') as f:
-                        img = base64.b64encode(f.read())
-                except Exception, e:
-                    _logger.error("Can not open the thumb %s, error : %s",
-                            full_path, e, exc_info=True)
-                    return False
+        if os.path.exists(full_path):
+            try:
+                with open(full_path, 'rb') as f:
+                    img = base64.b64encode(f.read())
+            except Exception, e:
+                _logger.error("Can not open the thumb %s, error : %s",
+                        full_path, e, exc_info=True)
+                return False
         else:
             _logger.error("The thumb %s doesn't exist ", full_path)
             return False
@@ -202,14 +204,14 @@ class ProductImage(models.Model):
             raise osv.except_osv(_('Error'),
                     _('Company must be configure first for image display'))
 
-            if os.path.exists(full_path):
-                try:
-                    with open(full_path, 'rb') as f:
-                        img = base64.b64encode(f.read())
-                except Exception, e:
-                    _logger.error("Can not open the thumb %s, error : %s",
-                            full_path, e, exc_info=True)
-                    return False
+        if os.path.exists(full_path):
+            try:
+                with open(full_path, 'rb') as f:
+                    img = base64.b64encode(f.read())
+            except Exception, e:
+                _logger.error("Can not open the thumb %s, error : %s",
+                        full_path, e, exc_info=True)
+                return False
         else:
             _logger.error("The thumb %s doesn't exist ", full_path)
             return False
@@ -262,17 +264,18 @@ class ProductImage(models.Model):
             except OSError, e:
                 raise exceptions.Warning(
                         _('The image filestore can not be created, %s') % e)
-                return True
+        return True
 
     @api.one
     def _set_image(self):
         user = self.env['res.users'].browse(self._uid)
         img = self.with_context(lang=user.lang)
+        image = self.image
         full_path = img._image_path()
         if not full_path:
             raise osv.except_osv(_('Error'),
-                    _('Product Images needs to be configured first in company'))
-            img._save_file()
+                _('Product Images needs to be configured first in company'))
+        img._save_file(image)
 
     sequence = fields.Integer(string='Sequence', default=999)
     name = fields.Char(string='Image title', required=True)
@@ -299,7 +302,7 @@ class ProductImage(models.Model):
 
     # converted from mob_extra_images
     image_type = fields.Many2many(
-        comodel_name='product.img.type',
+        comodel_name='product.image.type',
         relation='product_img_to_img_type',
         column1='image_id',
         column2='type_id',
@@ -322,6 +325,7 @@ class ProductImage(models.Model):
                 image = self.search([('mage_file','=',data.get('mage_file')),
                     ('mage_product_id','=',mage_product_id)
                     ])
+                data['name'] = (data.get('mage_file','default.jpg')).rpartition('/')[-1]
                 data['product_id'] = tmpl_id
                 data['variant_id'] = product_id
                 type_ids = []
@@ -334,11 +338,11 @@ class ProductImage(models.Model):
                 data.pop('types')
                 image_data = data.get('image')
                 if type_ids:
-                    data['image_type'] = [(6, 0, type_ids)]
+                    data['image_type'] = [(6, 0, [x.id for x in type_ids])]
                     data['sequence'] = 0
                     if image:
                         image.sequence = 0
-                        image.image_type = [(6, 0, type_ids)]
+                        image.image_type = [(6, 0, [x.id for x in type_ids])]
                 else:
                     if image:
                         image.sequence = 999
@@ -364,6 +368,6 @@ class ProductImage(models.Model):
             ]
 
 
-    class product_img_type(models.Model):
-        _name = 'product.img.type'
-        name = fields.Char('Type')
+class ProductImageType(models.Model):
+    _name = 'product.image.type'
+    name = fields.Char('Type')
