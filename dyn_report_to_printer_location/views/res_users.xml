@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <!-- res.users -->
+        <record model="ir.ui.view" id="view_printing_users_form">
+            <field name="name">res.users.form.printing</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form" />
+            <field name="arch" type="xml">
+                <group name="preferences" position="inside">
+                    <field name="work_location_id"/>
+                </group>
+            </field>
+        </record>
+
+        <!-- "My Preferences -->
+        <record model="ir.ui.view" id="view_printing_users_prefs">
+            <field name="name">res.users.form.printing</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form_simple_modif" />
+            <field name="arch" type="xml">
+                <group name="preferences" position="inside">
+                    <field name="work_location_id"/>
+                </group>
+            </field>
+        </record>
+
+    </data>
+</openerp>

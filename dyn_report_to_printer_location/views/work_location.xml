@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="work_location_tree_view">
+            <field name="name">work_location.tree</field>
+            <field name="model">work_location</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Work Locations">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="work_location_form_view">
+            <field name="name">work_location.form</field>
+            <field name="model">work_location</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Work Location">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group name="Printers">
+                            <field name="work_location_printer_ids">
+                                <tree editable="top">
+                                    <field name="document_type_id"/>
+                                    <field name="printing_action"/>
+                                    <field name="printing_printer_id"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_work_location_tree_view">
+            <field name="name">Work Locations</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">work_location</field>
+        <!-- <field name="domain">[('field_name','condition',criteria)]</field>-->
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="work_location_tree_view"/>
+        </record>
+
+        <menuitem id="work_location_menu" name="Work Locations" parent="base_report_to_printer.menu_printing_main" action="action_work_location_tree_view"/>
+
+    </data>
+</openerp>
