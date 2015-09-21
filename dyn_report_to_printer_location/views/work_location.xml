@@ -9,6 +9,7 @@
             <field name="arch" type="xml">
                 <tree string="Work Locations">
                     <field name="name"/>
+                    <field name="user_id"/>
                 </tree>
             </field>
         </record>
@@ -25,6 +26,9 @@
                                 <field name="name"/>
                             </h1>
                         </div>
+                        <group>
+                            <field name="user_id"/>
+                        </group>
                         <group name="Printers">
                             <field name="work_location_printer_ids">
                                 <tree editable="top">

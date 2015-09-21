@@ -9,7 +9,13 @@ class WorkLocation(models.Model):
     _description = 'Work Location'
 
     name = fields.Char(required=True)
+    user_id = fields.Many2one('res.users', 'Current/Last User', compute='_compute_user_id')
     work_location_printer_ids = fields.One2many('work_location_printer', 'work_location_id', 'Printers', required=False)
+
+    def _compute_user_id(self):
+        for rec in self:
+            user = self.env['res.users'].search([('work_location_id', '=', rec.id)])
+            rec.user_id = user.id
 
 
 class work_location_printer(models.Model):
