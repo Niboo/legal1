@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <report
+            string="Picking Wave"
+            id="action_report_picking_wave"
+            model="stock.picking.wave"
+            report_type="qweb-pdf"
+            name="report.picking_wave"
+            file="report_picking_wave"
+        />
+
+        <template id="report.picking_wave">
+            <style type="text/css">
+                table {
+                    width: 100%;
+                    border:1px solid black;
+                }
+                th, td {
+                    padding: 3px;
+                }
+                .parent_location_change {
+                    border: 1px solid black;
+                    font-weight: bold;
+                }
+                .product_img {
+                    max-width: 100px; width:100px;
+                }
+            </style>
+            <t t-call="report.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="report.internal_layout">
+                        <div class="page">
+                            <h2>Picking Wave: <span t-field="o.name"/> <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 600, 100)" style="width:300px;height:50px;"/></h2>
+                            <p>
+                                Responsible: <span t-field="o.user_id.name"/><br/>
+                                Pickings: <span t-esc="', '.join([p.name for p in o.picking_ids])"/>
+                            </p>
+                            <p>
+                                <table>
+                                    <tr>
+                                        <th>Source Location</th>
+                                        <th>Product Image</th>
+                                        <th>Product Name</th>
+                                        <th>Quantity</th>
+                                        <th>Box</th>
+                                        <th>Picking</th>
+                                    </tr>
+                                    <t t-foreach="o.wave_location_ids" t-as="wl">
+                                        <tr t-if="wl.new_parent_location" class="parent_location_change">
+                                            <td colspan="2">Parent Location:</td>
+                                            <td colspan="4"><span t-field="wl.location_id.location_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span t-field="wl.location_id.name"/></td>
+                                            <td><img t-att-src="'data:image/jpg;base64,%s' % wl.product_id.image" class="img-rounded product_img"/></td>
+                                            <td><span t-field="wl.product_id.display_name"/></td>
+                                            <td><span t-field="wl.qty"/></td>
+                                            <td>#<span t-field="wl.box_nbr"/></td>
+                                            <td><span t-field="wl.picking_id.name"/></td>
+                                        </tr>
+                                    </t>
+                                </table>
+                            </p>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</openerp>
