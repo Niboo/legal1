@@ -10,6 +10,7 @@ class stock_picking_wave(models.Model):
 
     # Easiest is to just extend this model for reporting
     wave_location_ids = fields.One2many('wave_location', 'wave_id', 'Wave Picking Locations', readonly=True)
+    packages_assigned = fields.Boolean('Packages Have Been Assigned', required=False)
 
     def print_wave(self, cr, uid, ids, context=None):
         context = dict(context or {})
@@ -18,8 +19,17 @@ class stock_picking_wave(models.Model):
         q_dict = defaultdict(list)
         for wave in self.browse(cr, uid, ids, context=context):
             for picking in wave.picking_ids:
+                package_id = False
+                if not wave.packages_assigned:
+                    package_vals = {
+                        'name': picking.move_lines[0].group_id.name,
+                    }
+                    package_id = self.pool.get('stock.quant.package').create(cr, uid, package_vals, context=context)
+                    self.pool.get('stock.picking.wave').write(cr, uid, wave.id, {'packages_assigned': True}, context=context)
                 for move_line in picking.move_lines:
                     for quant in move_line.reserved_quant_ids:
+                        if package_id and not quant.package_id:
+                            self.pool.get('stock.quant').write(cr, uid, quant.id, {'package_id': package_id}, context=context)
                         loc_list.add(quant.location_id)
                         q_dict[quant.location_id.id].append(quant)
             if not loc_list:
