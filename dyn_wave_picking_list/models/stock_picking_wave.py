@@ -10,7 +10,6 @@ class stock_picking_wave(models.Model):
 
     # Easiest is to just extend this model for reporting
     wave_location_ids = fields.One2many('wave_location', 'wave_id', 'Wave Picking Locations', readonly=True)
-    packages_assigned = fields.Boolean('Packages Have Been Assigned', required=False)
 
     def print_wave(self, cr, uid, ids, context=None):
         context = dict(context or {})
@@ -20,7 +19,7 @@ class stock_picking_wave(models.Model):
         for wave in self.browse(cr, uid, ids, context=context):
             for picking in wave.picking_ids:
                 package_id = False
-                if not wave.packages_assigned:
+                if not picking.packages_assigned:
                     package_vals = {
                         'name': picking.move_lines[0].group_id.name,
                     }
