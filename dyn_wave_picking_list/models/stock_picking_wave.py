@@ -24,7 +24,7 @@ class stock_picking_wave(models.Model):
                         'name': picking.move_lines[0].group_id.name,
                     }
                     package_id = self.pool.get('stock.quant.package').create(cr, uid, package_vals, context=context)
-                    self.pool.get('stock.picking.wave').write(cr, uid, wave.id, {'packages_assigned': True}, context=context)
+                    self.pool.get('stock.picking').write(cr, uid, wave.id, {'packages_assigned': True}, context=context)
                 for move_line in picking.move_lines:
                     for quant in move_line.reserved_quant_ids:
                         if package_id and not quant.package_id:
