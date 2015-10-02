@@ -52,3 +52,6 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# exported images
+odoo_import_images.csv

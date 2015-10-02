@@ -27,7 +27,7 @@
               "Odoo Community Association (OCA)",
     "website": "http://www.serviciosbaeza.com",
     "category": "Sales Management",
-    "depends": ['product'],
+    "depends": ['product', 'magento_bridge'],
     "data": [
         'security/ir.model.access.csv',
         'views/product_image_view.xml',
