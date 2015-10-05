@@ -31,7 +31,6 @@
              ],
     "data": [
              "putaway_apply_view.xml",
-             "putaway_apply_tree_view.xml",
              'security/ir.model.access.csv',
              ],
     "auto_install": False,
