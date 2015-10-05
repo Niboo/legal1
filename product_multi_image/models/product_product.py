@@ -106,6 +106,7 @@ class ProductTemplate(models.Model):
 class ProductProduct(models.Model):
     _inherit = "product.product"
 
+    @api.one
     def _get_image_variant(self):
         self.image = False
         self.image_medium = False
