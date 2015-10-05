@@ -20,7 +20,7 @@ Instant Grop Messaging & Desktop Notification
         "views/im_chat_group.xml",
         "im_chat_group_view.xml",
     ],
-    'depends' : ['im_chat', 'mail'],
+    'depends' : ['im_chat', 'mail', 'resource'],
     'qweb': [],
     'images': ['images/combine.png'],
     'price': 19.99,
