@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <template id="report_picking_layout">
+            <!-- Multicompany -->
+            <t t-if="o and 'company_id' in o">
+                <t t-set="company" t-value="o.company_id"></t>
+            </t>
+            <t t-if="not o or not 'company_id' in o">
+                <t t-set="company" t-value="res_company"></t>
+            </t>
+
+            <t t-call="dyn_wave_picking_list.report_picking_layout_header" />
+            <t t-raw="0" />
+            <t t-call="dyn_wave_picking_list.report_picking_layout_footer" />
+        </template>
+
+        <template id="report_picking_layout_header">
+            <div class="header">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="max-height: 45px;"/>
+                    </div>
+                </div>
+                <div class="row zero_min_height">
+                    <div class="col-xs-12">
+                        <div style="border-bottom: 1px solid black;"></div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="report_picking_layout_footer">
+            <div class="footer">
+                <div class="text-center" style="border-top: 1px solid black;">
+                    <span float="left">
+                        Prepared with great care by <span t-field='o.wave_id.user_id.name'/>
+                    </span>
+                    <span style="font-size:5em; float: right;">
+                        #<span t-field="o.box_nbr"/>
+                    </span>
+
+                    <ul class="list-inline" style="position: absolute; bottom: 0;">
+                        <li>Page:</li>
+                        <li><span class="page"/></li>
+                        <li>/</li>
+                        <li><span class="topage"/></li>
+                    </ul>
+                </div>
+            </div>
+        </template>
+
+        <template id="report_picking" inherit_id="stock.report_picking">
+            <xpath expr="//t[@t-call='report.external_layout']" position="attributes">
+                <attribute name="t-call">dyn_wave_picking_list.report_picking_layout</attribute>
+            </xpath>
+            <xpath expr="//img[@style='width:300px;height:50px;']" position="before">
+                <h3 style="text-align: center;">Picking</h3>
+            </xpath>
+            <xpath expr="//img[@style='width:300px;height:50px;']" position="after">
+                <h3 style="text-align: center;">Magento Shipment</h3>
+                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.magento_shipment, 600, 100)" style="width:300px;height:50px;"/>
+            </xpath>
+            <xpath expr="//div[@class='col-xs-5 col-xs-offset-1']" position="replace"/>
+        </template>
+
+    </data>
+</openerp>
