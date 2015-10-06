@@ -29,6 +29,7 @@ class stock_picking_wave(models.Model):
                     for quant in move_line.reserved_quant_ids:
                         if package_id and not quant.package_id:
                             self.pool.get('stock.quant').write(cr, uid, quant.id, {'package_id': package_id}, context=context)
+                        self.pool.get('stock.quant.package').write(cr, uid, package_id, {'location_id': quant.location_id.id}, context=context)
                         loc_list.add(quant.location_id)
                         q_dict[quant.location_id.id].append(quant)
             if not loc_list:
