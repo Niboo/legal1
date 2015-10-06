@@ -24,7 +24,7 @@ class stock_picking_wave(models.Model):
                         'name': picking.move_lines[0].group_id.name,
                     }
                     package_id = self.pool.get('stock.quant.package').create(cr, uid, package_vals, context=context)
-                    self.pool.get('stock.picking').write(cr, uid, wave.id, {'packages_assigned': True}, context=context)
+                    self.pool.get('stock.picking').write(cr, uid, picking.id, {'packages_assigned': True}, context=context)
                 for move_line in picking.move_lines:
                     for quant in move_line.reserved_quant_ids:
                         if package_id and not quant.package_id:
@@ -55,9 +55,12 @@ class stock_picking_wave(models.Model):
                         'qty': quant.qty,
                         'picking_id': quant.reservation_id.picking_id.id,
                         'new_parent_location': new_parent_location,
-                        'box_nbr': picking_ids.index(quant.reservation_id.picking_id.id) + 1,
                     }
                     wvals.append((0, 0, vdict))
+                    # Put box nbr on picking
+                    self.pool.get('stock.picking').write(cr, uid, quant.reservation_id.picking_id.id,
+                        {'box_nbr': picking_ids.index(quant.reservation_id.picking_id.id) + 1,},
+                        context=context)
             self.write(cr, uid, wave.id, {'wave_location_ids': wvals}, context=context)
         context['active_ids'] = ids
         context['active_model'] = 'stock.picking.wave'
@@ -73,6 +76,6 @@ class wave_location(models.Model):
     location_id = fields.Many2one('stock.location', 'Source Location', required=True)
     product_id = fields.Many2one('product.product', 'Product', required=True)
     qty = fields.Integer('Quantity', required=True)
-    box_nbr = fields.Integer('Box #')
+    box_nbr = fields.Integer('Box #', related="picking_id.box_nbr")
     picking_id = fields.Many2one('stock.picking', 'Picking', required=True)
     new_parent_location = fields.Boolean('New Parent Location')
