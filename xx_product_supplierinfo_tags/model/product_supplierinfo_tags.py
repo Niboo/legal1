@@ -128,4 +128,4 @@ class product_product(models.Model):
                         comp=self.pool.get('res.users').browse(cr,uid,[uid],context=context)[0].company_id.id))
                     query_result = cr.fetchall()
                     product_ids += [x[0] for x in query_result]
-        return product_ids
+        return list(set(product_ids))
