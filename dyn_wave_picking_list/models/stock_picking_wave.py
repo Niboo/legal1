@@ -31,7 +31,6 @@ class stock_picking_wave(models.Model):
                             self.pool.get('stock.quant').write(cr, uid, quant.id, {'package_id': package_id}, context=context)
                         elif quant.package_id:
                             package_id = quant.package_id.id
-                        import pdb; pdb.set_trace()
                         # TODO: debug this again later.
                         # For some reason, this write wouldn't work, but still returned True. Ugly solution, but raw query works.
                         # self.pool.get('stock.quant.package').write(cr, uid, package_id, {'location_id': quant.location_id.id}, context=context)
