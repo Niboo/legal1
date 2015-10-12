@@ -18,6 +18,7 @@ class stock_picking_wave(models.Model):
         q_dict = defaultdict(list)
         for wave in self.browse(cr, uid, ids, context=context):
             for picking in wave.picking_ids:
+                self.pool['stock.transfer_details'].create(cr, uid, {'picking_id': len(picking) and picking.id or False}, context)
                 package_id = False
                 if not picking.packages_assigned:
                     package_vals = {
