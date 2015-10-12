@@ -38,6 +38,7 @@ be picked in one run.
         'views/stock_picking_wave.xml',
         'report/report_picking_wave.xml',
         'report/report_stock_picking.xml',
+        'security/security.xml',
     ],
     'demo': [],
     'test': [],
