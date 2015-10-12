@@ -27,10 +27,10 @@ class work_location_printer(models.Model):
                 in _available_action_types(self)
                 if code != 'location_default']
 
-    work_location_id = fields.Many2one('work_location', 'Work Location', required=False)
-    printing_action = fields.Selection(_location_available_action_types)
+    work_location_id = fields.Many2one('work_location', 'Work Location', required=True)
+    printing_action = fields.Selection(_location_available_action_types, required=True)
     document_type_id = fields.Many2one(comodel_name='document_type',
-                                          string='Document Type')
+                                          string='Document Type', required=True)
     printing_printer_id = fields.Many2one(comodel_name='printing.printer',
                                           string='Default Printer')
 

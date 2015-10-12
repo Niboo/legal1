@@ -37,6 +37,8 @@ printer.
         'views/res_users.xml',
         'views/work_location.xml',
         'views/ir_report.xml',
+        'views/printing_view.xml',
+        'security/security.xml',
     ],
     'demo': [],
     'test': [],
