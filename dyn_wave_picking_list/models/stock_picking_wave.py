@@ -18,7 +18,6 @@ class stock_picking_wave(models.Model):
         q_dict = defaultdict(list)
         for wave in self.browse(cr, uid, ids, context=context):
             for picking in wave.picking_ids:
-                self.pool['stock.transfer_details'].create(cr, uid, {'picking_id': len(picking) and picking.id or False}, context)
                 package_id = False
                 if not picking.packages_assigned:
                     package_vals = {
@@ -30,6 +29,8 @@ class stock_picking_wave(models.Model):
                     for quant in move_line.reserved_quant_ids:
                         if package_id and not quant.package_id:
                             self.pool.get('stock.quant').write(cr, uid, quant.id, {'package_id': package_id}, context=context)
+                        elif quant.package_id:
+                            package_id = quant.package_id.id
                         self.pool.get('stock.quant.package').write(cr, uid, package_id, {'location_id': quant.location_id.id}, context=context)
                         loc_list.add(quant.location_id)
                         q_dict[quant.location_id.id].append(quant)
