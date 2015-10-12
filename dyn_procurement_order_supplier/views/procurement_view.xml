@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <record id="procurement_tree_view" model="ir.ui.view">
+            <field name="name">procurement.order.tree</field>
+            <field name="model">procurement.order</field>
+            <field name="inherit_id" ref="procurement.procurement_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="origin" position="after">
+                    <field name="supplier_id"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="procurement_form_view" model="ir.ui.view">
+            <field name="name">procurement.order.form</field>
+            <field name="model">procurement.order</field>
+            <field name="inherit_id" ref="procurement.procurement_form_view"/>
+            <field name="arch" type="xml">
+                <field name="group_id" position="before">
+                    <field name="supplier_id"/>
+                </field>
+
+            </field>
+        </record>
+
+        <record id="view_procurement_filter" model="ir.ui.view">
+            <field name="name">procurement.order.select</field>
+            <field name="model">procurement.order</field>
+            <field name="inherit_id" ref="procurement.view_procurement_filter"/>
+            <field name="arch" type="xml">
+                <field name="origin" position="after">
+                    <field name="supplier_id"/>
+                </field>
+                <filter string="Scheduled Month" position="before">
+                    <filter string="Supplier" icon="terp-partner" domain="[]" context="{'group_by':'supplier_id'}"/>
+                </filter>
+            </field>
+        </record>
+
+    </data>
+</openerp>
