@@ -2,58 +2,58 @@
 <openerp>
     <data>
         <record id="ir_model_access_work_location_printingoperator" model="ir.model.access">
-          <field name="name">work_location group</field>
-          <field name="model_id" ref="model_work_location"/>
-          <field name="group_id" ref="base_report_to_printer.res_groups_printingprintoperator0"/>
-          <field eval="1" name="perm_read"/>
-          <field eval="1" name="perm_unlink"/>
-          <field eval="1" name="perm_write"/>
-          <field eval="1" name="perm_create"/>
-      </record>
-      <record id="ir_model_access_work_location_printer_printingoperator" model="ir.model.access">
-          <field name="name">work_location_printer group</field>
-          <field name="model_id" ref="model_work_location_printer"/>
-          <field name="group_id" ref="base_report_to_printer.res_groups_printingprintoperator0"/>
-          <field eval="1" name="perm_read"/>
-          <field eval="1" name="perm_unlink"/>
-          <field eval="1" name="perm_write"/>
-          <field eval="1" name="perm_create"/>
-      </record>
-      <record id="ir_model_access_document_type_printingoperator" model="ir.model.access">
-          <field name="name">document_type group</field>
-          <field name="model_id" ref="model_document_type"/>
-          <field name="group_id" ref="base_report_to_printer.res_groups_printingprintoperator0"/>
-          <field eval="1" name="perm_read"/>
-          <field eval="1" name="perm_unlink"/>
-          <field eval="1" name="perm_write"/>
-          <field eval="1" name="perm_create"/>
-      </record>
+            <field name="name">work_location group</field>
+            <field name="model_id" ref="model_work_location"/>
+            <field name="group_id" ref="base_report_to_printer.res_groups_printingprintoperator0"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="ir_model_access_work_location_printer_printingoperator" model="ir.model.access">
+            <field name="name">work_location_printer group</field>
+            <field name="model_id" ref="model_work_location_printer"/>
+            <field name="group_id" ref="base_report_to_printer.res_groups_printingprintoperator0"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_create"/>
+        </record>
+        <record id="ir_model_access_document_type_printingoperator" model="ir.model.access">
+            <field name="name">document_type group</field>
+            <field name="model_id" ref="model_document_type"/>
+            <field name="group_id" ref="base_report_to_printer.res_groups_printingprintoperator0"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="1" name="perm_unlink"/>
+            <field eval="1" name="perm_write"/>
+            <field eval="1" name="perm_create"/>
+        </record>
 
-  </data>
-  <data>
-    <record id="ir_model_access_work_location_all0" model="ir.model.access">
-      <field name="name">work_location all</field>
-      <field name="model_id" ref="model_work_location"/>
-      <field eval="1" name="perm_read"/>
-      <field eval="0" name="perm_unlink"/>
-      <field eval="0" name="perm_write"/>
-      <field eval="0" name="perm_create"/>
-  </record>
-  <record id="ir_model_access_work_location_printer_all0" model="ir.model.access">
-      <field name="name">work_location_printer all</field>
-      <field name="model_id" ref="model_work_location_printer"/>
-      <field eval="1" name="perm_read"/>
-      <field eval="0" name="perm_unlink"/>
-      <field eval="0" name="perm_write"/>
-      <field eval="0" name="perm_create"/>
-  </record>
-  <record id="ir_model_access_document_type_all0" model="ir.model.access">
-      <field name="name">document_type all</field>
-      <field name="model_id" ref="model_document_type"/>
-      <field eval="1" name="perm_read"/>
-      <field eval="0" name="perm_unlink"/>
-      <field eval="0" name="perm_write"/>
-      <field eval="0" name="perm_create"/>
-  </record>
-</data>
+    </data>
+    <data>
+        <record id="ir_model_access_work_location_all0" model="ir.model.access">
+            <field name="name">work_location all</field>
+            <field name="model_id" ref="model_work_location"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="0" name="perm_create"/>
+        </record>
+        <record id="ir_model_access_work_location_printer_all0" model="ir.model.access">
+            <field name="name">work_location_printer all</field>
+            <field name="model_id" ref="model_work_location_printer"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="0" name="perm_create"/>
+        </record>
+        <record id="ir_model_access_document_type_all0" model="ir.model.access">
+            <field name="name">document_type all</field>
+            <field name="model_id" ref="model_document_type"/>
+            <field eval="1" name="perm_read"/>
+            <field eval="0" name="perm_unlink"/>
+            <field eval="0" name="perm_write"/>
+            <field eval="0" name="perm_create"/>
+        </record>
+    </data>
 </openerp>
