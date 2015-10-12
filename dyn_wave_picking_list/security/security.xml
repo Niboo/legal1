@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <record model="ir.model.access" id="wave_location_user">
+            <field name="name">wave_location user</field>
+            <field name="model_id" ref="dyn_wave_picking_list.model_wave_location"/>
+            <field name="group_id" ref="stock.group_stock_user"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.model.access" id="picking_wave_user">
+            <field name="name">picking_wave user</field>
+            <field name="model_id" ref="stock_picking_wave.model_stock_picking_wave"/>
+            <field name="group_id" ref="stock.group_stock_user"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+    </data>
+</openerp>
