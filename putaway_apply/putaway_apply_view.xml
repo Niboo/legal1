@@ -14,8 +14,8 @@
                        		<field name="fixed_location_ids" colspan="4" nolabel="1">
                            <tree editable="top">
                                <field name="sequence" widget='handle'/>
-                               <field name="category_id"/> 
-                               <field name="fixed_location_id"/> 
+                               <field name="category_id"/>
+                               <field name="fixed_location_id"/>
                            </tree>
                        </field>
                        	</page>
@@ -23,8 +23,8 @@
                        		<field name="fixed_location_by_product_ids" colspan="4" nolabel="1">
 	                           <tree editable="top">
 	                               <field name="sequence" widget='handle'/>
-	                               <field name="product_id"/> 
-	                               <field name="fixed_location_id"/> 
+	                               <field name="product_id"/>
+	                               <field name="fixed_location_id"/>
 	                           </tree>
                        		</field>
                        	</page>
@@ -32,6 +32,20 @@
                 </xpath>
             </field>
         </record>
+
+        <record model="ir.actions.act_window" id="action_product_putaway_location">
+            <field name="name">stock.fixed.putaway.byprod.strat</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.fixed.putaway.byprod.strat</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <menuitem id="product_putaway_location_menu"
+          name="Product Putaway Locations"
+          parent="stock.menu_stock_configuration"
+          action="action_product_putaway_location"/>
 
 
 	</data>
