@@ -96,10 +96,13 @@
                     <div t-if="o.picking_type_id.code=='incoming' and o.partner_id">
                         <span><strong>Supplier Address:</strong></span>
                     </div>
+                    <!--
                     <div t-if="o.picking_type_id.code=='internal' and o.partner_id">
                         <span><strong>Warehouse Address:</strong></span>
                     </div>
-                    <div t-if="o.picking_type_id.code=='outgoing' and o.partner_id">
+                     -->
+                    <!-- This used to be outgoing only, but for ODW it needs to be internal as well. -->
+                    <div t-if="o.picking_type_id.code in ['internal', 'outgoing'] and o.partner_id">
                         <span><strong>Customer Address:</strong></span>
                     </div>
                     <div t-if="o.partner_id" name="partner_header">
