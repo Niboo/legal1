@@ -72,6 +72,15 @@ class stock_picking_wave(models.Model):
         rep = self.pool.get("report")
         return rep.get_action(cr, uid, [], 'report.picking_wave', context=context)
 
+    def get_user_name_picking(self):
+        uname_arr = self.user_id.name.split()[:2]
+        if len(uname_arr) > 1:
+            uname_arr[1] = uname_arr[1][0]
+            retval =  ' '.join(uname_arr).title()
+        else:
+            retval =  self.user_id.name
+        return '%s.' % (retval, )
+
 
 class wave_location(models.Model):
     _name = 'wave_location'
