@@ -31,9 +31,8 @@ class stock_picking_wave(models.Model):
                             self.pool.get('stock.quant').write(cr, uid, quant.id, {'package_id': package_id}, context=context)
                         elif quant.package_id:
                             package_id = quant.package_id.id
-                        # TODO: debug this again later.
-                        # For some reason, this write wouldn't work, but still returned True. Ugly solution, but raw query works.
-                        # self.pool.get('stock.quant.package').write(cr, uid, package_id, {'location_id': quant.location_id.id}, context=context)
+                        # We can't use write(); this field is a readonly function field with a store parameter.
+                        # Changing that would be more invasive than just doing a cursor write here.
                         cr.execute("UPDATE stock_quant_package SET location_id=%s WHERE id=%s" % (quant.location_id.id, package_id))
                         loc_list.add(quant.location_id)
                         q_dict[quant.location_id.id].append(quant)
