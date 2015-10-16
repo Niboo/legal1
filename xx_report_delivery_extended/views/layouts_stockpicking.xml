@@ -23,10 +23,10 @@
             </div>
 
             <div class="col-xs-3 pull-right" style="margin-top:20px;" >
-                <div t-field="company.partner_id" 
+                <div t-field="company.partner_id"
                     t-field-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'/>
-                
-		<div>                
+
+		<div>
 		    <t t-if="o.origin and get_order_shop(o.origin)">
 		    	<span><strong>Order Shop:</strong></span>
 			<span  t-esc="get_order_shop(o.origin).name"/>
@@ -39,10 +39,24 @@
 
 <template id="external_layout_footer_stockpicking">
     <div class="footer">
-        <div class="text-center" style="border-top: 1px solid black;">
+        <div style="border-top: 1px solid black;">
+            <span class="text-center" style="display:block; width: 80%; margin: 30px auto; float: left;">
+                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.magento_shipment, 600, 100)" style="float:left; height:40px; width:240px;"/>
+                <p style="position:relative; margin: 0 auto;">Prepared with great care by <span t-esc='o.wave_id.get_user_name_picking()'/></p>
+                <ul class="list-inline">
+                    <li>Page:</li>
+                    <li><span class="page"/></li>
+                    <li>/</li>
+                    <li><span class="topage"/></li>
+                </ul>
+            </span>
+            <span style="font-size:5em; float: right;">
+                #<span t-field="o.box_nbr"/>
+            </span>
+            <!-- Do we still need these? -->
+<!--
             <ul t-if="not company.custom_footer" class="list-inline">
                 <li t-if="company.phone">Phone: <span t-field="company.phone"/></li>
-
                 <li t-if="company.fax and company.phone">&amp;bull;</li>
                 <li t-if="company.fax">Fax: <span t-field="company.fax"/></li>
 
@@ -56,15 +70,9 @@
             <t t-if="company.custom_footer">
                 <span t-raw="company.rml_footer"/>
             </t>
-
-            <ul class="list-inline">
-                <li>Page:</li>
-                <li><span class="page"/></li>
-                <li>/</li>
-                <li><span class="topage"/></li>
-            </ul>
+-->
         </div>
-    </div>      
+    </div>
 </template>
 
 </data>
