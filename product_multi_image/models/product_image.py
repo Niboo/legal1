@@ -353,13 +353,12 @@ class ProductImage(models.Model):
 
     @api.model
     def create_image_helper(self, vals):
-        self.create_image(
+        return self.create_image(
                 vals.get('mage_product_id'),
                 vals.get('product_id'),
                 vals.get('product_type'),
                 vals.get('image_list')
             )
-        return true
 
     _order = 'product_id desc, sequence, id'
 
