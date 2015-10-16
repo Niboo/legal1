@@ -145,7 +145,6 @@ class ProductImage(models.Model):
                     '%s' % (self.name or ''))
             return full_path
 
-    @api.one
     def get_image(self):
         try:
             full_path = self._image_path()
@@ -168,7 +167,6 @@ class ProductImage(models.Model):
             return False
         return img
 
-    @api.one
     def get_medium(self):
         try:
             full_path = self._medium_path()
@@ -192,7 +190,6 @@ class ProductImage(models.Model):
             return False
         return img
 
-    @api.one
     def get_thumb(self):
         try:
             full_path = self._thumb_path()
@@ -216,13 +213,13 @@ class ProductImage(models.Model):
             return False
         return img
 
-    @api.one
     def _get_image(self):
         user = self.env['res.users'].browse(self._uid)
-        img = self.with_context(lang=user.lang, bin_size=False)
-        self.image = img.get_image()
-        self.image_medium = img.get_medium()
-        self.image_small = img.get_thumb()
+        for record in self:
+            img = record.with_context(lang=user.lang, bin_size=False)
+            record.image = img.get_image()
+            record.image_medium = img.get_medium()
+            record.image_small = img.get_thumb()
 
     @api.one
     def _save_file(self, image=False):
