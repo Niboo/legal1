@@ -95,7 +95,6 @@ class stock_picking_wave(models.Model):
         context['active_model'] = 'stock.picking'
         return self.pool.get("report").get_action(cr, uid, [], 'xx_report_delivery_extended.report_delivery_master', context=context)
 
-
 class wave_location(models.Model):
     _name = 'wave_location'
     _description = 'Wave Picking Location'
