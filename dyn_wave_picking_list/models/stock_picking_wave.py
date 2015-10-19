@@ -3,6 +3,7 @@ from openerp.osv import osv
 from openerp import fields, models
 from openerp.tools.translate import _
 from collections import defaultdict
+from openerp import SUPERUSER_ID
 
 
 class stock_picking_wave(models.Model):
@@ -28,7 +29,7 @@ class stock_picking_wave(models.Model):
                 for move_line in picking.move_lines:
                     for quant in move_line.reserved_quant_ids:
                         if package_id and not quant.package_id:
-                            self.pool.get('stock.quant').write(cr, uid, quant.id, {'package_id': package_id}, context=context)
+                            self.pool.get('stock.quant').write(cr, SUPERUSER_ID, quant.id, {'package_id': package_id}, context=context)
                         elif quant.package_id:
                             package_id = quant.package_id.id
                         # We can't use write(); this field is a readonly function field with a store parameter.
