@@ -39,15 +39,15 @@ class stock_picking_wave(models.Model):
                         q_dict[quant.location_id.id].append(quant)
             if not loc_list:
                 raise osv.except_osv(_('Error!'), _('Nothing to print.'))
-            loc_list = sorted(list(loc_list), lambda x, y: cmp(x.name, y.name))
+            loc_list = sorted(list(loc_list), lambda x, y: cmp(x.display_name, y.display_name))
             wvals = []
             to_delete_wave_locs = [x.id for x in wave.wave_location_ids]
             self.pool.get('wave_location').unlink(cr, uid, to_delete_wave_locs, context=context)
             # For determining box number later on; wave.picking_ids is not a list, so index won't work on it.
             picking_ids = [x.id for x in wave.picking_ids]
+            parent_location_id = 0
             for loc in loc_list:
                 # TODO: get rid of this, work with temp vars in the qweb template
-                parent_location_id = 0
                 for quant in q_dict[loc.id]:
                     if loc.location_id.id != parent_location_id:
                         parent_location_id = loc.location_id.id
