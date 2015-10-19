@@ -1,35 +1,48 @@
 <?xml version="1.0" ?>
 <openerp>
-	<data>
+    <data>
 
-	    <record id="view_putaway_inherit" model="ir.ui.view">
+        <record id="view_putaway_inherit" model="ir.ui.view">
             <field name="name">product.putaway.form.inherit</field>
             <field name="model">product.putaway</field>
             <field name="inherit_id" ref="stock.view_putaway"/>
             <field name="arch" type="xml">
-                 <xpath expr="//div" position="replace"/>
-                 <xpath expr="//group" position="after">
-            		<notebook string="Putaway">
-            		    <page string="Categories" attrs="{'invisible': [('method', '!=', 'fixed')]}">
-                       		<field name="fixed_location_ids" colspan="4" nolabel="1">
-                           <tree editable="top">
-                               <field name="sequence" widget='handle'/>
-                               <field name="category_id"/>
-                               <field name="fixed_location_id"/>
-                           </tree>
-                       </field>
-                       	</page>
-                       	<page string="Product" attrs="{'invisible': [('method', '!=', 'fixed')]}">
-                       		<field name="fixed_location_by_product_ids" colspan="4" nolabel="1">
-	                           <tree editable="top">
-	                               <field name="sequence" widget='handle'/>
-	                               <field name="product_id"/>
-	                               <field name="fixed_location_id"/>
-	                           </tree>
-                       		</field>
-                       	</page>
-            		</notebook>
+                <xpath expr="//div" position="replace"/>
+                <xpath expr="//group" position="after">
+                    <notebook string="Putaway">
+                        <page string="Categories" attrs="{'invisible': [('method', '!=', 'fixed')]}">
+                            <field name="fixed_location_ids" colspan="4" nolabel="1">
+                                <tree editable="top">
+                                    <field name="sequence" widget='handle'/>
+                                    <field name="category_id"/>
+                                    <field name="fixed_location_id"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Product" attrs="{'invisible': [('method', '!=', 'fixed')]}">
+                            <field name="fixed_location_by_product_ids" colspan="4" nolabel="1">
+                                <tree editable="top">
+                                    <field name="sequence" widget='handle'/>
+                                    <field name="product_id"/>
+                                    <field name="fixed_location_id"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="putaway_byprod_strat_tree_view">
+            <field name="name">stock.fixed.putaway.byprod.strat.tree</field>
+            <field name="model">stock.fixed.putaway.byprod.strat</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Putaway"  >
+                    <field name="product_id" string="Product"/>
+                    <field name="display_name"/>
+                    <field name="fixed_location_id" string="Location"/>
+                </tree>
             </field>
         </record>
 
@@ -43,11 +56,11 @@
 
 
         <menuitem id="product_putaway_location_menu"
-          name="Product Putaway Locations"
-          parent="stock.menu_stock_configuration"
-          action="action_product_putaway_location"/>
+            name="Product Putaway Locations"
+            parent="stock.menu_stock_configuration"
+            action="action_product_putaway_location"/>
 
 
-	</data>
-</openerp>
+        </data>
+    </openerp>
 
