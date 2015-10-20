@@ -394,7 +394,7 @@ class sale_order(osv.osv):
 				config_obj = self.pool.get('magento.orders').browse(cr, uid, order_ids[0])
 				instance_id = config_obj.instance_id.id
 				order_name = self.browse(cr, uid, sale_id).name
-				picking_ids = self.browse(cr, uid, sale_id).picking_ids.id				
+				picking_ids = self.browse(cr, uid, sale_id).picking_ids.ids
 				if order_name and picking_ids:
 					magento_shipment = self.manual_magento_shipment(cr, uid, ids, order_name, instance_id, context)
 					self.pool.get('stock.picking').write(cr, uid, picking_ids, {'magento_shipment':magento_shipment}, context)
