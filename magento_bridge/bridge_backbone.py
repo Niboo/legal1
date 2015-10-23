@@ -216,8 +216,11 @@ class bridge_backbone(models.Model):
 			state = self.pool.get('magento.configure').browse(cr, uid, active_id).state
 			if state == 'enable':
 				self.pool.get('magento.configure').write(cr, uid, active_id,{'state':'disable'})			
-			if pick_id:
-				pick_cancel=self.pool.get('stock.picking').action_cancel(cr,uid,pick_id)		
+			order_obj = self.pool.get('sale.order').browse(cr, uid, order_id)
+			pick_ids = order_obj.picking_ids
+			for pick_obj in pick_ids:
+				if pick_obj.state != "done":
+					pick_cancel=self.pool.get('stock.picking').action_cancel(cr, uid, pick_obj.id)		
 			order_cancel=self.pool.get('sale.order').action_cancel(cr,uid,[order_id])
 			if state == 'enable':
 				self.pool.get('magento.configure').write(cr, uid, active_id, {'state':'enable'})	
@@ -350,12 +353,17 @@ class bridge_backbone(models.Model):
 			if state == 'enable':
 				self.pool.get('magento.configure').write(cr, uid, active_id, {'state': 'disable'})
 			order_name = self.pool.get('sale.order').name_get(cr, uid, data['order_id'])		
-			pick_id = self.pool.get('stock.picking').search(cr, uid,[('origin','=',order_name[0][1])])
-			if pick_id:
-				self.pool.get('stock.picking').do_transfer(cr, uid, pick_id, context)
-				self.pool.get('stock.picking').write(cr, uid, pick_id,{'carrier_tracking_ref':data['carrier_tracking_ref'],'carrier_code':data['carrier_code'],'magento_shipment':data['mage_ship_number']} ,context)
-				workflow.trg_validate(uid, 'sale.order',data['order_id'], 'ship_end', cr)
-				res =  True
+			order_id = data['order_id']
+			order_obj = self.pool.get('sale.order').browse(cr, uid, order_id)
+			pick_ids = order_obj.picking_ids
+			for pick_obj in pick_ids:
+				status = pick_obj.state
+				if status == "done":
+					continue
+				self.pool.get('stock.picking').do_transfer(cr, uid, pick_obj.id, context)
+				self.pool.get('stock.picking').write(cr, uid, pick_obj.id,{'carrier_tracking_ref':data['carrier_tracking_ref'],'carrier_code':data['carrier_code'],'magento_shipment':data['mage_ship_number']} ,context)
+			workflow.trg_validate(uid, 'sale.order',data['order_id'], 'ship_end', cr)
+			res =  True
 			if state == 'enable':
 				self.pool.get('magento.configure').write(cr, uid, active_id, {'state': 'enable'})
 			return res
@@ -440,3 +448,4 @@ class bridge_backbone(models.Model):
 	
 bridge_backbone()
 # END
+
