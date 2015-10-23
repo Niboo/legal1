@@ -32,13 +32,17 @@ class stock_picking_wave(models.Model):
                             self.pool.get('stock.quant').write(cr, SUPERUSER_ID, quant.id, {'package_id': package_id}, context=context)
                         elif quant.package_id:
                             package_id = quant.package_id.id
+                        else:
+                            raise osv.except_osv(_('Error!'), 'There is no package for quant %s, in picking %s' % (move_line.name, picking.name))
                         # We can't use write(); this field is a readonly function field with a store parameter.
                         # Changing that would be more invasive than just doing a cursor write here.
+                        if not quant.location_id:
+                            raise osv.except_osv(_('Error!'), 'No location assigned to quant %s for move line %s, in picking %s' % (quant.name, move_line.name, picking.name))
                         cr.execute("UPDATE stock_quant_package SET location_id=%s WHERE id=%s" % (quant.location_id.id, package_id))
                         loc_list.add(quant.location_id)
                         q_dict[quant.location_id.id].append(quant)
             if not loc_list:
-                raise osv.except_osv(_('Error!'), _('Nothing to print.'))
+                raise osv.except_osv(_('Error!'), _('There are no locations for any quants assigned to the pickings. Please rectify this.'))
             loc_list = sorted(list(loc_list), lambda x, y: cmp(x.display_name, y.display_name))
             wvals = []
             to_delete_wave_locs = [x.id for x in wave.wave_location_ids]
