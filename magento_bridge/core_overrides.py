@@ -452,7 +452,19 @@ Carrier_Code = [('custom', 'Custom Value'),
 						('fedex', 'Federal Express'),
 						('ups', 'United Parcel Service'),
 						('usps', 'United States Postal Service'),
-						('dhlint', 'DHL')
+						('dhlint', 'DHL'),
+						('paazl', 'Verzenden PAAZL'),
+						('freeshipping', 'Gratis Verzenden'),
+						('m2eproshipping', 'Amazon/eBay'),
+						('tracker1', 'Tracker 1 - PostNL'),
+						('tracker2', 'Tracker 2 - GLS'),
+						('tracker3', 'Tracker 3'),
+						('tracker4', 'Tracker 4'),
+						('tracker5', 'Tracker 5'),
+						('tracker6', 'Tracker 6'),
+						('tracker7', 'Tracker 7'),
+						('tracker8', 'Tracker 8'),
+						('tracker9', 'Tracker 9'),
 						]
 
 class stock_picking(osv.osv):
