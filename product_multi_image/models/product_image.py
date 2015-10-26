@@ -321,7 +321,9 @@ class ProductImage(models.Model):
                 image = self.search([('mage_file','=',data.get('mage_file')),
                     ('mage_product_id','=',mage_product_id)
                     ])
-                data['name'] = (data.get('mage_file','default.jpg')).rpartition('/')[-1]
+                data['name'] = (data.get('mage_file','')).rpartition('/')[-1]
+                # We were getting '/' for mage_name, so data_name is '', which breaks the rest of this stuff.
+                data['name'] = data['name'] or 'default.jpg'
                 data['product_id'] = tmpl_id
                 data['variant_id'] = product_id
                 type_ids = []
