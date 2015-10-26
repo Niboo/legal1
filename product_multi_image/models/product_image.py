@@ -325,14 +325,15 @@ class ProductImage(models.Model):
                 data['product_id'] = tmpl_id
                 data['variant_id'] = product_id
                 type_ids = []
-                for typ in data.get('types', []):
-                    if typ:
-                        search_type = type_env.search([('name','=',typ)])
-                        if search_type:
-                            type_ids.append(search_type[0])
-                        else:
-                            type_ids.append(type_env.create({'name':typ}))
-                data.pop('types')
+                if 'types' in data:
+                    for typ in data.get('types', []):
+                        if typ:
+                            search_type = type_env.search([('name','=',typ)])
+                            if search_type:
+                                type_ids.append(search_type[0])
+                            else:
+                                type_ids.append(type_env.create({'name':typ}))
+                    data.pop('types')
                 image_data = data.get('image')
                 if type_ids:
                     data['image_type'] = [(6, 0, [x.id for x in type_ids])]
