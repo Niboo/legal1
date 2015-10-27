@@ -323,7 +323,8 @@ class ProductImage(models.Model):
                     ])
                 data['name'] = (data.get('mage_file','')).rpartition('/')[-1]
                 # We were getting '/' for mage_name, so data_name is '', which breaks the rest of this stuff.
-                data['name'] = data['name'] or 'default.jpg'
+                if not data['name']:
+                    return
                 data['product_id'] = tmpl_id
                 data['variant_id'] = product_id
                 type_ids = []
