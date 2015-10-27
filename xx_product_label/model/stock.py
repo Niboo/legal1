@@ -53,13 +53,19 @@ class stock_pack_operation(models.Model):
             supplier_product = [ x for x in me.product_id.seller_ids if x.name == me.picking_id.partner_id ]
             location_dest_id = values.get('location_dest_id',False)
             location_dest_name = ''
+            location_is_temp_location = False
             if location_dest_id:
                 ctx.update({
                     'location_dest_name': self.env['stock.location'].browse(location_dest_id)['name']
                 })
+                if self.env.ref('putaway_apply.default_temp_location').id == location_dest_id:
+                    ctx.update({
+                        'location_is_temp_location': True,
+                    })
             if supplier_product:
                 ctx.update({
                     'supplier_product_code': supplier_product[0].product_code,
+                    'procurement_group_name': supplier_product[0].procurement_group.name,
                 })
             product_ids = []
             for x in xrange(qty):  # @UnusedVariable

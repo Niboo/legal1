@@ -37,6 +37,12 @@ class product_barcode(report_sxw.rml_parse):
     def _get_location_dest_name(self):
         return self.localcontext.get('location_dest_name', 'Unknown')
 
+    def _dest_is_temp_location(self):
+        return self.localcontext.get('location_is_temp_location')
+
+    def get_procurement_group_name(self):
+        return self.localcontext.get('procurement_group_name', 'Unknown')
+
 class report_product_barcode(osv.AbstractModel):
     _name = 'report.xx_product_label.report_product_barcode'
     _inherit = 'report.abstract_report'
