@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openerp import fields, models
+from openerp import fields, models, api
 from openerp.addons.base_report_to_printer.printing import _available_action_types
 
 
@@ -16,6 +16,10 @@ class WorkLocation(models.Model):
         for rec in self:
             user = self.env['res.users'].search([('work_location_id', '=', rec.id)])
             rec.user_id = user.id
+
+    _sql_constraints = [
+        ('user_id_uniq', 'unique(user_id)', 'User must be unique!'),
+    ]
 
 
 class work_location_printer(models.Model):
