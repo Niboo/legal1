@@ -18,6 +18,8 @@ class stock_picking_wave(models.Model):
         loc_list = set()
         q_dict = defaultdict(list)
         for wave in self.browse(cr, uid, ids, context=context):
+            if not wave.user_id:
+                raise osv.except_osv(_('Error!'), 'There is no responsible for this wave. Please assign one before printing.')
             for picking in wave.picking_ids:
                 package_id = False
                 if not picking.packages_assigned:
