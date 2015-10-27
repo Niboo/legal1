@@ -20,8 +20,7 @@
 #
 ##############################################################################
 import logging
-from openerp import models, fields, api
-from openerp.osv import fields as oldfields
+from openerp import models, fields, api, _
 
 _logger = logging.getLogger(__name__)
 
@@ -79,38 +78,16 @@ class ProductTemplate(models.Model):
     image_ids = fields.One2many(
         comodel_name='product.image', inverse_name='product_id',
         string='Product images', copy=True)
+    image = fields.Binary(
+        string="Main image", compute="_get_main_image", store=False,
+        inverse="_set_image")
+    image_medium = fields.Binary(
+        compute="_get_main_image", inverse="_set_image_medium",
+        store=False)
+    image_small = fields.Binary(
+        compute="_get_main_image", inverse="_set_image_small",
+        store=False)
     main_image_name = fields.Char(string='Image title')
-
-    # Overriding function fields and mixing V7 and V8 API doesn't
-    # work properly; one of the reasons V8 is still written in V7 API
-    #
-    # image = fields.Binary(
-    #     string="Main image", compute="_get_main_image", store=False,
-    #     inverse="_set_image")
-    # image_medium = fields.Binary(
-    #     compute="_get_main_image", inverse="_set_image_medium",
-    #     store=False)
-    # image_small = fields.Binary(
-    #     compute="_get_main_image", inverse="_set_image_small",
-    #     store=False)
-    _columns = {
-        'image': oldfields.function(_get_main_image, fnct_inv=_set_image,
-            string="Image", type="binary", multi="_get_main_image",
-            store=False,
-            help="This field holds the image used as image for the product, limited to 1024x1024px."),
-        'image_medium': oldfields.function(_get_main_image, fnct_inv=_set_image_medium,
-            string="Medium-sized image", type="binary", multi="_get_main_image",
-            store=False,
-            help="Medium-sized image of the product. It is automatically "
-                 "resized as a 128x128px image, with aspect ratio preserved, "
-                 "only when the image exceeds one of those sizes. Use this field in form views or some kanban views."),
-        'image_small': oldfields.function(_get_main_image, fnct_inv=_set_image_small,
-            string="Small-sized image", type="binary", multi="_get_main_image",
-            store=False,
-            help="Small-sized image of the product. It is automatically "
-                 "resized as a 64x64px image, with aspect ratio preserved. "
-                 "Use this field anywhere a small image is required."),
-    }
 
     @api.model
     def create(self, vals):
