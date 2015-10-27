@@ -21,9 +21,9 @@
 ##############################################################################
 from openerp.osv import fields, osv
 
-class product_putaway_strategy(osv.Model): 
+class product_putaway_strategy(osv.Model):
     _inherit = 'product.putaway'
- 
+
     def putaway_apply(self, cr, uid, putaway_strat, product, context=None):
         if putaway_strat.method == 'fixed':
             #Check in Products first
@@ -38,12 +38,14 @@ class product_putaway_strategy(osv.Model):
                     if strat.category_id.id == categ.id:
                         return strat.fixed_location_id.id
                     categ = categ.parent_id
+            # Previous checks didn't return, so we return the default temp location
+            return self.pool.get('ir.model.data').xmlid_lookup(self, cr, uid, 'putaway_apply.default_temp_location')
 
-    _columns = { 
+    _columns = {
         'fixed_location_by_product_ids': fields.one2many('stock.fixed.putaway.byprod.strat', 'putaway_id', 'Fixed Locations Per Product Category',
              help='When the method is fixed, this location will be used to store the products', copy=True),
     }
- 
+
 class fixed_putaway_by_prod_strat(osv.Model):
     _name = 'stock.fixed.putaway.byprod.strat'
     _order = 'sequence'
@@ -53,5 +55,3 @@ class fixed_putaway_by_prod_strat(osv.Model):
         'fixed_location_id': fields.many2one('stock.location', 'Location', required=True),
         'sequence': fields.integer('Priority', help="Give to the more specialized category, a higher priority to have them in top of the list."),
     }
-
-
