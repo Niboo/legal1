@@ -32,6 +32,7 @@
     "data": [
              "putaway_apply_view.xml",
              'security/ir.model.access.csv',
+             'data/data.xml',
              ],
     "auto_install": False,
     "installable": True
