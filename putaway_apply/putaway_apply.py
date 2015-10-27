@@ -39,7 +39,7 @@ class product_putaway_strategy(osv.Model):
                         return strat.fixed_location_id.id
                     categ = categ.parent_id
             # Previous checks didn't return, so we return the default temp location
-            return self.env.ref('putaway_apply.default_temp_location').id
+            return self.pool.get('ir.model.data').xmlid_lookup('putaway_apply.default_temp_location')[2]
 
     _columns = {
         'fixed_location_by_product_ids': fields.one2many('stock.fixed.putaway.byprod.strat', 'putaway_id', 'Fixed Locations Per Product Category',
