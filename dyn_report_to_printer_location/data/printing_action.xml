@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data noupdate="1">
+
+        <record id="printing_action_user_default" model="printing.action">
+            <field name="name">User Default</field>
+            <field name="action">user_default</field>
+        </record>
+
+        <record id="printing_action_location_default" model="printing.action">
+            <field name="name">Location Default</field>
+            <field name="action">location_default</field>
+        </record>
+
+    </data>
+</openerp>

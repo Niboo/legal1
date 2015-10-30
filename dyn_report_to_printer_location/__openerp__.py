@@ -39,6 +39,7 @@ printer.
         'views/ir_report.xml',
         'views/printing_view.xml',
         'security/security.xml',
+        'data/printing_action.xml',
     ],
     'demo': [],
     'test': [],
