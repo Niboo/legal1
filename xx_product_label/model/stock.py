@@ -67,6 +67,24 @@ class stock_pack_operation(models.Model):
             self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
         return me
 
+
+class stock_quant(models.Model):
+    _inherit = 'stock.quant'
+
+    def print_product_label(self, cr, uid, ids, context=None):
+        ctx = context.copy()
+        rec = self.browse(cr, uid, ids, context=context)
+        product_ids = [rec.product_id.id] * int(rec.qty)
+        ctx.update({
+            'location_dest_name': rec.location_id.name,
+            # We can't figure out the procurement group from here, so just pretend it's not the temp location, even if it is.
+            'location_is_temp_location': False,
+        })
+        print ctx
+
+        self.pool['product.product'].action_print_product_barcode(cr, uid, product_ids, context=ctx)
+
+
 class product_product(models.Model):
     _inherit = "product.product"
 
