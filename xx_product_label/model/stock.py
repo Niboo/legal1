@@ -20,6 +20,7 @@
 ##############################################################################
 from openerp import models, api
 
+
 class stock_pack_operation(models.Model):
     _inherit = "stock.pack.operation"
 
@@ -29,18 +30,18 @@ class stock_pack_operation(models.Model):
             if values.get('qty_done') > self.qty_done:
                 qty = int(values.get('qty_done') - self.qty_done)
                 ctx = self._context.copy()
-                supplier_product = [ x for x in self.product_id.seller_ids if x.name == self.picking_id.partner_id ]
+                supplier_product = [x for x in self.product_id.seller_ids if x.name == self.picking_id.partner_id]
+                if self.location_dest_id:
+                    ctx.update({
+                        'location_dest_name': self.location_dest_id.name,
+                        'location_is_temp_location': self.env.ref('putaway_apply.default_temp_location') == self.location_dest_id,
+                    })
                 if supplier_product:
                     ctx.update({
                         'supplier_product_code': supplier_product[0].product_code,
+                        'procurement_group_name': supplier_product[0].procurement_group and supplier_product[0].procurement_group.name or '',
                     })
-                if self.location_dest_id:
-                    ctx.update({
-                        'location_dest_name': self.location_dest_id.name
-                    })
-                product_ids = []
-                for x in xrange(qty):  # @UnusedVariable
-                    product_ids.append(self.product_id.id)
+                product_ids = [self.product_id.id] * qty
                 self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
         return super(stock_pack_operation, self).write(values)
 
@@ -50,26 +51,19 @@ class stock_pack_operation(models.Model):
         if values.get('qty_done',False):
             qty = int(values.get('qty_done'))
             ctx = self._context.copy()
-            supplier_product = [ x for x in me.product_id.seller_ids if x.name == me.picking_id.partner_id ]
+            supplier_product = [x for x in me.product_id.seller_ids if x.name == me.picking_id.partner_id]
             location_dest_id = values.get('location_dest_id',False)
-            location_dest_name = ''
-            location_is_temp_location = False
             if location_dest_id:
                 ctx.update({
-                    'location_dest_name': self.env['stock.location'].browse(location_dest_id)['name']
+                    'location_dest_name': self.env['stock.location'].browse(location_dest_id)['name'],
+                    'location_is_temp_location': self.env.ref('putaway_apply.default_temp_location').id == location_dest_id,
                 })
-                if self.env.ref('putaway_apply.default_temp_location').id == location_dest_id:
-                    ctx.update({
-                        'location_is_temp_location': True,
-                    })
             if supplier_product:
                 ctx.update({
                     'supplier_product_code': supplier_product[0].product_code,
-                    'procurement_group_name': supplier_product[0].procurement_group.name,
+                    'procurement_group_name': supplier_product[0].procurement_group and supplier_product[0].procurement_group.name or '',
                 })
-            product_ids = []
-            for x in xrange(qty):  # @UnusedVariable
-                product_ids.append(me.product_id.id)
+            product_ids = [me.product_id.id] * qty
             self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
         return me
 
