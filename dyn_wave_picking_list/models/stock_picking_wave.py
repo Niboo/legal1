@@ -81,14 +81,14 @@ class stock_picking_wave(models.Model):
 
     def get_user_name_picking(self):
         if not self.usesr_id:
-            return 'N/A.'
+            return 'N/A'
         uname_arr = self.user_id.name.split()[:2]
         if len(uname_arr) > 1:
             uname_arr[1] = uname_arr[1][0]
             retval =  ' '.join(uname_arr).title()
         else:
             retval =  self.user_id.name
-        return '%s.' % (retval, )
+        return '%s' % (retval, )
 
     def print_picking(self, cr, uid, ids, context=None):
         '''
