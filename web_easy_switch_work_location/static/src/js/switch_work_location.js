@@ -49,6 +49,7 @@ openerp.web_easy_switch_work_location = function (instance) {
                         var func = '/web_easy_switch_work_location/switch/change_current_work_location';
                         var param = {'work_location_id': work_location_id}
                         self.rpc(func, param).done(function(res) {
+                            window.history.go(-1);
                             window.location.reload()
                         });
                     }
