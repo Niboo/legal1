@@ -40,9 +40,24 @@
             <field name="arch" type="xml">
                 <tree string="Putaway"  >
                     <field name="product_id" string="Product"/>
-                    <field name="display_name"/>
+                    <field name="putaway_id"/>
                     <field name="fixed_location_id" string="Location"/>
                 </tree>
+            </field>
+        </record>
+
+        <record id="putaway_byprod_strat_search_view" model="ir.ui.view">
+            <field name="name">Putaway By Product Search</field>
+            <field name="model">stock.fixed.putaway.byprod.strat</field>
+            <field name="arch" type="xml">
+                <search string="Search Putaway By Product">
+                    <field name="product_id"/>
+                    <field name="fixed_location_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
+                        <filter string="Location" domain="[]" context="{'group_by':'fixed_location_id'}"/>
+                    </group>
+                </search>
             </field>
         </record>
 
@@ -60,7 +75,6 @@
             parent="stock.menu_stock_configuration"
             action="action_product_putaway_location"/>
 
-
-        </data>
-    </openerp>
+    </data>
+</openerp>
 
