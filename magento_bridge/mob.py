@@ -400,6 +400,11 @@ class magento_product_template(osv.osv):
 	_name="magento.product.template"
 	_order = 'id desc'
 	_description = "Magento Product Template"
+	
+	_sql_constraints = [
+			('mage_product_unique', 'unique(mage_product_id)', "Magento Product Already Synchronization"),
+		]
+
 	def create(self, cr, uid, vals, context=None):
 		if context is None:
 			context = {}
@@ -466,6 +471,11 @@ class magento_product(osv.osv):
 	_order = 'id desc'
 	_rec_name = "pro_name"
 	_description = "Magento Product"
+	
+	_sql_constraints = [
+		('mag_product_unique', 'unique(mag_product_id)', "Magento Product Already Synchronization"),
+	]
+
 	_columns = {
 		'pro_name':fields.many2one('product.product', 'Product Name'),
 		'oe_product_id':fields.integer('Odoo Product Id'),
