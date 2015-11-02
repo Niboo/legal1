@@ -80,7 +80,7 @@ class stock_picking_wave(models.Model):
         return rep.get_action(cr, uid, [], 'report.picking_wave', context=context)
 
     def get_user_name_picking(self):
-        if not self.usesr_id:
+        if not self.users_id:
             return 'N/A'
         uname_arr = self.user_id.name.split()[:2]
         if len(uname_arr) > 1:
