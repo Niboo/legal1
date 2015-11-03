@@ -32,6 +32,7 @@ Adds some extra information on the product supply chain.
     'depends': ['product'],
     'data': [
         'views/product.xml',
+        'views/partner.xml',
     ],
     'demo': [],
     'test': [],
