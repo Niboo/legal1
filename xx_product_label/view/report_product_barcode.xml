@@ -26,8 +26,9 @@
                                 <span t-field="o.default_code" style="font-weight:bold;white-space: nowrap;"/>
                             </div>
                             <div class="col-xs-5 mt2 text-right" style="overflow:hidden;">
-                                <span t-field="o.loc_rack" style="font-weight:bold;font-size:16px;white-space: nowrap;"/>
-                                <span t-esc="get_location_dest_name()" style="font-weight:bold;font-size:24px;white-space: nowrap;"/>
+                                <!-- <span t-field="o.loc_rack" style="font-weight:bold;font-size:16px;white-space: nowrap;"/> -->
+                                <span t-if="not o._dest_is_temp_location()" t-esc="get_location_dest_name()" style="font-weight:bold;font-size:24px;white-space: nowrap;"/>
+                                <span t-if="o._dest_is_temp_location()" t-esc="get_procurement_group_name()" style="font-weight:bold;font-size:24px;white-space: nowrap;"/>
                             </div>
                         </div>
                     </div>
