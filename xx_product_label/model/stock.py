@@ -35,11 +35,11 @@ class stock_pack_operation(models.Model):
                     ctx.update({
                         'location_dest_name': self.location_dest_id.name,
                         'location_is_temp_location': self.env.ref('putaway_apply.default_temp_location') == self.location_dest_id,
+                        'procurement_group_name': self.picking_id.group_id and self.picking_id.group_id.name or '',
                     })
                 if supplier_product:
                     ctx.update({
                         'supplier_product_code': supplier_product[0].product_code,
-                        'procurement_group_name': supplier_product[0].procurement_group and supplier_product[0].procurement_group.name or '',
                     })
                 product_ids = [self.product_id.id] * abs(qty)
                 self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
@@ -57,11 +57,11 @@ class stock_pack_operation(models.Model):
                 ctx.update({
                     'location_dest_name': self.env['stock.location'].browse(location_dest_id)['name'],
                     'location_is_temp_location': self.env.ref('putaway_apply.default_temp_location').id == location_dest_id,
+                    'procurement_group_name': me.picking_id.procurement_group and me.picking_id.procurement_group.name or '',
                 })
             if supplier_product:
                 ctx.update({
                     'supplier_product_code': supplier_product[0].product_code,
-                    'procurement_group_name': supplier_product[0].procurement_group and supplier_product[0].procurement_group.name or '',
                 })
             product_ids = [me.product_id.id] * abs(qty)
             self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
