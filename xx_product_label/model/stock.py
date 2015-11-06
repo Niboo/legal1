@@ -26,15 +26,57 @@ class stock_pack_operation(models.Model):
 
     @api.one
     def write(self, values):
+        """ Print the label of the packed product. If this is the first
+        packing of a picking to a temporary location, print the picking as well
+
+        Because the putaway strategy has not yet been applied at the moment of
+        scanning, we look ahead in the configured putaway strategies to
+        determine if this product will be going to the temp location.
+
+        See putaway_apply/putaway_apply.py
+        """
         if 'qty_done' in values:
             if values.get('qty_done') > self.qty_done:
                 qty = int(values.get('qty_done') - self.qty_done)
                 ctx = self._context.copy()
                 supplier_product = [x for x in self.product_id.seller_ids if x.name == self.picking_id.partner_id]
                 if self.location_dest_id:
+                    is_temp_location = False
+                    if self.picking_id.picking_type_id.code == 'incoming':
+                        temp_location = self.env.ref('putaway_apply.default_temp_location')
+                        strats_by_prod = self.env['stock.fixed.putaway.byprod.strat'].search(
+                            [('product_id', '=', self.product_id.id)], limit=1)
+                        if strats_by_prod:
+                            is_temp_location = (
+                                strats_by_prod.fixed_location_id == temp_location)
+                        else:
+                            categ = self.product_id.categ_id
+                            categ_ids = [categ.id]
+                            while categ.parent_id:
+                                categ_ids.append(categ.parent_id.id)
+                                categ = categ.parent_id
+                            strats = self.env['stock.fixed.putaway.strat'].search(
+                                [('category_id', 'in', categ_ids)], limit=1)
+                            if strats:
+                                is_temp_location = (
+                                    strats.fixed_location_id == temp_location)
+                            else:
+                                is_temp_location = True
+                        if is_temp_location and self.picking_id.group_id and not any(
+                                self.picking_id.pack_operation_ids.mapped('qty_done')):
+                            outgoing_picking_ids = self.picking_id.search(
+                                [('group_id', '=', self.picking_id.group_id.id),
+                                 ('picking_type_id.code', '=', 'outgoing')])
+                            if outgoing_picking_ids:
+                                try:
+                                    self.env['report'].print_document(
+                                        outgoing_picking_ids[0],
+                                        'xx_report_delivery_extended.report_delivery_master')
+                                except:
+                                    raise
                     ctx.update({
                         'location_dest_name': self.location_dest_id.name,
-                        'location_is_temp_location': self.env.ref('putaway_apply.default_temp_location') == self.location_dest_id,
+                        'location_is_temp_location': is_temp_location,
                         'procurement_group_name': self.picking_id.group_id and self.picking_id.group_id.name or '',
                     })
                 if supplier_product:
@@ -47,6 +89,7 @@ class stock_pack_operation(models.Model):
 
     @api.model
     def create(self, values):
+        # TODO: to be refactored for lookahead like the write method
         me = super(stock_pack_operation, self).create(values)
         if values.get('qty_done',False):
             qty = int(values.get('qty_done'))
@@ -54,9 +97,11 @@ class stock_pack_operation(models.Model):
             supplier_product = [x for x in me.product_id.seller_ids if x.name == me.picking_id.partner_id]
             location_dest_id = values.get('location_dest_id',False)
             if location_dest_id:
+                is_temp_location = location_dest_id == self.env.ref(
+                    'putaway_apply.default_temp_location').id
                 ctx.update({
                     'location_dest_name': self.env['stock.location'].browse(location_dest_id)['name'],
-                    'location_is_temp_location': self.env.ref('putaway_apply.default_temp_location').id == location_dest_id,
+                    'location_is_temp_location': is_temp_location,
                     'procurement_group_name': me.picking_id.procurement_group and me.picking_id.procurement_group.name or '',
                 })
             if supplier_product:
