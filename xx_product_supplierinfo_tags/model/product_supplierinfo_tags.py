@@ -58,37 +58,33 @@ class product_product(models.Model):
             if sp.picking_type_id.code == 'incoming':
                 cr.execute("""
                 SELECT pp.id
-                FROM stock_picking sp
-                    INNER JOIN product_supplierinfo ps ON ps.name in %(partner_ids)s
+                FROM stock_picking sp, product_supplierinfo ps
                     INNER JOIN xx_product_supplierinfo_tags xpst ON xpst.res_id = ps.id
                                                                 AND xpst.res_model = 'product.supplierinfo'
                                                                 AND xpst.name like '%%%(needle)s%%'
                     INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
                     INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
-                WHERE sp.id = %(p_id)s AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
+                WHERE ps.name in %(partner_ids)s AND sp.id = %(p_id)s AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
                 UNION
                 SELECT pp.id
-                FROM stock_picking sp
-                    INNER JOIN product_supplierinfo ps ON ps.name in %(partner_ids)s
+                FROM stock_picking sp, product_supplierinfo ps
                     INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
                     INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
-                WHERE sp.id = %(p_id)s  AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
+                WHERE ps.name in %(partner_ids)s AND sp.id = %(p_id)s  AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
                     AND ps.product_code ilike '%%%(needle)s%%'
                 UNION
                 SELECT pp.id
-                FROM stock_picking sp
-                    INNER JOIN product_supplierinfo ps ON ps.name in %(partner_ids)s
+                FROM stock_picking sp, product_supplierinfo ps
                     INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
                     INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
-                WHERE sp.id = %(p_id)s  AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
+                WHERE ps.name in %(partner_ids)s AND sp.id = %(p_id)s  AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
                     AND pt.manufacturer_pref ilike '%%%(needle)s%%'
                 UNION
                 SELECT pp.id
-                FROM stock_picking sp
-                    INNER JOIN product_supplierinfo ps ON ps.name in %(partner_ids)s
+                FROM stock_picking sp, product_supplierinfo ps
                     INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
                     INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
-                WHERE sp.id = %(p_id)s  AND (pt.company_id IS NULL OR pt.company_id = sp.company_id) AND (
+                WHERE ps.name in %(partner_ids)s AND sp.id = %(p_id)s  AND (pt.company_id IS NULL OR pt.company_id = sp.company_id) AND (
                             pp.ean13 ilike '%%%(needle)s%%' OR
                             pp.default_code ilike '%%%(needle)s%%'
                         )
