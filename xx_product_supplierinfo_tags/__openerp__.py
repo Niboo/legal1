@@ -4,6 +4,7 @@
     "depends": [
         "product",
         "stock",
+        "product_manufacturer",
         "xx_tags",
     ],
     "description": "Makes it possible to add tags to Product Supplier Info",
