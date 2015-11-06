@@ -67,18 +67,28 @@ class test_function(TransactionCase):
         self.productC = self.ProductObj.create({'name': 'Product C','default_code': 'C123456', 'company_id': company_id1})
         self.productD = self.ProductObj.create({'name': 'Product D','default_code': 'D123456',  'company_id': company_id1})
         self.PartnerObj = self.env['res.partner']
-        self.Supplier1 = self.PartnerObj.create({'name': 'Supplier 1'})
+        self.Supplier1 = self.PartnerObj.create(
+            {'name': 'Supplier 1', 'is_company': True})
         self.Supplier2 = self.PartnerObj.create({'name': 'Supplier 2'})
         self.Customer1 = self.PartnerObj.create({'name': 'Customer 1'})
         self.Customer2 = self.PartnerObj.create({'name': 'Customer 2'})
+        self.Contact1 = self.PartnerObj.create({'name': 'Contact 1', 'parent_id': self.Supplier1.id})
 
         # Create supplier info
         product_supplierinfo_obj = self.env['product.supplierinfo']
-        supplierinfo = product_supplierinfo_obj.create({
+        product_supplierinfo_obj.create({
             'name': self.Supplier1.id,
             'product_tmpl_id': self.productA.product_tmpl_id.id,
             'product_name': 'Voorbeeld',
             'xx_tag_ids': [(6,0,[model1000.id,model1001.id,model1002.id])]
+        })
+
+        # Create supplier info on contact
+        product_supplierinfo_obj = self.env['product.supplierinfo']
+        product_supplierinfo_obj.create({
+            'name': self.Contact1.id,
+            'product_tmpl_id': self.productA.product_tmpl_id.id,
+            'product_code': 'contactcode',
         })
 
         # Test on search product via barcode -- company1
@@ -114,6 +124,15 @@ class test_function(TransactionCase):
         f_id = prod.search([('name','=','xx_1000'),('company_id','=', company_id1)])
         self.assertEqual(len(f_id),1,"should find 1 result")
         self.assertEqual(f_id[0].id, self.productA.id,"2 Product with name xx_1000 should exist in main company")
+
+        prod = self.env['product.product'].with_context({
+            'process_barcode_from_ui_barcode_str': 'contactcode',
+            'process_barcode_from_ui_picking_id': picking_in.id })
+        f_id = prod.search([('name','=','xx_1000'), ('company_id','=', company_id1)])
+        self.assertEqual(
+            f_id[0], self.productA,
+            "I should be able to match the products of the supplier's contacts.")
+
         #
         # f_id = self.product_product_obj.search([('name','=','xx_1000'),('company_id',"=", company_id2)],context=context)
         # self.assertEqual(len(f_id),0,"This search must give no results because product is in other company")
