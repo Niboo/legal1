@@ -41,7 +41,7 @@ class stock_pack_operation(models.Model):
         return is_temp_location, self.satisfies_unpacked_delivery()
 
     @api.multi
-    def satisfies_unpacked_move(self):
+    def satisfies_unpacked_move(self, first=True):
         """ Return the until now unpacked move that the next increment of this
         pack will satisfy """
         qty = self.qty_done
@@ -49,7 +49,7 @@ class stock_pack_operation(models.Model):
             if not qty:
                 return link.move_id
             if qty < link.qty:
-                return False
+                return False if first else link.move_id
             qty -= link.qty
         return False
 
@@ -106,11 +106,20 @@ class stock_pack_operation(models.Model):
                             'xx_report_delivery_extended.report_delivery_master')
                     except:
                         pass
-                    ctx.update({
-                        'location_dest_name': self.location_dest_id.name,
-                        'location_is_temp_location': is_temp_location,
-                        'procurement_group_name': picking.group_id.name or '',
-                    })
+                else:
+                    # Just get the move's procurement group that this
+                    # product will be packed for
+                    move = self.satisfies_unpacked_move(first=False)
+                    if move:
+                        picking = move.picking_id
+                pog_name = ''
+                if picking:
+                    pog_name = picking.group_id.name or ''
+                ctx.update({
+                    'location_dest_name': self.location_dest_id.name,
+                    'location_is_temp_location': is_temp_location,
+                    'procurement_group_name': pog_name,
+                })
                 if supplier_product:
                     ctx.update({
                         'supplier_product_code': supplier_product[0].product_code,
