@@ -125,31 +125,6 @@ class stock_pack_operation(models.Model):
                 self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
         return super(stock_pack_operation, self).write(values)
 
-    @api.model
-    def create(self, values):
-        # TODO: to be refactored for lookahead like the write method
-        me = super(stock_pack_operation, self).create(values)
-        if values.get('qty_done',False):
-            qty = int(values.get('qty_done'))
-            ctx = self._context.copy()
-            supplier_product = [x for x in me.product_id.seller_ids if x.name == me.picking_id.partner_id]
-            location_dest_id = values.get('location_dest_id',False)
-            if location_dest_id:
-                is_temp_location = location_dest_id == self.env.ref(
-                    'putaway_apply.default_temp_location').id
-                ctx.update({
-                    'location_dest_name': self.env['stock.location'].browse(location_dest_id)['name'],
-                    'location_is_temp_location': is_temp_location,
-                    'procurement_group_name': me.picking_id.procurement_group and me.picking_id.procurement_group.name or '',
-                })
-            if supplier_product:
-                ctx.update({
-                    'supplier_product_code': supplier_product[0].product_code,
-                })
-            product_ids = [me.product_id.id] * abs(qty)
-            self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
-        return me
-
 
 class stock_quant(models.Model):
     _inherit = 'stock.quant'
