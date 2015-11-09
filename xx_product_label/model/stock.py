@@ -84,8 +84,6 @@ class stock_pack_operation(models.Model):
                 ctx = self._context.copy()
                 supplier_product = [x for x in self.product_id.seller_ids if x.name == self.picking_id.partner_id]
                 putaway_location = self.product_id.get_putaway_location()
-                import pdb
-                pdb.set_trace()
                 is_temp_location = putaway_location == self.env.ref(
                     'putaway_apply.default_temp_location')
                 if is_temp_location:
