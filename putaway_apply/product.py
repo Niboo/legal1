@@ -25,19 +25,14 @@ class Product(models.Model):
     _inherit = 'product.product'
 
     @api.multi
-    def is_temp_location(self):
-        """
-        For a single product, return whether the putaway strategy that will
-        be applied refers to the temp location. Lookahead of the same logic
-        that is enforced elsewhere in this module. If no fixed location is
-        defined on the product or category, default to True """
+    def get_putaway_location(self):
+        """ For a single product, return the putaway location. Used as a
+        lookahead at picking IN time. """
         self.ensure_one()
-        temp_location = self.env.ref(
-            'putaway_apply.default_temp_location')
         strats_by_prod = self.env['stock.fixed.putaway.byprod.strat'].search(
             [('product_id', '=', self.id)], limit=1)
         if strats_by_prod:
-            return strats_by_prod.fixed_location_id == temp_location
+            return strats_by_prod.fixed_location_id
         categ = self.categ_id
         categ_ids = [categ.id]
         while categ.parent_id:
@@ -46,5 +41,5 @@ class Product(models.Model):
         strats = self.env['stock.fixed.putaway.strat'].search(
             [('category_id', 'in', categ_ids)], limit=1)
         if strats:
-            return strats.fixed_location_id == temp_location
-        return True
+            return strats.fixed_location_id
+        return self.env.ref('putaway_apply.default_temp_location')

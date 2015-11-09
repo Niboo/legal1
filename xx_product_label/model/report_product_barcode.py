@@ -27,23 +27,11 @@ class product_barcode(report_sxw.rml_parse):
     def __init__(self, cr, uid, name, context=None):
         super(product_barcode, self).__init__(cr, uid, name, context=context)
         self.localcontext.update({
-            'get_supplier_product_code': self._get_supplier_product_code,
-            'get_location_dest_name': self._get_location_dest_name,
-            'dest_is_temp_location': self._dest_is_temp_location,
-            'get_procurement_group_name': self._get_procurement_group_name,
+            'get_destination': self._get_destination,
         })
 
-    def _get_supplier_product_code(self):
-        return self.localcontext.get('supplier_product_code', 'Unknown')
-
-    def _get_location_dest_name(self):
-        return self.localcontext.get('location_dest_name', 'Unknown')
-
-    def _dest_is_temp_location(self):
-        return self.localcontext.get('location_is_temp_location')
-
-    def _get_procurement_group_name(self):
-        return self.localcontext.get('procurement_group_name', 'Unknown')
+    def _get_destination(self):
+        return self.localcontext.get('destination', 'Unknown')
 
 class report_product_barcode(osv.AbstractModel):
     _name = 'report.xx_product_label.report_product_barcode'

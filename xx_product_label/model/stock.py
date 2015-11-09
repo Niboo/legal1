@@ -27,21 +27,6 @@ class stock_pack_operation(models.Model):
     _inherit = "stock.pack.operation"
 
     @api.multi
-    def satisfies_delivery_from_temp(self):
-        """ Return for a given, single operation whether its product is
-        configured to be moved to the temp location, and the outgoing delivery
-        for which the next increment of this pack will be the first picked
-        product, if any. """
-        self.ensure_one()
-        is_temp_location = self.product_id.is_temp_location()
-        if not is_temp_location:
-            return is_temp_location, False
-        if (not self.location_dest_id or
-                self.picking_id.picking_type_id.code != 'incoming'):
-            return is_temp_location, False
-        return is_temp_location, self.satisfies_unpacked_delivery()
-
-    @api.multi
     def satisfies_unpacked_move(self, first=True):
         """ Return the until now unpacked move that the next increment of this
         pack will satisfy """
@@ -56,9 +41,12 @@ class stock_pack_operation(models.Model):
 
     @api.multi
     def satisfies_unpacked_delivery(self):
-        """ Return the until now unpacked delivery that the next increment of
-        this pack will satisfy """
+        """ Return the until now unpacked incoming delivery that the next
+        increment of this pack will satisfy """
         self.ensure_one()
+        if (not self.location_dest_id or
+                self.picking_id.picking_type_id.code != 'incoming'):
+            return False
         move = self.satisfies_unpacked_move()
         if not move:
             return False
@@ -86,14 +74,24 @@ class stock_pack_operation(models.Model):
         scanning, we look ahead in the configured putaway strategies to
         determine if this product will be going to the temp location.
 
-        See putaway_apply/putaway_apply.py
+        Set a destination on the label. This will either be the procurement
+        group number (cq. the sales order reference), or the putaway as
+        defined on the product.
         """
         if 'qty_done' in values:
             if values.get('qty_done') > self.qty_done:
                 qty = int(values.get('qty_done') - self.qty_done)
                 ctx = self._context.copy()
                 supplier_product = [x for x in self.product_id.seller_ids if x.name == self.picking_id.partner_id]
-                is_temp_location, picking = self.satisfies_delivery_from_temp()
+                putaway_location = self.product_id.get_putaway_location()
+                import pdb
+                pdb.set_trace()
+                is_temp_location = putaway_location == self.env.ref(
+                    'putaway_apply.default_temp_location')
+                if is_temp_location:
+                    picking = self.satisfies_unpacked_delivery()
+                else:
+                    picking = False
                 if picking:
                     # Printing can fail for a variety of reasons, e.g. if a
                     # product image is missing from the filesystem.
@@ -113,21 +111,16 @@ class stock_pack_operation(models.Model):
                     move = self.satisfies_unpacked_move(first=False)
                     if move:
                         picking = move.picking_id
-                pog_name = ''
-                if picking:
+                destination = putaway_location.name
+                if picking and picking.group_id.name:
                     # Strip off SO + year prefix to save space on the label
-                    pog_name = picking.group_id.name or ''
-                    if re.match('(SO[0-9]{2})', pog_name):
-                        pog_name = pog_name[4:]
-                ctx.update({
-                    'location_dest_name': self.location_dest_id.name,
-                    'location_is_temp_location': is_temp_location,
-                    'procurement_group_name': pog_name,
-                })
+                    if re.match('(SO[0-9]{2})', picking.group_id.name):
+                        destination = picking.group_id.name[4:]
+                    else:
+                        destination = picking.group_id.name
+                ctx['destination'] = destination
                 if supplier_product:
-                    ctx.update({
-                        'supplier_product_code': supplier_product[0].product_code,
-                    })
+                    ctx['supplier_product_code'] = supplier_product[0].product_code
                 product_ids = [self.product_id.id] * abs(qty)
                 self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
         return super(stock_pack_operation, self).write(values)
