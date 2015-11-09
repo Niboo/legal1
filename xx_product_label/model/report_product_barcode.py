@@ -22,16 +22,22 @@
 from openerp.osv import osv
 from openerp.report import report_sxw
 
+
 class product_barcode(report_sxw.rml_parse):
 
     def __init__(self, cr, uid, name, context=None):
         super(product_barcode, self).__init__(cr, uid, name, context=context)
         self.localcontext.update({
+            'get_supplier_product_code': self._get_supplier_product_code,
             'get_destination': self._get_destination,
         })
 
+    def _get_supplier_product_code(self):
+        return self.localcontext.get('supplier_product_code', 'Unknown')
+
     def _get_destination(self):
         return self.localcontext.get('destination', 'Unknown')
+
 
 class report_product_barcode(osv.AbstractModel):
     _name = 'report.xx_product_label.report_product_barcode'
