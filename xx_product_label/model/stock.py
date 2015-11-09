@@ -105,7 +105,7 @@ class stock_pack_operation(models.Model):
                     # product will be packed for
                     move = self.satisfies_unpacked_move(first=False)
                     if move:
-                        picking = move.picking_id
+                        picking = move.procurement_id.move_dest_id.picking_id
                 destination = putaway_location.name
                 if picking and picking.group_id.name:
                     # Strip off SO + year prefix to save space on the label
