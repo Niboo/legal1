@@ -18,11 +18,63 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+import logging
 from openerp import models, api
 
 
 class stock_pack_operation(models.Model):
     _inherit = "stock.pack.operation"
+
+    @api.multi
+    def satisfies_delivery_from_temp(self):
+        """ Return for a given, single operation whether its product is
+        configured to be moved to the temp location, and the outgoing delivery
+        for which the next increment of this pack will be the first picked
+        product, if any. """
+        self.ensure_one()
+        is_temp_location = self.product_id.is_temp_location()
+        if not is_temp_location:
+            return is_temp_location, False
+        if (not self.location_dest_id or
+                self.picking_id.picking_type_id.code != 'incoming'):
+            return is_temp_location, False
+        return is_temp_location, self.satisfies_unpacked_delivery()
+
+    @api.multi
+    def satisfies_unpacked_move(self):
+        """ Return the until now unpacked move that the next increment of this
+        pack will satisfy """
+        qty = self.qty_done
+        for link in self.linked_move_operation_ids:
+            if not qty:
+                return link.move_id
+            if qty < link.qty:
+                return False
+            qty -= link.qty
+        return False
+
+    @api.multi
+    def satisfies_unpacked_delivery(self):
+        """ Return the until now unpacked delivery that the next increment of
+        this pack will satisfy """
+        self.ensure_one()
+        move = self.satisfies_unpacked_move()
+        if not move:
+            return False
+        picking_out = move.procurement_id.move_dest_id.picking_id
+        if not picking_out:
+            return False
+        if any(move.state in ('done', 'assigned')
+                for move in picking_out.move_lines):
+            return False
+        pack_moves = self.env['stock.move'].search(
+            [('procurement_id.move_dest_id.picking_id', '=', picking_out.id)])
+        for move in pack_moves:
+            for operation in self.search(
+                    [('linked_move_operation_ids.move_id', '=', move.id)]):
+                if operation.satisfies_unpacked_move() != move:
+                    return False
+        return picking_out
 
     @api.one
     def write(self, values):
@@ -40,44 +92,24 @@ class stock_pack_operation(models.Model):
                 qty = int(values.get('qty_done') - self.qty_done)
                 ctx = self._context.copy()
                 supplier_product = [x for x in self.product_id.seller_ids if x.name == self.picking_id.partner_id]
-                if self.location_dest_id:
-                    is_temp_location = False
-                    if self.picking_id.picking_type_id.code == 'incoming':
-                        temp_location = self.env.ref('putaway_apply.default_temp_location')
-                        strats_by_prod = self.env['stock.fixed.putaway.byprod.strat'].search(
-                            [('product_id', '=', self.product_id.id)], limit=1)
-                        if strats_by_prod:
-                            is_temp_location = (
-                                strats_by_prod.fixed_location_id == temp_location)
-                        else:
-                            categ = self.product_id.categ_id
-                            categ_ids = [categ.id]
-                            while categ.parent_id:
-                                categ_ids.append(categ.parent_id.id)
-                                categ = categ.parent_id
-                            strats = self.env['stock.fixed.putaway.strat'].search(
-                                [('category_id', 'in', categ_ids)], limit=1)
-                            if strats:
-                                is_temp_location = (
-                                    strats.fixed_location_id == temp_location)
-                            else:
-                                is_temp_location = True
-                        if is_temp_location and self.picking_id.group_id and not any(
-                                self.picking_id.pack_operation_ids.mapped('qty_done')):
-                            outgoing_picking_ids = self.picking_id.search(
-                                [('group_id', '=', self.picking_id.group_id.id),
-                                 ('picking_type_id.code', '=', 'outgoing')])
-                            if outgoing_picking_ids:
-                                try:
-                                    self.env['report'].print_document(
-                                        outgoing_picking_ids[0],
-                                        'xx_report_delivery_extended.report_delivery_master')
-                                except:
-                                    raise
+                is_temp_location, picking = self.satisfies_delivery_from_temp()
+                if picking:
+                    # Printing can fail for a variety of reasons, e.g. if a
+                    # product image is missing from the filesystem.
+                    # Catch exceptions to prevent the interface from hanging
+                    # in such a case.
+                    try:
+                        logging.getLogger(__name__).debug(
+                            'Autoprinting picking #%s', picking.id)
+                        self.env['report'].print_document(
+                            picking,
+                            'xx_report_delivery_extended.report_delivery_master')
+                    except:
+                        pass
                     ctx.update({
                         'location_dest_name': self.location_dest_id.name,
                         'location_is_temp_location': is_temp_location,
-                        'procurement_group_name': self.picking_id.group_id and self.picking_id.group_id.name or '',
+                        'procurement_group_name': picking.group_id.name or '',
                     })
                 if supplier_product:
                     ctx.update({
