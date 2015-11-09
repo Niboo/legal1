@@ -67,16 +67,18 @@ class stock_pack_operation(models.Model):
 
     @api.one
     def write(self, values):
-        """ Print the label of the packed product. If this is the first
-        packing of a picking to a temporary location, print the picking as well
+        """ Print the label of the packed product. If the move can be linked
+        to a picking that it has been ordered for, and this is the first move
+        that is being packed for that picking, print the picking as well so as
+        to create a new basket in the warehouse for the related sales order.
 
-        Because the putaway strategy has not yet been applied at the moment of
-        scanning, we look ahead in the configured putaway strategies to
-        determine if this product will be going to the temp location.
+        On the product label, print any procurement order group that triggered
+        this product's procurement as its destination. This
+        should usually be the sales order number. Otherwise, print the product
+        putaway location as the destination.
 
-        Set a destination on the label. This will either be the procurement
-        group number (cq. the sales order reference), or the putaway as
-        defined on the product.
+        Note that in both cases we are applying a lookahead into the future of
+        the stock move.
         """
         if 'qty_done' in values:
             if values.get('qty_done') > self.qty_done:
@@ -84,12 +86,7 @@ class stock_pack_operation(models.Model):
                 ctx = self._context.copy()
                 supplier_product = [x for x in self.product_id.seller_ids if x.name == self.picking_id.partner_id]
                 putaway_location = self.product_id.get_putaway_location()
-                is_temp_location = putaway_location == self.env.ref(
-                    'putaway_apply.default_temp_location')
-                if is_temp_location:
-                    picking = self.satisfies_unpacked_delivery()
-                else:
-                    picking = False
+                picking = self.satisfies_unpacked_delivery()
                 if picking:
                     # Printing can fail for a variety of reasons, e.g. if a
                     # product image is missing from the filesystem.
@@ -132,9 +129,7 @@ class stock_quant(models.Model):
         rec = self.browse(cr, uid, ids, context=context)
         product_ids = [rec.product_id.id] * abs(int(rec.qty))
         ctx.update({
-            'location_dest_name': rec.location_id.name,
-            # We can't figure out the procurement group from here, so just pretend it's not the temp location, even if it is.
-            'location_is_temp_location': False,
+            'destination': rec.location_id.name,
         })
 
         self.pool['product.product'].action_print_product_barcode(cr, uid, product_ids, context=ctx)
