@@ -24,7 +24,11 @@
     "version" : "0.2",
     "author": "Bubbles-iT.",
     "category": 'Warehouse Management',
-    "description":' Usually Putaway strategy works on categories matched to the product on Shipment. This module does it on Product level.',
+    "description" : """\
+Usually Putaway strategy works on categories matched to the product on
+Shipment. This module does it on Product level as well. Also includes
+technical helper methods to retrieve the putaway strategy for products at
+other points in time.""",
     "website": "http://www.bubbles-it.be",
     "depends" : ["purchase", "stock"],
     "demo" : [
