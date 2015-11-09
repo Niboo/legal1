@@ -29,6 +29,8 @@ class product_barcode(report_sxw.rml_parse):
         self.localcontext.update({
             'get_supplier_product_code': self._get_supplier_product_code,
             'get_location_dest_name': self._get_location_dest_name,
+            'dest_is_temp_location': self._dest_is_temp_location,
+            'get_procurement_group_name': self._get_procurement_group_name,
         })
 
     def _get_supplier_product_code(self):
@@ -40,7 +42,7 @@ class product_barcode(report_sxw.rml_parse):
     def _dest_is_temp_location(self):
         return self.localcontext.get('location_is_temp_location')
 
-    def get_procurement_group_name(self):
+    def _get_procurement_group_name(self):
         return self.localcontext.get('procurement_group_name', 'Unknown')
 
 class report_product_barcode(osv.AbstractModel):
