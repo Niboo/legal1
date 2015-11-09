@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+import re
 import logging
 from openerp import models, api
 
@@ -114,7 +115,10 @@ class stock_pack_operation(models.Model):
                         picking = move.picking_id
                 pog_name = ''
                 if picking:
+                    # Strip off SO + year prefix to save space on the label
                     pog_name = picking.group_id.name or ''
+                    if re.match('(SO[0-9]{2})', pog_name):
+                        pog_name = pog_name[4:]
                 ctx.update({
                     'location_dest_name': self.location_dest_id.name,
                     'location_is_temp_location': is_temp_location,
