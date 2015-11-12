@@ -27,10 +27,13 @@ class stock_pack_operation(models.Model):
     _inherit = "stock.pack.operation"
 
     @api.multi
-    def satisfies_unpacked_move(self, first=True):
+    def satisfies_unpacked_move(self, qty, first=True):
         """ Return the until now unpacked move that the next increment of this
-        pack will satisfy """
-        qty = self.qty_done
+        pack will satisfy
+
+        Param qty: the pack's qty_done plus the offset position of the products
+        that are being iterated over
+        """
         for link in self.linked_move_operation_ids:
             if not qty:
                 return link.move_id
@@ -40,14 +43,14 @@ class stock_pack_operation(models.Model):
         return False
 
     @api.multi
-    def satisfies_unpacked_delivery(self):
+    def satisfies_unpacked_delivery(self, qty):
         """ Return the until now unpacked incoming delivery that the next
         increment of this pack will satisfy """
         self.ensure_one()
         if (not self.location_dest_id or
                 self.picking_id.picking_type_id.code != 'incoming'):
             return False
-        move = self.satisfies_unpacked_move()
+        move = self.satisfies_unpacked_move(qty)
         if not move:
             return False
         picking_out = move.procurement_id.move_dest_id.picking_id
@@ -61,7 +64,7 @@ class stock_pack_operation(models.Model):
         for move in pack_moves:
             for operation in self.search(
                     [('linked_move_operation_ids.move_id', '=', move.id)]):
-                if operation.satisfies_unpacked_move() != move:
+                if operation.satisfies_unpacked_move(qty) != move:
                     return False
         return picking_out
 
@@ -79,45 +82,59 @@ class stock_pack_operation(models.Model):
 
         Note that in both cases we are applying a lookahead into the future of
         the stock move.
+
+        Because products are grouped first on the purchase order and later on
+        the pack operation, we iterate over each discrete product to find out
+        if it satisfies a certain move or picking.
         """
         if 'qty_done' in values:
             if values.get('qty_done') > self.qty_done:
-                qty = int(values.get('qty_done') - self.qty_done)
-                ctx = self._context.copy()
-                supplier_product = [x for x in self.product_id.seller_ids if x.name == self.picking_id.partner_id]
                 putaway_location = self.product_id.get_putaway_location()
-                picking = self.satisfies_unpacked_delivery()
-                if picking:
-                    # Printing can fail for a variety of reasons, e.g. if a
-                    # product image is missing from the filesystem.
-                    # Catch exceptions to prevent the interface from hanging
-                    # in such a case.
-                    try:
-                        logging.getLogger(__name__).debug(
-                            'Autoprinting picking #%s', picking.id)
-                        self.env['report'].print_document(
-                            picking,
-                            'xx_report_delivery_extended.report_delivery_master')
-                    except:
-                        pass
-                else:
-                    # Just get the move's procurement group that this
-                    # product will be packed for
-                    move = self.satisfies_unpacked_move(first=False)
-                    if move:
-                        picking = move.procurement_id.move_dest_id.picking_id
-                destination = putaway_location.name
-                if picking and picking.group_id.name:
-                    # Strip off SO + year prefix to save space on the label
-                    if re.match('(SO[0-9]{2})', picking.group_id.name):
-                        destination = picking.group_id.name[4:]
-                    else:
-                        destination = picking.group_id.name
-                ctx['destination'] = destination
+                ctx = {}
+                supplier_product = [
+                    x for x in self.product_id.seller_ids
+                    if x.name == self.picking_id.partner_id]
                 if supplier_product:
-                    ctx['supplier_product_code'] = supplier_product[0].product_code
-                product_ids = [self.product_id.id] * abs(qty)
-                self.pool['product.product'].action_print_product_barcode(self._cr, self._uid, product_ids, context=ctx)
+                    ctx['supplier_product_code'] = (
+                        supplier_product[0].product_code)
+                for qty in range(int(self.qty_done),
+                                 int(values['qty_done'])):
+                    picking = self.satisfies_unpacked_delivery(qty)
+                    if picking:
+                        # Printing can fail for a variety of reasons, e.g. if a
+                        # product image is missing from the filesystem.
+                        # Catch exceptions to prevent the interface from
+                        # hanging in such a case.
+                        try:
+                            logging.getLogger(__name__).debug(
+                                'Autoprinting picking #%s', picking.id)
+                            self.env['report'].print_document(
+                                picking,
+                                'xx_report_delivery_extended.report_delivery'
+                                '_master')
+                        except:
+                            pass
+                    else:
+                        # Just get the move's procurement group that this
+                        # product will be packed for
+                        move = self.satisfies_unpacked_move(qty, first=False)
+                        if move:
+                            picking = (move.procurement_id.move_dest_id
+                                       .picking_id)
+                    destination = putaway_location.name
+                    if picking and picking.group_id.name:
+                        # Strip off SO + year prefix to save space on the
+                        # label
+                        if re.match('(SO[0-9]{2})', picking.group_id.name):
+                            destination = picking.group_id.name[4:]
+                        else:
+                            destination = picking.group_id.name
+                    ctx['destination'] = destination
+                    logging.getLogger(__name__).debug(
+                        'Autoprinting product label with extra context "%s"',
+                        ctx)
+                    self.product_id.with_context(
+                        ctx).action_print_product_barcode()
         return super(stock_pack_operation, self).write(values)
 
 
@@ -132,7 +149,8 @@ class stock_quant(models.Model):
             'destination': rec.location_id.name,
         })
 
-        self.pool['product.product'].action_print_product_barcode(cr, uid, product_ids, context=ctx)
+        self.pool['product.product'].action_print_product_barcode(
+            cr, uid, product_ids, context=ctx)
 
 
 class product_product(models.Model):
@@ -141,7 +159,8 @@ class product_product(models.Model):
     def action_print_product_barcode(self, cr, uid, ids, context=None):
         report_name = 'xx_product_label.report_product_barcode'
         try:
-            self.pool['report'].print_document(cr, uid, ids, report_name, context=context)
+            self.pool['report'].print_document(
+                cr, uid, ids, report_name, context=context)
         except:
             pass
         return True

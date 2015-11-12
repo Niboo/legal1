@@ -6,7 +6,6 @@
         "base_report_to_printer",
         "putaway_apply",
     ],
-    "description": "Makes it possible for a user to reload translations from the custom modules",
     "author": "DynApps",
     "category": "DynApps/Customizations",
     "website": "http://www.dynapps.be",
