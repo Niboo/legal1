@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
     <t t-extend="PickingEditorWidget">
+        <t t-jquery="table" t-operation="after">
+            <div id="barcode_notification">
+                <span id="barcode_msg">This product could not be found.</span>
+            </div>
+        </t>
         <t t-jquery="h2.oe_pick_app_header">this.parent().addClass('col-md-8');</t>
         <t t-jquery="div.col-sm-8">this.addClass('col-md-4');</t>
     </t>

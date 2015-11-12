@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+
         <template id="assets_backend" name="stock assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
                 <script type="text/javascript"
@@ -8,6 +9,15 @@
                         />
             </xpath>
         </template>
+
+        <template id="barcode_index" name="barcode assets" inherit_id="stock.barcode_index">
+            <xpath expr="//head" position="inside">
+                <link rel="stylesheet"
+                      href="/dyn_picking_partner_reference/static/src/css/picking.css"
+                        />
+            </xpath>
+        </template>
+
     </data>
 </openerp>
 
