@@ -11,10 +11,13 @@ openerp.dyn_picking_partner_reference = function(instance){
             res = '';
             if(this.picking){
                 res = this.picking.name;
-                if (this.picking.partner_id){
+                if(this.picking.origin){
+                    res = res + ' - ' + this.picking.origin.split(":")[0];
+                }
+                if(this.picking.partner_id){
                     res = res + ' - ' + this.picking.partner_id[1];
                 }
-                if (this.picking.supplier_reference){
+                if(this.picking.supplier_reference){
                     res = res + ' (' + _t('ref:') + ' ' + this.picking.supplier_reference + ')';
                 }
             }
