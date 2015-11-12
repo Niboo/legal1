@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openerp>
     <data>
-
+        <!-- Deprecated. Make your changes in xx_report_delivery_extended -->
         <template id="report_picking_layout">
             <!-- Multicompany -->
             <t t-if="o and 'company_id' in o">

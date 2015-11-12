@@ -51,7 +51,7 @@
                 </ul>
             </span>
             <span style="font-size:5em; float: right;">
-                #<span t-field="o.box_nbr"/>
+                #<span t-esc="o.box_nbr or o.group_id.name or ''"/>
             </span>
             <!-- Do we still need these? -->
 <!--
