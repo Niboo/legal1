@@ -20,7 +20,7 @@ msgstr ""
 #: code:addons/dyn_picking_partner_reference/static/src/js/dyn_picking_partner_reference.js:59
 #, python-format
 msgid "No product was found for this supplier with code "
-msgstr "Er is geen product gevonden voor deze leverancier met code "
+msgstr "Product niet gevonden. Leg het product apart en los het probleem op. Code: "
 
 #. module: dyn_picking_partner_reference
 #: model:ir.model,name:dyn_picking_partner_reference.model_stock_picking
