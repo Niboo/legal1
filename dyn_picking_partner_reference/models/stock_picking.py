@@ -23,4 +23,4 @@ from openerp import models, fields
 class Picking(models.Model):
     _inherit = 'stock.picking'
 
-    supplier_reference = fields.Char()
+    supplier_reference = fields.Char(copy=False)
