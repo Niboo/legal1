@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <template id="assets_backend" name="list pager assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript"
+                        src="/odw_web_list_pager/static/src/js/odw_web_list_pager.js"
+                        />
+            </xpath>
+        </template>
+
+    </data>
+</openerp>
