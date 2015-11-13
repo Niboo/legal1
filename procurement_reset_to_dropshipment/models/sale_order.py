@@ -38,12 +38,12 @@ class SaleOrder(models.Model):
         route = self.env.ref('stock_dropshipping.route_drop_shipping')
         procurements = self.env['procurement.order']
         for line in self.order_line:
-            if not self.procurement_id:
+            if not line.procurement_ids:
                 continue
-            if self.procurement_id.state not in ('draft', 'confirmed'):
+            if line.procurement_ids.state not in ('draft', 'confirmed'):
                 raise UserError(
                     _('Cannot reset an order with a procurement in '
-                      'state %s') % (self.procurement_id.state))
-            procurements += line.procurement_id
+                      'state %s') % (line.procurement_ids.state))
+            procurements += line.procurement_ids[0]
         self.order_line.write({'route_id': route.id})
-        return procurements.write({'route_ids': [(6, 0, route.id)]})
+        return procurements.write({'route_ids': [(6, 0, [route.id])]})

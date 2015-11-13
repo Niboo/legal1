@@ -21,9 +21,10 @@
 ##############################################################################
 
 {
-    'name': 'Reset procurement to dropshipment by magneto order id'
+    'name': 'Reset procurement to dropshipment by magneto order id',
     'version': '8.0.1.0.0',
     'depends': [
+        'stock_dropshipping',
         'procurement_jit_no_sale',
         'magento_bridge',
     ],
