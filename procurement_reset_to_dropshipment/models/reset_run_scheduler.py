@@ -111,12 +111,13 @@ class ResetRunScheduler(models.TransientModel):
                     # TODO: add file as attachment to the sale order
                     commit_cr.commit()
                     unlink(join(path, fi))
-                    log(_('Magento order %s / Odoo order %s: OK') % (
-                        orderno, sale.name))
+                    log(_('Magento order %s / Odoo order %s has been reset to '
+                          'dropshipment') % (
+                        orderno, sale.name), post=sale)
                     no_reset += 1
                 except Exception, e:
                     log(_('Could not reset Odoo order %s to dropshipment: '
-                        '%s. Skipping %s') % (sale.name, e, fi))
+                        '%s. Skipping %s') % (sale.name, e, fi), post=sale)
                     commit_cr.rollback()
 
         commit_cr.close()
