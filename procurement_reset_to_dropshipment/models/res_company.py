@@ -20,19 +20,11 @@
 #
 ##############################################################################
 
-{
-    'name': 'Reset procurement to dropshipment by magneto order id',
-    'version': '8.0.1.0.0',
-    'depends': [
-        'stock_dropshipping',
-        'procurement_jit_no_sale',
-        'magento_bridge',
-    ],
-    'data': [
-        'views/res_company.xml',
-    ],
-    'author': 'DynApps',
-    'category': 'DynApps/Customizations',
-    'website': 'http://www.dynapps.be',
-    'installable': True,
-}
+from openerp import models, fields
+
+
+class ResCompany(models.Model):
+    _inherit = 'res.company'
+
+    magento_dropship_path = fields.char(
+        'Magento dropship directory')
