@@ -3,8 +3,6 @@
 #
 #    Copyright (C) 2015 DynApps <http://www.dynapps.be>
 #
-#    @author Stefan Rijnhart <stefan.rijnhart@dynapps.be>
-#
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
@@ -20,18 +18,16 @@
 #
 ##############################################################################
 
-{
-    'name': 'Delay sales procurements when using just-in-time',
-    'version': '8.0.1.0.0',
-    'depends': [
-        'procurement_jit',
-        # Depend on the modules below just to run full tests
-        'purchase',
-        'sale_stock',
-        'procurement_jit_stock',
-    ],
-    'author': 'DynApps',
-    'category': 'DynApps/Customizations',
-    'website': 'http://www.dynapps.be',
-    'installable': True,
-}
+from openerp import models, api
+
+
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    @api.multi
+    def action_ship_create(self):
+        """ Prevent procurements to run automatically by setting a context
+        key which is honoured in an override of procurement.order's create()
+        """
+        return super(SaleOrder, self.with_context(
+            procurement_do_not_run=True)).action_ship_create()

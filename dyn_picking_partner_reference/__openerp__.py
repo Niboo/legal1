@@ -3,6 +3,8 @@
 #
 #    Copyright (C) 2015 DynApps <http://www.dynapps.be>
 #
+#    @author Stefan Rijnhart <stefan.rijnhart@dynapps.be>
+#
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
 #    published by the Free Software Foundation, either version 3 of the
