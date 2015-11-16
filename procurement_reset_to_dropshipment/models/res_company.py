@@ -26,5 +26,5 @@ from openerp import models, fields
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    magento_dropship_path = fields.char(
+    magento_dropship_path = fields.Char(
         'Magento dropship directory')

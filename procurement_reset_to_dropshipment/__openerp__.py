@@ -27,9 +27,11 @@
         'stock_dropshipping',
         'procurement_jit_no_sale',
         'magento_bridge',
+        'purchase',
     ],
     'data': [
         'views/res_company.xml',
+        'views/reset_run_scheduler.xml',
     ],
     'author': 'DynApps',
     'category': 'DynApps/Customizations',

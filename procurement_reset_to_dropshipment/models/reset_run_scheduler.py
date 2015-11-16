@@ -24,7 +24,7 @@ import re
 import logging
 from os import listdir, unlink
 from os.path import isfile, join, exists
-from openerp import models, fields, api
+from openerp import registry, models, fields, api
 from openerp.tools.translate import _
 from openerp.exceptions import Warning as UserError
 
@@ -37,10 +37,11 @@ class ResetRunScheduler(models.TransientModel):
         return self.env.user.company_id
 
     company_id = fields.Many2one(
-        'res.company', default="get_default_company_id", required=True)
-    notes = fields.text()
+        'res.company', default=get_default_company_id, required=True)
+    notes = fields.Text(readonly=True)
     state = fields.Selection(
         [('init', 'Init'), ('run', 'Run'), ('done', 'Done')], default='init')
+    no_reset = fields.Integer(readonly=True)
 
     @api.multi
     def fetch_magento_dropshipments(self):
@@ -51,7 +52,7 @@ class ResetRunScheduler(models.TransientModel):
         """
         self.notes = ''
         logger = logging.getLogger(__name__)
-        commit_cr = self.env.registry(self.env.cr.dbname).cursor()
+        commit_cr = registry(self.env.cr.dbname).cursor()
 
         def log(msg, post=False):
             logger.info(log)
@@ -68,7 +69,7 @@ class ResetRunScheduler(models.TransientModel):
             raise UserError(
                 _('The directory "%s" does not exist.') % path)
         files = [f for f in listdir(path) if isfile(join(path, f))]
-        no_reset = 0
+        self.no_reset = 0
         for fi in files:
             match = re.search('([0-9]+)\.csv', fi)
             if not match:
@@ -114,7 +115,7 @@ class ResetRunScheduler(models.TransientModel):
                     log(_('Magento order %s / Odoo order %s has been reset to '
                           'dropshipment') % (
                         orderno, sale.name), post=sale)
-                    no_reset += 1
+                    self.no_reset += 1
                 except Exception, e:
                     log(_('Could not reset Odoo order %s to dropshipment: '
                         '%s. Skipping %s') % (sale.name, e, fi), post=sale)
@@ -122,4 +123,16 @@ class ResetRunScheduler(models.TransientModel):
 
         commit_cr.close()
         self.state = 'run'
-        return True  # Or act window to self?
+        return True
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'reset.run.scheduler',
+            'target': 'new',
+            'view_mode': 'form',
+            'res_id': self.id,
+            }
+
+    @api.multi
+    def run_scheduler(self):
+        self.env['procurement.order.compute.all'].procure_calculation()
+        self.state = 'done'
