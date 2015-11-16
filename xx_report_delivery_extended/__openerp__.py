@@ -15,6 +15,7 @@
         "sale_stock",
         "base_report_to_printer",
         "delivery",
+        "dyn_wave_picking_list",
         "mob_multishop",
     ],
     "data": [
