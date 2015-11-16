@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+    <data>
+
+        <record id="view_order_form" model="ir.ui.view">
+            <field name="name">sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <button name="cancel" position="after">
+                    <field name="is_dropshipping" invisible="1" />
+                    <button name="rollback_dropshipping"
+                            type="object"
+                            string="Rollback dropshipping"
+                            groups="purchase.group_purchase_manager"
+                            confirm="This will reset the procurements of this order. Are you sure?"
+                            attrs="{'invisible': ['|', ('state', 'not in', ('draft', 'sent', 'progress', 'manual')), ('is_dropshipping', '=', False)]}"
+                            />
+                </button>
+            </field>
+        </record>
+
+    </data>
+</openerp>
+ 

@@ -30,6 +30,8 @@ class SaleOrder(models.Model):
 
     @api.multi
     def reset_to_dropshipment(self):
+        """ Reset the route on an unconfirmed and unprocessed order to
+        dropshipping """
         self.ensure_one()
         if self.state not in ('draft', 'sent', 'manual', 'progress'):
             raise UserError(

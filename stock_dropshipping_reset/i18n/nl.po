@@ -1,0 +1,50 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* stock_dropshipping_reset
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-11-16 13:33+0000\n"
+"PO-Revision-Date: 2015-11-16 13:33+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: stock_dropshipping_reset
+#: code:addons/stock_dropshipping_reset/models/sale_order.py:67
+#, python-format
+msgid "At least one procurement has already been fully processed. Cannot rollback dropshipping."
+msgstr "Er is tenminste één verwerving die al helemaal verwerkt is. Deze order kan niet teruggedraait worden."
+
+#. module: stock_dropshipping_reset
+#: code:addons/stock_dropshipping_reset/models/sale_order.py:72
+#, python-format
+msgid "Not all procurements from this sale order could be reset. Please check the procurements manually."
+msgstr "Niet alle verwervingen van deze order konden worden gereset. Controleer de verwervingen handmatig."
+
+#. module: stock_dropshipping_reset
+#: view:sale.order:stock_dropshipping_reset.view_order_form
+msgid "Rollback dropshipping"
+msgstr "Dropshipping terugdraaien"
+
+#. module: stock_dropshipping_reset
+#: model:ir.model,name:stock_dropshipping_reset.model_sale_order
+msgid "Sales Order"
+msgstr "Verkooporder"
+
+#. module: stock_dropshipping_reset
+#: code:addons/stock_dropshipping_reset/models/sale_order.py:60
+#, python-format
+msgid "This is not a dropshipping order."
+msgstr "Dit is geen dropshipment-order."
+
+#. module: stock_dropshipping_reset
+#: view:sale.order:stock_dropshipping_reset.view_order_form
+msgid "This will reset the procurements of this order. Are you sure?"
+msgstr "Hiermee worden de verwervingen van deze order gereset. Wilt u doorgaan?"
+
