@@ -39,11 +39,22 @@ class product_template(osv.osv):
 		if context is None:
 			context = {}
 		website_ids = []
-		if context.has_key('magento'):
+		if context.has_key('magento') and vals.has_key('wk_websites_id'):
 			website_ids = self.pool.get('magento.website').search(cr, uid, [('website_id','in',vals['wk_websites_id']),('instance_id','=',context.get('instance_id'))])
 			if website_ids:
 				vals['wk_websites_id'] = [(6, 0, website_ids)]
 		return super(product_template, self).create(cr, uid, vals, context=context)
+
+	def write(self, cr, uid, ids, vals, context=None):
+		if context is None:
+			context = {}
+		website_ids = []
+		if context.has_key('magento') and vals.has_key('wk_websites_id'):
+			website_ids = self.pool.get('magento.website').search(cr, uid, [('website_id','in',vals['wk_websites_id']),('instance_id','=',context.get('instance_id'))])
+			if website_ids:
+				vals['wk_websites_id'] = [(6, 0, website_ids)]
+		res = super(product_template, self).write(cr, uid, ids, vals, context=context)
+		return res
 
 class sale_order(osv.osv):
 	_inherit = "sale.order"
