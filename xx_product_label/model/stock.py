@@ -20,7 +20,28 @@
 ##############################################################################
 import re
 import logging
-from openerp import models, api
+from openerp import models, api, fields
+
+
+class StockMove(models.Model):
+    _inherit = 'stock.move'
+
+    @api.multi
+    @api.depends('move_dest_id')
+    def _get_move_ultimate_dest_id(self):
+        """ Retrieve the ultimate destination move, if any. From any
+        procuring move, this allows easy retrieval to a related MTO sale order,
+        if any. """
+        for move in self:
+            dest = move
+            while dest.move_dest_id:
+                dest = dest.move_dest_id
+            move.move_ultimate_dest_id = dest
+
+    move_ultimate_dest_id = fields.Many2one(
+        'stock.move', store=True,
+        string='Ultimate destination move',
+        compute='_get_move_ultimate_dest_id')
 
 
 class stock_pack_operation(models.Model):
@@ -53,14 +74,14 @@ class stock_pack_operation(models.Model):
         move = self.satisfies_unpacked_move(qty)
         if not move:
             return False
-        picking_out = move.procurement_id.move_dest_id.picking_id
+        picking_out = move.move_ultimate_dest_id.picking_id
         if not picking_out:
             return False
         if any(move.state in ('done', 'assigned')
                 for move in picking_out.move_lines):
             return False
         pack_moves = self.env['stock.move'].search(
-            [('procurement_id.move_dest_id.picking_id', '=', picking_out.id)])
+            [('move_ultimate_dest_id.picking_id', '=', picking_out.id)])
         for move in pack_moves:
             for operation in self.search(
                     [('linked_move_operation_ids.move_id', '=', move.id)]):
@@ -119,7 +140,7 @@ class stock_pack_operation(models.Model):
                         # product will be packed for
                         move = self.satisfies_unpacked_move(qty, first=False)
                         if move:
-                            picking = (move.procurement_id.move_dest_id
+                            picking = (move.move_ultimate_dest_id
                                        .picking_id)
                     destination = putaway_location.name
                     if picking and picking.group_id.name:
