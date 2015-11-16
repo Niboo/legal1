@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+    <data>
+        <record id="reset_run_scheduler_form_view" model="ir.ui.view">
+            <field name="name">Form view for scheduler wizard</field>
+            <field name="model">reset.run.scheduler</field>
+            <field name="arch" type="xml">
+                <form string="Retrieve dropship orders">
+                    <field name="company_id" invisible="1" />
+                    <field name="state" invisible="1" />
+                    <div name="init" attrs="{'invisible': [('state', '!=', 'init')]}">
+                        <h2>Step 1: pick up dropship orders</h2>
+                    </div>
+                    <div name="init" attrs="{'invisible': [('state', '!=', 'run')]}">
+                        <h2>Step 2: run procurement scheduler</h2>
+                    </div>
+                    <div name="none_reset"
+                         attrs="{'invisible': ['|', ('state', '!=', 'run'), ('no_reset', '&gt;', 0)]}">
+                        <p style="color: red">No orders have been reset to dropshipment. Are you sure you
+                        want to continue?</p>
+                    </div>
+                    <div name="run"
+                         attrs="{'invisible': ['|', ('state', '!=', 'run'), ('no_reset', '=', 0)]}">
+                        <p><field name="no_reset" class="oe_inline" /> orders have been reset to dropshipment.</p>
+                    </div>
+                    <div name="run_all" attrs="{'invisible': [('state', '!=', 'run')]}">
+                        <p>In this step, the procurement scheduler will be started in the background. This window will then close.</p>
+                    </div>
+                    <group attrs="{'invisible': [('state', '!=', 'run')]}" string="Order log">
+                        <field name="notes" nolabel="1" />
+                    </group>
+                    <footer>
+                        <button name="fetch_magento_dropshipments" string="Fetch dropshipment"
+                                type="object" class="oe_highlight"
+                                attrs="{'invisible': [('state', '!=', 'init')]}"
+                                />
+                        <button name="run_scheduler" string="Run Schedulers"
+                                type="object" class="oe_highlight"
+                                attrs="{'invisible': [('state', '!=', 'run')]}"
+                                />
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_reset_run_scheduler" model="ir.actions.act_window">
+            <field name="name">Run scheduler</field>
+            <field name="res_model">reset.run.scheduler</field>
+            <field name="target">new</field>
+            <field name="view_mode">form</field>
+        </record>
+
+        <menuitem id="menu_reset_run_scheduler_main" name="Run scheduler"
+            groups="purchase.group_purchase_manager"
+            parent="base.menu_purchase_root" sequence="80"/>
+
+        <menuitem action="action_reset_run_scheduler"
+                  id="menu_reset_run_scheduler"
+                  parent="menu_reset_run_scheduler_main"
+                  groups="purchase.group_purchase_manager"
+            />
+
+    </data>
+</openerp>
