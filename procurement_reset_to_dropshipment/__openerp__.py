@@ -30,6 +30,7 @@
         'purchase',
     ],
     'data': [
+        'data/ir_cron.xml',
         'views/res_company.xml',
         'views/reset_run_scheduler.xml',
     ],

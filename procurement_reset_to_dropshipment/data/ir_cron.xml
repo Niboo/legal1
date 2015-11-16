@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+
+        <!-- disable the cron job for the scheduler, otherwise sale
+             procurements will be processed in an uncontrolled fashion
+             (just to be sure, as False is the default value for this job)
+        -->
+        <record id="procurement.ir_cron_scheduler_action" model="ir.cron">
+            <field eval="False" name="active"/>
+        </record>
+
+    </data>
+</openerp>
