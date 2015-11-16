@@ -73,12 +73,12 @@ msgstr "Odoo order %s kan niet worden herleid naar dropshipment: %s. %s wordt ov
 #. module: procurement_reset_to_dropshipment
 #: field:reset.run.scheduler,create_uid:0
 msgid "Created by"
-msgstr "Aangemaakt door
+msgstr "Aangemaakt door"
 
 #. module: procurement_reset_to_dropshipment
 #: field:reset.run.scheduler,create_date:0
 msgid "Created on"
-msgstr "Aangemaakt op
+msgstr "Aangemaakt op"
 
 #. module: procurement_reset_to_dropshipment
 #: selection:reset.run.scheduler,state:0
@@ -88,7 +88,7 @@ msgstr "Gereed
 #. module: procurement_reset_to_dropshipment
 #: view:reset.run.scheduler:procurement_reset_to_dropshipment.reset_run_scheduler_form_view
 msgid "Fetch dropshipment"
-msgstr "Dropshipment oppakken"
+msgstr "Dropship-orders ophalen"
 
 #. module: procurement_reset_to_dropshipment
 #: field:reset.run.scheduler,id:0
@@ -125,7 +125,7 @@ msgstr "Magento order %s / Odoo order %s is herleid tot dropshipment."
 #: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:90
 #, python-format
 msgid "Magento order no. %s has no Odoo order. Skipping %s"
-msgstr "Magento order no. %s is niet gekoppeld aan een Odoo order. %s wordt overgeslagen."
+msgstr "Magento-order no. %s is niet gekoppeld aan een Odoo order. %s wordt overgeslagen."
 
 #. module: procurement_reset_to_dropshipment
 #: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:86
@@ -228,8 +228,10 @@ msgstr "of"
 
 #. module: procurement_reset_to_dropshipment
 #: view:reset.run.scheduler:procurement_reset_to_dropshipment.reset_run_scheduler_form_view
-msgid "orders have been reset to dropshipment.\n"
-"                        You can now run the scheduler."
-msgstr "orders zijn herleid naar dropshipment.\n"
-"                        U kunt nu de planner draaien."
+msgid "orders have been reset to dropshipment."
+msgstr "orders zijn herleid naar dropshipment."
 
+#. module: procurement_reset_to_dropshipment
+#: view:reset.run.scheduler:procurement_reset_to_dropshipment.reset_run_scheduler_form_view
+msgid "In this step, the procurement scheduler will be started in the background. This window will then close."
+msgstr "In deze stap wordt de verwervingsplanner op de achtergrond gestart. Dit venster zal dan sluiten."

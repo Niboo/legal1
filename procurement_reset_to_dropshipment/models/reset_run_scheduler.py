@@ -40,7 +40,7 @@ class ResetRunScheduler(models.TransientModel):
         'res.company', default=get_default_company_id, required=True)
     notes = fields.Text(readonly=True)
     state = fields.Selection(
-        [('init', 'Init'), ('run', 'Run'), ('done', 'Done')], default='init')
+        [('init', 'Init'), ('run', 'Run')], default='init')
     no_reset = fields.Integer(readonly=True)
 
     @api.multi
@@ -136,4 +136,3 @@ class ResetRunScheduler(models.TransientModel):
     @api.multi
     def run_scheduler(self):
         self.env['procurement.order.compute.all'].procure_calculation()
-        self.state = 'done'

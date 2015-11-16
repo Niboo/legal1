@@ -21,8 +21,10 @@
                     </div>
                     <div name="run"
                          attrs="{'invisible': ['|', ('state', '!=', 'run'), ('no_reset', '=', 0)]}">
-                        <p><field name="no_reset" class="oe_inline" /> orders have been reset to dropshipment.
-                        You can now run the scheduler.</p>
+                        <p><field name="no_reset" class="oe_inline" /> orders have been reset to dropshipment.</p>
+                    </div>
+                    <div name="run_all" attrs="{'invisible': [('state', '!=', 'run')]}">
+                        <p>In this step, the procurement scheduler will be started in the background. This window will then close.</p>
                     </div>
                     <group attrs="{'invisible': [('state', '!=', 'run')]}" string="Order log">
                         <field name="notes" nolabel="1" />
@@ -36,13 +38,8 @@
                                 type="object" class="oe_highlight"
                                 attrs="{'invisible': [('state', '!=', 'run')]}"
                                 />
-                        <button string="Close" special="cancel"
-                                attrs="{'invisible': [('state', '!=', 'done')]}"
-                                />
-                        <span attrs="{'invisible': [('state', '=', 'done')]}" >
-                            or
-                            <button string="Cancel" class="oe_link" special="cancel" />
-                        </span>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
                     </footer>
                 </form>
             </field>
