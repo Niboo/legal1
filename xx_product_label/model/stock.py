@@ -128,7 +128,7 @@ class stock_pack_operation(models.Model):
                         # hanging in such a case.
                         try:
                             logging.getLogger(__name__).debug(
-                                'Autoprinting picking #%s', picking.id)
+                                'Autoprinting picking %s', picking.name)
                             self.env['report'].print_document(
                                 picking,
                                 'xx_report_delivery_extended.report_delivery'
