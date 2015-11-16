@@ -33,7 +33,7 @@ class StockMove(models.Model):
         procuring move, this allows easy retrieval to a related MTO sale order,
         if any. """
         for move in self:
-            dest = move
+            dest = move.move_dest_id
             while dest.move_dest_id:
                 dest = dest.move_dest_id
             move.move_ultimate_dest_id = dest
