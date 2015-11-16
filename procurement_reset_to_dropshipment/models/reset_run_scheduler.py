@@ -54,11 +54,11 @@ class ResetRunScheduler(models.TransientModel):
         logger = logging.getLogger(__name__)
         commit_cr = registry(self.env.cr.dbname).cursor()
 
-        def log(msg, post=False):
-            logger.info(log)
-            self.notes += log + '\n'
+        def log(msg, post=False, attachments=None):
+            logger.info(msg)
+            self.notes += msg + '\n'
             if post:
-                post.message_post(body=msg)
+                post.message_post(body=msg, attachments=attachments)
 
         path = self.company_id.magento_dropship_path
         if not path:
@@ -87,8 +87,8 @@ class ResetRunScheduler(models.TransientModel):
                       'that can\'t be right. Skipping %s') % (orderno, fi))
                 continue
             if not order.order_ref:
-                log(_('Magento order no. %s has no Odoo order.Skipping %s') % (
-                    orderno, fi))
+                log(_('Magento order no. %s has no Odoo order. Skipping '
+                      '%s') % (orderno, fi))
                 continue
             sale = order.order_ref
             if sale.state not in ('draft', 'sent', 'manual', 'progress'):
@@ -96,10 +96,10 @@ class ResetRunScheduler(models.TransientModel):
                       'it is in state %s. Skipping %s') % (
                     sale.name, sale.state, fi), post=sale)
                 continue
-            if any(state not in ('draft', 'confirmed') for state in
-                   sale.mapped('order_line').procurement_ids[0].state):
+            if any(proc.state not in ('draft', 'confirmed') for proc in
+                   sale.mapped('order_line').mapped('procurement_ids')):
                 log(_('Cannot reset Odoo order %s to dropshipment because '
-                      'it has a procurement that has already been processed '
+                      'it has a procurement that has already been processed. '
                       'Skipping %s') % (
                     sale.name, fi), post=sale)
                 continue
@@ -108,13 +108,15 @@ class ResetRunScheduler(models.TransientModel):
                 env = api.Environment(
                     commit_cr, self.env.uid, self.env.context)
                 try:
-                    env['sale.order'].browse(sale.id).reset_to_dropship()
+                    env['sale.order'].browse(sale.id).reset_to_dropshipment()
                     # TODO: add file as attachment to the sale order
                     commit_cr.commit()
-                    unlink(join(path, fi))
-                    log(_('Magento order %s / Odoo order %s has been reset to '
-                          'dropshipment') % (
-                        orderno, sale.name), post=sale)
+                    file_loc = join(path, fi)
+                    with file(file_loc) as f:
+                        log(_('Magento order %s / Odoo order %s has been '
+                              'reset to dropshipment') % (orderno, sale.name),
+                            post=sale, attachments=[(fi, f.read())])
+                    unlink(file_loc)
                     self.no_reset += 1
                 except Exception, e:
                     log(_('Could not reset Odoo order %s to dropshipment: '
@@ -123,7 +125,6 @@ class ResetRunScheduler(models.TransientModel):
 
         commit_cr.close()
         self.state = 'run'
-        return True
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'reset.run.scheduler',
