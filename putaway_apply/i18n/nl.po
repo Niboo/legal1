@@ -1,0 +1,135 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* putaway_apply
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-11-19 12:45+0000\n"
+"PO-Revision-Date: 2015-11-19 12:45+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: putaway_apply
+#: view:product.putaway:putaway_apply.view_putaway_inherit
+msgid "Categories"
+msgstr "Categories"
+
+#. module: putaway_apply
+#: field:stock.fixed.putaway.byprod.strat,create_uid:0
+msgid "Created by"
+msgstr "Created by"
+
+#. module: putaway_apply
+#: field:stock.fixed.putaway.byprod.strat,create_date:0
+msgid "Created on"
+msgstr "Created on"
+
+#. module: putaway_apply
+#: field:product.putaway,fixed_location_by_product_ids:0
+msgid "Fixed Locations Per Product Category"
+msgstr "Fixed Locations Per Product Category"
+
+#. module: putaway_apply
+#: help:stock.fixed.putaway.byprod.strat,sequence:0
+msgid "Give to the more specialized category, a higher priority to have them in top of the list."
+msgstr "Give to the more specialized category, a higher priority to have them in top of the list."
+
+#. module: putaway_apply
+#: view:stock.fixed.putaway.byprod.strat:putaway_apply.putaway_byprod_strat_search_view
+msgid "Group By"
+msgstr "Group By"
+
+#. module: putaway_apply
+#: field:stock.fixed.putaway.byprod.strat,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: putaway_apply
+#: field:stock.fixed.putaway.byprod.strat,write_uid:0
+msgid "Last Updated by"
+msgstr "Last Updated by"
+
+#. module: putaway_apply
+#: field:stock.fixed.putaway.byprod.strat,write_date:0
+msgid "Last Updated on"
+msgstr "Last Updated on"
+
+#. module: putaway_apply
+#: view:stock.fixed.putaway.byprod.strat:putaway_apply.putaway_byprod_strat_search_view
+#: view:stock.fixed.putaway.byprod.strat:putaway_apply.putaway_byprod_strat_tree_view
+#: field:stock.fixed.putaway.byprod.strat,fixed_location_id:0
+msgid "Location"
+msgstr "Location"
+
+#. module: putaway_apply
+#: field:stock.fixed.putaway.byprod.strat,sequence:0
+msgid "Priority"
+msgstr "Priority"
+
+#. module: putaway_apply
+#: model:ir.model,name:putaway_apply.model_product_product
+#: view:product.putaway:putaway_apply.view_putaway_inherit
+#: view:stock.fixed.putaway.byprod.strat:putaway_apply.putaway_byprod_strat_search_view
+#: view:stock.fixed.putaway.byprod.strat:putaway_apply.putaway_byprod_strat_tree_view
+#: field:stock.fixed.putaway.byprod.strat,product_id:0
+msgid "Product"
+msgstr "Product"
+
+#. module: putaway_apply
+#: model:ir.ui.menu,name:putaway_apply.product_putaway_location_menu
+msgid "Product Putaway Locations"
+msgstr "Putawaylocaties per product"
+
+#. module: putaway_apply
+#: model:ir.model,name:putaway_apply.model_product_template
+msgid "Product Template"
+msgstr "Productsjabloon"
+
+#. module: putaway_apply
+#: field:stock.fixed.putaway.byprod.strat,putaway_id:0
+msgid "Put Away Method"
+msgstr "Putawaystategie"
+
+#. module: putaway_apply
+#: model:ir.model,name:putaway_apply.model_product_putaway
+msgid "Put Away Strategy"
+msgstr "Putawaystrategie"
+
+#. module: putaway_apply
+#: view:product.putaway:putaway_apply.view_putaway_inherit
+#: view:stock.fixed.putaway.byprod.strat:putaway_apply.putaway_byprod_strat_tree_view
+msgid "Putaway"
+msgstr "Putaway"
+
+#. module: putaway_apply
+#: view:product.product:putaway_apply.product_form_view_procurement_button
+#: view:product.template:putaway_apply.product_template_form_view_procurement_button
+msgid "Putaway locations"
+msgstr "Putawaylocaties"
+
+#. module: putaway_apply
+#: view:stock.fixed.putaway.byprod.strat:putaway_apply.putaway_byprod_strat_search_view
+msgid "Search Putaway By Product"
+msgstr "Search Putaway By Product"
+
+#. module: putaway_apply
+#: model:stock.location,name:putaway_apply.default_temp_location
+msgid "Temp"
+msgstr "Temp"
+
+#. module: putaway_apply
+#: help:product.putaway,fixed_location_by_product_ids:0
+msgid "When the method is fixed, this location will be used to store the products"
+msgstr "When the method is fixed, this location will be used to store the products"
+
+#. module: putaway_apply
+#: model:ir.actions.act_window,name:putaway_apply.action_product_putaway_location
+msgid "stock.fixed.putaway.byprod.strat"
+msgstr "stock.fixed.putaway.byprod.strat"
+

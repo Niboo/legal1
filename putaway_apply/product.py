@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 ##############################################################################
-from openerp import models, api
+from openerp import models, fields, api
 
 
 class Product(models.Model):
     _inherit = 'product.product'
+
+    qty_putaway = fields.Integer(compute="_get_qty_putaway")
 
     @api.multi
     def get_putaway_location(self):
@@ -43,3 +45,44 @@ class Product(models.Model):
         if strats:
             return strats.fixed_location_id
         return self.env.ref('putaway_apply.default_temp_location')
+
+    @api.multi
+    def _get_qty_putaway(self):
+        for product in self:
+            product.qty_putaway = self.env[
+                'stock.fixed.putaway.byprod.strat'].search(
+                [('product_id', 'in', self.ids)], count=True)
+
+    @api.multi
+    def action_product_putaway(self):
+        result = self.product_tmpl_id._get_act_window_dict(
+            'putaway_apply.action_product_putaway_location')
+        result['domain'] = "[('product_id', 'in', [%s])]" % (
+            ', '.join([str(res_id) for res_id in self.ids]))
+        result['context'] = "{'default_product_id': %s}" % (
+            self.ids[0] if self.ids else 'False')
+        return result
+
+
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+
+    qty_putaway = fields.Integer(compute="_get_qty_putaway")
+
+    @api.multi
+    def _get_qty_putaway(self):
+        for template in self:
+            template.qty_putaway = self.env[
+                'stock.fixed.putaway.byprod.strat'].search(
+                [('product_id.product_tmpl_id', 'in', self.ids)], count=True)
+
+    @api.multi
+    def action_product_putaway(self):
+        result = self._get_act_window_dict(
+            'putaway_apply.action_product_putaway_location')
+        result['domain'] = "[('product_id.product_tmpl_id', 'in', [%s])]" % (
+            ', '.join([str(res_id) for res_id in self.ids]))
+        result['context'] = "{'default_product_id': %s}" % (
+            self.product_variant_ids[0].id
+            if self.product_variant_ids else False)
+        return result
