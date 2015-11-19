@@ -67,7 +67,7 @@ class PurchaseOrder(models.Model):
         csv template field on the supplier """
         self.ensure_one()
         csv_template = self.partner_id.purchase_csv_template
-        if not csv_template:
+        if not csv_template or not self.order_line:
             return False
 
         def clean(data):
