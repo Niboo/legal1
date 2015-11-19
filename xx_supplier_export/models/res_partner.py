@@ -20,11 +20,27 @@
 #
 ##############################################################################
 
-from openerp import models, fields
+from openerp import api, models, fields, exceptions
+from openerp.tools import safe_eval
+from openerp.tools.translate import _
 
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
+
+    @api.onchange('purchase_csv_template')
+    def onchange_purchase_csv_template(self):
+        template = False
+        try:
+            template = safe_eval(self.purchase_csv_template or [])
+        except Exception, e:
+            raise exceptions.ValidationError(
+                _('The CSV template does not have a valid format: %s') % e)
+        if not isinstance(template, (list, tuple)):
+            raise exceptions.ValidationError(
+                _('The CSV template does not have a valid format. '
+                  'It should consist of comma separated field references '
+                  'or literals.'))
 
     purchase_csv_template = fields.Text(
         help=(
@@ -33,5 +49,4 @@ class ResPartner(models.Model):
             'field you can specify the fields that should be present in the '
             'CSV lines. You can refer to the supplier information as '
             '"seller", the purchase line as "line" and the order itself as '
-            '"order". Keep the enclosing square brackets to make the value '
-            'of this field a valid Python list.'))
+            '"order".'))
