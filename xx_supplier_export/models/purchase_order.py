@@ -32,6 +32,8 @@ class UnicodeWriter:
     """
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.
+
+    This class taken from the official Python documentation of the CSV module.
     """
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
