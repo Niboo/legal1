@@ -62,5 +62,11 @@
                   groups="purchase.group_purchase_manager"
             />
 
+        <!-- Change the action of the scheduler menu entry in stock as well -->
+        <record model="ir.ui.menu" id="stock.menu_stock_proc_schedulers">
+            <field name="action"
+                   ref="procurement_reset_to_dropshipment.action_reset_run_scheduler" />
+        </record>
+
     </data>
 </openerp>
