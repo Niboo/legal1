@@ -48,6 +48,7 @@ class product_putaway_strategy(osv.Model):
 
 class fixed_putaway_by_prod_strat(osv.Model):
     _name = 'stock.fixed.putaway.byprod.strat'
+    _description = 'Product putaway locations'
     _order = 'sequence'
     _columns = {
         'putaway_id': fields.many2one('product.putaway', 'Put Away Method', required=True),
