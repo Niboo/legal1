@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 
-def migrate(self, cr):
+def migrate(cr, version):
     """ Clean up obsolete templates """
+    if not version:
+        return
     cr.execute(
         """
         DELETE FROM email_template WHERE id in (
@@ -14,4 +16,4 @@ def migrate(self, cr):
         WHERE module = 'xx_supplier_export'
             AND name IN (
                 'email_beekman', 'email_vedelec', 'email_aswo');
-        """
+        """)

@@ -2,7 +2,7 @@
     "name": "extra templates for export data",
     "version": "8.0.1.1",
     "depends": [
-        "mail",
+        "email_template",
     ],
     "description": "Loads extra email templates",
     "author": "DynApps",
