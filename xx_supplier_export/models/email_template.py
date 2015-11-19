@@ -36,5 +36,10 @@ class EmailTemplate(models.Model):
         if template_id in ([
                 self.env.ref('purchase.email_template_edi_purchase_done').id,
                 self.env.ref('purchase.email_template_edi_purchase').id]):
-            pass  # do something
+            for purchase in self.env['purchase.order'].browse(res_ids):
+                csv_export = purchase.get_csv_export()
+                if csv_export:
+                    attachments = res[purchase.id].get('attachments') or []
+                    attachments.append(csv_export)
+                    res[purchase.id]['attachments'] = attachments
         return res

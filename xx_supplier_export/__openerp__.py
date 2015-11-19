@@ -3,6 +3,7 @@
     "version": "8.0.1.1",
     "depends": [
         "email_template",
+        'purchase',
     ],
     'data': [
         'views/res_partner.xml',
