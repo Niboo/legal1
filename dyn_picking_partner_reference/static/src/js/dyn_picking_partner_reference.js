@@ -59,7 +59,7 @@ openerp.dyn_picking_partner_reference = function(instance){
                     }
                     /* Start of local change */
                     else {
-                        this.barcode_notify(_t('No product was found for this supplier with code ') + ean);
+                        self.barcode_notify(_t('No product was found for this supplier with code ') + ean);
                     }
                     /* End of local change */
                 });
