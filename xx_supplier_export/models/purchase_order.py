@@ -64,7 +64,10 @@ class PurchaseOrder(models.Model):
     @api.multi
     def get_csv_export(self):
         """ Generate the CSV export for the current order based on the
-        csv template field on the supplier """
+        csv template field on the supplier.
+
+        @returns tuple (filename, base64 encoded file)
+        """
         self.ensure_one()
         csv_template = self.partner_id.purchase_csv_template
         if not csv_template or not self.order_line:
