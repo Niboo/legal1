@@ -69,26 +69,28 @@ class PurchaseOrder(models.Model):
         csv_template = self.partner_id.purchase_csv_template
         if not csv_template:
             return False
-        output = cStringIO.StringIO()
-        writer = UnicodeWriter(output)
-        for line in self.order_line:
-            seller = self.env['product.supplierinfo'].search(
-                [('name', '=', self.partner_id.id),
-                 ('product_tmpl_id', '=',
-                  line.product_id.product_tmpl_id.id)],
-                limit=1)
-            data = safe_eval(
-                csv_template, {
-                    'order': self,
-                    'seller': seller,
-                    'line': line
-                })
+
+        def clean(data):
+            """ Replace any falsy values with the empty string """
             col = 0
             for field in data:
                 if not data[col]:
                     data[col] = ''
                 col += 1
-            writer.writerow(data)
-        csv_export = output.getvalue()
-        output.close()  # TODO: try with statement
+            return data
+
+        with cStringIO.StringIO() as output:
+            writer = UnicodeWriter(output)
+            for line in self.order_line:
+                data = safe_eval(csv_template, {
+                    'order': self,
+                    'line': line,
+                    'seller': self.env['product.supplierinfo'].search(
+                        [('name', '=', self.partner_id.id),
+                         ('product_tmpl_id', '=',
+                          line.product_id.product_tmpl_id.id)],
+                        limit=1)
+                })
+                writer.writerow(clean(data))
+            csv_export = output.getvalue()
         return "%s.csv" % self.name, b64encode(csv_export)
