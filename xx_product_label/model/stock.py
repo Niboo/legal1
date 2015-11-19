@@ -53,7 +53,7 @@ class stock_pack_operation(models.Model):
         pack will satisfy
 
         Param qty: the pack's qty_done plus the offset position of the products
-        that are being iterated over
+        that are being iterated over. I.e. qty is base 0.
         """
         for link in self.linked_move_operation_ids:
             if not qty:
