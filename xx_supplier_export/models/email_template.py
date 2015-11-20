@@ -30,13 +30,19 @@ class EmailTemplate(models.Model):
     @api.model
     def generate_email_batch(self, template_id, res_ids, fields=None):
         """ Generate CSV files for purchase orders whose supplier have a CSV
-        template configured and add to the email """
+        template configured and add to the email. Rebrowse in the partner
+        language if necessary. """
         res = super(EmailTemplate, self).generate_email_batch(
             template_id, res_ids, fields=fields)
         if template_id in ([
                 self.env.ref('purchase.email_template_edi_purchase_done').id,
                 self.env.ref('purchase.email_template_edi_purchase').id]):
+            default_lang = self.env.context.get('lang', 'en_US')
             for purchase in self.env['purchase.order'].browse(res_ids):
+                partner_lang = purchase.partner_id.lang
+                if partner_lang and partner_lang != default_lang:
+                    purchase = purchase.with_context(
+                        lang=partner_lang).browse(purchase.id)
                 csv_export = purchase.get_csv_export()
                 if csv_export:
                     attachments = res[purchase.id].get('attachments') or []
