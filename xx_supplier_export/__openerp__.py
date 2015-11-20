@@ -8,7 +8,6 @@
     'data': [
         'views/res_partner.xml',
     ],
-    "description": "Loads extra email templates",
     "author": "DynApps",
     "category": "DynApps/Customizations",
     "website": "http://www.dynapps.be",
