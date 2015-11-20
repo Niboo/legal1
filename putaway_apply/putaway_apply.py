@@ -21,6 +21,7 @@
 ##############################################################################
 from openerp.osv import fields, osv
 
+
 class product_putaway_strategy(osv.Model):
     _inherit = 'product.putaway'
 
@@ -42,9 +43,14 @@ class product_putaway_strategy(osv.Model):
             return self.pool.get('ir.model.data').xmlid_lookup(cr, uid, 'putaway_apply.default_temp_location')[2]
 
     _columns = {
-        'fixed_location_by_product_ids': fields.one2many('stock.fixed.putaway.byprod.strat', 'putaway_id', 'Fixed Locations Per Product Category',
-             help='When the method is fixed, this location will be used to store the products', copy=True),
+        'fixed_location_by_product_ids': fields.one2many(
+            'stock.fixed.putaway.byprod.strat', 'putaway_id',
+            'Fixed Locations Per Product Category',
+            help=('When the method is fixed, this location will be used to '
+                  'store the products'),
+            copy=True),
     }
+
 
 class fixed_putaway_by_prod_strat(osv.Model):
     _name = 'stock.fixed.putaway.byprod.strat'
@@ -55,4 +61,13 @@ class fixed_putaway_by_prod_strat(osv.Model):
         'product_id': fields.many2one('product.product', 'Product', required=True),
         'fixed_location_id': fields.many2one('stock.location', 'Location', required=True),
         'sequence': fields.integer('Priority', help="Give to the more specialized category, a higher priority to have them in top of the list."),
+    }
+
+    def _default_putaway_id(self, cr, uid, context=None):
+        putaway_ids = self.pool['product.putaway'].search(
+            cr, uid, [('method', '=', 'fixed')], context=context, limit=1)
+        return putaway_ids[0] if putaway_ids else False
+
+    _defaults = {
+        'putaway_id': _default_putaway_id,
     }

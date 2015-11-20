@@ -109,6 +109,7 @@ class stock_pack_operation(models.Model):
         if it satisfies a certain move or picking.
         """
         if 'qty_done' in values:
+            report = 'xx_report_delivery_extended.report_delivery_master'
             if values.get('qty_done') > self.qty_done:
                 putaway_location = self.product_id.get_putaway_location()
                 ctx = {}
@@ -120,28 +121,30 @@ class stock_pack_operation(models.Model):
                         supplier_product[0].product_code)
                 for qty in range(int(self.qty_done),
                                  int(values['qty_done'])):
-                    picking = self.satisfies_unpacked_delivery(qty)
-                    if picking:
-                        # Printing can fail for a variety of reasons, e.g. if a
-                        # product image is missing from the filesystem.
-                        # Catch exceptions to prevent the interface from
-                        # hanging in such a case.
-                        try:
-                            logging.getLogger(__name__).debug(
-                                'Autoprinting picking %s', picking.name)
-                            self.env['report'].print_document(
-                                picking,
-                                'xx_report_delivery_extended.report_delivery'
-                                '_master')
-                        except:
-                            pass
-                    else:
-                        # Just get the move's procurement group that this
-                        # product will be packed for
-                        move = self.satisfies_unpacked_move(qty, first=False)
-                        if move:
-                            picking = (move.move_ultimate_dest_id
-                                       .picking_id)
+                    picking = False
+                    if putaway_location == self.env.ref(
+                            'putaway_apply.default_temp_location'):
+                        picking = self.satisfies_unpacked_delivery(qty)
+                        if picking:
+                            # Printing can fail for a variety of reasons, e.g.
+                            # if a product image is missing from the
+                            # filesystem. Catch exceptions to prevent the
+                            # interface from hanging in such a case.
+                            try:
+                                logging.getLogger(__name__).debug(
+                                    'Autoprinting picking %s', picking.name)
+                                self.env['report'].print_document(
+                                    picking, report)
+                            except:
+                                pass
+                        else:
+                            # Just get the move's procurement group that this
+                            # product will be packed for
+                            move = self.satisfies_unpacked_move(
+                                qty, first=False)
+                            if move:
+                                picking = (move.move_ultimate_dest_id
+                                           .picking_id)
                     destination = putaway_location.name
                     if picking and picking.group_id.name:
                         # Strip off SO + year prefix to save space on the
