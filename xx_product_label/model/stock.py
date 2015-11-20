@@ -127,12 +127,14 @@ class stock_pack_operation(models.Model):
                         # Catch exceptions to prevent the interface from
                         # hanging in such a case.
                         try:
+                            # Stefan, 20-11-2015: disabled because of false
+                            # positives
                             logging.getLogger(__name__).debug(
-                                'Autoprinting picking %s', picking.name)
-                            self.env['report'].print_document(
-                                picking,
-                                'xx_report_delivery_extended.report_delivery'
-                                '_master')
+                                'NOT Autoprinting picking %s', picking.name)
+                            #self.env['report'].print_document(
+                            #    picking,
+                            #    'xx_report_delivery_extended.report_delivery'
+                            #    '_master')
                         except:
                             pass
                     else:
