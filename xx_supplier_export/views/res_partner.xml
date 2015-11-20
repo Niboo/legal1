@@ -11,7 +11,7 @@
                     <group string="Purchase CSV template"
                            attrs="{'invisible': [('supplier', '=', False)]}">
                         <field name="purchase_csv_template" nolabel="1"
-                               placeholder="seller.product_code,line.product_id.name,line.product_qty,order.name"
+                               placeholder="seller.product_code,line.product_id.name,line.product_qty,order.name,&quot;fixed value&quot;"
                                />
                     </group>
                 </xpath>

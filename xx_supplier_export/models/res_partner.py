@@ -21,7 +21,7 @@
 ##############################################################################
 
 from openerp import api, models, fields, exceptions
-from openerp.tools import safe_eval
+from openerp.tools.safe_eval import safe_eval
 from openerp.tools.translate import _
 
 
@@ -32,7 +32,11 @@ class ResPartner(models.Model):
     def onchange_purchase_csv_template(self):
         template = False
         try:
-            template = safe_eval(self.purchase_csv_template or [])
+            template = safe_eval(self.purchase_csv_template or '[]', {
+                'order': self.env['purchase.order'],
+                'line': self.env['purchase.order.line'],
+                'seller': self.env['product.supplierinfo'],
+            })
         except Exception, e:
             raise exceptions.ValidationError(
                 _('The CSV template does not have a valid format: %s') % e)
@@ -49,4 +53,5 @@ class ResPartner(models.Model):
             'field you can specify the fields that should be present in the '
             'CSV lines. You can refer to the supplier information as '
             '"seller", the purchase line as "line" and the order itself as '
-            '"order".'))
+            '"order". If you only have one field, please add a trailing comma.'
+        ))

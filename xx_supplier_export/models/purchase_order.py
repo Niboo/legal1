@@ -21,7 +21,7 @@
 ##############################################################################
 
 import csv
-import cStringIO
+from io import BytesIO
 import codecs
 from base64 import b64encode
 from openerp import models, api
@@ -38,13 +38,15 @@ class UnicodeWriter:
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
+        self.queue = BytesIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def writerow(self, row):
-        self.writer.writerow([s.encode("utf-8") for s in row])
+        self.writer.writerow([s.encode("utf-8")
+                              if isinstance(s, (str, unicode)) else s
+                              for s in row])
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
         data = data.decode("utf-8")
@@ -78,13 +80,14 @@ class PurchaseOrder(models.Model):
         def clean(data):
             """ Replace any falsy values with the empty string """
             col = 0
+            result = list(data)
             for field in data:
                 if not data[col]:
-                    data[col] = ''
+                    result[col] = ''
                 col += 1
-            return data
+            return result
 
-        with cStringIO.StringIO() as output:
+        with BytesIO() as output:
             writer = UnicodeWriter(output)
             for line in self.order_line:
                 data = safe_eval(csv_template, {
