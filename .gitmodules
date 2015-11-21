@@ -1,4 +1,0 @@
-[submodule "server-tools"]
-	path = server-tools
-	url = git@github.com:OCA/server-tools.git
-	branch = 8.0
