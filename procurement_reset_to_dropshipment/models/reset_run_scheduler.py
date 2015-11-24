@@ -53,7 +53,7 @@ class ResetRunScheduler(models.TransientModel):
         self.notes = ''
         logger = logging.getLogger(__name__)
         commit_cr = registry(self.env.cr.dbname).cursor()
-
+        logger.info('Test')
         def log(msg, post=False, attachments=None):
             logger.info(msg)
             self.notes += msg + '\n'
