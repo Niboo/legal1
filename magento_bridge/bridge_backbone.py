@@ -230,6 +230,11 @@ class bridge_backbone(models.Model):
 	def create_order_invoice(self, cr, uid, data, context=None):
 		invoice_id = 0
 		if data.get('order_id'):
+			order_id = data['order_id']
+			order_state = self.pool.get('sale.order').browse(cr, uid, order_id).state
+			if order_state == 'draft':
+				self.pool.get('sale.order').signal_workflow(cr, uid, [order_id],'order_confirm')
+			
 			if context.has_key('instance_id'):
 				active_id = context.get('instance_id')
 				state = self.pool.get('magento.configure').browse(cr, uid, active_id).state	
@@ -347,6 +352,12 @@ class bridge_backbone(models.Model):
 			context = {}
 		res = False
 		context['stock_from'] = 'magento'
+		order_id = data['order_id']
+		order_obj = self.pool.get('sale.order').browse(cr, uid, order_id)
+		order_state = order_obj.state
+		if order_state == 'draft':
+			self.pool.get('sale.order').signal_workflow(cr, uid, [order_id],'order_confirm')
+			
 		if context.has_key('instance_id'):
 			active_id = context.get('instance_id')
 			state = self.pool.get('magento.configure').browse(cr, uid, active_id).state

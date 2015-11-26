@@ -26,7 +26,11 @@ def _unescape(text):
 	# @param text source text.
 	# @return The plain text.
 	from urllib import unquote_plus
-	return unquote_plus(text.encode('utf8'))
+	try:
+		text = unquote_plus(text.encode('utf8'))
+		return text
+	except Exception, e:
+		return text
 
 class magento_website(osv.osv):
 	_name = "magento.website"
@@ -268,14 +272,10 @@ class magento_configure(osv.osv):
 			Called by Xmlrpc from Magento
 		"""
 		if vals.has_key('magento_url'):
-			mage_url = re.sub(r'^https?:\/\/', '', vals.get('magento_url'))
-			active_connection_id = self.search(cr, uid, [('active','=',True)])
-			for odoo_id in active_connection_id:
-				act = self.browse(cr, uid, odoo_id).name
-				act = re.sub(r'^https?:\/\/', '', act)
-				mage_url = re.split('index.php', mage_url)[0]
-				if mage_url == act or mage_url[:-1] == act:
-					return self.read(cr, uid, odoo_id, ['language', 'category', 'warehouse_id'])
+			mage_url = vals.get('magento_url')
+			active_connection_ids = self.search(cr, uid, [('active','=',True)])
+			for odoo_id in active_connection_ids:
+				return self.read(cr, uid, odoo_id, ['language', 'category', 'warehouse_id'])
 		return False
 
 	def correct_instance_mapping(self, cr, uid, ids, context=None):
