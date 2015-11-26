@@ -41,7 +41,10 @@
     <div class="footer">
         <div style="border-top: 1px solid black;">
             <span class="text-center" style="display:block; width: 80%; margin: 30px auto; float: left;">
-                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.magento_shipment, 600, 100)" style="float:left; height:40px; width:240px;"/>
+                <span t-if="o.magento_shipment">
+                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.magento_shipment, 600, 100)"
+                         style="float:left; height:40px; width:240px;"/>
+                </span>
                 <p style="position:relative; margin: 0 auto;">Prepared with great care by <span t-esc='o.wave_id.get_user_name_picking()'/>.</p>
                 <ul class="list-inline">
                     <li>Page:</li>

@@ -5,18 +5,24 @@
 #
 ##############################################################################
 {
-    "name" : "Report Delivery Extended",
-    "version" : "0.1",
-    "description":'This module will add a delivery slip.',
+    "name": "Report Delivery Extended",
+    "version": "0.1",
+    "description": 'This module will add a delivery slip.',
     "author": "DynApps",
     "category": "DynApps/Customizations",
     "website": "http://www.dynapps.be",
-    "depends" : ["stock","sale_stock","base_report_to_printer","delivery",],
+    "depends": [
+        "sale_stock",
+        "base_report_to_printer",
+        "delivery",
+        "dyn_wave_picking_list",
+        "mob_multishop",
+    ],
     "data": [
-              'views/layouts_stockpicking.xml',
-              "report_view.xml",
-              "views/report_stockpicking.xml",
-             ],
+        'views/layouts_stockpicking.xml',
+        "report_view.xml",
+        "views/report_stockpicking.xml",
+    ],
     "auto_install": True,
     "installable": True
 }
