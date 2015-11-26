@@ -26,7 +26,11 @@ def _unescape(text):
 	# @param text source text.
 	# @return The plain text.
 	from urllib import unquote_plus
-	return unquote_plus(text.encode('utf8'))
+	try:
+		text = unquote_plus(text.encode('utf8'))
+		return text
+	except Exception, e:
+		return text
 
 class magento_website(osv.osv):
 	_name = "magento.website"
