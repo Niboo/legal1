@@ -1,0 +1,64 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* xx_supplier_export
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-11-20 15:21+0000\n"
+"PO-Revision-Date: 2015-11-20 15:21+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: xx_supplier_export
+#: model:ir.model,name:xx_supplier_export.model_email_template
+msgid "Email Templates"
+msgstr "E-mailsjablonen"
+
+#. module: xx_supplier_export
+#: help:res.partner,purchase_csv_template:0
+msgid "If defined, purchase orders sent by mail will get an additional attachment containing the order lines in CSV format. In this field you can specify the fields that should be present in the CSV lines. You can refer to the supplier information as \"seller\", the purchase line as \"line\" and the order itself as \"order\". If you only have one field, please add a trailing comma."
+msgstr "Als hier iets ingevuld is, dan wordt er een CSV-bestand toegevoegd bij het versturen van inkooporders. Dit veld bevat de indeling van de regels in het bestand. Je kunt de leveranciersinstellingen voor het product benaderen met \"seller\", de orderregel met \"line\" en de order zelf met \"order\". Als er maar één veld gebruikt wordt, voeg dan ter afsluiting een komma toe."
+
+#. module: xx_supplier_export
+#: model:ir.model,name:xx_supplier_export.model_res_partner
+msgid "Partner"
+msgstr "Relatie"
+
+#. module: xx_supplier_export
+#: view:res.partner:xx_supplier_export.view_partner_form
+msgid "Purchase CSV template"
+msgstr "CSV-sjabloon inkooporder"
+
+#. module: xx_supplier_export
+#: model:ir.model,name:xx_supplier_export.model_purchase_order
+msgid "Purchase Order"
+msgstr "Inkooporder"
+
+#. module: xx_supplier_export
+#: field:res.partner,purchase_csv_template:0
+msgid "Purchase csv template"
+msgstr "CSV-sjabloon inkooporder"
+
+#. module: xx_supplier_export
+#: code:addons/xx_supplier_export/models/res_partner.py:45
+#, python-format
+msgid "The CSV template does not have a valid format. It should consist of comma separated field references or literals."
+msgstr "De CSV-opmaak heeft geen geldige indeling. Het moet bestaan uit referenties of vaste waarden, gescheiden door komma's"
+
+#. module: xx_supplier_export
+#: code:addons/xx_supplier_export/models/res_partner.py:42
+#, python-format
+msgid "The CSV template does not have a valid format: %s"
+msgstr "De CSV-opmaak heeft geen geldige indeling: %s"
+
+#. module: xx_supplier_export
+#: view:res.partner:xx_supplier_export.view_partner_form
+msgid "seller.product_code,line.product_id.name,line.product_qty,order.name,\"fixed value\""
+msgstr "seller.product_code,line.product_id.name,line.product_qty,order.name,\"vaste waarde\""
+

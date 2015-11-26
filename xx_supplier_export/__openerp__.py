@@ -1,16 +1,16 @@
 {
-    "name": "extra templates for export data",
-    "version": "1.0",
+    "name": "Add purchase order CSV when emailing to suppliers",
+    "version": "8.0.1.1",
     "depends": [
-        "mail",
+        "email_template",
+        'purchase',
     ],
-    "description": "Loads extra email templates",
+    'data': [
+        'views/res_partner.xml',
+    ],
     "author": "DynApps",
     "category": "DynApps/Customizations",
     "website": "http://www.dynapps.be",
-    "data": [
-        "export_email.xml",
-    ],
     "installable": True,
     "auto_install": False,
 }
