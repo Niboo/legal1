@@ -228,10 +228,12 @@ class bridge_backbone(models.Model):
 		return False
 		
 	def create_order_invoice(self, cr, uid, data, context=None):
+                _logger.debug('create_order_invoice called with data=%s and context=%s' % (data, context))
 		invoice_id = 0
 		if data.get('order_id'):
 			order_id = data['order_id']
 			order_state = self.pool.get('sale.order').browse(cr, uid, order_id).state
+                        _logger.debug('Sale order state = %s' % order_state)
 			if order_state == 'draft':
 				self.pool.get('sale.order').signal_workflow(cr, uid, [order_id],'order_confirm')
 			
@@ -241,6 +243,8 @@ class bridge_backbone(models.Model):
 				if state == 'enable':
 					self.pool.get('magento.configure').write(cr, uid, active_id,{'state':'disable'})
 				sale_order_details = self.pool.get('sale.order').read(cr,uid,data.get('order_id'),['order_policy','invoice_ids'])
+                                _logger.debug('Sale order details=%s' % sale_order_details)
+
 				if sale_order_details.get('order_policy') == 'prepaid':
 					invoice_id = sale_order_details.get('invoice_ids')[0]
 				else:
@@ -249,10 +253,15 @@ class bridge_backbone(models.Model):
 				if invoice_id:
 					if data.has_key('date'):
 						self.pool.get('account.invoice').write(cr, uid,invoice_id,{'date_invoice':data.get('date'), 'date_due':data.get('date') ,'internal_number':data['mage_inv_number']})
+                                        _logger.debug('Trying to confirm invoice')
 					self.pool.get('account.invoice').signal_workflow(cr, uid, [invoice_id],'invoice_open')
+                                        _logger.debug('Invoice state is now %s' %
+                                                      self.pool['account.invoice'].read(
+                                                              cr, uid, invoice_id, ['state']))
 				if state == 'enable':
 					self.pool.get('magento.configure').write(cr, uid, active_id,{'state':'enable'})
 				workflow.trg_validate(uid, 'sale.order',data.get('order_id'), 'invoice_end', cr)
+                                _logger.debug('Survived a trigger of bogus state')
 		return invoice_id
 		
 		# code for Payment an order...... 
