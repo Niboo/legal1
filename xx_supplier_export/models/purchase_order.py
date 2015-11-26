@@ -36,10 +36,10 @@ class UnicodeWriter:
     This class taken from the official Python documentation of the CSV module.
     """
 
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+    def __init__(self, f, encoding="utf-8", **kwds):
         # Redirect output to a queue
         self.queue = BytesIO()
-        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
+        self.writer = csv.writer(self.queue, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
 
@@ -82,13 +82,24 @@ class PurchaseOrder(models.Model):
             col = 0
             result = list(data)
             for field in data:
-                if not data[col]:
+                if data is False or data is None:
                     result[col] = ''
                 col += 1
             return result
 
         with BytesIO() as output:
-            writer = UnicodeWriter(output)
+            writer = UnicodeWriter(
+                output,
+                quotechar=str(self.partner_id.purchase_csv_quotechar),
+                delimiter=str(self.partner_id.purchase_csv_delimiter),
+                quoting=safe_eval(
+                    'csv.QUOTE_%s' % self.partner_id.purchase_csv_quoting,
+                    {'csv': csv})
+            )
+            if self.partner_id.purchase_csv_header:
+                writer.writerow(
+                    safe_eval(self.partner_id.purchase_csv_header, {
+                        'order': self}))
             for line in self.order_line:
                 data = safe_eval(csv_template, {
                     'order': self,

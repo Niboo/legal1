@@ -8,11 +8,25 @@
             <field name="inherit_id" ref="base.view_partner_form" />
             <field name="arch" type="xml">
                 <xpath expr="//page[@name='sales_purchases']/group" position="inside">
-                    <group string="Purchase CSV template"
+                    <group string="Purchase CSV template" colspan="2"
                            attrs="{'invisible': [('supplier', '=', False)]}">
-                        <field name="purchase_csv_template" nolabel="1"
-                               placeholder="seller.product_code,line.product_id.name,line.product_qty,order.name,&quot;fixed value&quot;"
+                        <group colspan="2">
+                            <field name="purchase_csv_header" />
+                            <field name="purchase_csv_template"
+                                   placeholder="seller.product_code,line.product_id.name,line.product_qty,order.name,&quot;fixed value&quot;"
                                />
+                        </group>
+                        <group>
+                            <group>
+                                <field name="purchase_csv_quotechar" />
+                            </group>
+                            <group>
+                                <field name="purchase_csv_delimiter" />
+                            </group>
+                        </group>
+                        <group colspan="2" >
+                            <field name="purchase_csv_quoting" />
+                        </group>
                     </group>
                 </xpath>
             </field>

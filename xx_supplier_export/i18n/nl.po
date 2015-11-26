@@ -6,14 +6,34 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-20 15:21+0000\n"
-"PO-Revision-Date: 2015-11-20 15:21+0000\n"
+"POT-Creation-Date: 2015-11-26 10:52+0000\n"
+"PO-Revision-Date: 2015-11-26 10:52+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: xx_supplier_export
+#: field:res.partner,purchase_csv_delimiter:0
+msgid "CSV Field Separator"
+msgstr "CSV Scheidingsteken"
+
+#. module: xx_supplier_export
+#: field:res.partner,purchase_csv_header:0
+msgid "CSV Header"
+msgstr "CSV Header"
+
+#. module: xx_supplier_export
+#: field:res.partner,purchase_csv_quotechar:0
+msgid "CSV Quote Character"
+msgstr "CSV Quotesymbool"
+
+#. module: xx_supplier_export
+#: field:res.partner,purchase_csv_template:0
+msgid "CSV Template"
+msgstr "CSV Sjabloon"
 
 #. module: xx_supplier_export
 #: model:ir.model,name:xx_supplier_export.model_email_template
@@ -24,6 +44,16 @@ msgstr "E-mailsjablonen"
 #: help:res.partner,purchase_csv_template:0
 msgid "If defined, purchase orders sent by mail will get an additional attachment containing the order lines in CSV format. In this field you can specify the fields that should be present in the CSV lines. You can refer to the supplier information as \"seller\", the purchase line as \"line\" and the order itself as \"order\". If you only have one field, please add a trailing comma."
 msgstr "Als hier iets ingevuld is, dan wordt er een CSV-bestand toegevoegd bij het versturen van inkooporders. Dit veld bevat de indeling van de regels in het bestand. Je kunt de leveranciersinstellingen voor het product benaderen met \"seller\", de orderregel met \"line\" en de order zelf met \"order\". Als er maar één veld gebruikt wordt, voeg dan ter afsluiting een komma toe."
+
+#. module: xx_supplier_export
+#: selection:res.partner,purchase_csv_quoting:0
+msgid "Only for values containing the separator or the quote character"
+msgstr "Alleen voor waardes die het scheidingsteken of quotesymbool bevatten"
+
+#. module: xx_supplier_export
+#: help:res.partner,purchase_csv_header:0
+msgid "Optional header for the CSV export of purchase orders. This will usually consist of fixed values. Enter a comma separated string of such values, enclosed in quotes."
+msgstr "Optionele header voor de CSV-export van inkooporders. Meestal zijn dit vaste waarden. Voer de vaste waardes met quotes in, gescheiden door komma's."
 
 #. module: xx_supplier_export
 #: model:ir.model,name:xx_supplier_export.model_res_partner
@@ -41,21 +71,38 @@ msgid "Purchase Order"
 msgstr "Inkooporder"
 
 #. module: xx_supplier_export
-#: field:res.partner,purchase_csv_template:0
-msgid "Purchase csv template"
-msgstr "CSV-sjabloon inkooporder"
+#: field:res.partner,purchase_csv_quoting:0
+msgid "Quoting"
+msgstr "Quoting"
+
+#. module: xx_supplier_export
+#: selection:res.partner,purchase_csv_quoting:0
+msgid "Quote all strings"
+msgstr "Alle tekstwaardes quoten"
+
+#. module: xx_supplier_export
+#: code:addons/xx_supplier_export/models/res_partner.py:61
+#, python-format
+msgid "The CSV header does not have a valid format. It should consist of comma separated literals enclosed in quotes, or references to the \"order\" object."
+msgstr "De opmaak van de CSV-header is ongeldig. Deze moet bestaan uit komma-gescheiden vaste waardes tussen quotes, of referenties aan het \"order\"-object."
+
+#. module: xx_supplier_export
+#: code:addons/xx_supplier_export/models/res_partner.py:58
+#, python-format
+msgid "The CSV header does not have a valid format: %s"
+msgstr "De opmaak van de CSV-header is ongeldig: %s"
 
 #. module: xx_supplier_export
 #: code:addons/xx_supplier_export/models/res_partner.py:45
 #, python-format
 msgid "The CSV template does not have a valid format. It should consist of comma separated field references or literals."
-msgstr "De CSV-opmaak heeft geen geldige indeling. Het moet bestaan uit referenties of vaste waarden, gescheiden door komma's"
+msgstr "De opmaak van het CSV-sjabloon is ongeldig. Het sjabloon moet bestaan uit referenties of vaste waarden, gescheiden door komma's"
 
 #. module: xx_supplier_export
 #: code:addons/xx_supplier_export/models/res_partner.py:42
 #, python-format
 msgid "The CSV template does not have a valid format: %s"
-msgstr "De CSV-opmaak heeft geen geldige indeling: %s"
+msgstr "Het CSV-sjabloon heeft geen geldige indeling: %s"
 
 #. module: xx_supplier_export
 #: view:res.partner:xx_supplier_export.view_partner_form
