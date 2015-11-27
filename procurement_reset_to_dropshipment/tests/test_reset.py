@@ -24,7 +24,7 @@ class TestResetToDropshipment(TransactionCase):
         """ Test if a sale order can be successfully reset to dropshipment """
         customer = self.env['res.partner'].create({
             'name': 'Customer'})
-        sale = self.env['sale.order'].create({
+        sale = self.env['sale.order'].with_context(active_test=False).create({
             'partner_id': customer.id,
             'order_policy': 'manual',
             'order_line': [(0, 0, {'product_id': self.product.id, })],
@@ -33,6 +33,8 @@ class TestResetToDropshipment(TransactionCase):
         self.assertEqual(sale.state, 'manual')
         procurement = sale.order_line.procurement_ids[0]
         self.assertEqual(procurement.state, 'confirmed')
+        self.assertEqual(procurement.active, False)
+        procurement.active = True
         sale.reset_to_dropshipment()
         self.assertIn(
             self.env.ref('stock_dropshipping.route_drop_shipping'),
