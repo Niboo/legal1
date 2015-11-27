@@ -127,7 +127,7 @@ class ProductProduct(models.Model):
         if self.image:
             if own:
                 own[0].write({'image': self.image,
-                    'name': self.product_tmpl_id.main_image_name,
+                    'name': self.product_tmpl_id.main_image_name or 'Main Image',
                     'variant_id': self.id,})
             elif tmpl:
                 tmpl = [(0, 0, {'image': self.image,
