@@ -30,7 +30,11 @@ class stock_picking_wave(models.Model):
                     self.pool.get('stock.picking').write(cr, uid, picking.id, {'packages_assigned': True}, context=context)
                 for move_line in picking.move_lines:
                     if not move_line.reserved_quant_ids:
-                        raise osv.except_osv(_('Error!'), 'There is no reserved stock for product %s, in picking %s - you can remove it from the wave then try again.' % (move_line.product_id.name, picking.name))
+                        self.pool.get('stock.move').do_unreserve(cr, uid, move_line.id, context=context)
+                        self.pool.get('stock.picking').action_assign(cr, uid, [picking.id], context=context)
+                        move_line = self.pool.get('stock.move').browse(cr, uid, move_line.id, context=context)
+                        if not move_line.reserved_quant_ids:
+                            raise osv.except_osv(_('Error!'), 'There is no reservable stock for product %s, in picking %s - you can remove it from the wave then try again.' % (move_line.product_id.name, picking.name))
                     for quant in move_line.reserved_quant_ids:
                         if package_id and not quant.package_id:
                             self.pool.get('stock.quant').write(cr, SUPERUSER_ID, quant.id, {'package_id': package_id}, context=context)
