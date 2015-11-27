@@ -1,0 +1,102 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* procurement_track_sale
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-11-27 15:46+0000\n"
+"PO-Revision-Date: 2015-11-27 15:46+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: procurement_track_sale
+#: view:procurement.order:procurement_track_sale.procurement_form_view
+msgid "Destination"
+msgstr "Bestemming"
+
+#. module: procurement_track_sale
+#: field:procurement.order,ultimate_sale_line_id:0
+msgid "Destination sale line"
+msgstr "Uiteindelijke verkoopregel"
+
+#. module: procurement_track_sale
+#: view:procurement.order:procurement_track_sale.procurement_form_view
+msgid "Extra Information"
+msgstr "Extra informatie"
+
+#. module: procurement_track_sale
+#: field:procurement.order,dest_procurement_id:0
+msgid "Next destination procurement"
+msgstr "Aansluitende verwerving (bestemming)"
+
+#. module: procurement_track_sale
+#: field:procurement.order,source_procurement_id:0
+msgid "Next source procurement"
+msgstr "Aansluitende verwerving (origine)"
+
+#. module: procurement_track_sale
+#: model:ir.model,name:procurement_track_sale.model_procurement_order
+msgid "Procurement"
+msgstr "Levering"
+
+#. module: procurement_track_sale
+#: view:procurement.order:procurement_track_sale.procurement_form_view
+msgid "Procurement tracking"
+msgstr "Verwervingen volgen"
+
+#. module: procurement_track_sale
+#: view:purchase.order:procurement_track_sale.purchase_order_form
+msgid "Procurements"
+msgstr "Verwervingen"
+
+#. module: procurement_track_sale
+#: model:ir.model,name:procurement_track_sale.model_purchase_order
+msgid "Purchase Order"
+msgstr "Inkooporder"
+
+#. module: procurement_track_sale
+#: model:ir.model,name:procurement_track_sale.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "Inkooporderregel"
+
+#. module: procurement_track_sale
+#: field:purchase.order,qty_procurements:0
+msgid "Qty procurements"
+msgstr "Aantal verwervingen"
+
+#. module: procurement_track_sale
+#: field:purchase.order.line,sale_reference:0
+msgid "Sale reference"
+msgstr "Referentie verkooporders"
+
+#. module: procurement_track_sale
+#: view:procurement.order:procurement_track_sale.procurement_form_view
+msgid "Source"
+msgstr "Origine"
+
+#. module: procurement_track_sale
+#: field:procurement.order,source_move_id:0
+msgid "Source move"
+msgstr "Verplaatsing (origine)"
+
+#. module: procurement_track_sale
+#: field:procurement.order,ultimate_dest_procurement_id:0
+msgid "Ultimate destination procurement"
+msgstr "Uiteindelijke verwerving (bestemming)"
+
+#. module: procurement_track_sale
+#: field:procurement.order,ultimate_purchase_id:0
+msgid "Ultimate purchase order"
+msgstr "Uiteindelijke inkooporder"
+
+#. module: procurement_track_sale
+#: field:procurement.order,ultimate_source_procurement_id:0
+msgid "Ultimate source procurement"
+msgstr "Uiteindelijke verwerving (origine)"
+
