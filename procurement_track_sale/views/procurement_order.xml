@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+        <record id="procurement_form_view" model="ir.ui.view">
+            <field name="name">procurement.order.form</field>
+            <field name="model">procurement.order</field>
+            <field name="inherit_id" ref="procurement.procurement_form_view" />
+            <field name="arch" type="xml">
+                <page string="Extra Information" position="inside">
+                    <group string="Procurement tracking">
+                        <group string="Source">
+                            <field name="source_procurement_id" />
+                            <field name="source_move_id" />
+                            <field name="ultimate_source_procurement_id" />
+                            <field name="ultimate_purchase_id" />
+                        </group>
+                        <group string="Destination">
+                            <field name="dest_procurement_id" />
+                            <field name="move_dest_id" />
+                            <field name="ultimate_dest_procurement_id" />
+                            <field name="ultimate_sale_line_id" />
+                        </group>
+                    </group>
+                </page>
+            </field>
+        </record>
+    </data>
+</openerp>
