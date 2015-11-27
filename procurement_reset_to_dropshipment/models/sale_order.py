@@ -39,13 +39,25 @@ class SaleOrder(models.Model):
                     self.state))
         route = self.env.ref('stock_dropshipping.route_drop_shipping')
         procurements = self.env['procurement.order']
-        for line in self.order_line:
+        for line in self.with_context(active_test=False).order_line:
             if not line.procurement_ids:
                 continue
-            if line.procurement_ids.state not in ('draft', 'confirmed'):
-                raise UserError(
-                    _('Cannot reset an order with a procurement in '
-                      'state %s') % (line.procurement_ids.state))
-            procurements += line.procurement_ids[0]
+            for proc in line.procurement_ids:
+                if proc.state in ('done', 'running', 'exception'):
+                    raise UserError(
+                        _('Cannot reset an order with a procurement in '
+                          'state %s') % (proc.state))
+            procurements += line.procurement_ids.filtered(
+                lambda proc: proc.state in ('draft', 'confirmed'))
         self.order_line.write({'route_id': route.id})
         return procurements.write({'route_ids': [(6, 0, [route.id])]})
+
+    @api.model
+    def _prepare_order_line_procurement(self, order, line, group_id=False):
+        """ Set procurement orders to inactive when coming from sales orders.
+        The scheduler will set all orders older than a small timeframe to
+        active """
+        res = super(SaleOrder, self)._prepare_order_line_procurement(
+            order, line, group_id=group_id)
+        res['active'] = False
+        return res

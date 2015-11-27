@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="procurement.do_view_procurements" model="ir.actions.act_window">
+            <field name="context">{'active_test': False}</field>
+        </record>
+        <record id="procurement.procurement_action" model="ir.actions.act_window">
+            <field name="context">{'search_default_current':1, 'active_test': False}</field>
+        </record>
+        <record id="procurement.procurement_exceptions" model="ir.actions.act_window">
+            <field name="context">{'active_test': False}</field>
+        </record>
+        <record id="procurement.procurement_action5" model="ir.actions.act_window">
+            <field name="context">{'active_test': False}</field>
+        </record>
+
+        <record id="procurement_tree_view" model="ir.ui.view">
+            <field name="name">Show inactive procurements in purple</field>
+            <field name="model">procurement.order</field>
+            <field name="inherit_id" ref="procurement.procurement_tree_view" />
+            <field name="arch" type="xml">
+                <xpath expr="/tree" position="attributes">
+                    <attribute name="colors">purple:active==False;red:date_planned&lt;current_date and state == 'exception';black:state=='running';darkgreen:state=='confirmed';gray:state in ['done','cancel'];blue:state == 'ready'</attribute>
+                </xpath>
+                <field name="state" position="after">
+                    <field name="active" invisible="1" />
+                </field>
+            </field>
+        </record>
+
+    </data>
+</openerp>
