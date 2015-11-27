@@ -22,11 +22,14 @@
 
 import re
 import logging
+from datetime import datetime, timedelta
 from os import listdir, unlink
 from os.path import isfile, join, exists
 from openerp import registry, models, fields, api
 from openerp.tools.translate import _
 from openerp.exceptions import Warning as UserError
+
+logger = logging.getLogger(__name__)
 
 
 class ResetRunScheduler(models.TransientModel):
@@ -42,6 +45,10 @@ class ResetRunScheduler(models.TransientModel):
     state = fields.Selection(
         [('init', 'Init'), ('run', 'Run')], default='init')
     no_reset = fields.Integer(readonly=True)
+    grace_time = fields.Datetime(
+        'Set procurements active from',
+        default=lambda self: fields.Datetime.to_string(
+            datetime.now() - timedelta(minutes=10)))
 
     @api.multi
     def fetch_magento_dropshipments(self):
@@ -51,7 +58,6 @@ class ResetRunScheduler(models.TransientModel):
         for the order reset.
         """
         self.notes = ''
-        logger = logging.getLogger(__name__)
         commit_cr = registry(self.env.cr.dbname).cursor()
 
         def log(msg, post=False, attachments=None):
@@ -68,6 +74,16 @@ class ResetRunScheduler(models.TransientModel):
         if not exists(path):
             raise UserError(
                 _('The directory "%s" does not exist.') % path)
+
+        if self.grace_time:
+            self.env.cr.execute(
+                """ UPDATE procurement_order SET active = true
+                    WHERE active = false AND create_date < %s """,
+                (fields.Datetime.from_string(self.grace_time),))
+
+            log(_('%s procurements have been activated') % (
+                self.env.cr.rowcount))
+
         files = [f for f in listdir(path) if isfile(join(path, f))]
         self.no_reset = 0
         for fi in files:
@@ -91,7 +107,8 @@ class ResetRunScheduler(models.TransientModel):
                       '%s') % (orderno, fi))
                 continue
             sale = order.order_ref
-            if sale.state not in ('draft', 'sent', 'manual', 'progress'):
+            if sale.state not in (
+                    'draft', 'sent', 'manual', 'progress', 'done'):
                 log(_('Cannot reset Odoo order %s to dropshipment because '
                       'it is in state %s. Skipping %s') % (
                     sale.name, sale.state, fi), post=sale)
