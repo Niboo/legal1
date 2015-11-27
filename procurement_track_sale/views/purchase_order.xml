@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+        <record id="purchase_order_form" model="ir.ui.view">
+            <field name="name">Add procurement button to purchase order form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_2_stock_picking" />
+            <field name="arch" type="xml">
+                <div name="buttons" position="inside">
+                    <button class="oe_stat_button"
+                            name="action_show_procurements"
+                            icon="fa-building-o"
+                            type="object">
+                        <field string="Procurements" name="qty_procurements" widget="statinfo" />
+                    </button>
+                </div>
+            </field>
+        </record>
+    </data>
+</openerp>
