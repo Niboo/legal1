@@ -10,7 +10,6 @@
                     <field name="state" invisible="1" />
                     <div name="init" attrs="{'invisible': [('state', '!=', 'init')]}">
                         <h2>Step 1: pick up dropship orders</h2>
-                        <p>This will also activate sale order procurements created earlier than <field name="grace_time" class="oe_inline" />.</p>
                     </div>
                     <div name="init" attrs="{'invisible': [('state', '!=', 'run')]}">
                         <h2>Step 2: run procurement scheduler</h2>

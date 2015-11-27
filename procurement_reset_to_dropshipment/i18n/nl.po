@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-27 11:01+0000\n"
-"PO-Revision-Date: 2015-11-27 11:01+0000\n"
+"POT-Creation-Date: 2015-11-16 11:52+0000\n"
+"PO-Revision-Date: 2015-11-16 11:52+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,48 +16,27 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:84
-#, python-format
-msgid "%s procurements have been activated"
-msgstr "%s verwervingen zijn geactiveerd"
-
-#. module: procurement_reset_to_dropshipment
-#: field:procurement.order,active:0
-msgid "Active"
-msgstr "Actief"
-
-#. module: procurement_reset_to_dropshipment
 #: view:reset.run.scheduler:procurement_reset_to_dropshipment.reset_run_scheduler_form_view
 msgid "Cancel"
 msgstr "Annuleer"
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:118
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:101
 #, python-format
 msgid "Cannot reset Odoo order %s to dropshipment because it has a procurement that has already been processed. Skipping %s"
 msgstr "Odoo order %s kan niet herleid worden tot dropshipment want de verwerving ervan is al verwerkt. %s wordt overgeslagen."
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:112
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:95
 #, python-format
 msgid "Cannot reset Odoo order %s to dropshipment because it is in state %s. Skipping %s"
 msgstr "Odoo order %s kan niet herleid worden tot dropshipment want de status is al %s. %s wordt overgeslagen."
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/sale_order.py:51
+#: code:addons/procurement_reset_to_dropshipment/models/sale_order.py:45
 #, python-format
 msgid "Cannot reset an order with a procurement in state %s"
 msgstr "Kan geen order resetten naar dropshipment met een verwerving in status %s"
-
-#. module: procurement_reset_to_dropshipment
-#: model:ir.model,name:procurement_reset_to_dropshipment.model_res_company
-msgid "Companies"
-msgstr "Bedrijven"
-
-#. module: procurement_reset_to_dropshipment
-#: field:reset.run.scheduler,company_id:0
-msgid "Company id"
-msgstr "Company"
 
 #. module: procurement_reset_to_dropshipment
 #: code:addons/procurement_reset_to_dropshipment/models/sale_order.py:36
@@ -71,12 +50,22 @@ msgid "Close"
 msgstr "Sluiten"
 
 #. module: procurement_reset_to_dropshipment
+#: model:ir.model,name:procurement_reset_to_dropshipment.model_res_company
+msgid "Companies"
+msgstr "Bedrijven"
+
+#. module: procurement_reset_to_dropshipment
+#: field:reset.run.scheduler,company_id:0
+msgid "Company id"
+msgstr "Company"
+
+#. module: procurement_reset_to_dropshipment
 #: view:res.company:procurement_reset_to_dropshipment.view_company_form
 msgid "Configuration"
 msgstr "Instellingen"
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:139
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:122
 #, python-format
 msgid "Could not reset Odoo order %s to dropshipment: %s. Skipping %s"
 msgstr "Odoo order %s kan niet worden herleid naar dropshipment: %s. %s wordt overgeslagen"
@@ -92,6 +81,11 @@ msgid "Created on"
 msgstr "Aangemaakt op"
 
 #. module: procurement_reset_to_dropshipment
+#: selection:reset.run.scheduler,state:0
+msgid "Done"
+msgstr "Gereed
+
+#. module: procurement_reset_to_dropshipment
 #: view:reset.run.scheduler:procurement_reset_to_dropshipment.reset_run_scheduler_form_view
 msgid "Fetch dropshipment"
 msgstr "Dropship-orders ophalen"
@@ -100,11 +94,6 @@ msgstr "Dropship-orders ophalen"
 #: field:reset.run.scheduler,id:0
 msgid "ID"
 msgstr "ID"
-
-#. module: procurement_reset_to_dropshipment
-#: view:reset.run.scheduler:procurement_reset_to_dropshipment.reset_run_scheduler_form_view
-msgid "In this step, the procurement scheduler will be started in the background. This window will then close."
-msgstr "In deze stap wordt de verwervingsplanner op de achtergrond gestart. Dit venster zal dan sluiten."
 
 #. module: procurement_reset_to_dropshipment
 #: selection:reset.run.scheduler,state:0
@@ -127,31 +116,31 @@ msgid "Magento dropship directory"
 msgstr "Magento dropship-directory"
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:133
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:116
 #, python-format
 msgid "Magento order %s / Odoo order %s has been reset to dropshipment"
 msgstr "Magento order %s / Odoo order %s is herleid tot dropshipment."
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:106
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:90
 #, python-format
 msgid "Magento order no. %s has no Odoo order. Skipping %s"
 msgstr "Magento-order no. %s is niet gekoppeld aan een Odoo order. %s wordt overgeslagen."
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:102
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:86
 #, python-format
 msgid "Multiple orders found with magento order no. %s, that can't be right. Skipping %s"
 msgstr "Er zijn meerdere orders gevonden met magento order no. %s, dat kan niet kloppen. %s wordt overgeslagen."
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:72
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:66
 #, python-format
 msgid "No directory defined on the company for dropship files from Magento"
 msgstr "Er is geen directory ingesteld in de bedrijfsinstellingen voor de Magento dropshipbestanden."
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:98
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:82
 #, python-format
 msgid "No order found with magento order no. %s, skipping %s"
 msgstr "Er is geen Magento-order gevonden in Odoo met no. %s. %s wordt overgeslagen"
@@ -179,16 +168,6 @@ msgid "Order log"
 msgstr "Orderlog"
 
 #. module: procurement_reset_to_dropshipment
-#: model:ir.model,name:procurement_reset_to_dropshipment.model_procurement_order
-msgid "Procurement"
-msgstr "Levering"
-
-#. module: procurement_reset_to_dropshipment
-#: help:procurement.order,active:0
-msgid "Procurements from sale orders are set to inactive by default. When schedulers are run, all inactive procurements older than a small timespan are set to active. This allows us to work around a race condition between Magento and Odoo wrt. drop shipment."
-msgstr "Procurements from sale orders are set to inactive by default. When schedulers are run, all inactive procurements older than a small timespan are set to active. This allows us to work around a race condition between Magento and Odoo wrt. drop shipment."
-
-#. module: procurement_reset_to_dropshipment
 #: view:reset.run.scheduler:procurement_reset_to_dropshipment.reset_run_scheduler_form_view
 msgid "Retrieve dropship orders"
 msgstr "Dropship-orders ophalen"
@@ -213,12 +192,7 @@ msgstr "Planner draaien"
 #. module: procurement_reset_to_dropshipment
 #: model:ir.model,name:procurement_reset_to_dropshipment.model_sale_order
 msgid "Sales Order"
-msgstr "Verkooporder"
-
-#. module: procurement_reset_to_dropshipment
-#: field:reset.run.scheduler,grace_time:0
-msgid "Set procurements active from"
-msgstr "Set procurements active from"
+msgstr "Verkooporders"
 
 #. module: procurement_reset_to_dropshipment
 #: field:reset.run.scheduler,state:0
@@ -236,18 +210,13 @@ msgid "Step 2: run procurement scheduler"
 msgstr "Stap 2: verwervingsplanner draaien"
 
 #. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:76
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:70
 #, python-format
 msgid "The directory \"%s\" does not exist."
 msgstr "De directory \"%s\" bestaat niet."
 
 #. module: procurement_reset_to_dropshipment
-#: view:reset.run.scheduler:procurement_reset_to_dropshipment.reset_run_scheduler_form_view
-msgid "This will also activate sale order procurements created earlier than"
-msgstr "Dit zal ook alle verkoopverwervingen activeren die eerder aangemaakt zijn dan"
-
-#. module: procurement_reset_to_dropshipment
-#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:92
+#: code:addons/procurement_reset_to_dropshipment/models/reset_run_scheduler.py:76
 #, python-format
 msgid "Unrecognized file name: %s, skipping"
 msgstr "Bestandsnaam niet in het juiste formaat: %s, wordt overgeslagen"
@@ -263,7 +232,6 @@ msgid "orders have been reset to dropshipment."
 msgstr "orders zijn herleid naar dropshipment."
 
 #. module: procurement_reset_to_dropshipment
-#: view:procurement.order:procurement_reset_to_dropshipment.procurement_tree_view
-msgid "purple:active=False;red:date_planned<current_date and state == 'exception';black:state=='running';darkgreen:state=='confirmed';gray:state in ['done','cancel'];blue:state == 'ready'"
-msgstr "purple:active=False;red:date_planned<current_date and state == 'exception';black:state=='running';darkgreen:state=='confirmed';gray:state in ['done','cancel'];blue:state == 'ready'"
-
+#: view:reset.run.scheduler:procurement_reset_to_dropshipment.reset_run_scheduler_form_view
+msgid "In this step, the procurement scheduler will be started in the background. This window will then close."
+msgstr "In deze stap wordt de verwervingsplanner op de achtergrond gestart. Dit venster zal dan sluiten."
