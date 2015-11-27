@@ -20,3 +20,11 @@ from the pick-up directory.
 After a successful processing of the dropshipment files, the user can proceed
 to run the procurement scheduler. Due to the dependency on
 procurement_jit_no_sale, sale procurements will be held until this step is run.
+
+Technical notes
+---------------
+This module introduces an active field on the procurement order. Sale order
+procurements are set to inactive. Procurements older than a small time frame
+are reactivated when the scheduler is run. This way we implement a grace time
+to prevent a race conditions concerning orders that are being submitted after
+the orders have been reviewed in Magento.

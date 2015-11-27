@@ -51,6 +51,5 @@ class ProcurementOrder(models.Model):
         """ Prevent the procurements to run after a sale order's move lines
         are created """
         if self.env.context.get('procurement_do_not_run'):
-            print "Not running"
             return True
         return super(ProcurementOrder, self).run(autocommit=autocommit)
