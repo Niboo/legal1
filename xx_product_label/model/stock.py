@@ -126,17 +126,19 @@ class stock_pack_operation(models.Model):
                             'putaway_apply.default_temp_location'):
                         picking = self.satisfies_unpacked_delivery(qty)
                         if picking:
-                            # Printing can fail for a variety of reasons, e.g.
-                            # if a product image is missing from the
-                            # filesystem. Catch exceptions to prevent the
-                            # interface from hanging in such a case.
-                            try:
-                                logging.getLogger(__name__).debug(
-                                    'Autoprinting picking %s', picking.name)
-                                self.env['report'].print_document(
-                                    picking, report)
-                            except:
-                                pass
+                            if picking.picking_type_id.code == 'outgoing':
+                                # Printing can fail for a variety of reasons,
+                                # e.g. if a product image is missing from the
+                                # filesystem. Catch exceptions to prevent the
+                                # interface from hanging in such a case.
+                                try:
+                                    logging.getLogger(__name__).debug(
+                                        'Autoprinting picking %s',
+                                        picking.name)
+                                    self.env['report'].print_document(
+                                        picking, report)
+                                except:
+                                    pass
                         else:
                             # Just get the move's procurement group that this
                             # product will be packed for
