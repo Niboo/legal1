@@ -28,7 +28,7 @@
         'purchase',
     ],
     'data': [
-        #  'views/procurement_order.xml',
+        'views/procurement_order.xml',
         'views/purchase_order.xml',
     ],
     'author': 'DynApps',
