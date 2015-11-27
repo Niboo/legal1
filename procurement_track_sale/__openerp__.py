@@ -30,6 +30,7 @@
     'data': [
         'views/procurement_order.xml',
         'views/purchase_order.xml',
+        'views/purchase_order_line.xml',
     ],
     'author': 'DynApps',
     'category': 'DynApps/Customizations',
