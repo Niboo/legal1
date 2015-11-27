@@ -46,6 +46,22 @@ class ResPartner(models.Model):
                   'It should consist of comma separated field references '
                   'or literals.'))
 
+    @api.onchange('purchase_csv_header')
+    def onchange_purchase_csv_header(self):
+        header = False
+        try:
+            header = safe_eval(self.purchase_csv_header or '[]', {
+                'order': self.env['purchase.order'],
+            })
+        except Exception, e:
+            raise exceptions.ValidationError(
+                _('The CSV header does not have a valid format: %s') % e)
+        if not isinstance(header, (list, tuple)):
+            raise exceptions.ValidationError(
+                _('The CSV header does not have a valid format. '
+                  'It should consist of comma separated literals enclosed '
+                  'in quotes, or references to the "order" object.'))
+
     purchase_csv_template = fields.Text(
         help=(
             'If defined, purchase orders sent by mail will get an additional '
@@ -53,5 +69,25 @@ class ResPartner(models.Model):
             'field you can specify the fields that should be present in the '
             'CSV lines. You can refer to the supplier information as '
             '"seller", the purchase line as "line" and the order itself as '
-            '"order". If you only have one field, please add a trailing comma.'
-        ))
+            '"order". If you only have one field, please add a trailing '
+            'comma.'),
+        string='CSV Template',
+    )
+    purchase_csv_header = fields.Char(
+        help=(
+            'Optional header for the CSV export of purchase orders. This will '
+            'usually consist of fixed values. Enter a comma separated string '
+            'of such values, enclosed in quotes.'),
+        string='CSV Header',
+    )
+    purchase_csv_quotechar = fields.Selection(
+        [('"', '"'), ('\'', '\'')], string="CSV Quote Character",
+        default='"', required=True)
+    purchase_csv_delimiter = fields.Selection(
+        [(',', ','), (';', ';')], string="CSV Field Separator",
+        default=',', required=True)
+    purchase_csv_quoting = fields.Selection(
+        [('MINIMAL', 'Only for values containing the separator or the '
+          'quote character'),
+         ('NONNUMERIC', 'Quote all strings')],
+        default='MINIMAL', required=True, string='Quoting')
