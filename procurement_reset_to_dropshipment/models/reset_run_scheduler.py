@@ -22,11 +22,14 @@
 
 import re
 import logging
+from datetime import datetime, timedelta
 from os import listdir, unlink
 from os.path import isfile, join, exists
 from openerp import registry, models, fields, api
 from openerp.tools.translate import _
 from openerp.exceptions import Warning as UserError
+
+logger = logging.getLogger(__name__)
 
 
 class ResetRunScheduler(models.TransientModel):
@@ -42,6 +45,10 @@ class ResetRunScheduler(models.TransientModel):
     state = fields.Selection(
         [('init', 'Init'), ('run', 'Run')], default='init')
     no_reset = fields.Integer(readonly=True)
+    grace_time = fields.Datetime(
+        'Set procurements active from',
+        default=lambda self: fields.Datetime.to_string(
+            datetime.now() - timedelta(minutes=10)))
 
     @api.multi
     def fetch_magento_dropshipments(self):
@@ -50,10 +57,10 @@ class ResetRunScheduler(models.TransientModel):
         to lose any information using aggressive logging and a dedicated cursor
         for the order reset.
         """
+        logger.info('fetch_magento_dropshipments called')
         self.notes = ''
-        logger = logging.getLogger(__name__)
         commit_cr = registry(self.env.cr.dbname).cursor()
-        logger.info('Test')
+
         def log(msg, post=False, attachments=None):
             logger.info(msg)
             self.notes += msg + '\n'
@@ -68,9 +75,20 @@ class ResetRunScheduler(models.TransientModel):
         if not exists(path):
             raise UserError(
                 _('The directory "%s" does not exist.') % path)
+
+        if self.grace_time:
+            self.env.cr.execute(
+                """ UPDATE procurement_order SET active = true
+                    WHERE active = false AND create_date < %s """,
+                (fields.Datetime.from_string(self.grace_time),))
+
+            log(_('%s procurements have been activated') % (
+                self.env.cr.rowcount))
+
         files = [f for f in listdir(path) if isfile(join(path, f))]
         self.no_reset = 0
         for fi in files:
+            logger.info('fetch_magento_dropshipments: checking file %s' % fi)
             match = re.search('([0-9]+)\.csv', fi)
             if not match:
                 log(_('Unrecognized file name: %s, skipping') % fi)
@@ -91,7 +109,8 @@ class ResetRunScheduler(models.TransientModel):
                       '%s') % (orderno, fi))
                 continue
             sale = order.order_ref
-            if sale.state not in ('draft', 'sent', 'manual', 'progress'):
+            if sale.state not in (
+                    'draft', 'sent', 'manual', 'progress', 'done'):
                 log(_('Cannot reset Odoo order %s to dropshipment because '
                       'it is in state %s. Skipping %s') % (
                     sale.name, sale.state, fi), post=sale)
@@ -108,6 +127,9 @@ class ResetRunScheduler(models.TransientModel):
                 env = api.Environment(
                     commit_cr, self.env.uid, self.env.context)
                 try:
+                    logger.info(
+                        'fetch_magento_dropshipments: call '
+                        'reset_to_dropshipment on sale order %s' % sale.id)
                     env['sale.order'].browse(sale.id).reset_to_dropshipment()
                     # TODO: add file as attachment to the sale order
                     commit_cr.commit()
