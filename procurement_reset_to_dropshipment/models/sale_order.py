@@ -27,8 +27,6 @@ from openerp.exceptions import Warning as UserError
 
 
 logger = logging.getLogger('openerp.addons.procurement_reset_to_dropshipment')
-
-
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
@@ -64,7 +62,8 @@ class SaleOrder(models.Model):
         logger.debug('Writing the route on the line')
         self.order_line.write({'route_id': route.id})
         logger.debug('Writing route onto procurements %s' % procurements.ids)
-        procurements.write({'route_ids': [(6, 0, [route.id])]})
+        if procurements:
+            procurements.write({'route_ids': [(6, 0, [route.id])]})
         return True
 
     @api.model
