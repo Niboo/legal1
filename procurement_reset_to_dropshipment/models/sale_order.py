@@ -20,11 +20,13 @@
 #
 ##############################################################################
 
+import logging
 from openerp import models, api
 from openerp.tools.translate import _
 from openerp.exceptions import Warning as UserError
 
 
+logger = logging.getLogger('openerp.addons.procurement_reset_to_dropshipment')
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
@@ -32,26 +34,37 @@ class SaleOrder(models.Model):
     def reset_to_dropshipment(self):
         """ Reset the route on an unconfirmed and unprocessed order to
         dropshipping """
+        logger.debug('reset_to_dropshipment called on ids %s' % self.ids)
         self.ensure_one()
         if self.state not in ('draft', 'sent', 'manual', 'progress'):
             raise UserError(
                 _('Cannot reset the route of an order in state %s') % (
                     self.state))
+        logger.debug('reset_to_dropshipment stat check OK')
         route = self.env.ref('stock_dropshipping.route_drop_shipping')
+        logger.debug('got route %s' % route.id)
         procurements = self.env['procurement.order']
         for line in self.with_context(active_test=False).order_line:
+            logger.debug('checking line %s' % line.id)
             if not line.procurement_ids:
                 continue
+            logger.debug('Getting line procurements')
             for proc in line.procurement_ids:
+                logger.debug('checking procurement %s' % proc.id)
                 if proc.state in ('done', 'running', 'exception'):
                     raise UserError(
                         _('Cannot reset an order with a procurement in '
                           'state %s') % (proc.state))
+            logger.debug('Adding filtered procurements')
             procurements += line.procurement_ids.filtered(
                 lambda proc: proc.state in ('draft', 'confirmed'))
+            logger.debug('Procurements added')
+        logger.debug('Writing the route on the line')
         self.order_line.write({'route_id': route.id})
+        logger.debug('Writing route onto procurements %s' % procurements.ids)
         if procurements:
-            return procurements.write({'route_ids': [(6, 0, [route.id])]})
+            procurements.write({'route_ids': [(6, 0, [route.id])]})
+        return True
 
     @api.model
     def _prepare_order_line_procurement(self, order, line, group_id=False):

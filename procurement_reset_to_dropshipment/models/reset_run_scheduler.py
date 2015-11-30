@@ -57,9 +57,10 @@ class ResetRunScheduler(models.TransientModel):
         to lose any information using aggressive logging and a dedicated cursor
         for the order reset.
         """
+        logger.info('fetch_magento_dropshipments called')
         self.notes = ''
         commit_cr = registry(self.env.cr.dbname).cursor()
-        logger.info('Test')
+
         def log(msg, post=False, attachments=None):
             logger.info(msg)
             self.notes += msg + '\n'
@@ -87,6 +88,7 @@ class ResetRunScheduler(models.TransientModel):
         files = [f for f in listdir(path) if isfile(join(path, f))]
         self.no_reset = 0
         for fi in files:
+            logger.info('fetch_magento_dropshipments: checking file %s' % fi)
             match = re.search('([0-9]+)\.csv', fi)
             if not match:
                 log(_('Unrecognized file name: %s, skipping') % fi)
@@ -125,6 +127,9 @@ class ResetRunScheduler(models.TransientModel):
                 env = api.Environment(
                     commit_cr, self.env.uid, self.env.context)
                 try:
+                    logger.info(
+                        'fetch_magento_dropshipments: call '
+                        'reset_to_dropshipment on sale order %s' % sale.id)
                     env['sale.order'].browse(sale.id).reset_to_dropshipment()
                     # TODO: add file as attachment to the sale order
                     commit_cr.commit()
