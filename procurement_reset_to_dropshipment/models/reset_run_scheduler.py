@@ -57,7 +57,7 @@ class ResetRunScheduler(models.TransientModel):
         to lose any information using aggressive logging and a dedicated cursor
         for the order reset.
         """
-        logger.info('fetch_magento_dropshipments called')
+        logger.info('reset_run_scheduler: fetch_magento_dropshipments called')
         self.notes = ''
         commit_cr = registry(self.env.cr.dbname).cursor()
 
@@ -88,8 +88,8 @@ class ResetRunScheduler(models.TransientModel):
         files = [f for f in listdir(path) if isfile(join(path, f))]
         self.no_reset = 0
         for fi in files:
-            logger.info('fetch_magento_dropshipments: checking file %s' % fi)
-            match = re.search('([0-9]+)\.csv', fi)
+            logger.info('reset_run_scheduler: fetch_magento_dropshipments: checking file %s' % fi)
+            match = re.search('ONNL_(.[0-9]+)\.csv', fi)
             if not match:
                 log(_('Unrecognized file name: %s, skipping') % fi)
                 continue
@@ -123,28 +123,34 @@ class ResetRunScheduler(models.TransientModel):
                     sale.name, fi), post=sale)
                 continue
             # Here we go
+            logger.info('reset_run_scheduler: fetch_magento_dropshipments: here we go on %s ' % sale.id)
             with api.Environment.manage():
                 env = api.Environment(
                     commit_cr, self.env.uid, self.env.context)
                 try:
                     logger.info(
-                        'fetch_magento_dropshipments: call '
-                        'reset_to_dropshipment on sale order %s' % sale.id)
+                        'reset_run_scheduler: fetch_magento_dropshipments: call '
+                        'reset_run_scheduler: reset_to_dropshipment on sale order %s' % sale.id)
                     env['sale.order'].browse(sale.id).reset_to_dropshipment()
                     # TODO: add file as attachment to the sale order
+                    logger.info('reset_run_scheduler: fetch_magento_dropshipments: before commit %s ' % sale.id)
                     commit_cr.commit()
+                    logger.info('reset_run_scheduler: fetch_magento_dropshipments: commit %s ' % sale.id)
                     file_loc = join(path, fi)
                     with file(file_loc) as f:
                         log(_('Magento order %s / Odoo order %s has been '
                               'reset to dropshipment') % (orderno, sale.name),
                             post=sale, attachments=[(fi, f.read())])
                     unlink(file_loc)
+                    logger.info('reset_run_scheduler: file unlinked  %s ' % file_loc)
                     self.no_reset += 1
                 except Exception, e:
                     log(_('Could not reset Odoo order %s to dropshipment: '
                         '%s. Skipping %s') % (sale.name, e, fi), post=sale)
                     commit_cr.rollback()
+                    logger.info('reset_run_scheduler: rollback of  %s: %s. Skipping: %s ' % (sale.name, e, fi))
 
+        logger.info('reset_run_scheduler: fetch_magento_dropshipments: end ')
         commit_cr.close()
         self.state = 'run'
         return {
