@@ -50,7 +50,8 @@ class SaleOrder(models.Model):
             procurements += line.procurement_ids.filtered(
                 lambda proc: proc.state in ('draft', 'confirmed'))
         self.order_line.write({'route_id': route.id})
-        return procurements.write({'route_ids': [(6, 0, [route.id])]})
+        if procurements:
+            return procurements.write({'route_ids': [(6, 0, [route.id])]})
 
     @api.model
     def _prepare_order_line_procurement(self, order, line, group_id=False):
