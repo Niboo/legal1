@@ -61,8 +61,8 @@ class SaleOrder(models.Model):
             logger.debug('Procurements added')
         logger.debug('Writing the route on the line')
         self.order_line.write({'route_id': route.id})
-        logger.debug('Writing route onto procurements %s' % procurements.ids)
         if procurements:
+            logger.debug('Writing route onto procurements %s' % procurements.ids)
             procurements.write({'route_ids': [(6, 0, [route.id])]})
         return True
 
