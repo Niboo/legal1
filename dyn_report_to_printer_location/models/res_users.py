@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from openerp import models, fields, api
-
+from openerp.modules.registry import RegistryManager
+from openerp.tools import SUPERUSER_ID
 from .printing import _available_action_types
 
 
-class res_users(models.Model):
+class ResUsers(models.Model):
     _inherit = 'res.users'
 
     def _user_available_action_types_inherit(self):
@@ -17,7 +18,10 @@ class res_users(models.Model):
     work_location_id = fields.Many2one(
         'work_location', string='Work Location', required=False)
     reset_work_location = fields.Boolean(
-        'Reset work location upon login', default=True)
+        'Reset work location upon login',
+        help=('Reset work location upon login, and prevent printing of any '
+              'documents until the work location is reconfigured for the '
+              'current session'))
 
     @api.multi
     def write(self, values):
@@ -25,9 +29,20 @@ class res_users(models.Model):
             self.search(
                 [('work_location_id', '=', values.get('work_location_id'))]
             ).sudo().write({'work_location_id': False})
-        return super(res_users, self).write(values)
+        return super(ResUsers, self).write(values)
 
     _sql_constraints = [
         ('work_location_id_uniq', 'unique(work_location_id)',
          'Work Location must be unique!'),
     ]
+
+    def _login(self, db, login, password):
+        user_id = super(ResUsers, self)._login(db, login, password)
+        if user_id:
+            registry = RegistryManager.get(db)
+            with registry.cursor() as cr:
+                env = api.Environment(cr, SUPERUSER_ID, {})
+                user = env['res.users'].browse(user_id)
+                if user.reset_work_location:
+                    user.write({'work_location_id': False})
+        return user_id
