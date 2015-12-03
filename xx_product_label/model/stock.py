@@ -21,6 +21,8 @@
 import re
 import logging
 from openerp import models, api, fields
+from openerp.exceptions import Warning as UserError
+from openerp.tools.translate import _
 
 
 class StockMove(models.Model):
@@ -190,3 +192,20 @@ class product_product(models.Model):
         except:
             pass
         return True
+
+
+class Picking(models.Model):
+    _inherit = 'stock.picking'
+
+    @api.model
+    def check_work_location(self):
+        if (not self.env.user.work_location_id and
+                self.env.user.reset_work_location):
+            raise UserError(
+                _('Please configure your work location before starting to '
+                  'process stock operations.'))
+
+    @api.multi
+    def open_barcode_interface(self):
+        self.check_work_location()
+        return super(Picking, self).open_barcode_interface()

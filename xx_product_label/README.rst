@@ -14,3 +14,10 @@ picking, the picking slip is printed automatically as well.
 
 Prints are sent to the printer in the background using the
 base_report_to_printer module.
+
+Integration with dyn_report_to_printer_location
+===============================================
+If a user does not have a work location configured for his session, and he or
+she is configured to need one (as per the 'Reset work location on login'
+checkbox, the user is not allowed to open the barcode interface before\
+configuring a work location.
