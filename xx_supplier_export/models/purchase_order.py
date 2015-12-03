@@ -22,6 +22,7 @@
 
 import csv
 from io import BytesIO
+import cStringIO
 import codecs
 from base64 import b64encode
 from openerp import models, api
@@ -38,7 +39,7 @@ class UnicodeWriter:
 
     def __init__(self, f, encoding="utf-8", **kwds):
         # Redirect output to a queue
-        self.queue = BytesIO()
+        self.queue = cStringIO.StringIO()  # BytesIO adds null bytes
         self.writer = csv.writer(self.queue, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
