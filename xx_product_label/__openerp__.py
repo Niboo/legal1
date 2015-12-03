@@ -3,7 +3,7 @@
     "version": "1.0",
     "depends": [
         "stock",
-        "base_report_to_printer",
+        "dyn_report_to_printer_location",
         "putaway_apply",
     ],
     "author": "DynApps",
