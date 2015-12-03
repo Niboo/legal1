@@ -209,3 +209,12 @@ class Picking(models.Model):
     def open_barcode_interface(self):
         self.check_work_location()
         return super(Picking, self).open_barcode_interface()
+
+
+class PickingType(models.Model):
+    _inherit = 'stock.picking.type'
+
+    @api.multi
+    def open_barcode_interface(self):
+        self.env['stock.picking'].check_work_location()
+        return super(PickingType, self).open_barcode_interface()
