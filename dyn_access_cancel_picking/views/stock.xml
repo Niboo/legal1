@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_picking_form" model="ir.ui.view">
+            <field name="name">Restrict access to cancel button</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form" />
+            <field name="arch" type="xml">
+                <button name="action_cancel" position="attributes">
+                    <attribute name="groups">base.group_system</attribute>
+                    <attribute name="confirm">This will cancel the picking and the related procurements. Are you sure you want to continue?</attribute>
+                </button>
+            </field>
+        </record>
+
+        <record id="view_picking_wave_form" model="ir.ui.view">
+            <field name="name">Restrict access to cancel button</field>
+            <field name="model">stock.picking.wave</field>
+            <field name="inherit_id" ref="stock_picking_wave.view_picking_wave_form" />
+            <field name="arch" type="xml">
+                <button name="cancel_picking" position="attributes">
+                    <attribute name="groups">base.group_system</attribute>
+                    <attribute name="confirm">This will cancel the related pickings and procurements. Are you sure you want to continue?</attribute>
+                </button>
+            </field>
+        </record>
+
+    </data>
+</openerp>
