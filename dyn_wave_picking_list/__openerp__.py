@@ -27,12 +27,17 @@
 This module adds a report on wave pickings, ordered by physical location
 instead of grouping per picking, so that multiple pickings can efficiently
 be picked in one run.
+
+Pickings are assigned a sequential box number within the picking wave. If the
+product is picked from the Temp location, the POG is displayed instead of the
+box number.
     """,
     'author': 'Dynapps',
     'website': 'http://www.dynapps.be',
     'license': 'AGPL-3',
     'depends': [
-        'stock_picking_wave'
+        'stock_picking_wave',
+        'putaway_apply',
     ],
     'data': [
         'views/stock_picking_wave.xml',
