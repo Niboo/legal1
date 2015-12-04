@@ -10,7 +10,8 @@ class stock_picking_wave(models.Model):
     _inherit = 'stock.picking.wave'
 
     # Easiest is to just extend this model for reporting
-    wave_location_ids = fields.One2many('wave_location', 'wave_id', 'Wave Picking Locations', readonly=True)
+    wave_location_ids = fields.One2many(
+        'wave_location', 'wave_id', 'Wave Picking Locations', readonly=True)
 
     def print_wave(self, cr, uid, ids, context=None):
         context = dict(context or {})
@@ -20,6 +21,10 @@ class stock_picking_wave(models.Model):
         for wave in self.browse(cr, uid, ids, context=context):
             if not wave.user_id:
                 raise osv.except_osv(_('Error!'), 'There is no responsible for this wave. Please assign one before printing.')
+            # Oops, new API
+            # temp_location = self.env.ref(
+            #     'putaway_apply.default_temp_location'):
+            index = 0
             for picking in wave.picking_ids:
                 package_id = False
                 if not picking.packages_assigned:
@@ -49,36 +54,35 @@ class stock_picking_wave(models.Model):
                         cr.execute("UPDATE stock_quant_package SET location_id=%s WHERE id=%s" % (quant.location_id.id, package_id))
                         loc_list.add(quant.location_id)
                         q_dict[quant.location_id.id].append(quant)
+                index += 1
+                picking.write({'box_nbr': index})
             if not loc_list:
                 raise osv.except_osv(_('Error!'), _('There are no locations for any quants assigned to the pickings. Please rectify this.'))
             loc_list = sorted(list(loc_list), lambda x, y: cmp(x.display_name, y.display_name))
             wvals = []
             to_delete_wave_locs = [x.id for x in wave.wave_location_ids]
             self.pool.get('wave_location').unlink(cr, uid, to_delete_wave_locs, context=context)
-            # For determining box number later on; wave.picking_ids is not a list, so index won't work on it.
-            picking_ids = [x.id for x in wave.picking_ids]
             parent_location_id = 0
+            wave.refresh()  # Reload box nbr, hopefully
             for loc in loc_list:
                 # TODO: get rid of this, work with temp vars in the qweb template
                 for quant in q_dict[loc.id]:
+                    # Put box nbr on picking
+                    quant.reservation_id.picking_id.write({'box_nbr': box_nbr,})
                     if loc.location_id.id != parent_location_id:
                         parent_location_id = loc.location_id.id
                         new_parent_location = True
                     else:
                         new_parent_location = False
                     vdict = {
-                        'wave_id': wave.id,
                         'location_id': loc.id,
                         'product_id': quant.product_id.id,
                         'qty': quant.qty,
                         'picking_id': quant.reservation_id.picking_id.id,
                         'new_parent_location': new_parent_location,
+                        'box_nbr': str(quant.reservation_id.picking_id.box_nbr or 0),
                     }
                     wvals.append((0, 0, vdict))
-                    # Put box nbr on picking
-                    self.pool.get('stock.picking').write(cr, uid, quant.reservation_id.picking_id.id,
-                        {'box_nbr': picking_ids.index(quant.reservation_id.picking_id.id) + 1,},
-                        context=context)
             self.write(cr, uid, wave.id, {'wave_location_ids': wvals}, context=context)
         context['active_ids'] = ids
         context['active_model'] = 'stock.picking.wave'
@@ -118,6 +122,8 @@ class wave_location(models.Model):
     location_id = fields.Many2one('stock.location', 'Source Location', required=True)
     product_id = fields.Many2one('product.product', 'Product', required=True)
     qty = fields.Integer('Quantity', required=True)
-    box_nbr = fields.Integer('Box #', related="picking_id.box_nbr")
+    box_nbr = fields.Char(
+        'Box #',
+        help='Box number in this wave, or POG if applicable')
     picking_id = fields.Many2one('stock.picking', 'Picking', required=True)
     new_parent_location = fields.Boolean('New Parent Location')

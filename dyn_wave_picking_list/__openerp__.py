@@ -32,7 +32,8 @@ be picked in one run.
     'website': 'http://www.dynapps.be',
     'license': 'AGPL-3',
     'depends': [
-        'stock_picking_wave'
+        'stock_picking_wave',
+        'putaway_apply',
     ],
     'data': [
         'views/stock_picking_wave.xml',
