@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="putaway_byprod_strat_form_view">
+            <field name="name">Print button for product and location</field>
+            <field name="model">stock.fixed.putaway.byprod.strat</field>
+            <field name="inherit_id" ref="putaway_apply.putaway_byprod_strat_form_view" />
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button string="Print label" name="print_label" type="object"
+                        />
+                </div>
+            </field>
+        </record>
+
+    </data>
+</openerp>

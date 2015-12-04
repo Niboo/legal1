@@ -14,3 +14,9 @@ picking, the picking slip is printed automatically as well.
 
 Prints are sent to the printer in the background using the
 base_report_to_printer module.
+
+Print labels from the putaway location view
+===========================================
+From the product's putaway location's view there is a button that allows the
+user to print the product label. The putaway location will be featured in the
+bottom right corner on the label.
