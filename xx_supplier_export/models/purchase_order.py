@@ -83,8 +83,8 @@ class PurchaseOrder(models.Model):
             col = 0
             result = list(data)
             for field in data:
-                if data is False or data is None:
-                    result[col] = ''
+                if isinstance(field, (str, unicode)):
+                    result[col] = field.replace('\n', ' ')
                 col += 1
             return result
 
