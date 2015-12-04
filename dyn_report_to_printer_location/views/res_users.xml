@@ -10,6 +10,7 @@
             <field name="arch" type="xml">
                 <group name="preferences" position="inside">
                     <field name="work_location_id"/>
+                    <field name="reset_work_location"/>
                 </group>
             </field>
         </record>
