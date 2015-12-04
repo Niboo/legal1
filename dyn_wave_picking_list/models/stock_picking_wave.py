@@ -31,8 +31,8 @@ class stock_picking_wave(models.Model):
                     package_vals = {
                         'name': picking.move_lines[0].group_id.name,
                     }
-                    package_id = self.env('stock.quant.package').create(
-                        package_vals)
+                    package_id = self.env['stock.quant.package'].create(
+                        package_vals).id
                     picking.write({'packages_assigned': True})
                 for move_line in picking.move_lines:
                     if not move_line.reserved_quant_ids:
@@ -81,8 +81,8 @@ class stock_picking_wave(models.Model):
                     }
                     wvals.append((0, 0, vdict))
             wave.write({'wave_location_ids': wvals})
-        return self.with_context(active_ids=self.ids, active_model=self._name).get_action(
-            'report.picking_wave')
+        return self.env['report'].with_context(active_ids=self.ids, active_model=self._name).get_action(
+            self, 'report.picking_wave')
 
     def get_user_name_picking(self):
         if not self.user_id:
