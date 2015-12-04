@@ -101,5 +101,6 @@ msgid "Ultimate source procurement"
 msgstr "Uiteindelijke verwerving (origine)"
 
 #: view:procurement.order:procurement_track_sale.procurement_form_view
+#: view:procurement.order:procurement_track_sale.procurement_group_form_view
 msgid "Sale Order"
 msgstr "Verkooporder"
