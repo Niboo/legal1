@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="procurement_group_form_view" model="ir.ui.view">
+            <field name="name">Add sale order button to procurement group form</field>
+            <field name="model">procurement.group</field>
+            <field name="inherit_id" ref="procurement.procurement_group_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <field name="has_sale_orders" invisible="1" />
+                    <button name="do_view_sale_order" string="Sale Order" type="object"
+                            attrs="{'invisible': [('has_sale_orders', '=', False)]}"
+                            />
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>
