@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from openerp.osv import osv
 from openerp.exceptions import Warning as UserError
 from openerp import fields, models, api
@@ -19,12 +20,11 @@ class stock_picking_wave(models.Model):
         q_dict = defaultdict(list)  # mapping from location ids to quants
         for wave in self:
             if not wave.user_id:
-                raise UserError(
-                    _('There is no responsible for this wave. Please assign one before printing.'))
-            # Oops, new API
-            # temp_location = self.env.ref(
-            #     'putaway_apply.default_temp_location'):
+                raise UserError(_(
+                    'There is no responsible for this wave. '
+                    'Please assign one before printing.'))
             index = 0
+            temp_loc = self.env.ref('putaway_apply.default_temp_location')
             for picking in wave.picking_ids:
                 package_id = False
                 if not picking.packages_assigned:
@@ -39,31 +39,46 @@ class stock_picking_wave(models.Model):
                         move_line.do_unreserve()
                         picking.action_assign()
                         if not move_line.reserved_quant_ids:
-                            raise UserError('There is no reservable stock for product %s, in picking %s - you can remove it from the wave then try again.' % (move_line.product_id.name, picking.name))
+                            raise UserError(_(
+                                'There is no reservable stock for product %s, '
+                                'in picking %s - you can remove it from the '
+                                'wave then try again.') % (
+                                move_line.product_id.name, picking.name))
                     for quant in move_line.reserved_quant_ids:
                         if package_id and not quant.package_id:
                             quant.sudo().write({'package_id': package_id})
                         elif quant.package_id:
                             package_id = quant.package_id.id
                         else:
-                            raise UserError('There is no package for quant %s, in picking %s' % (move_line.name, picking.name))
-                        # We can't use write(); this field is a readonly function field with a store parameter.
-                        # Changing that would be more invasive than just doing a cursor write here.
+                            raise UserError(
+                                'There is no package for quant %s, in picking '
+                                '%s' % (move_line.name, picking.name))
+                        # We can't use write(); this field is a readonly
+                        # function field with a store parameter. Changing that
+                        # would be more invasive than just doing a cursor write
+                        # here.
                         if not quant.location_id:
-                            raise UserError('No location assigned to quant %s for move line %s, in picking %s' % (quant.name, move_line.name, picking.name))
-                        self.env.cr.execute("UPDATE stock_quant_package SET location_id=%s WHERE id=%s" % (quant.location_id.id, package_id))
+                            raise UserError(_(
+                                'No location assigned to quant %s for move '
+                                'line %s, in picking %s') % (
+                                quant.name, move_line.name, picking.name))
+                        self.env.cr.execute(
+                            'UPDATE stock_quant_package SET location_id=%s '
+                            'WHERE id=%s', (quant.location_id.id, package_id))
                         locations += quant.location_id
                         q_dict[quant.location_id.id].append(quant)
                 index += 1
                 picking.write({'box_nbr': index})
             if not locations:
                 raise UserError(
-                    _('There are no locations for any quants assigned to the pickings. Please rectify this.'))
+                    _('There are no locations for any quants assigned to the '
+                      'pickings. Please rectify this.'))
             wvals = []
             wave.wave_location_ids.unlink()
             parent_location_id = 0
             for loc in sorted(locations, key=lambda x: x.display_name):
-                # TODO: get rid of this, work with temp vars in the qweb template
+                # TODO: get rid of this, work with temp vars in the qweb
+                # template
                 for quant in q_dict[loc.id]:
                     # Put box nbr on picking
                     if loc.location_id.id != parent_location_id:
@@ -71,17 +86,26 @@ class stock_picking_wave(models.Model):
                         new_parent_location = True
                     else:
                         new_parent_location = False
+                    picking = quant.reservation_id.picking_id
+                    destination = str(picking.box_nbr or 0)
+                    if loc == temp_loc:  # display POG, not box number
+                        # Strip off SO + year prefix to save space on the label
+                        if re.match('(SO[0-9]{2})', picking.group_id.name):
+                            destination = picking.group_id.name[4:]
+                        else:
+                            destination = picking.group_id.name
                     vdict = {
                         'location_id': loc.id,
                         'product_id': quant.product_id.id,
                         'qty': quant.qty,
                         'picking_id': quant.reservation_id.picking_id.id,
                         'new_parent_location': new_parent_location,
-                        'box_nbr': str(quant.reservation_id.picking_id.box_nbr or 0),
+                        'box_nbr': destination,
                     }
                     wvals.append((0, 0, vdict))
             wave.write({'wave_location_ids': wvals})
-        return self.env['report'].with_context(active_ids=self.ids, active_model=self._name).get_action(
+        return self.env['report'].with_context(
+            active_ids=self.ids, active_model=self._name).get_action(
             self, 'report.picking_wave')
 
     def get_user_name_picking(self):
