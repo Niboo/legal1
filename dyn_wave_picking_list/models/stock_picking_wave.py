@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from openerp.osv import osv
-from openerp import fields, models
+from openerp.exceptions import Warning as UserError
+from openerp import fields, models, api
 from openerp.tools.translate import _
 from collections import defaultdict
-from openerp import SUPERUSER_ID
 
 
 class stock_picking_wave(models.Model):
@@ -13,14 +13,14 @@ class stock_picking_wave(models.Model):
     wave_location_ids = fields.One2many(
         'wave_location', 'wave_id', 'Wave Picking Locations', readonly=True)
 
-    def print_wave(self, cr, uid, ids, context=None):
-        context = dict(context or {})
-
-        loc_list = set()
-        q_dict = defaultdict(list)
-        for wave in self.browse(cr, uid, ids, context=context):
+    @api.multi
+    def print_wave(self):
+        locations = self.env['stock.location']
+        q_dict = defaultdict(list)  # mapping from location ids to quants
+        for wave in self:
             if not wave.user_id:
-                raise osv.except_osv(_('Error!'), 'There is no responsible for this wave. Please assign one before printing.')
+                raise UserError(
+                    _('There is no responsible for this wave. Please assign one before printing.'))
             # Oops, new API
             # temp_location = self.env.ref(
             #     'putaway_apply.default_temp_location'):
@@ -31,44 +31,41 @@ class stock_picking_wave(models.Model):
                     package_vals = {
                         'name': picking.move_lines[0].group_id.name,
                     }
-                    package_id = self.pool.get('stock.quant.package').create(cr, uid, package_vals, context=context)
-                    self.pool.get('stock.picking').write(cr, uid, picking.id, {'packages_assigned': True}, context=context)
+                    package_id = self.env('stock.quant.package').create(
+                        package_vals)
+                    picking.write({'packages_assigned': True})
                 for move_line in picking.move_lines:
                     if not move_line.reserved_quant_ids:
-                        self.pool.get('stock.move').do_unreserve(cr, uid, move_line.id, context=context)
-                        self.pool.get('stock.picking').action_assign(cr, uid, [picking.id], context=context)
-                        move_line = self.pool.get('stock.move').browse(cr, uid, move_line.id, context=context)
+                        move_line.do_unreserve()
+                        picking.action_assign()
                         if not move_line.reserved_quant_ids:
-                            raise osv.except_osv(_('Error!'), 'There is no reservable stock for product %s, in picking %s - you can remove it from the wave then try again.' % (move_line.product_id.name, picking.name))
+                            raise UserError('There is no reservable stock for product %s, in picking %s - you can remove it from the wave then try again.' % (move_line.product_id.name, picking.name))
                     for quant in move_line.reserved_quant_ids:
                         if package_id and not quant.package_id:
-                            self.pool.get('stock.quant').write(cr, SUPERUSER_ID, quant.id, {'package_id': package_id}, context=context)
+                            quant.sudo().write({'package_id': package_id})
                         elif quant.package_id:
                             package_id = quant.package_id.id
                         else:
-                            raise osv.except_osv(_('Error!'), 'There is no package for quant %s, in picking %s' % (move_line.name, picking.name))
+                            raise UserError('There is no package for quant %s, in picking %s' % (move_line.name, picking.name))
                         # We can't use write(); this field is a readonly function field with a store parameter.
                         # Changing that would be more invasive than just doing a cursor write here.
                         if not quant.location_id:
-                            raise osv.except_osv(_('Error!'), 'No location assigned to quant %s for move line %s, in picking %s' % (quant.name, move_line.name, picking.name))
-                        cr.execute("UPDATE stock_quant_package SET location_id=%s WHERE id=%s" % (quant.location_id.id, package_id))
-                        loc_list.add(quant.location_id)
+                            raise UserError('No location assigned to quant %s for move line %s, in picking %s' % (quant.name, move_line.name, picking.name))
+                        self.env.cr.execute("UPDATE stock_quant_package SET location_id=%s WHERE id=%s" % (quant.location_id.id, package_id))
+                        locations += quant.location_id
                         q_dict[quant.location_id.id].append(quant)
                 index += 1
                 picking.write({'box_nbr': index})
-            if not loc_list:
-                raise osv.except_osv(_('Error!'), _('There are no locations for any quants assigned to the pickings. Please rectify this.'))
-            loc_list = sorted(list(loc_list), lambda x, y: cmp(x.display_name, y.display_name))
+            if not locations:
+                raise UserError(
+                    _('There are no locations for any quants assigned to the pickings. Please rectify this.'))
             wvals = []
-            to_delete_wave_locs = [x.id for x in wave.wave_location_ids]
-            self.pool.get('wave_location').unlink(cr, uid, to_delete_wave_locs, context=context)
+            wave.wave_location_ids.unlink()
             parent_location_id = 0
-            wave.refresh()  # Reload box nbr, hopefully
-            for loc in loc_list:
+            for loc in sorted(locations, key=lambda x: x.display_name):
                 # TODO: get rid of this, work with temp vars in the qweb template
                 for quant in q_dict[loc.id]:
                     # Put box nbr on picking
-                    quant.reservation_id.picking_id.write({'box_nbr': box_nbr,})
                     if loc.location_id.id != parent_location_id:
                         parent_location_id = loc.location_id.id
                         new_parent_location = True
@@ -83,11 +80,9 @@ class stock_picking_wave(models.Model):
                         'box_nbr': str(quant.reservation_id.picking_id.box_nbr or 0),
                     }
                     wvals.append((0, 0, vdict))
-            self.write(cr, uid, wave.id, {'wave_location_ids': wvals}, context=context)
-        context['active_ids'] = ids
-        context['active_model'] = 'stock.picking.wave'
-        rep = self.pool.get("report")
-        return rep.get_action(cr, uid, [], 'report.picking_wave', context=context)
+            wave.write({'wave_location_ids': wvals})
+        return self.with_context(active_ids=self.ids, active_model=self._name).get_action(
+            'report.picking_wave')
 
     def get_user_name_picking(self):
         if not self.user_id:
