@@ -6,6 +6,12 @@
             <field name="model">procurement.order</field>
             <field name="inherit_id" ref="procurement.procurement_form_view" />
             <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button name="do_view_sale_order"
+                            string="Sale Order" type="object"
+                            attrs="{'invisible': [('ultimate_sale_line_id', '=', False)]}"
+                            />
+                </div>
                 <page string="Extra Information" position="inside">
                     <group string="Procurement tracking">
                         <group string="Source">
