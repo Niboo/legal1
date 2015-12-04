@@ -55,9 +55,12 @@
                         <div class="oe_right oe_button_box" name="button_box">
                         </div>
                         <group>
-                            <field name="product_id" string="Product"/>
-                            <field name="putaway_id"/>
-                            <field name="fixed_location_id" string="Location"/>
+                            <group name="data">
+                                <field name="product_id" string="Product"/>
+                                <field name="putaway_id"/>
+                                <field name="fixed_location_id" string="Location"/>
+                            </group>
+                            <group name="filler" />
                         </group>
                     </sheet>
                 </form>
