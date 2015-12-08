@@ -1,0 +1,182 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* dyn_wave_picking_list
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-12-04 13:16+0000\n"
+"PO-Revision-Date: 2015-12-04 13:16+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: dyn_wave_picking_list
+#: field:stock.picking,box_nbr:0
+#: field:wave_location,box_nbr:0
+msgid "Box #"
+msgstr "Box #"
+
+#. module: dyn_wave_picking_list
+#: help:wave_location,box_nbr:0
+msgid "Box number in this wave"
+msgstr "Boxnummer in deze wave"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,create_uid:0
+msgid "Created by"
+msgstr "Created by"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,create_date:0
+msgid "Created on"
+msgstr "Created on"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,display_name:0
+msgid "Display Name"
+msgstr "Weergavenaam"
+
+#. module: dyn_wave_picking_list
+#: code:addons/dyn_wave_picking_list/models/stock_picking_wave.py:131
+#, python-format
+msgid "Error!"
+msgstr "Fout"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,__last_update:0
+msgid "Last Modified on"
+msgstr "Last Modified on"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,write_uid:0
+msgid "Last Updated by"
+msgstr "Last Updated by"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,write_date:0
+msgid "Last Updated on"
+msgstr "Last Updated on"
+
+#. module: dyn_wave_picking_list
+#: view:website:stock.report_picking
+msgid "Magento Shipment"
+msgstr "Magento-verzending"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,new_parent_location:0
+msgid "New Parent Location"
+msgstr "Nieuwe bovenliggende locatie"
+
+#. module: dyn_wave_picking_list
+#: code:addons/dyn_wave_picking_list/models/stock_picking_wave.py:61
+#, python-format
+msgid "No location assigned to quant %s for move line %s, in picking %s"
+msgstr "Geen locatie toegewezen aan quant %s voor verplaatsing %s, in picking %s"
+
+#. module: dyn_wave_picking_list
+#: code:addons/dyn_wave_picking_list/models/stock_picking_wave.py:131
+#, python-format
+msgid "Nothing to print."
+msgstr "Niets af te drukken."
+
+#. module: dyn_wave_picking_list
+#: field:stock.picking,packages_assigned:0
+msgid "Packages Have Been Assigned"
+msgstr "Quantpack toegewezen"
+
+#. module: dyn_wave_picking_list
+#: view:website:dyn_wave_picking_list.report_picking_layout_footer
+msgid "Page:"
+msgstr "Pagina:"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,picking_id:0
+#: view:website:stock.report_picking
+msgid "Picking"
+msgstr "Picking"
+
+#. module: dyn_wave_picking_list
+#: model:ir.model,name:dyn_wave_picking_list.model_stock_picking
+msgid "Picking List"
+msgstr "Verzamellijst"
+
+#. module: dyn_wave_picking_list
+#: view:stock.picking.wave:dyn_wave_picking_list.view_picking_wave_form
+msgid "Picking Locations"
+msgstr "Pickinglocaties"
+
+#. module: dyn_wave_picking_list
+#: model:ir.actions.report.xml,name:dyn_wave_picking_list.action_report_picking_wave
+#: model:ir.model,name:dyn_wave_picking_list.model_stock_picking_wave
+#: field:wave_location,wave_id:0
+msgid "Picking Wave"
+msgstr "Picking-wave"
+
+#. module: dyn_wave_picking_list
+#: view:website:dyn_wave_picking_list.report_picking_layout_footer
+msgid "Prepared with great care by"
+msgstr "Met grote zorg behandeld door"
+
+#. module: dyn_wave_picking_list
+#: view:stock.picking.wave:dyn_wave_picking_list.view_picking_wave_form
+msgid "Print Wave"
+msgstr "Wave afdrukken"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,product_id:0
+msgid "Product"
+msgstr "Produkt"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,qty:0
+msgid "Quantity"
+msgstr "Hoeveelheid"
+
+#. module: dyn_wave_picking_list
+#: field:wave_location,location_id:0
+msgid "Source Location"
+msgstr "Bronlocatie"
+
+#. module: dyn_wave_picking_list
+#: code:addons/dyn_wave_picking_list/models/stock_picking_wave.py:74
+#, python-format
+msgid "There are no locations for any quants assigned to the pickings. Please rectify this."
+msgstr "Voor geen enkele quant in de pickings is een locatie toegewezen. Graag eerst corrigeren "
+
+#. module: dyn_wave_picking_list
+#: code:addons/dyn_wave_picking_list/models/stock_picking_wave.py:42
+#, python-format
+msgid "There is no reservable stock for product %s, in picking %s - you can remove it from the wave then try again."
+msgstr "Er is geen ongereserveerde voorraad voor product %s in picking %s. Deze picking moet eerst verwijderd worden."
+
+#. module: dyn_wave_picking_list
+#: code:addons/dyn_wave_picking_list/models/stock_picking_wave.py:23
+#, python-format
+msgid "There is no responsible for this wave. Please assign one before printing."
+msgstr "Graag eerst een verantwoordelijke voor deze wave instellen."
+
+#. module: dyn_wave_picking_list
+#: model:ir.model,name:dyn_wave_picking_list.model_wave_location
+msgid "Wave Picking Location"
+msgstr "Wave pickinglocatie"
+
+#. module: dyn_wave_picking_list
+#: field:stock.picking.wave,wave_location_ids:0
+msgid "Wave Picking Locations"
+msgstr "Wave pickinglocaties"
+
+#. module: dyn_wave_picking_list
+#: view:website:stock.report_picking
+msgid "dyn_wave_picking_list.report_picking_layout"
+msgstr "dyn_wave_picking_list.report_picking_layout"
+

@@ -45,7 +45,7 @@
                                         <th>Product Name</th>
                                         <th>Quantity</th>
                                         <th>Box</th>
-                                        <th>Picking</th>
+                                        <th>Picking/POG</th>
                                     </tr>
                                     <t t-foreach="o.wave_location_ids" t-as="wl">
                                         <tr t-if="wl.new_parent_location" class="parent_location_change">
@@ -57,8 +57,8 @@
                                             <td><img t-att-src="'data:image/jpg;base64,%s' % wl.product_id.image" class="img-rounded product_img"/></td>
                                             <td><span t-field="wl.product_id.display_name"/></td>
                                             <td><span t-field="wl.qty"/></td>
-                                            <td>#<span t-field="wl.box_nbr"/></td>
-                                            <td><span t-field="wl.picking_id.name"/></td>
+                                            <td>#<span t-field="wl.picking_id.box_nbr"/></td>
+                                            <td><span t-field="wl.destination"/></td>
                                         </tr>
                                     </t>
                                 </table>
