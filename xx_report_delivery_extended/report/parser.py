@@ -50,7 +50,7 @@ class report_delivery_extended(report_sxw.rml_parse):
         The POG or the stock.location. In the case of wave pickings, we
         retrieve the box number. """
         res = self.localcontext.get(
-            'destination') or picking.box_nbr or picking.group_id.name or ''
+            'destination') or picking.destination or picking.group_id.name or ''
         if res:
             if re.match('SO[0-9]{2}', res):
                 res = res[4:]
