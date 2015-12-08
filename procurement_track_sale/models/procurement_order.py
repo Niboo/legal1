@@ -70,3 +70,14 @@ class ProcurementOrder(models.Model):
         'stock.move',
         compute='_get_tracking_fields',
         string='Source move')
+
+    @api.multi
+    def do_view_sale_order(self):
+        if not self.ultimate_sale_line_id:
+            return False
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order',
+            'view_mode': 'form',
+            'res_id': self.ultimate_sale_line_id.order_id.id,
+        }
