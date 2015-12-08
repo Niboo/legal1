@@ -41,7 +41,15 @@ class report_delivery_extended(report_sxw.rml_parse):
             'get_client_order_ref_only':self._get_client_order_ref_only,
             'get_order_payment_state':self._get_order_payment_state,
             'get_order_shop':self._get_order_shop,
+            'get_destination': self._get_destination,
         })
+
+    def _get_destination(self, picking):
+        """ Destination is injected in the context in xx_product_label. This is
+        The POG or the stock.location. In the case of wave pickings, we
+        retrieve the box number. """
+        return self.localcontext.get(
+            'destination') or picking.box_nbr or picking.group_id.name or ''
 
     def _get_client_order_ref_only(self,name):
         res = ''
