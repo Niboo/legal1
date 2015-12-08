@@ -38,26 +38,26 @@
 </template>
 
 <template id="external_layout_footer_stockpicking">
-    <div class="footer">
-        <div style="border-top: 1px solid black;">
-            <span class="text-center" style="display:block; width: 55%; margin: 30px auto; float: left;">
-                <span t-if="o.sale_id.client_order_ref">
-                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.sale_id.client_order_ref, 600, 100)"
-                         style="float:left; height:40px; width:240px;"/>
-                </span>
-                <p style="position:relative; margin: 0 auto;">Prepared with great care by <span t-esc='o.wave_id.get_user_name_picking()'/>.</p>
-                <ul class="list-inline">
-                    <li>Page:</li>
-                    <li><span class="page"/></li>
-                    <li>/</li>
-                    <li><span class="topage"/></li>
-                </ul>
-            </span>
-            <span style="font-size:5em; float: right;">
-                #<span t-esc="get_destination(o)"/>
-            </span>
+    <t t-name="xx_report_delivery_extended.external_layout_footer_stockpicking">
+        <div class="footer">
+            <div style="border-top: 1px solid black;">
+                <div class="container_fluid" style="margin: 10px auto;">
+                    <div class="col-xs-4">
+                        <img t-if="o.sale_id.client_order_ref"
+                             t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.sale_id.client_order_ref, 600, 100)"
+                             style="float:left; height:40px; width:240px;"/>
+                    </div>
+                    <div class="col-xs-4" style="text-align: center;">
+                        Prepared with great care by <span t-esc="o.wave_id.get_user_name_picking()"/>.
+                        <br />Page: <span class="page" /> / <span class="topage" />
+                    </div>
+                    <div class="col-xs-4" style="font-size: 3em; " >
+                        #<span t-esc="get_destination(o)"/>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </t>
 </template>
 
 </data>
