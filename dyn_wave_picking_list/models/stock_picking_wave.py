@@ -87,18 +87,20 @@ class stock_picking_wave(models.Model):
                     else:
                         new_parent_location = False
                     picking = quant.reservation_id.picking_id
-                    destination = picking.name
                     if loc == temp_loc:  # display POG, not box number
                         # Strip off SO + year prefix to save space on the label
                         if re.match('(SO[0-9]{2})', picking.group_id.name):
                             destination = picking.group_id.name[4:]
                         else:
                             destination = picking.group_id.name
+                        if picking.destination != destination:
+                            picking.write({'destination': destination})
+                    if not picking.destination:
+                        picking.write({'destination': picking.name})
                     vdict = {
                         'location_id': loc.id,
                         'product_id': quant.product_id.id,
                         'qty': quant.qty,
-                        'destination': destination,
                         'picking_id': picking.id,
                         'new_parent_location': new_parent_location,
                     }
@@ -142,6 +144,6 @@ class wave_location(models.Model):
     product_id = fields.Many2one('product.product', 'Product', required=True)
     qty = fields.Integer('Quantity', required=True)
     picking_id = fields.Many2one('stock.picking', 'Picking', required=True)
-    destination = fields.Char()
+    destination = fields.Char(related='picking_id.destination')
     box_nbr = fields.Integer(related='picking_id.box_nbr')
     new_parent_location = fields.Boolean('New Parent Location')
