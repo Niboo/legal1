@@ -36,13 +36,34 @@
         <record model="ir.ui.view" id="putaway_byprod_strat_tree_view">
             <field name="name">stock.fixed.putaway.byprod.strat.tree</field>
             <field name="model">stock.fixed.putaway.byprod.strat</field>
-            <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="Putaway"  >
                     <field name="product_id" string="Product"/>
                     <field name="putaway_id"/>
                     <field name="fixed_location_id" string="Location"/>
                 </tree>
+            </field>
+        </record>
+
+        <!-- Insert header for use in other modules -->
+        <record model="ir.ui.view" id="putaway_byprod_strat_form_view">
+            <field name="name">stock.fixed.putaway.byprod.strat.form</field>
+            <field name="model">stock.fixed.putaway.byprod.strat</field>
+            <field name="arch" type="xml">
+                <form string="Putaway location per product"  >
+                    <sheet>
+                        <div class="oe_right oe_button_box" name="button_box">
+                        </div>
+                        <group>
+                            <group name="data">
+                                <field name="product_id" string="Product"/>
+                                <field name="putaway_id"/>
+                                <field name="fixed_location_id" string="Location"/>
+                            </group>
+                            <group name="filler" />
+                        </group>
+                    </sheet>
+                </form>
             </field>
         </record>
 
