@@ -25,6 +25,9 @@ class Product(models.Model):
     _inherit = 'product.product'
 
     qty_putaway = fields.Integer(compute="_get_qty_putaway")
+    putaway_ids = fields.One2many(
+        'stock.fixed.putaway.byprod.strat',
+        'product_id', string='Putaway locations by product')
 
     @api.multi
     def get_putaway_location(self):
