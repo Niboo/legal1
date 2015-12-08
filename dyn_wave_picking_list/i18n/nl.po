@@ -23,8 +23,8 @@ msgstr "Box #"
 
 #. module: dyn_wave_picking_list
 #: help:wave_location,box_nbr:0
-msgid "Box number in this wave, or POG if applicable"
-msgstr "Boxnummer in deze wave, of POG indien uit Temp"
+msgid "Box number in this wave"
+msgstr "Boxnummer in deze wave"
 
 #. module: dyn_wave_picking_list
 #: field:wave_location,create_uid:0
