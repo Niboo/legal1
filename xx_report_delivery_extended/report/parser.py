@@ -26,6 +26,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
+import re
 import time
 from openerp.report import report_sxw
 from openerp.tools.translate import _
@@ -48,8 +49,12 @@ class report_delivery_extended(report_sxw.rml_parse):
         """ Destination is injected in the context in xx_product_label. This is
         The POG or the stock.location. In the case of wave pickings, we
         retrieve the box number. """
-        return self.localcontext.get(
+        res = self.localcontext.get(
             'destination') or picking.box_nbr or picking.group_id.name or ''
+        if res:
+            if re.match('SO[0-9]{2}', res):
+                res = res[4:]
+        return res
 
     def _get_client_order_ref_only(self,name):
         res = ''
