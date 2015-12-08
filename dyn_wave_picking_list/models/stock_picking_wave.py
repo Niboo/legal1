@@ -145,6 +145,6 @@ class wave_location(models.Model):
     product_id = fields.Many2one('product.product', 'Product', required=True)
     qty = fields.Integer('Quantity', required=True)
     picking_id = fields.Many2one('stock.picking', 'Picking', required=True)
-    destination = fields.Char(related='picking_id.destination')
+    wave_info = fields.Text(related='picking_id.wave_info')
     box_nbr = fields.Integer(related='picking_id.box_nbr')
     new_parent_location = fields.Boolean('New Parent Location')

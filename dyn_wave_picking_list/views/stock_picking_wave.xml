@@ -18,7 +18,7 @@
                             <field name="product_id"/>
                             <field name="qty"/>
                             <field name="box_nbr"/>
-                            <field name="picking_id"/>
+                            <field name="wave_info"/>
                         </tree>
                     </field>
                 </field>
