@@ -65,7 +65,8 @@ class stock_picking_wave(models.Model):
                         self.env.cr.execute(
                             'UPDATE stock_quant_package SET location_id=%s '
                             'WHERE id=%s', (quant.location_id.id, package_id))
-                        locations += quant.location_id
+                        if quant.location_id not in locations:
+                            locations += quant.location_id
                         q_dict[quant.location_id.id].append(quant)
                 index += 1
                 picking.write({'box_nbr': index})
