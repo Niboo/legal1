@@ -17,7 +17,7 @@
         "delivery",
         "dyn_wave_picking_list",
         "mob_multishop",
-        'putaway_apply,
+        "putaway_apply",
     ],
     "data": [
         'views/layouts_stockpicking.xml',
