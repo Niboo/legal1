@@ -152,11 +152,6 @@
                                            </span>
                                         </td>
                                         <td><span t-field="move.product_id"/>
-                                            <t t-if="move.product_id.default_code">
-                                                <br />
-                                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', move.product_id.default_code, 300, 50)"
-                                                     />
-                                            </t>
                                         </td>
                                         <!--
                                         <td><span t-field="move.reserved_quant_ids.location_id.name"/></td>
@@ -171,6 +166,10 @@
                                         </td>
                                         <td>
                                             <span t-field="move.product_id.putaway_ids.fixed_location_id.name" />
+                                            <t t-if="move.product_id.default_code">
+                                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', move.product_id.default_code, 150, 25)"
+                                                     />
+                                            </t>
                                         </td>
                                         <!--
                                         <t t-if="o.picking_type_id.code != 'incoming'">
@@ -214,11 +213,6 @@
                                     <td>
                                         <span t-field="pack_operation.product_id"/>
                                         <t t-if="not pack_operation.product_id and pack_operation.package_id"><span  t-field="pack_operation.package_id"/></t>
-                                        <t t-if="pack_operation.product_id.default_code">
-                                            <br />
-                                            <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', pack_operation.product_id.default_code, 300, 50)"
-                                                 />
-                                        </t>
                                     </td>
                                     <td class="text-right">
                                         <span t-field="pack_operation.product_qty"/>
@@ -245,6 +239,10 @@
                                     </t>
                                     <td>
                                         <span t-field="pack_operation.product_id.putaway_ids.fixed_location_id.name" />
+                                        <t t-if="pack_operation.product_id.default_code">
+                                            <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', pack_operation.product_id.default_code, 150, 25)"
+                                                 />
+                                        </t>
                                     </td>
                                 </tr>
                             </tbody>
