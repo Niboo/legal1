@@ -23,6 +23,10 @@
                     <attribute name="groups">base.group_system</attribute>
                     <attribute name="confirm">This will cancel the related pickings and procurements. Are you sure you want to continue?</attribute>
                 </button>
+                <button name="action_cancel" position="attributes">
+                    <attribute name="groups">base.group_system</attribute>
+                    <attribute name="confirm">This will cancel this picking and its procurements. Are you sure you want to continue?</attribute>
+                </button>
             </field>
         </record>
 
