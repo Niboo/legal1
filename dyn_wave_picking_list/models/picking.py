@@ -24,6 +24,6 @@ class stock_picking(models.Model):
                     infos.append(picking.group_id.name)
                 for sale in self.env['sale.order'].search(
                         [('procurement_group_id', '=', picking.group_id.id)]):
-                    if sale.name not in infos:
-                        infos.append(sale.name)
+                    if sale.client_order_ref and sale.client_order_ref not in infos:
+                        infos.append(sale.client_order_ref)
             picking.wave_info = '\n'.join(infos)
