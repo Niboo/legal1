@@ -15,7 +15,7 @@
                                 </div>
                                 <div class="row" style="padding-left: 15px; padding-right: 15px;">
                                     <span><strong>Picking Number:</strong></span>
-                                    <span t-field="o.name"/>
+                                    <span t-field="o.name"/><t t-if="o.wave_id">/<span t-field="o.wave_id.name" /></t>
                                 </div>
                                 <div class="row" style="padding-left: 15px; padding-right: 15px;">
                                     <span><strong>Order (Origin)</strong></span>
