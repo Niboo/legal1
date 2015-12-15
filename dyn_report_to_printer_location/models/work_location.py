@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openerp import fields, models, api
+from openerp import fields, models
 from openerp.addons.base_report_to_printer.printing import _available_action_types
 
 
@@ -34,7 +34,7 @@ class work_location_printer(models.Model):
     work_location_id = fields.Many2one('work_location', 'Work Location', required=True)
     printing_action = fields.Selection(_location_available_action_types, required=True)
     document_type_id = fields.Many2one(comodel_name='document_type',
-                                          string='Document Type', required=True)
+                                       string='Document Type', required=True)
     printing_printer_id = fields.Many2one(comodel_name='printing.printer',
                                           string='Default Printer')
 
