@@ -15,7 +15,7 @@
                                 </div>
                                 <div class="row" style="padding-left: 15px; padding-right: 15px;">
                                     <span><strong>Picking Number:</strong></span>
-                                    <span t-field="o.name"/>
+                                    <span t-field="o.name"/><t t-if="o.wave_id">/<span t-field="o.wave_id.name" /></t>
                                 </div>
                                 <div class="row" style="padding-left: 15px; padding-right: 15px;">
                                     <span><strong>Order (Origin)</strong></span>
@@ -167,7 +167,7 @@
                                         <td style='text-align:center;'>
                                             <span t-field="move.product_id.putaway_ids.fixed_location_id.name" />
                                             <t t-if="move.product_id.default_code">
-                                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', move.product_id.default_code, 150, 25)"
+                                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', move.product_id.default_code, 250, 25)"
                                                      />
                                             </t>
                                         </td>
@@ -240,7 +240,7 @@
                                     <td style='text-align:center;'>
                                         <span t-field="pack_operation.product_id.putaway_ids.fixed_location_id.name" />
                                         <t t-if="pack_operation.product_id.default_code">
-                                            <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', pack_operation.product_id.default_code, 150, 25)"
+                                            <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', pack_operation.product_id.default_code, 250, 25)"
                                                  />
                                         </t>
                                     </td>
