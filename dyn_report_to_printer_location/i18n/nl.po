@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-03 17:21+0000\n"
-"PO-Revision-Date: 2015-12-03 17:21+0000\n"
+"POT-Creation-Date: 2015-12-15 15:00+0000\n"
+"PO-Revision-Date: 2015-12-15 15:00+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -30,9 +30,21 @@ msgid "Created on"
 msgstr "Created on"
 
 #. module: dyn_report_to_printer_location
+#: field:work_location,user_id:0
+msgid "Current/Last User"
+msgstr "Huidige/laatste gebruiker"
+
+#. module: dyn_report_to_printer_location
 #: field:work_location_printer,printing_printer_id:0
 msgid "Default Printer"
 msgstr "Standaardprinter"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,display_name:0
+#: field:work_location,display_name:0
+#: field:work_location_printer,display_name:0
+msgid "Display Name"
+msgstr "Weergavenaam"
 
 #. module: dyn_report_to_printer_location
 #: field:ir.actions.report.xml,document_type_id:0
@@ -47,6 +59,13 @@ msgstr "Documenttype"
 #: field:work_location_printer,id:0
 msgid "ID"
 msgstr "ID"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,__last_update:0
+#: field:work_location,__last_update:0
+#: field:work_location_printer,__last_update:0
+msgid "Last Modified on"
+msgstr "Last Modified on"
 
 #. module: dyn_report_to_printer_location
 #: field:document_type,write_uid:0

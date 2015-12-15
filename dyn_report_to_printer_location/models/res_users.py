@@ -36,13 +36,14 @@ class ResUsers(models.Model):
          'Work Location must be unique!'),
     ]
 
-    def _login(self, db, login, password):
-        user_id = super(ResUsers, self)._login(db, login, password)
-        if user_id:
+    def authenticate(self, db, login, password, user_agent_env):
+        uid = super(ResUsers, self).authenticate(
+            db, login, password, user_agent_env)
+        if uid:
             registry = RegistryManager.get(db)
             with registry.cursor() as cr:
                 env = api.Environment(cr, SUPERUSER_ID, {})
-                user = env['res.users'].browse(user_id)
+                user = env['res.users'].browse(uid)
                 if user.reset_work_location:
                     user.write({'work_location_id': False})
-        return user_id
+        return uid
