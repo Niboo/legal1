@@ -168,11 +168,11 @@ class stock_pack_operation(models.Model):
                     now = time.time()
                     logger.debug(
                         '(%ss) Autoprinting product label ("%s")', delta, ctx)
+                    self.product_id.with_context(
+                        ctx).action_print_product_barcode()
                     delta = int(time.time() - now)
                     now = time.time()
                     logger.debug('(%ss) Product label printed', delta)
-                    self.product_id.with_context(
-                        ctx).action_print_product_barcode()
         return super(stock_pack_operation, self).write(values)
 
 
