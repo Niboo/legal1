@@ -135,7 +135,7 @@ class stock_pack_operation(models.Model):
                                 # filesystem. Catch exceptions to prevent the
                                 # interface from hanging in such a case.
                                 try:
-                                    delta = int(time.time() - now)
+                                    delta = time.time() - now
                                     now = time.time()
                                     logger.debug(
                                         '(%ss) Autoprinting picking %s',
@@ -144,7 +144,7 @@ class stock_pack_operation(models.Model):
                                         picking, report)
                                 except:
                                     pass
-                                delta = int(time.time() - now)
+                                delta = time.time() - now
                                 now = time.time()
                                 logger.debug('(%ss) Picking printed', delta)
                         else:
@@ -164,13 +164,13 @@ class stock_pack_operation(models.Model):
                         else:
                             destination = picking.group_id.name
                     ctx['destination'] = destination
-                    delta = int(time.time() - now)
+                    delta = time.time() - now
                     now = time.time()
                     logger.debug(
                         '(%ss) Autoprinting product label ("%s")', delta, ctx)
                     self.product_id.with_context(
                         ctx).action_print_product_barcode()
-                    delta = int(time.time() - now)
+                    delta = time.time() - now
                     now = time.time()
                     logger.debug('(%ss) Product label printed', delta)
         return super(stock_pack_operation, self).write(values)
