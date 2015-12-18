@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-import re
 import logging
+import re
+import time
 from openerp import models, api, fields
 
 
@@ -111,6 +112,8 @@ class stock_pack_operation(models.Model):
         if 'qty_done' in values:
             report = 'xx_report_delivery_extended.report_delivery_master'
             if values.get('qty_done') > self.qty_done:
+                now = time.time()
+                logger = logging.getLogger('openerp.addons.xx_product_label')
                 putaway_location = self.product_id.get_putaway_location()
                 ctx = {}
                 supplier_product = [
@@ -132,13 +135,18 @@ class stock_pack_operation(models.Model):
                                 # filesystem. Catch exceptions to prevent the
                                 # interface from hanging in such a case.
                                 try:
-                                    logging.getLogger(__name__).debug(
-                                        'Autoprinting picking %s',
-                                        picking.name)
+                                    delta = int(time() - now)
+                                    now = time()
+                                    logger.debug(
+                                        '(%ss) Autoprinting picking %s',
+                                        delta, picking.name)
                                     self.env['report'].print_document(
                                         picking, report)
                                 except:
                                     pass
+                                delta = int(time() - now)
+                                now = time()
+                                logger.debug('(%ss) Picking printed', delta)
                         else:
                             # Just get the move's procurement group that this
                             # product will be packed for
@@ -156,9 +164,13 @@ class stock_pack_operation(models.Model):
                         else:
                             destination = picking.group_id.name
                     ctx['destination'] = destination
-                    logging.getLogger(__name__).debug(
-                        'Autoprinting product label with extra context "%s"',
-                        ctx)
+                    delta = int(time() - now)
+                    now = time()
+                    logger.debug(
+                        '(%ss) Autoprinting product label ("%s")', delta, ctx)
+                    delta = int(time() - now)
+                    now = time()
+                    logger.debug('(%ss) Product label printed', delta)
                     self.product_id.with_context(
                         ctx).action_print_product_barcode()
         return super(stock_pack_operation, self).write(values)
