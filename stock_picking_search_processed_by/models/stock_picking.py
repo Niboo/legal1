@@ -11,9 +11,16 @@ class Picking(models.Model):
 
     @api.model
     def _search_last_user(self, operator, value):
-        users = self.env['res.users'].search([('name', operator, value)])
-        if not users:
-            return []
+        """ Lots of operator/value combinations are not covered in this search
+        method, but we are only interested in ('ilike', 'eltj') and ('=', 76)
+        """
+        if value and isinstance(value, (int, long)):
+            user_ids = [value]
+        else:
+            user_ids = self.env['res.users'].search(
+                [('name', operator, value)]).ids
+            if not user_ids:
+                return []
         self.env.cr.execute(
             """
             SELECT p.id
@@ -21,7 +28,7 @@ class Picking(models.Model):
                  stock_move sm
             WHERE sm.picking_id = p.id
                 AND sm.write_uid in %s
-            """, (tuple(users.ids),))
+            """, (tuple(user_ids),))
         return [('id', 'in', [row[0] for row in self.env.cr.fetchall()])]
 
     @api.multi
