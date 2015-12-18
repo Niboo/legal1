@@ -135,8 +135,8 @@ class stock_pack_operation(models.Model):
                                 # filesystem. Catch exceptions to prevent the
                                 # interface from hanging in such a case.
                                 try:
-                                    delta = int(time() - now)
-                                    now = time()
+                                    delta = int(time.time() - now)
+                                    now = time.time()
                                     logger.debug(
                                         '(%ss) Autoprinting picking %s',
                                         delta, picking.name)
@@ -144,8 +144,8 @@ class stock_pack_operation(models.Model):
                                         picking, report)
                                 except:
                                     pass
-                                delta = int(time() - now)
-                                now = time()
+                                delta = int(time.time() - now)
+                                now = time.time()
                                 logger.debug('(%ss) Picking printed', delta)
                         else:
                             # Just get the move's procurement group that this
@@ -164,12 +164,12 @@ class stock_pack_operation(models.Model):
                         else:
                             destination = picking.group_id.name
                     ctx['destination'] = destination
-                    delta = int(time() - now)
-                    now = time()
+                    delta = int(time.time() - now)
+                    now = time.time()
                     logger.debug(
                         '(%ss) Autoprinting product label ("%s")', delta, ctx)
-                    delta = int(time() - now)
-                    now = time()
+                    delta = int(time.time() - now)
+                    now = time.time()
                     logger.debug('(%ss) Product label printed', delta)
                     self.product_id.with_context(
                         ctx).action_print_product_barcode()
