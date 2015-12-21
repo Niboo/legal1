@@ -25,9 +25,12 @@ class Picking(models.Model):
             """
             SELECT p.id
             FROM stock_picking p,
-                 stock_move sm
+                 stock_move sm,
+                 stock_move sm2
             WHERE sm.picking_id = p.id
-                AND sm.write_uid in %s
+                AND sm.group_id IS NOT NULL
+                AND sm.group_id = sm2.group_id
+                AND sm2.write_uid in %s
             """, (tuple(user_ids),))
         return [('id', 'in', [row[0] for row in self.env.cr.fetchall()])]
 
