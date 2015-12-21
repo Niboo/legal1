@@ -34,4 +34,4 @@ class Picking(models.Model):
     @api.multi
     def compute_dummy(self):
         for picking in self:
-            self.search_last_user = False
+            picking.search_last_user = False
