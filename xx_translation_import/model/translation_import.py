@@ -44,8 +44,7 @@ class translation_import(osv.osv_memory):
             type='char', 
             size=128,
             domain=[],
-            string="Custom location remembered",
-            view_load=True),
+            string="Custom location remembered"),
     }
     
     _defaults = {
@@ -155,5 +154,3 @@ class translation_import(osv.osv_memory):
                     tools.trans_load(cr, f, lang, verbose=False, context=context2)
                 elif iso_lang != 'en':
                     _logger.warning('module %s: no translation for language %s', mod.name, iso_lang)
-        
-        

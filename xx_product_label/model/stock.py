@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-import re
 import logging
+import re
+import time
 from openerp import models, api, fields
 from openerp.exceptions import Warning as UserError
 from openerp.tools.translate import _
@@ -113,6 +114,8 @@ class stock_pack_operation(models.Model):
         if 'qty_done' in values:
             report = 'xx_report_delivery_extended.report_delivery_master'
             if values.get('qty_done') > self.qty_done:
+                now = time.time()
+                logger = logging.getLogger('openerp.addons.xx_product_label')
                 putaway_location = self.product_id.get_putaway_location()
                 ctx = {}
                 supplier_product = [
@@ -129,18 +132,18 @@ class stock_pack_operation(models.Model):
                         picking = self.satisfies_unpacked_delivery(qty)
                         if picking:
                             if picking.picking_type_id.code == 'outgoing':
-                                # Printing can fail for a variety of reasons,
-                                # e.g. if a product image is missing from the
-                                # filesystem. Catch exceptions to prevent the
-                                # interface from hanging in such a case.
-                                try:
-                                    logging.getLogger(__name__).debug(
-                                        'Autoprinting picking %s',
-                                        picking.name)
-                                    self.env['report'].print_document(
-                                        picking, report)
-                                except:
-                                    pass
+                                # Printing asynchronously for performance
+                                delta = time.time() - now
+                                now = time.time()
+                                logger.debug(
+                                    '(%ss) Autoprinting picking %s',
+                                    delta, picking.name)
+                                self.env['report'].print_document_async(
+                                    picking, report)
+                                delta = time.time() - now
+                                now = time.time()
+                                logger.debug('(%ss) Picking printed '
+                                             'asynchronously', delta)
                         else:
                             # Just get the move's procurement group that this
                             # product will be packed for
@@ -158,11 +161,16 @@ class stock_pack_operation(models.Model):
                         else:
                             destination = picking.group_id.name
                     ctx['destination'] = destination
-                    logging.getLogger(__name__).debug(
-                        'Autoprinting product label with extra context "%s"',
-                        ctx)
+                    delta = time.time() - now
+                    now = time.time()
+                    logger.debug(
+                        '(%ss) Autoprinting product label asynchronously '
+                        '("%s")', delta, ctx)
                     self.product_id.with_context(
-                        ctx).action_print_product_barcode()
+                        ctx).action_print_product_barcode(async=True)
+                    delta = time.time() - now
+                    now = time.time()
+                    logger.debug('(%ss) Product label printed', delta)
         return super(stock_pack_operation, self).write(values)
 
 
@@ -184,14 +192,15 @@ class stock_quant(models.Model):
 class product_product(models.Model):
     _inherit = "product.product"
 
-    def action_print_product_barcode(self, cr, uid, ids, context=None):
+    def action_print_product_barcode(
+            self, cr, uid, ids, async=False, context=None):
         report_name = 'xx_product_label.report_product_barcode'
-        try:
+        if async:
+            self.pool['report'].print_document_async(
+                cr, uid, ids, report_name, context=context)
+        else:
             self.pool['report'].print_document(
                 cr, uid, ids, report_name, context=context)
-        except:
-            pass
-        return True
 
 
 class Picking(models.Model):
