@@ -130,18 +130,23 @@ class stock_pack_operation(models.Model):
                         picking = self.satisfies_unpacked_delivery(qty)
                         if picking:
                             if picking.picking_type_id.code == 'outgoing':
-                                # Printing asynchronously for performance
+                                # Printing can fail for a variety of reasons,
+                                # e.g. if a product image is missing from the
+                                # filesystem. Catch exceptions to prevent the
+                                # interface from hanging in such a case.
+                                try:
+                                    delta = time.time() - now
+                                    now = time.time()
+                                    logger.debug(
+                                        '(%ss) Autoprinting picking %s',
+                                        delta, picking.name)
+                                    self.env['report'].print_document(
+                                        picking, report)
+                                except:
+                                    pass
                                 delta = time.time() - now
                                 now = time.time()
-                                logger.debug(
-                                    '(%ss) Autoprinting picking %s',
-                                    delta, picking.name)
-                                self.env['report'].print_document_async(
-                                    picking, report)
-                                delta = time.time() - now
-                                now = time.time()
-                                logger.debug('(%ss) Picking printed '
-                                             'asynchronously', delta)
+                                logger.debug('(%ss) Picking printed', delta)
                         else:
                             # Just get the move's procurement group that this
                             # product will be packed for
@@ -162,10 +167,9 @@ class stock_pack_operation(models.Model):
                     delta = time.time() - now
                     now = time.time()
                     logger.debug(
-                        '(%ss) Autoprinting product label asynchronously '
-                        '("%s")', delta, ctx)
+                        '(%ss) Autoprinting product label ("%s")', delta, ctx)
                     self.product_id.with_context(
-                        ctx).action_print_product_barcode(async=True)
+                        ctx).action_print_product_barcode()
                     delta = time.time() - now
                     now = time.time()
                     logger.debug('(%ss) Product label printed', delta)
@@ -190,12 +194,11 @@ class stock_quant(models.Model):
 class product_product(models.Model):
     _inherit = "product.product"
 
-    def action_print_product_barcode(
-            self, cr, uid, ids, async=False, context=None):
+    def action_print_product_barcode(self, cr, uid, ids, context=None):
         report_name = 'xx_product_label.report_product_barcode'
-        if async:
-            self.pool['report'].print_document_async(
-                cr, uid, ids, report_name, context=context)
-        else:
+        try:
             self.pool['report'].print_document(
                 cr, uid, ids, report_name, context=context)
+        except:
+            pass
+        return True
