@@ -49,46 +49,56 @@ class stock_pack_operation(models.Model):
     _inherit = "stock.pack.operation"
 
     @api.multi
-    def satisfies_unpacked_move(self, qty, first=True):
+    def satisfies_unpacked_move(self, qty):
         """ Return the until now unpacked move that the next increment of this
-        pack will satisfy
+        pack will (partially) satisfy
 
         Param qty: the pack's qty_done plus the offset position of the products
         that are being iterated over. I.e. qty is base 0.
+
+        Return a tuple move, bool where the boolean value indicates that
+        packing this qty constitutes the start of the packing of the move.
         """
         for link in self.linked_move_operation_ids:
             if not qty:
-                return link.move_id
+                return link.move_id, True
             if qty < link.qty:
-                return False if first else link.move_id
+                return link.move_id, False
             qty -= link.qty
-        return False
+        return False, False
 
     @api.multi
     def satisfies_unpacked_delivery(self, qty):
         """ Return the until now unpacked incoming delivery that the next
-        increment of this pack will satisfy """
+        increment of this pack will (partially) satisfy.
+
+        Return a tuple picking, move. Picking is False to mark that packing
+        this quantity does not constitute the start of the packing of the
+        picking itself """
         self.ensure_one()
         if (not self.location_dest_id or
                 self.picking_id.picking_type_id.code != 'incoming'):
             return False
-        move = self.satisfies_unpacked_move(qty)
-        if not move:
-            return False
+        move, first = self.satisfies_unpacked_move(qty)
+        if not first:
+            return False, move
         picking_out = move.move_ultimate_dest_id.picking_id
         if not picking_out:
-            return False
-        if any(move.state in ('done', 'assigned')
-                for move in picking_out.move_lines):
-            return False
-        pack_moves = self.env['stock.move'].search(
-            [('move_ultimate_dest_id.picking_id', '=', picking_out.id)])
-        for move in pack_moves:
+            return False, move
+        if any(pick_move.state in ('done', 'assigned')
+                for pick_move in picking_out.move_lines):
+            return False, move
+        # Iterating over all the pack moves of the picking...
+        for pack_move in self.env['stock.move'].search(
+                [('move_ultimate_dest_id.picking_id', '=', picking_out.id)]):
+            # ...to see if any of the packs invalidates the first packing
             for operation in self.search(
-                    [('linked_move_operation_ids.move_id', '=', move.id)]):
-                if operation.satisfies_unpacked_move(qty) != move:
-                    return False
-        return picking_out
+                    [('linked_move_operation_ids.move_id', '=',
+                      pack_move.id)]):
+                satisfies = operation.satisfies_unpacked_move(qty)
+                if not satisfies[0] or satisfies[1] != pack_move:
+                    return False, move
+        return picking_out, move
 
     @api.one
     def write(self, values):
@@ -127,7 +137,7 @@ class stock_pack_operation(models.Model):
                     picking = False
                     if putaway_location == self.env.ref(
                             'putaway_apply.default_temp_location'):
-                        picking = self.satisfies_unpacked_delivery(qty)
+                        picking, move = self.satisfies_unpacked_delivery(qty)
                         if picking:
                             if picking.picking_type_id.code == 'outgoing':
                                 # Printing asynchronously for performance
@@ -142,14 +152,8 @@ class stock_pack_operation(models.Model):
                                 now = time.time()
                                 logger.debug('(%ss) Picking printed '
                                              'asynchronously', delta)
-                        else:
-                            # Just get the move's procurement group that this
-                            # product will be packed for
-                            move = self.satisfies_unpacked_move(
-                                qty, first=False)
-                            if move:
-                                picking = (move.move_ultimate_dest_id
-                                           .picking_id)
+                        elif move:  # product will be packed for
+                            picking = move.move_ultimate_dest_id.picking_id
                     destination = putaway_location.name
                     if picking and picking.group_id.name:
                         # Strip off SO + year prefix to save space on the
