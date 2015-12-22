@@ -23,7 +23,7 @@ class SupplierInfo(models.Model):
         res.update_delay()
         return res
 
-    @api.model
+    @api.multi
     def write(self, vals):
         res = super(SupplierInfo, self).write(vals)
         if 'sequence' in vals or 'delay' in vals:
