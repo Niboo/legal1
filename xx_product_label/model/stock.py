@@ -82,23 +82,13 @@ class stock_pack_operation(models.Model):
         move, first = self.satisfies_unpacked_move(qty)
         if not first:
             return False, move
-        picking_out = move.move_ultimate_dest_id.picking_id
-        if not picking_out:
+        picking = move.move_ultimate_dest_id.picking_id
+        if (not picking or picking.packing_started
+            or any(pick_move.state in ('done', 'assigned')
+                   for pick_move in picking.move_lines)):
             return False, move
-        if any(pick_move.state in ('done', 'assigned')
-                for pick_move in picking_out.move_lines):
-            return False, move
-        # Iterating over all the pack moves of the picking...
-        for pack_move in self.env['stock.move'].search(
-                [('move_ultimate_dest_id.picking_id', '=', picking_out.id)]):
-            # ...to see if any of the packs invalidates the first packing
-            for operation in self.search(
-                    [('linked_move_operation_ids.move_id', '=',
-                      pack_move.id)]):
-                satisfies = operation.satisfies_unpacked_move(qty)
-                if not satisfies[0] or satisfies[1] != pack_move:
-                    return False, move
-        return picking_out, move
+        picking.write({'packing_started': True})
+        return picking, move
 
     @api.one
     def write(self, values):
@@ -203,3 +193,10 @@ class product_product(models.Model):
         else:
             self.pool['report'].print_document(
                 cr, uid, ids, report_name, context=context)
+        return True
+
+
+class Picking(models.Model):
+    _inherit = 'stock.picking'
+
+    packing_started = fields.Boolean()
