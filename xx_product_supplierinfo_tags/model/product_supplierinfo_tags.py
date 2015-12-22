@@ -49,10 +49,9 @@ class product_product(models.Model):
     def search(self, cr, uid, search_args, offset=0, limit=None, order=None, context=None, count=False):
         if context is None:
             context = {}
-        ctx = context.copy()
-        product_ids = super(product_product, self).search(cr, uid, search_args, offset=offset, limit=limit, order=order, context=ctx, count=count)
-        if 'process_barcode_from_ui_picking_id' in ctx:
-            sp = self.pool.get('stock.picking').browse(cr,uid,[ctx.get('process_barcode_from_ui_picking_id')], context=context)[0]
+        if 'process_barcode_from_ui_picking_id' in context:
+            sp = self.pool.get('stock.picking').browse(
+                cr, uid, context['process_barcode_from_ui_picking_id'], context=context)
             partner_ids = self.pool['res.partner'].search(
                 cr, uid,
                 [('id', 'child_of', sp.partner_id.commercial_partner_id.id)]
@@ -92,8 +91,8 @@ class product_product(models.Model):
                         )
                 """, {
                     'partner_ids': tuple(partner_ids),
-                    'needle': '%%%s%%' % ctx['process_barcode_from_ui_barcode_str'],
-                    'p_id': ctx['process_barcode_from_ui_picking_id']})
+                    'needle': '%%%s%%' % context['process_barcode_from_ui_barcode_str'],
+                    'p_id': context['process_barcode_from_ui_picking_id']})
                 query_result = cr.fetchall()
                 product_ids = ([x[0] for x in query_result])
             else:
@@ -108,12 +107,13 @@ class product_product(models.Model):
                             pp.default_code ilike %(needle)s
                         )
                 """, {
-                    'needle': '%%%s%%' % ctx['process_barcode_from_ui_barcode_str'],
-                    'p_id':ctx['process_barcode_from_ui_picking_id']})
+                    'needle': '%%%s%%' % context['process_barcode_from_ui_barcode_str'],
+                    'p_id':context['process_barcode_from_ui_picking_id']})
                 query_result = cr.fetchall()
                 product_ids = [x[0] for x in query_result]
 
         else:
+            product_ids = super(product_product, self).search(cr, uid, search_args, offset=offset, limit=limit, order=order, context=context, count=count)
             for arg in search_args:
                 if arg[0] in ['name','default_code']:
                     cr.execute("""
