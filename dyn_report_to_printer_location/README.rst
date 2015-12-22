@@ -11,3 +11,7 @@ printer.
 Users can be configured so that their work location is reset upon login. These
 users are not allowed to print documents before reconfiguring their session's
 work location (documents are printed to the UI instead).
+
+This module also includes a method to print asynchronously in a new thread.
+Note that this disables the authentication on the barcode generator API,
+because the session is not available in the new thread.
