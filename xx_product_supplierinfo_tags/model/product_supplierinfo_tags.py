@@ -60,35 +60,22 @@ class product_product(models.Model):
                 cr.execute("""
                 SELECT pp.id
                 FROM stock_picking sp, product_supplierinfo ps
-                    INNER JOIN xx_product_supplierinfo_tags xpst ON xpst.res_id = ps.id
-                                                                AND xpst.res_model = 'product.supplierinfo'
-                                                                AND xpst.name like %(needle)s
-                    INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
-                    INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
-                WHERE ps.name in %(partner_ids)s AND sp.id = %(p_id)s AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
-                UNION
-                SELECT pp.id
-                FROM stock_picking sp, product_supplierinfo ps
-                    INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
-                    INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
-                WHERE ps.name in %(partner_ids)s AND sp.id = %(p_id)s  AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
-                    AND ps.product_code ilike %(needle)s
-                UNION
-                SELECT pp.id
-                FROM stock_picking sp, product_supplierinfo ps
-                    INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
-                    INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
-                WHERE ps.name in %(partner_ids)s AND sp.id = %(p_id)s  AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
-                    AND pt.manufacturer_pref ilike %(needle)s
-                UNION
-                SELECT pp.id
-                FROM stock_picking sp, product_supplierinfo ps
-                    INNER JOIN product_product pp ON pp.product_tmpl_id = ps.product_tmpl_id
-                    INNER JOIN product_template pt ON pt.id = pp.product_tmpl_id
-                WHERE ps.name in %(partner_ids)s AND sp.id = %(p_id)s  AND (pt.company_id IS NULL OR pt.company_id = sp.company_id) AND (
-                            pp.ean13 ilike %(needle)s OR
-                            pp.default_code ilike %(needle)s
+                    LEFT OUTER JOIN xx_product_supplierinfo_tags xpst
+                        ON xpst.res_id = ps.id
+                            AND xpst.res_model = 'product.supplierinfo'
+                    INNER JOIN product_product pp
+                        ON pp.product_tmpl_id = ps.product_tmpl_id
+                    INNER JOIN product_template pt
+                        ON pt.id = pp.product_tmpl_id
+                WHERE ps.name in %(partner_ids)s
+                    AND (xpst.name like %(needle)s
+                         OR ps.product_code ilike %(needle)s
+                         OR pt.manufacturer_pref ilike %(needle)s
+                         OR pp.ean13 ilike %(needle)s
+                         OR pp.default_code ilike %(needle)s
                         )
+                    AND sp.id = %(p_id)s
+                    AND (pt.company_id IS NULL OR pt.company_id = sp.company_id)
                 """, {
                     'partner_ids': tuple(partner_ids),
                     'needle': '%%%s%%' % context['process_barcode_from_ui_barcode_str'],
@@ -113,7 +100,9 @@ class product_product(models.Model):
                 product_ids = [x[0] for x in query_result]
 
         else:
-            product_ids = super(product_product, self).search(cr, uid, search_args, offset=offset, limit=limit, order=order, context=context, count=count)
+            product_ids = super(product_product, self).search(
+                cr, uid, search_args, offset=offset, limit=limit,
+                order=order, context=context, count=count)
             for arg in search_args:
                 if arg[0] in ['name','default_code']:
                     cr.execute("""
