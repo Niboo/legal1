@@ -10,9 +10,11 @@ class Report(models.Model):
     def _print_document_async(self, cr, uid, ids, report, context):
         with api.Environment.manage():
             new_cr = self.pool.cursor()
-            self.pool['report'].print_document(
-                new_cr, uid, ids, report, context=context)
-            new_cr.close()
+            try:
+                self.pool['report'].print_document(
+                    new_cr, uid, ids, report, context=context)
+            finally:
+                new_cr.close()
 
     @api.v7
     def print_document_async(self, cr, uid, ids, report, context=None):
