@@ -1,6 +1,6 @@
 {
     "name": "Product Labels Customization",
-    "version": "1.1",
+    "version": "1.0",
     "depends": [
         "stock",
         "dyn_report_to_printer_location",
