@@ -28,3 +28,4 @@ class SupplierInfo(models.Model):
         res = super(SupplierInfo, self).write(vals)
         if 'sequence' in vals or 'delay' in vals:
             self.update_delay()
+        return res
