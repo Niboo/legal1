@@ -160,14 +160,13 @@ class bridge_backbone(models.Model):
 		line_dic = {}
 		product = self.pool.get('product.product')
 		sale_order_line = self.pool.get('sale.order.line')
-		if data.has_key('product_id'):
-			line_dic['product_id'] = data.get('product_id')
-			for route_id in product.browse(cr, uid, data.get('product_id')).route_ids:
-				line_dic['route_id'] = int(route_id)
-				break
-			purchase_price = product.browse(cr, uid, data.get('product_id')).standard_price
-			if purchase_price:
-			 	line_dic['purchase_price'] = purchase_price
+		if data.get('product_id'):
+			line_dic['product_id'] = data['product_id']
+			prod = product.browse(cr, uid, data['product_id'])
+                        if prod.standard_price:
+                                line_dic['purchase_price'] = prod.standard_price
+			if prod.sale_delay:
+				line_dic['delay'] = prod.sale_delay
 		if data.has_key('name') and data['name']:
 			line_dic['name'] = _unescape(data.get('name'))
 		if data.has_key('product_uom_qty'):
