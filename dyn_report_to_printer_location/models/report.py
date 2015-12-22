@@ -23,6 +23,6 @@ class Report(models.Model):
     @api.v8
     def print_document_async(self, record, report):
         threading.Thread(
-            target=self._print_document_async,
+            target=self.pool['report']._print_document_async,
             args=(self.env.cr, self.env.uid, record.ids, report,
                   self.env.context)).start()
