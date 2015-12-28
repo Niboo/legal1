@@ -23,6 +23,8 @@ import re
 import time
 from openerp import models, api, fields
 
+logger = logging.getLogger('openerp.addons.xx_product_label')
+
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
@@ -109,11 +111,10 @@ class stock_pack_operation(models.Model):
         the pack operation, we iterate over each discrete product to find out
         if it satisfies a certain move or picking.
         """
+        t0 = time.time()
         if 'qty_done' in values:
             report = 'xx_report_delivery_extended.report_delivery_master'
             if values.get('qty_done') > self.qty_done:
-                now = time.time()
-                logger = logging.getLogger('openerp.addons.xx_product_label')
                 putaway_location = self.product_id.get_putaway_location()
                 ctx = {}
                 supplier_product = [
@@ -127,26 +128,28 @@ class stock_pack_operation(models.Model):
                     picking = False
                     if putaway_location == self.env.ref(
                             'putaway_apply.default_temp_location'):
+                        now = time.time()
                         picking = self.satisfies_unpacked_delivery(qty)
+                        logger.debug(
+                            '(%ss) Searching delivery', time.time() - now)
                         if picking:
                             if picking.picking_type_id.code == 'outgoing':
                                 # Printing asynchronously for performance
-                                delta = time.time() - now
                                 now = time.time()
-                                logger.debug(
-                                    '(%ss) Autoprinting picking %s',
-                                    delta, picking.name)
                                 self.env['report'].print_document_async(
                                     picking, report)
-                                delta = time.time() - now
-                                now = time.time()
                                 logger.debug('(%ss) Picking printed '
-                                             'asynchronously', delta)
+                                             'asynchronously',
+                                             time.time() - now)
                         else:
                             # Just get the move's procurement group that this
                             # product will be packed for
+                            now = time.time()
                             move = self.satisfies_unpacked_move(
                                 qty, first=False)
+                            logger.debug(
+                                '(%ss) Searching fallback move',
+                                time.time() - now)
                             if move:
                                 picking = (move.move_ultimate_dest_id
                                            .picking_id)
@@ -159,17 +162,29 @@ class stock_pack_operation(models.Model):
                         else:
                             destination = picking.group_id.name
                     ctx['destination'] = destination
-                    delta = time.time() - now
                     now = time.time()
-                    logger.debug(
-                        '(%ss) Autoprinting product label asynchronously '
-                        '("%s")', delta, ctx)
                     self.product_id.with_context(
-                        ctx).action_print_product_barcode(async=True)
-                    delta = time.time() - now
-                    now = time.time()
-                    logger.debug('(%ss) Product label printed', delta)
-        return super(stock_pack_operation, self).write(values)
+                        ctx).action_print_product_barcode(
+                        async=True)
+                    logger.debug('(%ss) Product label printed',
+                                 time.time() - now,)
+
+        logger.debug('(%ss) picking write: override done', time.time() - t0)
+        now = time.time()
+        res = super(stock_pack_operation, self).write(values)
+        logger.debug('(%ss) picking write: call to super', time.time() - now)
+        return res
+
+    @api.model
+    def _search_and_increment(
+            self, picking_id, domain, filter_visible=False,
+            visible_op_ids=False, increment=True):
+        t0 = time.time()
+        res = super(stock_pack_operation, self)._search_and_increment(
+            picking_id, domain, filter_visible=filter_visible,
+            visible_op_ids=visible_op_ids)
+        logger.debug('(%ss) _search_and_increment', time.time() - t0)
+        return res
 
 
 class stock_quant(models.Model):
@@ -199,3 +214,17 @@ class product_product(models.Model):
         else:
             self.pool['report'].print_document(
                 cr, uid, ids, report_name, context=context)
+
+
+class Picking(models.Model):
+    _inherit = 'stock.picking'
+
+    @api.model
+    def process_barcode_from_ui(
+            self, picking_id, barcode_str, visible_op_ids):
+        t0 = time.time()
+        res = super(Picking, self).process_barcode_from_ui(
+            picking_id, barcode_str, visible_op_ids)
+        logger.debug('(%ss) picking _process_barcode_from_ui',
+                     time.time() - t0)
+        return res
