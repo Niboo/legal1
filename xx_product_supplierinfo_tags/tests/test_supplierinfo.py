@@ -109,6 +109,11 @@ class test_function(TransactionCase):
         f_id = self.product_product_obj.search([('name','=','xx_1000'),('company_id','=', company_id1)])
         self.assertEqual(len(f_id),2,"should find 2 results")
         self.assertEqual(f_id[0].id, self.productA.id,"1 Product with name xx_1000 should exist in main company")
+
+        products = self.product_product_obj.search(
+            [('name','=','xx_1001'),('company_id','=', company_id1)])
+        self.assertEqual(products.ids, [self.productA.id])
+
         #
         # f_id = self.product_product_obj.search([('name','=','xx_1000'),('company_id',"=", company_id2)],context=context)
         # self.assertEqual(len(f_id),0,"This search must give no results because product is in other company")
@@ -120,10 +125,16 @@ class test_function(TransactionCase):
         self.assertEqual(f_id[0].id, self.productC.id,"Code C123456 should return product c on company 1")
 
 # test barcode client - type incoming
-        prod = self.env['product.product'].with_context({'process_barcode_from_ui_barcode_str': 'xx_1000','process_barcode_from_ui_picking_id': picking_in.id })
-        f_id = prod.search([('name','=','xx_1000'),('company_id','=', company_id1)])
-        self.assertEqual(len(f_id),1,"should find 1 result")
-        self.assertEqual(f_id[0].id, self.productA.id,"2 Product with name xx_1000 should exist in main company")
+        prod = self.env['product.product'].with_context(
+            {'process_barcode_from_ui_barcode_str': 'xx_1000',
+             'process_barcode_from_ui_picking_id': picking_in.id})
+        products = prod.search(
+            [('name','=','xx_1000'), ('company_id','=', company_id1)])
+        self.assertEqual(products.ids, [self.productA.id])
+
+        products = prod.search(
+            [('name','=','xx_1001'), ('company_id','=', company_id1)])
+        self.assertEqual(products.ids, [self.productA.id])
 
         prod = self.env['product.product'].with_context({
             'process_barcode_from_ui_barcode_str': 'contactcode',
@@ -161,6 +172,3 @@ class test_function(TransactionCase):
 
         f_id = self.product_product_obj.search([('default_code','=','C123456'),('company_id','=', company_id1)],context=context)
         self.assertEqual(f_id[0].id, self.productC.id)
-
-
-
