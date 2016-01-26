@@ -136,12 +136,10 @@ class stock_pack_operation(models.Model):
                             '(%ss) Searching delivery', time.time() - now)
                         if picking:
                             if picking.picking_type_id.code == 'outgoing':
-                                # Printing asynchronously for performance
                                 now = time.time()
-                                self.env['report'].print_document_async(
+                                self.env['report'].print_document(
                                     picking, report)
-                                logger.debug('(%ss) Picking printed '
-                                             'asynchronously',
+                                logger.debug('(%ss) Picking printed ',
                                              time.time() - now)
                         else:
                             # Just get the move's procurement group that this
@@ -166,8 +164,7 @@ class stock_pack_operation(models.Model):
                     ctx['destination'] = destination
                     now = time.time()
                     self.product_id.with_context(
-                        ctx).action_print_product_barcode(
-                        async=True)
+                        ctx).action_print_product_barcode()
                     logger.debug('(%ss) Product label printed',
                                  time.time() - now,)
 
@@ -208,14 +205,10 @@ class product_product(models.Model):
     _inherit = "product.product"
 
     def action_print_product_barcode(
-            self, cr, uid, ids, async=False, context=None):
+            self, cr, uid, ids, context=None):
         report_name = 'xx_product_label.report_product_barcode'
-        if async:
-            self.pool['report'].print_document_async(
-                cr, uid, ids, report_name, context=context)
-        else:
-            self.pool['report'].print_document(
-                cr, uid, ids, report_name, context=context)
+        self.pool['report'].print_document(
+            cr, uid, ids, report_name, context=context)
 
 
 class Picking(models.Model):
