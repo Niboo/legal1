@@ -19,7 +19,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 (function() {
-
     var instance = openerp;
     var _t = instance._t,
         _lt = instance._lt;

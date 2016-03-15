@@ -34,7 +34,7 @@ class InboundController(http.Controller):
               'suppliers': inbound_suppliers,
         })
 
-    @http.route('/get_suppliers_data', type='json', auth="user")
+    @http.route('/inbound_screen/get_suppliers_data', type='json', auth="user")
     def get_suppliers_data(self, **kw):
         env = http.request.env
         inbound_suppliers = list()
