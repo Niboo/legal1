@@ -27,10 +27,26 @@ class InboundController(http.Controller):
     def inbound_screen(self, **kw):
         inbound_suppliers  = http.request.env['res.partner'].search(
             [('is_in_inbound','=',True)]
-        ).sorted(
-            key=lambda r: r.sequence
+            ,order='sequence'
         )
 
         return http.request.render('stock_irm.inbound_screen', {
               'suppliers': inbound_suppliers,
         })
+
+    @http.route('/get_suppliers_data', type='json', auth="user")
+    def get_suppliers_data(self, **kw):
+        env = http.request.env
+        inbound_suppliers = list()
+
+        suppliers = env['res.partner'].search(
+            [('is_in_inbound','=',True)],
+            order='sequence'
+        )
+
+        for supplier in suppliers:
+            inbound_suppliers.append({
+                'name': supplier.name,
+                'image': "/web/binary/image?model=res.partner&amp;id=%s&amp;field=image);" % supplier.id
+            })
+        return inbound_suppliers
