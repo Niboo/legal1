@@ -5,13 +5,11 @@
             <html lang="en">
                 <head>
                     <meta charset="UTF-8"/>
-                    <title>Title</title>
-
+                    <title>Select a supplier</title>
                     <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
-                    <link href="/dyn_inbound/static/css/template.css" rel="stylesheet"/>
+                    <link href="/stock_irm/static/src/css/template.css" rel="stylesheet"/>
                     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
                     <script async="" src="js/bootstrap.min.js"></script>
-
                 </head>
                 <body>
                     <div class="container">
@@ -34,9 +32,7 @@
                             <t t-foreach="suppliers" t-as="supplier">
                                 <div class="col-xs-2 col-md-2">
                                     <a href="#" class="thumbnail" >
-                                        <div class="square" style="background-image:url('https://www.google.be/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');"></div>
-
-                                        <div class="square" t-field="supplier.image"></div>
+                                        <div class="square" t-att-style="'background-image:url(\'/web/binary/image?model=res.partner&amp;id=%s&amp;field=image_medium\');' % supplier.id"></div>
                                     </a>
                                     <div class="square-label" t-esc="supplier.name"/>
                                 </div>

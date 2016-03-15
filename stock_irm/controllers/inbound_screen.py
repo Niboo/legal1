@@ -22,12 +22,15 @@
 from openerp import http
 
 
-class inbound_controller(http.Controller):
-    @http.route('/inbound_screen', type='http', auth="public")
+class InboundController(http.Controller):
+    @http.route('/inbound_screen', type='http', auth="user")
     def inbound_screen(self, **kw):
         inbound_suppliers  = http.request.env['res.partner'].search(
             [('is_in_inbound','=',True)]
+        ).sorted(
+            key=lambda r: r.sequence
         )
-        return http.request.render('dyn_inbound.inbound_screen', {
+
+        return http.request.render('stock_irm.inbound_screen', {
               'suppliers': inbound_suppliers,
         })
