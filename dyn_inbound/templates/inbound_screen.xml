@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+    <data>
+        <template id="inbound_screen" name="Inbound Screen">
+            <h1>This is an HTML block</h1>
+            <h2 class="lead">And this is the needed suppliers</h2>
+            <t t-foreach="suppliers" t-as="supplier">
+                <dive t-esc="supplier.name"/>
+            </t>
+        </template>
+    </data>
+</openerp>
