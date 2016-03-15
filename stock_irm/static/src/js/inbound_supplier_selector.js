@@ -25,8 +25,6 @@
         _lt = instance._lt;
     var QWeb = instance.qweb;
 
-    console.log('test');
-
     var inbound_supplier_selector = instance.stock_irm.widget.extend({
     	init: function () {
             this._super();
@@ -38,20 +36,25 @@
             self.template = 'supplier_selector';
         },
         start: function(){
-            this.$elem = $(QWeb.render(this.template));
-            $('body').html(this.$elem);
-            this.get_suppliers();
-        },
-        get_suppliers: function(){
             var self = this;
-            self.session.rpc('/inbound_screen/get_suppliers_data')
-                .then(function(data){
+            self.$elem = $(QWeb.render(this.template));
+            $('body').html(self.$elem);
+
+            self.$elem.find('#search').keyup(function(event){
+                self.get_suppliers(event.currentTarget.value)
+            })
+            self.get_suppliers();
+        },
+        get_suppliers: function(search){
+            var self = this;
+            self.session.rpc('/inbound_screen/get_suppliers_data', {
+                search: search
+            }).then(function(data){
                     self.suppliers = data;
-                    self.$elem.find('#results').append(
-                        $(QWeb.render('supplier_result', {
+                    var $result = $(QWeb.render('supplier_result', {
                             suppliers: self.suppliers
-                        }))
-                    );
+                    }));
+                    self.$elem.find('#results').html($result);
                 });
         },
     });

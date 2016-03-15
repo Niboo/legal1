@@ -7,7 +7,7 @@
                 <div class="col-md-12">
                     <div id="custom-search-input">
                         <div class="input-group col-md-12">
-                            <input type="text" class="form-control input-lg" placeholder="Search for a supplier" />
+                            <input type="text" id="search" class="form-control input-lg" placeholder="Search for a supplier" />
                             <span class="input-group-btn">
                                 <button class="btn btn-info btn-lg" type="button">
                                     <i class="glyphicon glyphicon-search"></i>
@@ -27,7 +27,9 @@
                 <a href="#" class="thumbnail" >
                     <div class="square" t-att-style="'background-image:url(\'' + supplier.image + '\');'"></div>
                 </a>
-                <div class="square-label" t-esc="supplier.name"/>
+                <div class="square-label">
+                    <span t-esc="supplier.name"/>
+                </div>
             </div>
         </t>
     </t>
