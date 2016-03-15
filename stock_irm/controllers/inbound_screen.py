@@ -35,12 +35,17 @@ class InboundController(http.Controller):
         })
 
     @http.route('/inbound_screen/get_suppliers_data', type='json', auth="user")
-    def get_suppliers_data(self, **kw):
+    def get_suppliers_data(self, search="",  **kw):
         env = http.request.env
         inbound_suppliers = list()
 
+        domain = [('is_in_inbound','=',True)]
+
+        if search:
+            domain.append(('display_name','ilike',search))
+
         suppliers = env['res.partner'].search(
-            [('is_in_inbound','=',True)],
+            domain,
             order='sequence'
         )
 
