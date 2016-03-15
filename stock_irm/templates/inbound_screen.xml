@@ -1,15 +1,41 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <openerp>
     <data>
-        <template id="inbound_screen" name="Inbound Screen">
+
+        <template id="stock_irm.assets" name="Stock IRM assets">
+            <script type="text/javascript" src="/web/static/lib/underscore/underscore.js"></script>
+            <script type="text/javascript" src="/web/static/lib/underscore.string/lib/underscore.string.js"></script>
+            <script type="text/javascript" src="/web/static/lib/datejs/globalization/en-US.js"></script>
+
+            <!-- jQuery stuff -->
+            <script type="text/javascript" src="/web/static/lib/jquery/jquery.js"></script>
+            <!--<script type="text/javascript" src="/web/static/lib/jquery.blockUI/jquery.blockUI.js"></script>-->
+            <!--<script type="text/javascript" src="/web/static/lib/jquery.hotkeys/jquery.hotkeys.js"></script>-->
+            <!--<script type="text/javascript" src="/web/static/lib/jquery.placeholder/jquery.placeholder.js"></script>-->
+            <!--<script type="text/javascript" src="/web/static/lib/jquery.timeago/jquery.timeago.js"></script>-->
+            <!--<script type="text/javascript" src="/web/static/lib/jquery.form/jquery.form.js"></script>-->
+
+            <!--<script type="text/javascript" src="/web/static/lib/jquery.ba-bbq/jquery.ba-bbq.js"></script>-->
+
+            <script type="text/javascript" src="/web/static/lib/qweb/qweb2.js"></script>
+            <script type="text/javascript" src="/web/static/src/js/openerpframework.js"></script>
+            <!--<script type="text/javascript" src="/web/static/src/js/tour.js"></script>-->
+
+            <link rel="stylesheet" href="/web/static/lib/fontawesome/css/font-awesome.css"/>
+            <link id="bootstrap_css" rel='stylesheet' href='/web/static/lib/bootstrap/css/bootstrap.css' />
+            <link href="/stock_irm/static/src/css/template.css" rel="stylesheet"/>
+
+
+            <script type="text/javascript" src="/web/static/lib/bootstrap/js/bootstrap.js"></script>
+
+        </template>
+
+        <template id="stock_irm.inbound_screen" name="Inbound Screen">
             <html lang="en">
                 <head>
                     <meta charset="UTF-8"/>
-                    <title>Select a supplier</title>
-                    <link href="/web/static/lib/bootstrap/css/bootstrap.css" rel="stylesheet"/>
-                    <link href="/stock_irm/static/src/css/template.css" rel="stylesheet"/>
-                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-                    <script async="" src="js/bootstrap.min.js"></script>
+                    <title>Inbound</title>
+                    <t t-call-assets="stock_irm.assets" t-js="false"/>
                 </head>
                 <body>
                     <div class="container">
@@ -39,6 +65,7 @@
                             </t>
                         </div>
                     </div>
+                    <t t-call-assets="stock_irm.assets" t-css="false"/>
                 </body>
             </html>
         </template>
