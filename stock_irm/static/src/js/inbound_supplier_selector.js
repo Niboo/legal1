@@ -39,19 +39,14 @@
         },
         start: function(){
             this.$elem = $(QWeb.render(this.template));
-            console.log(this.$elem);
-            this.get_suppliers();
             $('body').html(this.$elem);
+            this.get_suppliers();
         },
         get_suppliers: function(){
             var self = this;
             self.session.rpc('/inbound_screen/get_suppliers_data')
                 .then(function(data){
                     self.suppliers = data;
-                    console.log($(QWeb.render('supplier_result', {
-                            suppliers: self.suppliers
-                        })));
-                    console.log(self.$elem.html());
                     self.$elem.find('#results').append(
                         $(QWeb.render('supplier_result', {
                             suppliers: self.suppliers

@@ -25,7 +25,7 @@
         <t t-foreach="suppliers" t-as="supplier">
             <div class="col-xs-2 col-md-2">
                 <a href="#" class="thumbnail" >
-                    <div class="square" t-att-style="'background-image:url(\'/web/binary/image?model=res.partner&amp;id=%s&amp;field=image_medium\');' % supplier.id"></div>
+                    <div class="square" t-att-style="'background-image:url(\'' + supplier.image + '\');'"></div>
                 </a>
                 <div class="square-label" t-esc="supplier.name"/>
             </div>

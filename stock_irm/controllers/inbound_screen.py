@@ -47,6 +47,6 @@ class InboundController(http.Controller):
         for supplier in suppliers:
             inbound_suppliers.append({
                 'name': supplier.name,
-                'image': "/web/binary/image?model=res.partner&amp;id=%s&amp;field=image);" % supplier.id
+                'image': "/web/binary/image?model=res.partner&id=%s&field=image" % supplier.id
             })
         return inbound_suppliers
