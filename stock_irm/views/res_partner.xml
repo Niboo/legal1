@@ -18,22 +18,6 @@
                 </data>
             </field>
         </record>
-
-        <record  id="view_partner_tree" model="ir.ui.view">
-            <field name="name">res.partner.tree.inherited</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_tree"/>
-            <field name="arch" type="xml">
-                <data>
-                    <xpath expr="//field[@name='display_name']" position="before">
-                        <field name="sequence" widget="handle"/>
-                    </xpath>
-                    <xpath expr="//field[@name='display_name']" position="after">
-                        <field name="is_in_inbound" />
-                    </xpath>
-                </data>
-            </field>
-        </record>
         
     </data>
 </openerp>
