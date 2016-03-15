@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Jerome Guerriat
+#    Author: Jérôme Guerriat
 #    Copyright 2015 Niboo SPRL
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -19,15 +19,29 @@
 #
 ##############################################################################
 
-from openerp import http
-
-
-class Binary(http.Controller):
-    @http.route('/inbound_screen', type='http', auth="public")
-    def inbound_screen(self, **kw):
-        inbound_suppliers  = http.request.env['res.partner'].search(
-            [('is_in_inbound','=',True)]
-        )
-        return http.request.render('dyn_inbound.inbound_screen', {
-              'suppliers': inbound_suppliers,
-        })
+{
+    'name': 'Inventory Responsive Management',
+    'category': 'Category',
+    'summary': 'Summary',
+    'website': '',
+    'version': '9.1.0',
+    'description': """
+Module
+        """,
+    'author': 'Niboo',
+    'depends': [
+        'base',
+    ],
+    'data': [
+        'views/res_partner.xml',
+        'templates/inbound_screen.xml',
+    ],
+    'qweb': [
+    ],
+    'demo': [
+    ],
+    'css': [
+    ],
+    'installable': True,
+    'application': True,
+}
