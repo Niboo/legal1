@@ -26,15 +26,36 @@
     var QWeb = instance.qweb;
 
     var inbound_product_search = instance.stock_irm.widget.extend({
-    	init: function (product_relations, $container, level) {
+    	init: function () {
             this._super();
-            this.$elem = $(QWeb.render(this.template, this.product_relations));
-            QWeb.add_template('/stock_irm/static/src/xml/inbound.xml');
-            this.template = 'master_product';
-
+            var self = this;
+            this.template = 'product_selector';
         },
+        start: function(){
+            var self = this;
+            self.$elem = $(QWeb.render(this.template));
+            $('body').html(self.$elem);
 
+            self.$elem.find('#search').keyup(function(event){
+                if(event.currentTarget.value.length > 5 | event.which == 13 ){
+                    self.get_products(event.currentTarget.value)
+                }
+            })
+        },
+        get_products: function(search){
+            var self = this;
+            self.session.rpc('/inbound_screen/get_products_data', {
+                search: search
+            }).then(function(data){
+                    self.products = data.products;
+                    var $result = $(QWeb.render('product_result', {
+                            products: self.products
+                    }));
+                    self.$elem.find('#results').html($result);
+                });
+        },
     });
-    instance.stock_irm.inbound_product_search = inbound_product_search;
+
+    instance.stock_irm.inbound_product_search = new inbound_product_search();
 
 })();

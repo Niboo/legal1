@@ -20,6 +20,7 @@
 ##############################################################################
 
 from openerp import http
+from openerp import exceptions
 
 
 class InboundController(http.Controller):
@@ -54,4 +55,48 @@ class InboundController(http.Controller):
                 'name': supplier.name,
                 'image': "/web/binary/image?model=res.partner&id=%s&field=image" % supplier.id
             })
-        return inbound_suppliers
+        results = {'status': 'ok',
+                   'suppliers': inbound_suppliers}
+        return results
+
+    @http.route('/inbound_screen/get_products_data', type='json', auth="user")
+    def get_products_data(self, search="", page=0,  **kw):
+        cr = http.request.cr
+        env = http.request.env
+        products = list()
+
+        if not search:
+            raise exceptions.ValidationError('You have to specify at least one character')
+
+        search_limit = 30
+        search_offset = page * search_limit
+
+        search = '%%%s%%' % search
+
+        cr.execute("""SELECT pp.id, pt.name FROM product_template AS pt
+JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
+WHERE name ilike %s AND sale_ok IS TRUE
+ORDER BY pp.id
+LIMIT %s
+OFFSET %s
+""", [search, search_limit, search_offset])
+        products_results = cr.fetchall()
+
+        cr.execute("""SELECT count(*) FROM product_template AS pt
+JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
+WHERE name ilike %s AND sale_ok IS TRUE
+""", [search])
+
+        products_count = cr.fetchall()
+
+        for product in products_results:
+            products.append({
+                'name': product[1],
+                'image': "/web/binary/image?model=product.product&id=%s&field=image" % product[0]
+            })
+
+        results = {'status': 'ok',
+                   'products': products,
+                   'products_count': products_count[0]}
+
+        return results

@@ -31,6 +31,7 @@
             <link href="/stock_irm/static/src/css/template.css" rel="stylesheet"/>
             <script type="text/javascript" src="/stock_irm/static/src/js/stock_irm_widget.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_supplier_selector.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_search.js"></script>
         </template>
 
         <template id="stock_irm.layout" name="Stock IRM Header">

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates>
+
+    <!-- Supplier templates-->
     <t t-name="supplier_selector">
         <div class="container">
             <div class="search-row row">
@@ -29,6 +31,47 @@
                 </a>
                 <div class="square-label">
                     <span t-esc="supplier.name"/>
+                </div>
+            </div>
+        </t>
+    </t>
+
+    <!-- products template -->
+    <t t-name="product_selector">
+        <div class="container">
+            <div class="search-row row">
+                <!--<h2>Scan a product or use the search bar</h2>-->
+                <div class="col-md-12">
+                    <div id="custom-search-input">
+                        <div class="input-group col-md-12">
+                            <input type="text" id="search" class="form-control input-lg" placeholder="Search for a product" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-info btn-lg" type="button">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr/>
+            <div id="results" class="scan-row">
+                <div class="col-md-12">
+                    <img src="/stock_irm/static/img/scan.jpg" class="center-block img-responsive" />
+                    <div class="text-center"><h2>Scan a product</h2></div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="product_result">
+        <t t-foreach="products" t-as="product">
+            <div class="col-xs-2 col-md-2">
+                <a href="#" class="thumbnail" >
+                    <div class="square" t-att-style="'background-image:url(\'' + product.image + '\');'"></div>
+                </a>
+                <div class="square-label">
+                    <span t-esc="product.name"/>
                 </div>
             </div>
         </t>

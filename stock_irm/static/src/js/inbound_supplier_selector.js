@@ -50,11 +50,14 @@
             self.session.rpc('/inbound_screen/get_suppliers_data', {
                 search: search
             }).then(function(data){
-                    self.suppliers = data;
+                    self.suppliers = data.suppliers;
                     var $result = $(QWeb.render('supplier_result', {
                             suppliers: self.suppliers
                     }));
                     self.$elem.find('#results').html($result);
+                    self.$elem.find('#results a').click(function(event){
+                        instance.stock_irm.inbound_product_search.start();
+                    })
                 });
         },
     });
