@@ -71,6 +71,7 @@
         get_products: function(){
             var self = this;
             self.session.rpc('/inbound_screen/get_products', {
+                supplier_id: self.supplier_id,
                 search: self.search,
                 page: self.page - 1
             }).then(function(data){

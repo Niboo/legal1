@@ -61,9 +61,8 @@ class InboundController(http.Controller):
         return results
 
     @http.route('/inbound_screen/get_products', type='json', auth="user")
-    def get_products(self, search="", page=0,  **kw):
+    def get_products(self, supplier_id, search="", page=0,  **kw):
         cr = http.request.cr
-        env = http.request.env
         products = list()
 
         if not search:
@@ -73,19 +72,33 @@ class InboundController(http.Controller):
         search_offset = page * search_limit
         search = '%%%s%%' % search
 
-        cr.execute("""SELECT pp.id, pt.name FROM product_template AS pt
-JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
-WHERE name ilike %s AND sale_ok IS TRUE
+        cr.execute("""
+SELECT pp.id, pt.name, psi.name
+FROM product_template AS pt
+  JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
+  JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id,
+res_partner AS rp
+WHERE pt.name ilike %s
+AND pt.sale_ok IS TRUE
+AND psi.name = rp.id
+AND rp.commercial_partner_id = %s
 ORDER BY pp.id
 LIMIT %s
 OFFSET %s
-""", [search, search_limit, search_offset])
+""", [search, supplier_id, search_limit, search_offset])
         products_results = cr.fetchall()
 
-        cr.execute("""SELECT count(*) FROM product_template AS pt
-JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
-WHERE name ilike %s AND sale_ok IS TRUE
-""", [search])
+        cr.execute("""
+SELECT count(*)
+FROM product_template AS pt
+  JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
+  JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id,
+res_partner AS rp
+WHERE pt.name ilike %s
+AND pt.sale_ok IS TRUE
+AND psi.name = rp.id
+AND rp.commercial_partner_id = %s
+""", [search, supplier_id])
 
         products_count = cr.fetchall()
 
