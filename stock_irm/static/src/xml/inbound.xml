@@ -26,7 +26,7 @@
     <t t-name="supplier_result">
         <t t-foreach="suppliers" t-as="supplier">
             <div class="col-xs-2 col-md-2">
-                <a href="#" class="thumbnail" >
+                <a href="#" class="thumbnail" t-att-data-id="supplier.id">
                     <div class="square" t-att-style="'background-image:url(\'' + supplier.image + '\');'"></div>
                 </a>
                 <div class="square-label">
@@ -40,7 +40,6 @@
     <t t-name="product_selector">
         <div class="container">
             <div class="search-row row">
-                <!--<h2>Scan a product or use the search bar</h2>-->
                 <div class="col-md-12">
                     <div id="custom-search-input">
                         <div class="input-group col-md-12">
@@ -67,7 +66,7 @@
     <t t-name="product_result">
         <t t-foreach="products" t-as="product">
             <div class="col-xs-2 col-md-2">
-                <a href="#" class="thumbnail" >
+                <a href="#" class="thumbnail" t-att-data-id="product.id">
                     <div class="square" t-att-style="'background-image:url(\'' + product.image + '\');'"></div>
                 </a>
                 <div class="square-label">
@@ -75,6 +74,186 @@
                 </div>
             </div>
         </t>
+    </t>
+
+    <t t-name="result_more">
+        <div class="text-center col-xs-12 col-md-12">
+            <a href="#" id="more" role="button" class="btn btn-primary btn-lg">More...</a>
+        </div>
+    </t>
+
+    <t t-name="product_page">
+        <div class="container page">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="square"
+                         style="background-image:url('/stock_irm/static/img/product1.jpg');"></div>
+                </div>
+                <div class="col-md-7">
+                    <div class="col-md-12">
+                        <h1><t t-esc="product.name"/></h1>
+                    </div>
+                    <div class="col-md-12">
+                        <h3><t t-esc="product.description"/></h3>
+                    </div>
+                    <div class="col-md-12" id="barcodes">
+                        <div class="col-md-2 col-xs-2">
+                            <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
+                        </div>
+                        <div class="col-md-10 col-xs-10">
+                            <ul>
+                                <t t-foreach="product.barcodes" t-as="barcode">
+                                    <li><t t-esc="barcode.name"/></li>
+                                </t>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div class="col-md-12">
+                        <div class="col-md-3 col-xs-6">
+                            <h4>Product code :</h4>
+                        </div>
+                        <div class="col-md-3 col-xs-6">
+                            <h4><t t-esc="product.default_code"/></h4>
+                        </div>
+                        <div class="col-md-3 col-xs-6">
+                            <h4>Supplier code :</h4>
+                        </div>
+                        <div class="col-md-3 col-xs-6">
+                            <h4><t t-esc="product.supplier_code"/></h4>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div id="rack" class="col-md-5 text-center">
+                    <span>Put it in <mark>9</mark></span>
+                </div>
+                <div class="col-md-7">
+
+                    <div id="quantity" class="input-group">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                        </span>
+                        <input type="text" class="form-control text-center" value="1" />
+                        <div class="num-pad">
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            1
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            2
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            3
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            4
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            5
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            6
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            7
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            8
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            9
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            C
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            0
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="circle">
+                                <div class="num">
+                                    <div>
+                                        <span>
+                                            Ent
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="input-group-btn">
+				        	<button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+				        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </t>
 
 </templates>

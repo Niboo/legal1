@@ -45,9 +45,18 @@
             })
             self.get_suppliers();
         },
+        add_listener_on_supplier: function(){
+            var self = this;
+            self.$elem.find('#results a').click(function(event){
+                var supplier_id = $(event.currentTarget).attr('data-id');
+                var ProductPicking = instance.stock_irm.inbound_product_picking;
+                self.product_picking = new ProductPicking(supplier_id);
+                self.product_picking.start();
+            })
+        },
         get_suppliers: function(search){
             var self = this;
-            self.session.rpc('/inbound_screen/get_suppliers_data', {
+            self.session.rpc('/inbound_screen/get_suppliers', {
                 search: search
             }).then(function(data){
                     self.suppliers = data.suppliers;
@@ -55,9 +64,7 @@
                             suppliers: self.suppliers
                     }));
                     self.$elem.find('#results').html($result);
-                    self.$elem.find('#results a').click(function(event){
-                        instance.stock_irm.inbound_product_search.start();
-                    })
+                    self.add_listener_on_supplier();
                 });
         },
     });

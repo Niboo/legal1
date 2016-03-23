@@ -35,8 +35,8 @@ class InboundController(http.Controller):
               'suppliers': inbound_suppliers,
         })
 
-    @http.route('/inbound_screen/get_suppliers_data', type='json', auth="user")
-    def get_suppliers_data(self, search="",  **kw):
+    @http.route('/inbound_screen/get_suppliers', type='json', auth="user")
+    def get_suppliers(self, search="",  **kw):
         env = http.request.env
         inbound_suppliers = list()
 
@@ -52,6 +52,7 @@ class InboundController(http.Controller):
 
         for supplier in suppliers:
             inbound_suppliers.append({
+                'id': supplier.id,
                 'name': supplier.name,
                 'image': "/web/binary/image?model=res.partner&id=%s&field=image" % supplier.id
             })
@@ -59,8 +60,8 @@ class InboundController(http.Controller):
                    'suppliers': inbound_suppliers}
         return results
 
-    @http.route('/inbound_screen/get_products_data', type='json', auth="user")
-    def get_products_data(self, search="", page=0,  **kw):
+    @http.route('/inbound_screen/get_products', type='json', auth="user")
+    def get_products(self, search="", page=0,  **kw):
         cr = http.request.cr
         env = http.request.env
         products = list()
@@ -70,7 +71,6 @@ class InboundController(http.Controller):
 
         search_limit = 30
         search_offset = page * search_limit
-
         search = '%%%s%%' % search
 
         cr.execute("""SELECT pp.id, pt.name FROM product_template AS pt
@@ -91,12 +91,37 @@ WHERE name ilike %s AND sale_ok IS TRUE
 
         for product in products_results:
             products.append({
+                'id': product[0],
                 'name': product[1],
                 'image': "/web/binary/image?model=product.product&id=%s&field=image" % product[0]
             })
 
         results = {'status': 'ok',
+                   'search_limit': search_limit,
                    'products': products,
-                   'products_count': products_count[0]}
+                   'products_count': products_count[0][0]}
+        return results
 
+    @http.route('/inbound_screen/get_product', type='json', auth="user")
+    def get_product(self, id, supplier_id, **kw):
+        env = http.request.env
+
+        if not id or not supplier_id:
+            print 'Problem'
+
+        product = env['product.product'].browse(int(id))
+
+        supplier_info = product.seller_ids.filtered(
+            lambda r: r.name.id == int(supplier_id))
+
+        results = {
+            'status': 'ok',
+            'product': {
+                'name': product.name,
+                'description': product.description,
+                'default_code': product.default_code,
+                'supplier_code': supplier_info and supplier_info.product_code or 'N/A',
+                'barcodes': supplier_info and supplier_info.xx_tags_ids or [],
+            }
+        }
         return results

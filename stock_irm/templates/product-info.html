@@ -2,46 +2,187 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Inbound</title>
 
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/template.css" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-    <script async="" src="js/bootstrap.min.js"></script>
-
+    <link rel="stylesheet" href="http://localhost:8069/web/static/lib/bootstrap/css/bootstrap.css"
+          type="text/css">
+    <link rel="stylesheet"
+          href="http://localhost:8069/web/static/lib/fontawesome/css/font-awesome.css"
+          type="text/css">
+    <link rel="stylesheet" href="http://localhost:8069/stock_irm/static/src/css/template.css"
+          type="text/css">
 </head>
 <body>
-<div class="container">
-
-    <div class="search-row row">
-        <!--<h2>Scan a product or use the search bar</h2>-->
-        <div class="col-md-12">
-            <div id="custom-search-input">
-                <div class="input-group col-md-12">
-                    <input type="text" class="form-control input-lg" placeholder="Search for a product" />
-                    <span class="input-group-btn">
-                        <button class="btn btn-info btn-lg" type="button">
-                            <i class="glyphicon glyphicon-search"></i>
-                        </button>
-                    </span>
+<div class="container page">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="square"
+                 style="background-image:url('http://localhost:8069/stock_irm/static/img/product1.jpg');"></div>
+        </div>
+        <div class="col-md-7">
+            <div class="col-md-12">
+                <h1>Wasnetje (50 x 40 cm) wasmachine WAS500 480181700629</h1>
+            </div>
+            <div class="col-md-12">
+                <h3>FB51AIX, FB21AIX</h3>
+            </div>
+            <div class="col-md-12" id="barcodes">
+                <div class="col-md-2 col-xs-2">
+                    <img class="img-responsive" src="../static/img/barcode.png" />
+                </div>
+                <div class="col-md-10 col-xs-10">
+                    <ul>
+                        <li>13246313354</li>
+                        <li>45456132135</li>
+                        <li>4563546432413</li>
+                    </ul>
                 </div>
             </div>
+            <hr/>
+            <div class="col-md-12">
+                <div class="col-md-3 col-xs-6">
+                    <h4>Product code :</h4>
+                </div>
+                <div class="col-md-3 col-xs-6">
+                    <h4>0.00.01.28-0</h4>
+                </div>
+                <div class="col-md-3 col-xs-6">
+                    <h4>Supplier code :</h4>
+                </div>
+                <div class="col-md-3 col-xs-6">
+                    <h4>18931</h4>
+                </div>
+            </div>
+
         </div>
     </div>
-    <!--<div class="result-row">-->
-        <!--<div class="col-xs-2 col-md-2">-->
-            <!--<a href="#" class="thumbnail" >-->
-                <!--<div class="square" style="background-image:url('product1.jpg');"></div>-->
-            <!--</a>-->
-            <!--<div class="square-label">Dorpelrubber (Dichting dorpel+klemplaat) vaatwasser 298534, 00298534</div>-->
-        <!--</div>-->
-    <!--</div>-->
-    <hr/>
-    <div class="scan-row">
-        <div class="col-md-12">
+    <div class="row">
+        <div id="rack" class="col-md-5 text-center">
+            <span>Put it in <mark>9</mark></span>
+        </div>
+        <div class="col-md-7">
 
-            <img src="scan.jpg" class="center-block img-responsive" />
-            <div class="text-center"><h2>Scan a product</h2></div>
+            <div id="quantity" class="input-group">
+				<span class="input-group-btn">
+					<button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+				</span>
+				<input type="text" class="form-control text-center" value="1">
+                <div class="num-pad">
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                1
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                2
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                3
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                4
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                5
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                6
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                7
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                8
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                9
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                C
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                0
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="circle">
+                    <div class="num">
+                        <div>
+                            <span>
+                                Ent
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+				<span class="input-group-btn">
+					<button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+				</span>
+			</div>
+
+
         </div>
     </div>
 </div>
