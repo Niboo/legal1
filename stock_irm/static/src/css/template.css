@@ -143,9 +143,9 @@ mark, .mark {
 
 /* ########## NUMPAD */
 
-#quantity input:focus ~ .num-pad, .num-pad:hover{
-    display: block;
-}
+/*#quantity input:focus ~ .num-pad, .num-pad:hover{*/
+    /*display: block;*/
+/*}*/
 
 .num-pad{
     position: absolute;

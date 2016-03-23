@@ -137,116 +137,116 @@
                             <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
                         </span>
                         <input type="text" class="form-control text-center" value="1" />
-                        <div class="num-pad">
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            1
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            2
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            3
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            4
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            5
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            6
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            7
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            8
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            9
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            C
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            0
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="circle">
-                                <div class="num">
-                                    <div>
-                                        <span>
-                                            Ent
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <!--<div class="num-pad">-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--1-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--2-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--3-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--4-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--5-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--6-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--7-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--8-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--9-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--C-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--0-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="circle">-->
+                                <!--<div class="num">-->
+                                    <!--<div>-->
+                                        <!--<span>-->
+                                            <!--Ent-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
                         <span class="input-group-btn">
 				        	<button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
 				        </span>
