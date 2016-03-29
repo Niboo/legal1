@@ -33,6 +33,7 @@
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_supplier_selector.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_picking.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_page.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_cart_selection.js"></script>
         </template>
 
         <template id="stock_irm.layout" name="Stock IRM Header">

@@ -138,3 +138,52 @@ AND rp.commercial_partner_id = %s
             }
         }
         return results
+
+    @http.route('/inbound_screen/get_carts', type='json', auth="user")
+    def get_carts(self, search="",  **kw):
+        env = http.request.env
+        inbound_carts = list()
+
+        domain = [('location_id', '=', env.ref('__ow__.stock_location_input').id)]
+
+        carts = env['stock.location'].search(
+            domain
+        )
+
+        for cart in carts:
+            print cart.name
+            inbound_carts.append({
+                'id': cart.id,
+                'name': cart.name,
+            })
+
+        results = {'status': 'ok',
+                   'carts': inbound_carts}
+
+        return results
+
+    @http.route('/inbound_screen/get_cart_boxes', type='json', auth="user")
+    def get_cart_boxes(self, cart_id,  **kw):
+        env = http.request.env
+        cart_boxes = list()
+        if not cart_id:
+            raise exceptions.ValidationError('You have to choose a cart')
+
+        domain = [('location_id', '=', int(cart_id))]
+        boxes = env['stock.location'].search(
+            domain,
+            order='name'
+        )
+
+        for box in boxes:
+            cart_boxes.append({
+                'id': box.id,
+                'name': box.name,
+            })
+
+        print cart_boxes
+
+        results = {'status': 'ok',
+                   'cart_boxes': cart_boxes}
+
+        return results
