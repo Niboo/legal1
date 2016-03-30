@@ -85,9 +85,24 @@
         },
         add_listener_on_confirm_button: function(){
             var self = this;
-            self.$nav.off('click.confirm');
-            self.$nav.on('click.confirm', '#confirm a', function(event){
-                self.confirm();
+
+            if (_.isEmpty(self.received_products)) {
+                self.$nav.find('#confirm a').hide();
+            } else {
+                self.$nav.find('#confirm a').show();
+                self.$nav.off('click.confirm');
+                self.$nav.on('click.confirm', '#confirm a', function(event){
+                    self.confirm();
+                })
+            }
+        },
+        add_listener_on_back_button: function(){
+            var self = this;
+            self.$nav.find('#back a').show();
+            self.$nav.off('click.back');
+            self.$nav.on('click.back', '#back a', function(event){
+                self.destroy();
+                window.location.href = "/inbound_screen";
             })
         },
         get_products: function(){
@@ -172,10 +187,17 @@
                 supplier_id: self.supplier_id,
                 pickings: self.received_products,
             }).then(function(data){
-                console.log('OK');
+                if (data.status == 'OK'){
+                    console.log('OK');
+                }
+                self.show_modal('Picking Confirmed!', 'Wait for redirection...');
+                window.setTimeout(function(){
+                    window.location.href = "/inbound_screen";
+                }, 5000);
+            }).fail(function(data){
+                console.log('FAIL');
             });
-        }
-
+        },
     });
 
     instance.stock_irm.inbound_product_picking = inbound_product_picking;

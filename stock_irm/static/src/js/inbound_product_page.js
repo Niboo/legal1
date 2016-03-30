@@ -92,21 +92,19 @@
                     carts: self.carts,
                 }));
 
-                $('#modalWindow .modal-title').html('Cart Selection');
-                $('#modalWindow .modal-body').html($result);
+                self.show_modal('Cart Selection', $result);
                 self.add_listener_on_carts();
-                $('#modalWindow').modal("show");
             });
         },
         add_listener_on_carts: function(){
             var self = this;
 
-            $('#modalWindow .modal-body .cart').click(function(event){
+            self.$modal.find('.modal-body .cart').click(function(event){
                 event.preventDefault();
                 var cart_id = $(event.currentTarget).attr('cart-id');
                 var cart_name = $(event.currentTarget).attr('cart-name');
                 self.parent.select_cart(cart_id, cart_name)
-                $('#modalWindow').modal('hide');
+                self.$modal.modal('hide');
                 self.display_cart_info();
             })
         },
@@ -118,6 +116,7 @@
         },
         add_listener_on_search_button: function(){
             var self = this;
+            self.$nav.find('#search a').show();
             self.$nav.off('click.search');
             self.$nav.on('click.search', '#search a', function(event){
                 self.parent.add_product(self.id, 1);
@@ -127,10 +126,20 @@
         },
         add_listener_on_back_button: function(){
             var self = this;
+            self.$nav.find('#back a').show();
             self.$nav.off('click.back');
             self.$nav.on('click.back', '#back a', function(event){
                 self.destroy();
                 self.parent.refresh();
+            })
+        },
+        add_listener_on_confirm_button: function(){
+            var self = this;
+            self.$nav.find('#confirm a').show();
+            self.$nav.off('click.confirm');
+            self.$nav.on('click.confirm', '#confirm a', function(event){
+                self.parent.add_product(self.id, 1);
+                self.parent.confirm();
             })
         },
         destroy: function(){

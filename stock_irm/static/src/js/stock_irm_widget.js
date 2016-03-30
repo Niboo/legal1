@@ -32,35 +32,36 @@
 
             self.session = new instance.Session();
             self.$nav = $('nav');
+            self.$modal = $('#modalWindow');
 
             self.add_listeners();
-        },
-        add_listener_on_back_button: function(){
-            var self = this;
-            self.$nav.off('click.back');
-            self.$nav.on('click.back', '#back a', function(event){
-                console.log('back');
-            })
         },
         add_listener_on_search_button: function(){
             var self = this;
             self.$nav.off('click.search');
-            self.$nav.on('click.search', '#search a', function(event){
-                console.log('search');
-            })
+            self.$nav.find('#search a').hide();
+        },
+        add_listener_on_back_button: function(){
+            var self = this;
+            self.$nav.off('click.back');
+            self.$nav.find('#back a').hide();
         },
         add_listener_on_confirm_button: function(){
             var self = this;
             self.$nav.off('click.confirm');
-            self.$nav.on('click.confirm', '#confirm a', function(event){
-                console.log('confirm');
-            })
+            self.$nav.find('#confirm a').hide();
         },
         add_listeners: function(){
             var self = this;
             self.add_listener_on_back_button();
             self.add_listener_on_search_button();
             self.add_listener_on_confirm_button();
+        },
+        show_modal: function(title, content){
+            var self = this;
+            self.$modal.find('.modal-title').html(title);
+            self.$modal.find('.modal-body').html(content);
+            self.$modal.modal("show");
         },
         destroy: function(){
         },

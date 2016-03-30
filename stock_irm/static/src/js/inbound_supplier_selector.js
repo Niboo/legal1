@@ -67,6 +67,7 @@
                     self.add_listener_on_supplier();
                 });
         },
+
     });
     instance.stock_irm.inbound_supplier_selector = new inbound_supplier_selector();
 
