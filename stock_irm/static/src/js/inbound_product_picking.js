@@ -39,6 +39,7 @@
             var self = this;
             self.$elem = $(QWeb.render(this.template));
             $('#content').html(self.$elem);
+            self.search = '';
             self.add_listener_on_search();
             self.add_listeners();
         },
@@ -53,15 +54,15 @@
         add_listener_on_search: function(){
             var self = this;
             self.$elem.find('#search_bar + span button').click(function (event) {
-                self.search();
+                self.do_search();
             });
             self.$elem.find('#search_bar').keyup(function (event) {
                 if (event.currentTarget.value.length > 5 | event.which == 13) {
-                    self.search();
+                    self.do_search();
                 }
             });
         },
-        search: function(){
+        do_search: function(){
             var self = this;
             var search_value = self.$elem.find('#search_bar')[0].value;
             if (self.search != search_value & search_value!== undefined
@@ -175,12 +176,24 @@
 
             cart[index] = quantity;
         },
+        select_location: function(product_id){
+            var self = this;
+
+            if (_.has(self.received_products, product_id)) {
+                var product = self.received_products[product_id];
+                if (_.has(product, self.current_cart.id)) {
+                    var cart = product[self.current_cart.id];
+                    return cart['index']
+                }
+            }
+            return self.current_cart.location;
+        },
         select_cart: function(cart_id, cart_name){
             var self = this;
             var cart = {
                 name: cart_name,
                 id: cart_id,
-                location: 0,
+                location: 1,
             }
 
             if (_.has(self.carts, cart_id)) {

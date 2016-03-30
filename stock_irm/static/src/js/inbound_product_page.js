@@ -110,16 +110,18 @@
         },
         display_cart_info: function(){
             var self = this;
-
             var cart = self.parent.current_cart;
-            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' ' + cart.location + '</span>');
+            var location = self.parent.select_location();
+
+            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' ' + location + '</span>');
         },
         add_listener_on_search_button: function(){
             var self = this;
             self.$nav.find('#search a').show();
             self.$nav.off('click.search');
             self.$nav.on('click.search', '#search a', function(event){
-                self.parent.add_product(self.id, 1);
+                var qty = self.$elem.find('#quantity input').value
+                self.parent.add_product(self.id, parseInt(qty));
                 self.destroy();
                 self.parent.start();
             })
@@ -138,7 +140,8 @@
             self.$nav.find('#confirm a').show();
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
-                self.parent.add_product(self.id, 1);
+                var qty = self.$elem.find('#quantity input').value
+                self.parent.add_product(self.id, parseInt(qty));
                 self.parent.confirm();
             })
         },
