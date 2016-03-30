@@ -147,6 +147,11 @@
         },
         destroy: function(){
             this._super();
+        },
+        process_barcode: function(barcode){
+            console.log("inherited barcode")
+            console.log("Barcode Scanned: " + barcode);
+
         }
     });
 

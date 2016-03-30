@@ -294,3 +294,13 @@ AND rp.commercial_partner_id = %s
                    }
 
         return results
+
+    # @http.route('/inbound_screen/process_barcode', type='json', auth="user")
+    # def process_barcode(self, barcode,  **kw):
+    #     env = http.request.env
+    #
+    #     supplier_info = env['product.supplierinfo'].search([
+    #         ('xx_tag_ids', '=', barcode)
+    #     ])
+    #
+    #     print supplier_info
