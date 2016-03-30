@@ -198,6 +198,7 @@ AND rp.commercial_partner_id = %s
         for product_id, cart_dict in pickings.iteritems():
             product = env['product.product'].browse(int(product_id))
 
+
             # multiple location could be found for the same product
             for cart_id, location_dict in cart_dict.iteritems():
                 del(location_dict['index'])
@@ -206,7 +207,6 @@ AND rp.commercial_partner_id = %s
 
                     qty = quantity
 
-
                     # search or create an available box on this cart
                     dest_box = env['stock.location'].search([
                         ('location_id', '=', int(cart_id)),
@@ -214,8 +214,15 @@ AND rp.commercial_partner_id = %s
                     ])
 
                     if len(dest_box) > 1:
+                        cart = env['stock.location'].browse(int(cart_id))
+                        message =  """Multiple locations have been
+                                    found on cart "%s" with the name: "%s"
+                                    (product "%s") """ % (cart.name,
+                                                          str(box_id),
+                                                          product.name)
                         results = {'status': 'error',
-                                   'message': 'Multiple location have been found with that name'}
+                                   'message': message
+                                   }
                         return results
 
                     if not dest_box:
