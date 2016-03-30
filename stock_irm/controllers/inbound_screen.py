@@ -213,6 +213,11 @@ AND rp.commercial_partner_id = %s
                         ('name', '=', str(box_id))
                     ])
 
+                    if len(dest_box) > 1:
+                        results = {'status': 'error',
+                                   'message': 'Multiple location have been found with that name'}
+                        return results
+
                     if not dest_box:
                         dest_box = env['stock.location'].create({
                             'location_id': int(cart_id),
