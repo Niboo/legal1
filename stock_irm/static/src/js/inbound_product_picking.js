@@ -142,6 +142,8 @@
             });
         },
         add_product: function(product_id, qty){
+            console.log(qty);
+
             var self = this;
             var product = {};
             var cart = {};
@@ -204,14 +206,14 @@
 
             self.current_cart = cart;
         },
-        confirm: function(){
+        confirm: function() {
             var self = this;
 
             self.session.rpc('/inbound_screen/process_picking', {
                 supplier_id: self.supplier_id,
                 pickings: self.received_products,
             }).then(function(data){
-                if (data.status == 'OK'){
+                if (data.status == 'ok'){
                     self.show_modal('Picking Confirmed!', 'Wait for redirection...');
                     window.setTimeout(function(){
                         window.location.href = "/inbound_screen";
@@ -222,6 +224,13 @@
             }).fail(function(data){
                 console.log('FAIL');
             });
+        },
+        process_barcode: function(barcode) {
+            var self = this;
+            self.search = barcode.replace(/[\n\r]+/g, '');
+            self.page = 1;
+            self.$elem.find('#results').empty();
+            self.get_products();
         },
     });
 

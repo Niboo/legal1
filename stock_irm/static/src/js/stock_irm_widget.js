@@ -52,7 +52,7 @@
             self.$nav.off('click.confirm');
             self.$nav.find('#confirm a').hide();
         },
-        add_barcode_listener: function(){
+        add_listener_for_barcode: function(){
             var self = this;
             var pressed = false;
             var chars = [];
@@ -81,13 +81,22 @@
             self.add_listener_on_back_button();
             self.add_listener_on_search_button();
             self.add_listener_on_confirm_button();
-            self.add_barcode_listener();
+            self.add_listener_for_barcode();
+            self.add_listener_on_closing_modal()
         },
         show_modal: function(title, content){
             var self = this;
             self.$modal.find('.modal-title').html(title);
             self.$modal.find('.modal-body').html(content);
             self.$modal.modal("show");
+        },
+        add_listener_on_closing_modal: function(){
+            var self = this;
+            self.$modal.off('hide.bs.modal');
+            self.$modal.on('hide.bs.modal', function() {
+                self.$modal.find('.modal-title').empty();
+                self.$modal.find('.modal-body').empty();
+            })
         },
         destroy: function(){
         },

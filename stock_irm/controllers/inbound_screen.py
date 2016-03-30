@@ -79,14 +79,15 @@ FROM product_template AS pt
   JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
   JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id,
 res_partner AS rp
-WHERE pt.name ilike %s
+WHERE (pt.name ilike %s
+OR pp.ean13 ilike %s)
 AND pt.sale_ok IS TRUE
 AND psi.name = rp.id
 AND rp.commercial_partner_id = %s
 ORDER BY pp.id
 LIMIT %s
 OFFSET %s
-""", [search, supplier_id, search_limit, search_offset])
+""", [search, search, supplier_id, search_limit, search_offset])
         products_results = cr.fetchall()
 
         cr.execute("""
@@ -95,11 +96,12 @@ FROM product_template AS pt
   JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
   JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id,
 res_partner AS rp
-WHERE pt.name ilike %s
+WHERE (pt.name ilike %s
+OR pp.ean13 ilike %s)
 AND pt.sale_ok IS TRUE
 AND psi.name = rp.id
 AND rp.commercial_partner_id = %s
-""", [search, supplier_id])
+""", [search, search, supplier_id])
 
         products_count = cr.fetchall()
 
@@ -203,6 +205,8 @@ AND rp.commercial_partner_id = %s
             for cart_id, location_dict in cart_dict.iteritems():
                 del(location_dict['index'])
 
+                cart = env['stock.location'].browse(int(cart_id))
+
                 for box_id, quantity in location_dict.iteritems():
 
                     qty = quantity
@@ -214,12 +218,12 @@ AND rp.commercial_partner_id = %s
                     ])
 
                     if len(dest_box) > 1:
-                        cart = env['stock.location'].browse(int(cart_id))
-                        message =  """Multiple locations have been
-                                    found on cart "%s" with the name: "%s"
-                                    (product "%s") """ % (cart.name,
-                                                          str(box_id),
-                                                          product.name)
+
+                        message = """
+Multiple locations have been found on cart "%s" with the name: "%s" <br/>
+(product "%s") """ % (cart.name, str(box_id), product.name)
+
+                        env.cr.rollback()
                         results = {'status': 'error',
                                    'message': message
                                    }
@@ -230,6 +234,16 @@ AND rp.commercial_partner_id = %s
                             'location_id': int(cart_id),
                             'name': str(box_id),
                         })
+
+                    if not qty:
+                        message =  """
+No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
+
+                        env.cr.rollback()
+                        results = {'status': 'error',
+                                   'message': message
+                                   }
+                        return results
 
                     while qty > 0:
                         # retrieve a stock move for this product

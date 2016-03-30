@@ -120,7 +120,7 @@
             self.$nav.find('#search a').show();
             self.$nav.off('click.search');
             self.$nav.on('click.search', '#search a', function(event){
-                var qty = self.$elem.find('#quantity input').value
+                var qty = self.$elem.find('#quantity input').get(0).value
                 self.parent.add_product(self.id, parseInt(qty));
                 self.destroy();
                 self.parent.start();
@@ -140,7 +140,7 @@
             self.$nav.find('#confirm a').show();
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
-                var qty = self.$elem.find('#quantity input').value
+                var qty = self.$elem.find('#quantity input').get(0).value
                 self.parent.add_product(self.id, parseInt(qty));
                 self.parent.confirm();
             })
@@ -149,9 +149,6 @@
             this._super();
         },
         process_barcode: function(barcode){
-            console.log("inherited barcode")
-            console.log("Barcode Scanned: " + barcode);
-
         }
     });
 
