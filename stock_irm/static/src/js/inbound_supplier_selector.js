@@ -38,7 +38,7 @@
         start: function(){
             var self = this;
             self.$elem = $(QWeb.render(this.template));
-            $('body').html(self.$elem);
+            $('#content').html(self.$elem);
 
             self.$elem.find('#search').keyup(function(event){
                 self.get_suppliers(event.currentTarget.value)

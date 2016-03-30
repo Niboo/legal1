@@ -29,13 +29,15 @@
     	init: function (supplier_id) {
             this._super();
             var self = this;
+            self.carts = {};
+            self.current_cart = false;
             self.template = 'product_selector';
             self.supplier_id = supplier_id;
         },
         start: function(){
             var self = this;
             self.$elem = $(QWeb.render(this.template));
-            $('body').html(self.$elem);
+            $('#content').html(self.$elem);
             self.add_listener_on_search();
         },
         add_listener_on_search: function(){
@@ -92,6 +94,21 @@
                 }
             });
         },
+        select_cart: function(cart_id, cart_name){
+            var self = this;
+            var cart = {
+                name: cart_name,
+                id: cart_id,
+                location: 1,
+            }
+            if (_.has(self.carts, cart_id)) {
+                cart = self.carts[cart_id];
+            } else {
+                self.carts[cart_id] = cart;
+            }
+
+            self.current_cart = cart;
+        }
     });
 
     instance.stock_irm.inbound_product_picking = inbound_product_picking;

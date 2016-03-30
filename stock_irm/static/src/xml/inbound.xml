@@ -76,29 +76,13 @@
         </t>
     </t>
 
-    <t t-name="carts_result">
+    <t t-name="cart_result">
         <!-- cart selection modal -->
-        <div class="modal fade" id="cartSelectionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myModalLabel">Cart selection</h4>
-                    </div>
-
-                    <div class="modal-body">
-                        <div id="cartlist" class="col-md-5 text-center">
-                            <t t-foreach="carts" t-as="cart">
-                                <a href="#" t-att-cart-id="cart.id" t-att-cart-name="cart.name">
-                                    <div>
-                                        <span t-esc="cart.name"/>
-                                    </div>
-                                </a>
-                            </t>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <t t-foreach="carts" t-as="cart">
+            <a href="#" class="btn btn-lg btn-success cart" t-att-cart-id="cart.id" t-att-cart-name="cart.name">
+                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="cart.name" />
+            </a>
+        </t>
     </t>
 
     <t t-name="result_more">
@@ -152,24 +136,8 @@
                 </div>
             </div>
             <div class="row">
-                <div id="cartlist">
-
-                </div>
-                <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary btn-lg" data-target="#cartSelectionModal">
-                    Select A Cart
-                </button>
-                <button type="button" class="btn btn-primary btn-lg" id="add_prod_1">
-                    add product 1
-                </button>
-                <button type="button" class="btn btn-primary btn-lg" id="add_prod_2">
-                    add product 2
-                </button>
-                <button type="button" class="btn btn-primary btn-lg" id="add_prod_3">
-                    add product 3
-                </button>
-                <div id="rack" class="col-md-5 text-center">
-                    <span>No cart selected</span>
+                <div id="rack" data-target='#cartSelectionModal' class="col-md-5 text-center">
+                    <span>Select a cart</span>
                 </div>
 
                 <div class="col-md-7">

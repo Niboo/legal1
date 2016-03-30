@@ -4,6 +4,18 @@
     }
 }
 
+/* ########## NAVBAR */
+
+.navbar {
+    text-align: center;
+}
+
+.navbar-center {
+    display: inline-block;
+    float: none;
+    margin: 0;
+}
+
 /* ########## SEARCH */
 
 #custom-search-input{
@@ -38,7 +50,7 @@
     font-size: 23px;
 }
 
-.search-row, .result-row, .result-row >div{
+.result-row, .result-row >div{
     margin-top: 15px;
 }
 
@@ -103,19 +115,31 @@ h2{
 
 /* ########## RACK */
 
+.label {
+    font-size: 2em;
+}
+
 #rack{
-    font-size: 4em;
+    font-size: 6em;
     background-color: #d9534f;
     color: #fff;
 }
 
-mark, .mark {
-    font-size: 2em;
-    background-color: inherit;
-    color: inherit;
-    background: inherit;
+#rack:hover{
+    font-size: 6em;
+    background-color: #c9433f;
+    color: #fff;
+    cursor: hand;
 }
 
+#rack span{
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+#rack .glyphicon {
+    vertical-align: sub;
+}
 /* ########## QUANTITY */
 
 #quantity {

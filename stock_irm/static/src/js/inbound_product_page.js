@@ -24,11 +24,6 @@
     var _t = instance._t,
         _lt = instance._lt;
     var QWeb = instance.qweb;
-    var current_cart_id;
-    var current_cart_name;
-    var current_cart_boxes;
-    var cart_boxes_content = []
-    var next_box_index;
 
     var inbound_product_page = instance.stock_irm.widget.extend({
     	init: function (parent, id) {
@@ -37,11 +32,15 @@
             self.id = id;
             self.template = 'product_page';
             self.parent = parent;
+            self.product;
         },
         start: function(){
             var self = this;
             self.get_product();
             self.next_box_index = 0;
+            if (! self.parent.current_cart) {
+                self.get_carts();
+            }
         },
         add_listener_on_quantity: function(){
             var self = this;
@@ -58,19 +57,8 @@
         },
         add_listener_on_cart_button: function(){
             var self = this;
-            self.$elem.find("button[data-target='#cartSelectionModal']").click(function(){
+            self.$elem.find("div[data-target='#cartSelectionModal']").click(function(){
                 self.get_carts();
-            })
-
-            //add buttons for test purposes (they are used to add items on the cart, since i don't have a barcode scanner...)
-            self.$elem.find("#add_prod_1").click(function(){
-                self.add_product_to_cart(1)
-            })
-            self.$elem.find("#add_prod_2").click(function(){
-                self.add_product_to_cart(2)
-            })
-            self.$elem.find("#add_prod_3").click(function(){
-                self.add_product_to_cart(3)
             })
         },
         get_product: function(){
@@ -79,11 +67,11 @@
                 id: self.id,
                 supplier_id: self.parent.supplier_id
             }).then(function(data){
+                self.product = data.product;
                 self.$elem = $(QWeb.render(self.template, {
-                    product: '/stock_irm/static/img/product1.jpg',
-                    product: data.product
+                    product: self.product
                 }));
-                $('body').html(self.$elem);
+                $('#content').html(self.$elem);
                 self.add_listener_on_quantity();
                 self.add_listener_on_cart_button();
             })
@@ -95,63 +83,34 @@
             self.session.rpc('/inbound_screen/get_carts', {
             }).then(function(data){
                 self.carts = data.carts;
-                var $result = $(QWeb.render('carts_result', {
+                var $result = $(QWeb.render('cart_result', {
                     carts: self.carts,
                 }));
 
-                self.$elem.find('#cartlist').html($result);
+                $('#modalWindow .modal-title').html('Cart Selection');
+                $('#modalWindow .modal-body').html($result);
                 self.add_listener_on_carts();
-                self.$elem.find('#cartSelectionModal').modal("show");
+                $('#modalWindow').modal("show");
             });
-            self.$elem.find("button[data-target='#cartSelectionModal']").html("Change Cart")
         },
         add_listener_on_carts: function(){
-            // when we select a cart, we retrieve its list of locations
             var self = this;
 
-            $('#cartlist a').click(function(event){
-                self.current_cart_id = $(event.currentTarget).attr('cart-id');
-                self.current_cart_name = $(event.currentTarget).attr('cart-name');
-
-                self.session.rpc('/inbound_screen/get_cart_boxes', {
-                    cart_id: self.current_cart_id,
-                }).then(function(data){
-                    self.current_cart_boxes = data.cart_boxes;
-                });
-
-                $('#cartSelectionModal').modal('toggle');
+            $('#modalWindow .modal-body .cart').click(function(event){
+                event.preventDefault();
+                var cart_id = $(event.currentTarget).attr('cart-id');
+                var cart_name = $(event.currentTarget).attr('cart-name');
+                self.parent.select_cart(cart_id, cart_name)
+                $('#modalWindow').modal('hide');
+                self.display_cart_info();
             })
         },
-        add_product_to_cart: function(product_id){
+        display_cart_info: function(){
             var self = this;
-            var qty = parseInt(self.$elem.find('#quantity input').val())
 
-            if(cart_boxes_content[product_id.toString()] == undefined){
-                try{
-                    // save needed information about location, quantity, etc
-                    cart_boxes_content[product_id.toString()] = {'product_id': product_id,
-                        'cart_name':self.current_cart_name,
-                        'cart_id':self.current_cart_id,
-                        'location_name':self.current_cart_boxes[self.next_box_index]['name'],
-                        'location_id':self.current_cart_boxes[self.next_box_index]['id'],
-                        'quantity':qty
-                    };
-                    self.next_box_index += 1;
-
-                }catch(err){
-                    //todo: better solution than an alert
-                    alert("No more location seems to be available for this cart");
-                }
-            }else{
-                cart_boxes_content[product_id.toString()]['quantity'] += qty;
-            }
-
-            //display where to store the item
-            $('#rack').html("<span>Put it in "+cart_boxes_content[product_id.toString()]['cart_name']+" / "+cart_boxes_content[product_id.toString()]['location_name']+"</span>");
-
-            //reset the quantity to 1
-            self.$elem.find('#quantity input').val(parseInt(1));
-        }
+            var cart = self.parent.current_cart;
+            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' ' + cart.location + '</span>');
+        },
     });
 
     instance.stock_irm.inbound_product_page = inbound_product_page;
