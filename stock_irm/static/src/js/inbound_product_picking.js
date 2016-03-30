@@ -52,19 +52,30 @@
         },
         add_listener_on_search: function(){
             var self = this;
-            self.$elem.find('#search').keyup(function (event) {
-                if (self.search != event.currentTarget.value
-                        & event.currentTarget.value.length > 5
-                        | event.which == 13) {
-                    self.page = 1;
-                    self.$elem.find('#results').empty();
-                    self.search = event.currentTarget.value;
-                    self.get_products();
+            self.$elem.find('#search_bar + span button').click(function (event) {
+                self.search();
+            });
+            self.$elem.find('#search_bar').keyup(function (event) {
+                if (event.currentTarget.value.length > 5 | event.which == 13) {
+                    self.search();
                 }
             });
         },
+        search: function(){
+            var self = this;
+            var search_value = self.$elem.find('#search_bar')[0].value;
+            if (self.search != search_value & search_value!== undefined
+                    & search_value.length >= 1){
+                var self = this;
+                self.page = 1;
+                self.$elem.find('#results').empty();
+                self.search = search_value;
+                self.get_products();
+            }
+        },
         add_listener_on_more: function(){
             var self = this;
+
             self.$elem.find('#more').click(function(event){
                 event.preventDefault();
                 self.page += 1;
@@ -188,12 +199,13 @@
                 pickings: self.received_products,
             }).then(function(data){
                 if (data.status == 'OK'){
-                    console.log('OK');
+                    self.show_modal('Picking Confirmed!', 'Wait for redirection...');
+                    window.setTimeout(function(){
+                        window.location.href = "/inbound_screen";
+                    }, 3000);
+                } else {
+                    self.show_modal('Picking not confirmed.', data.message);
                 }
-                self.show_modal('Picking Confirmed!', 'Wait for redirection...');
-                window.setTimeout(function(){
-                    window.location.href = "/inbound_screen";
-                }, 5000);
             }).fail(function(data){
                 console.log('FAIL');
             });

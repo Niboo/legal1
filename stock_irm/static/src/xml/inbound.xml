@@ -8,7 +8,7 @@
                 <div class="col-md-12">
                     <div id="custom-search-input">
                         <div class="input-group col-md-12">
-                            <input type="text" id="search" class="form-control input-lg" placeholder="Search for a supplier" />
+                            <input type="text" id="search_bar" class="form-control input-lg" placeholder="Search for a supplier" />
                             <span class="input-group-btn">
                                 <button class="btn btn-info btn-lg" type="button">
                                     <i class="glyphicon glyphicon-search"></i>
@@ -43,7 +43,7 @@
                 <div class="col-md-12">
                     <div id="custom-search-input">
                         <div class="input-group col-md-12">
-                            <input type="text" id="search" class="form-control input-lg" placeholder="Search for a product" />
+                            <input type="text" id="search_bar" class="form-control input-lg" placeholder="Search for a product" />
                             <span class="input-group-btn">
                                 <button class="btn btn-info btn-lg" type="button">
                                     <i class="glyphicon glyphicon-search"></i>

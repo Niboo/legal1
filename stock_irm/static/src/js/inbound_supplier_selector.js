@@ -40,7 +40,7 @@
             self.$elem = $(QWeb.render(this.template));
             $('#content').html(self.$elem);
 
-            self.$elem.find('#search').keyup(function(event){
+            self.$elem.find('#search_bar').keyup(function(event){
                 self.get_suppliers(event.currentTarget.value)
             })
             self.get_suppliers();
