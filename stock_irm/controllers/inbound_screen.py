@@ -21,6 +21,7 @@
 
 from openerp import http
 from openerp import exceptions
+from datetime import datetime
 
 
 class InboundController(http.Controller):
@@ -151,7 +152,6 @@ AND rp.commercial_partner_id = %s
         )
 
         for cart in carts:
-            print cart.name
             inbound_carts.append({
                 'id': cart.id,
                 'name': cart.name,
@@ -181,9 +181,96 @@ AND rp.commercial_partner_id = %s
                 'name': box.name,
             })
 
-        print cart_boxes
-
         results = {'status': 'ok',
                    'cart_boxes': cart_boxes}
 
         return results
+
+    @http.route('/inbound_screen/process_picking', type='json', auth="user")
+    def process_picking(self, supplier_id, pickings,  **kw):
+        # {'13': {'32161': {'index': 2, '2': 1}}, '21': {'32161': {'1': 1, 'index': 1}}}
+        print pickings
+
+        env = http.request.env
+        supplier = env['res.partner'].browse(supplier_id)
+
+        # pickings is a list of products, within which there is a list of carts
+        # and a quantity by carts
+        for product_id, cart_dict in pickings.iteritems():
+            product = env['product.product'].browse(int(product_id))
+
+            # multiple location could be found for the same product
+            for cart_id, location_dict in cart_dict.iteritems():
+                del(location_dict['index'])
+
+                for box_id, quantity in location_dict.iteritems():
+
+                    qty = quantity
+
+
+                    # search or create an available box on this cart
+                    dest_box = env['stock.location'].search([
+                        ('location_id', '=', cart_id),
+                        ('name', '=', str(box_id))
+                    ])
+
+                    if not dest_box:
+                        dest_box = env['stock.location'].create({
+                            'location_id': cart_id,
+                            'name': str(box_id),
+                        })
+
+                    while qty > 0:
+                        # retrieve a stock move for this product
+                        stock_move = env['stock.move'].search([
+                            ('picking_id.partner_id', '=', supplier.id),
+                            ('picking_id.state', '=', 'assigned'),
+                            ('product_id', '=', product.id),
+                        ], order='create_date asc', limit=1)
+
+                        if not stock_move:
+                            # if no stock move are found, we have to create a
+                            # picking and a stock move
+                            stock_move_line = (0, 0, {
+                                'product_id' : product.id,
+                                'product_uom_qty': qty,
+                                'picking_type_id':
+                                    env.ref('__ow__.stock_picking_type_receipts').id,
+                                'location_dest_id':
+                                    env.ref('__ow__.stock_location_input').id,
+                                'location_id':
+                                    env.ref('stock.stock_location_suppliers').id,
+                                'product_uom': product.uom_id.id,
+                                'name':'automated picking - %s' % product.name,
+                            })
+
+                            stock_picking = env['stock.picking'].create({
+                                'partner_id': supplier.id,
+                                'move_lines': [stock_move_line],
+                                'picking_type_id':
+                                    env.ref('__ow__.stock_picking_type_receipts').id,
+                            })
+                            stock_move = stock_picking.move_lines[0]
+
+                        # search the quantity to process on this stock move
+                        if qty >= stock_move.product_uom_qty:
+                            qty_to_process = stock_move.product_uom_qty
+                        else:
+                            qty_to_process = qty
+
+                        # compute the remaining quantity to process
+                        qty = qty - qty_to_process
+
+                        # create the pack operation
+                        pack_datas = {
+                            'product_id': product.id,
+                            'product_uom_id': product.uom_id.id,
+                            'product_qty': qty_to_process,
+                            'location_id': env.ref('stock.stock_location_suppliers').id,
+                            'location_dest_id': dest_box.id,
+                            'date': datetime.now(),
+                            'picking_id': stock_move.picking_id.id,
+                        }
+
+                        env['stock.pack.operation'].create(pack_datas)
+                        stock_move.picking_id.do_transfer()

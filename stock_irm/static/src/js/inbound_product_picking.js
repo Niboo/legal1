@@ -170,7 +170,7 @@
 
             self.session.rpc('/inbound_screen/process_picking', {
                 supplier_id: self.supplier_id,
-                pickings: self.products,
+                pickings: self.received_products,
             }).then(function(data){
                 console.log('OK');
             });
