@@ -188,11 +188,10 @@ AND rp.commercial_partner_id = %s
 
     @http.route('/inbound_screen/process_picking', type='json', auth="user")
     def process_picking(self, supplier_id, pickings,  **kw):
-        # {'13': {'32161': {'index': 2, '2': 1}}, '21': {'32161': {'1': 1, 'index': 1}}}
-        print pickings
-
         env = http.request.env
         supplier = env['res.partner'].browse(supplier_id)
+        nb_picking_created = 0
+        nb_picking_filled = 0
 
         # pickings is a list of products, within which there is a list of carts
         # and a quantity by carts
@@ -210,13 +209,13 @@ AND rp.commercial_partner_id = %s
 
                     # search or create an available box on this cart
                     dest_box = env['stock.location'].search([
-                        ('location_id', '=', cart_id),
+                        ('location_id', '=', int(cart_id)),
                         ('name', '=', str(box_id))
                     ])
 
                     if not dest_box:
                         dest_box = env['stock.location'].create({
-                            'location_id': cart_id,
+                            'location_id': int(cart_id),
                             'name': str(box_id),
                         })
 
@@ -237,7 +236,7 @@ AND rp.commercial_partner_id = %s
                                 'picking_type_id':
                                     env.ref('__ow__.stock_picking_type_receipts').id,
                                 'location_dest_id':
-                                    env.ref('__ow__.stock_location_input').id,
+                                    dest_box.id,
                                 'location_id':
                                     env.ref('stock.stock_location_suppliers').id,
                                 'product_uom': product.uom_id.id,
@@ -250,11 +249,13 @@ AND rp.commercial_partner_id = %s
                                 'picking_type_id':
                                     env.ref('__ow__.stock_picking_type_receipts').id,
                             })
+                            nb_picking_created += 1
                             stock_move = stock_picking.move_lines[0]
 
                         # search the quantity to process on this stock move
                         if qty >= stock_move.product_uom_qty:
                             qty_to_process = stock_move.product_uom_qty
+                            nb_picking_filled += 1
                         else:
                             qty_to_process = qty
 
@@ -274,3 +275,10 @@ AND rp.commercial_partner_id = %s
 
                         env['stock.pack.operation'].create(pack_datas)
                         stock_move.picking_id.do_transfer()
+
+        results = {'status': 'ok',
+                   'nb_picking_created': nb_picking_created,
+                   'nb_picking_filled': nb_picking_filled,
+                   }
+
+        return results
