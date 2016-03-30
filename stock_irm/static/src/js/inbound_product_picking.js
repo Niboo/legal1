@@ -40,6 +40,7 @@
             self.$elem = $(QWeb.render(this.template));
             $('#content').html(self.$elem);
             self.add_listener_on_search();
+            self.add_listeners();
         },
         refresh: function(){
             var self = this;
@@ -80,6 +81,13 @@
                 var ProductPage = instance.stock_irm.inbound_product_page;
                 self.product_page = new ProductPage(self, product_id);
                 self.product_page.start();
+            })
+        },
+        add_listener_on_confirm_button: function(){
+            var self = this;
+            self.$nav.off('click.confirm');
+            self.$nav.on('click.confirm', '#confirm a', function(event){
+                self.confirm();
             })
         },
         get_products: function(){

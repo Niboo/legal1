@@ -33,8 +33,7 @@
             self.session = new instance.Session();
             self.$nav = $('nav');
 
-            self.add_listener_on_back_button();
-            self.add_listener_on_search_button();
+            self.add_listeners();
         },
         add_listener_on_back_button: function(){
             var self = this;
@@ -50,10 +49,18 @@
                 console.log('search');
             })
         },
+        add_listener_on_confirm_button: function(){
+            var self = this;
+            self.$nav.off('click.confirm');
+            self.$nav.on('click.confirm', '#confirm a', function(event){
+                console.log('confirm');
+            })
+        },
         add_listeners: function(){
             var self = this;
             self.add_listener_on_back_button();
             self.add_listener_on_search_button();
+            self.add_listener_on_confirm_button();
         },
         destroy: function(){
         },
