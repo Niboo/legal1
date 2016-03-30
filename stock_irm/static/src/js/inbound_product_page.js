@@ -72,6 +72,11 @@
                     product: self.product
                 }));
                 $('#content').html(self.$elem);
+
+                if (self.parent.current_cart) {
+                    self.display_cart_info();
+                }
+
                 self.add_listener_on_quantity();
                 self.add_listener_on_cart_button();
             })
@@ -111,6 +116,26 @@
             var cart = self.parent.current_cart;
             self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' ' + cart.location + '</span>');
         },
+        add_listener_on_search_button: function(){
+            var self = this;
+            self.$nav.off('click.search');
+            self.$nav.on('click.search', '#search a', function(event){
+                self.parent.add_product(self.id, 1);
+                self.destroy();
+                self.parent.start();
+            })
+        },
+        add_listener_on_back_button: function(){
+            var self = this;
+            self.$nav.off('click.back');
+            self.$nav.on('click.back', '#back a', function(event){
+                self.destroy();
+                self.parent.refresh();
+            })
+        },
+        destroy: function(){
+            this._super();
+        }
     });
 
     instance.stock_irm.inbound_product_page = inbound_product_page;

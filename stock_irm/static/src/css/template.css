@@ -16,6 +16,17 @@
     margin: 0;
 }
 
+.navbar-default .navbar-nav .navbar-ok > a,
+.navbar-default .navbar-nav .navbar-ok > a:hover,
+.navbar-default .navbar-nav .navbar-ok > a:focus{
+    background-color: #00ad9c;
+    color: #fff;
+}
+
+.navbar-default .navbar-nav .navbar-ok > a:hover{
+    background-color: #10bdac;
+}
+
 /* ########## SEARCH */
 
 #custom-search-input{

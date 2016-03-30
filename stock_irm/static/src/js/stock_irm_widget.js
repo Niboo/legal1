@@ -28,7 +28,34 @@
 
     var stock_irm_widget= instance.Class.extend({
         init: function () {
-            this.session = new instance.Session();
+            var self = this;
+
+            self.session = new instance.Session();
+            self.$nav = $('nav');
+
+            self.add_listener_on_back_button();
+            self.add_listener_on_search_button();
+        },
+        add_listener_on_back_button: function(){
+            var self = this;
+            self.$nav.off('click.back');
+            self.$nav.on('click.back', '#back a', function(event){
+                console.log('back');
+            })
+        },
+        add_listener_on_search_button: function(){
+            var self = this;
+            self.$nav.off('click.search');
+            self.$nav.on('click.search', '#search a', function(event){
+                console.log('search');
+            })
+        },
+        add_listeners: function(){
+            var self = this;
+            self.add_listener_on_back_button();
+            self.add_listener_on_search_button();
+        },
+        destroy: function(){
         },
     });
 

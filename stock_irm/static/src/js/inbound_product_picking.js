@@ -33,12 +33,21 @@
             self.current_cart = false;
             self.template = 'product_selector';
             self.supplier_id = supplier_id;
+            self.received_products = {};
         },
         start: function(){
             var self = this;
             self.$elem = $(QWeb.render(this.template));
             $('#content').html(self.$elem);
             self.add_listener_on_search();
+        },
+        refresh: function(){
+            var self = this;
+            $('#content').html(self.$elem);
+            self.add_listeners();
+            self.add_listener_on_search();
+            self.add_listener_on_product();
+            self.add_listener_on_more();
         },
         add_listener_on_search: function(){
             var self = this;
@@ -63,6 +72,9 @@
         },
         add_listener_on_product: function($result){
             var self = this;
+            if (!$result){
+                $result = self.$elem.find('#results');
+            }
             $result.find('a').click(function(event){
                 var product_id = $(event.currentTarget).attr('data-id');
                 var ProductPage = instance.stock_irm.inbound_product_page;
@@ -94,13 +106,49 @@
                 }
             });
         },
+        add_product: function(product_id, qty){
+            var self = this;
+            var product = {};
+            var cart = {};
+            var quantity = 0;
+            var index;
+
+            if (_.has(self.received_products, product_id)) {
+                product = self.received_products[product_id];
+            } else {
+                self.received_products[product_id] = product;
+                self.current_cart.location += 1;
+            }
+
+            if (_.has(product, self.current_cart.id)) {
+                cart = product[self.current_cart.id];
+            } else {
+                product[self.current_cart.id] = cart;
+            }
+
+            if (!_.isEmpty(cart)){
+                index = cart['index'];
+                quantity = cart[index];
+            } else {
+                index = self.current_cart.location;
+                cart['index'] = index;
+            }
+            //if (_.has(cart, self.current_cart.location)) {
+            //    quantity = cart[self.current_cart.location];
+            //}
+
+            quantity += qty;
+
+            cart[index] = quantity;
+        },
         select_cart: function(cart_id, cart_name){
             var self = this;
             var cart = {
                 name: cart_name,
                 id: cart_id,
-                location: 1,
+                location: 0,
             }
+
             if (_.has(self.carts, cart_id)) {
                 cart = self.carts[cart_id];
             } else {
@@ -108,7 +156,18 @@
             }
 
             self.current_cart = cart;
+        },
+        confirm: function(){
+            var self = this;
+
+            self.session.rpc('/inbound_screen/process_picking', {
+                supplier_id: self.supplier_id,
+                pickings: self.products,
+            }).then(function(data){
+                console.log('OK');
+            });
         }
+
     });
 
     instance.stock_irm.inbound_product_picking = inbound_product_picking;
