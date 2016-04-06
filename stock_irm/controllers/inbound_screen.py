@@ -219,6 +219,8 @@ product id: %s, supplier id: %s
         supplier = env['res.partner'].browse(supplier_id)
         nb_picking_created = 0
         nb_picking_filled = 0
+        stock_move_lines = []
+        stock_picking = False
 
         # pickings is a list of products, within which there is a list of carts
         # and a quantity by carts
@@ -259,7 +261,7 @@ Multiple locations have been found on cart "%s" with the name: "%s" <br/>
                         })
 
                     if not qty:
-                        message =  """
+                        message = """
 No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
 
                         env.cr.rollback()
@@ -277,10 +279,17 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
                         ], order='create_date asc', limit=1)
 
                         if not stock_move:
+                            if not stock_picking:
+                                stock_picking = env['stock.picking'].create({
+                                    'partner_id': supplier.id,
+                                    # 'move_lines': stock_move_lines,
+                                    'picking_type_id':
+                                        env.ref('__ow__.stock_picking_type_receipts').id,
+                                })
                             # if no stock move are found, we have to create a
                             # picking and a stock move
-                            stock_move_line = (0, 0, {
-                                'product_id' : product.id,
+                            stock_move_lines.append((0, 0, {
+                                'product_id': product.id,
                                 'product_uom_qty': qty,
                                 'picking_type_id':
                                     env.ref('__ow__.stock_picking_type_receipts').id,
@@ -289,20 +298,11 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
                                 'location_id':
                                     env.ref('stock.stock_location_suppliers').id,
                                 'product_uom': product.uom_id.id,
-                                'name':'automated picking - %s' % product.name,
-                            })
-
-                            stock_picking = env['stock.picking'].create({
-                                'partner_id': supplier.id,
-                                'move_lines': [stock_move_line],
-                                'picking_type_id':
-                                    env.ref('__ow__.stock_picking_type_receipts').id,
-                            })
-                            nb_picking_created += 1
-                            stock_move = stock_picking.move_lines[0]
+                                'name': 'automated picking - %s' % product.name,
+                            }))
 
                         # search the quantity to process on this stock move
-                        if qty >= stock_move.product_uom_qty:
+                        if stock_move.product_uom_qty and qty >= stock_move.product_uom_qty:
                             qty_to_process = stock_move.product_uom_qty
                             nb_picking_filled += 1
                         else:
@@ -319,11 +319,13 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
                             'location_id': env.ref('stock.stock_location_suppliers').id,
                             'location_dest_id': dest_box.id,
                             'date': datetime.now(),
-                            'picking_id': stock_move.picking_id.id,
+                            'picking_id': stock_picking.id,
                         }
 
                         env['stock.pack.operation'].create(pack_datas)
                         stock_move.picking_id.do_transfer()
+        if stock_move_lines:
+            stock_picking.move_lines = stock_move_lines
 
         results = {'status': 'ok',
                    'nb_picking_created': nb_picking_created,
@@ -331,13 +333,3 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
                    }
 
         return results
-
-    # @http.route('/inbound_screen/process_barcode', type='json', auth="user")
-    # def process_barcode(self, barcode,  **kw):
-    #     env = http.request.env
-    #
-    #     supplier_info = env['product.supplierinfo'].search([
-    #         ('xx_tag_ids', '=', barcode)
-    #     ])
-    #
-    #     print supplier_info

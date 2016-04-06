@@ -117,7 +117,7 @@
             var cart = self.parent.current_cart;
             var location = self.parent.select_location();
 
-            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' ' + location + '</span>');
+            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' / ' + location + '</span>');
         },
         add_listener_on_search_button: function(){
             var self = this;
@@ -155,26 +155,18 @@
         process_barcode: function(barcode) {
             var self = this;
             var qty = self.$elem.find('#quantity input').get(0).value;
-            console.log(""+barcode);
-            console.log(self.barcodes);
-            console.log("existe dans la liste:")
-            console.log(_.has(""+barcode, self.barcodes));
 
-            if(!_.has(barcode, self.barcodes)){
-            //if we scanned another product, then add the previous product before processing the barcode
-                console.log("pas meme produit");
+            if(!_.contains(self.barcodes, barcode.replace(/[\n\r]+/g, ''))){
+                //if we scanned another product, then add the previous product before processing the barcode
                 self.parent.start();
                 self.parent.add_product(self.id, parseInt(qty));
                 self.parent.process_barcode(barcode);
                 self.destroy();
             }else{
-                console.log("meme produit");
                 //if we scanned the same product, simply update the quantity
                 qty++;
                 self.$elem.find('#quantity input').get(0).value = qty;
             }
-
-            console.log(self.parent.received_products);
         },
     });
 
