@@ -148,8 +148,12 @@
         destroy: function(){
             this._super();
         },
-        process_barcode: function(barcode){
-        }
+        process_barcode: function(barcode) {
+            var self = this;
+            self.parent.start();
+            self.parent.process_barcode(barcode);
+            self.destroy();
+        },
     });
 
     instance.stock_irm.inbound_product_page = inbound_product_page;

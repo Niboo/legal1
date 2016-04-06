@@ -125,6 +125,15 @@
                 page: self.page - 1
             }).then(function(data){
                 self.products = data.products;
+
+                if (self.products.length == 1){
+                    var product_id = self.products[0].id;
+                    var ProductPage = instance.stock_irm.inbound_product_page;
+                    self.product_page = new ProductPage(self, product_id);
+                    self.product_page.start();
+                    return;
+                }
+
                 var $result = $(QWeb.render('product_result', {
                     products: self.products,
                 }));
