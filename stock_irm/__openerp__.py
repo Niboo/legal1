@@ -31,6 +31,7 @@ Module
     'author': 'Niboo',
     'depends': [
         'base',
+        'xx_product_supplierinfo_tags',
     ],
     'data': [
         'views/res_partner.xml',

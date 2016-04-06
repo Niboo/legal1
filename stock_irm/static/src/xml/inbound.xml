@@ -146,7 +146,7 @@
                         <span class="input-group-btn">
                             <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
                         </span>
-                        <input type="text" class="form-control text-center" value="1" />
+                        <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
                         <!--<div class="num-pad">-->
                             <!--<div class="circle">-->
                                 <!--<div class="num">-->

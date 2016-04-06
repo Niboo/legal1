@@ -26,13 +26,15 @@
     var QWeb = instance.qweb;
 
     var inbound_product_page = instance.stock_irm.widget.extend({
-    	init: function (parent, id) {
+    	init: function (parent, id, quantity) {
             this._super();
             var self = this;
             self.id = id;
             self.template = 'product_page';
             self.parent = parent;
             self.product;
+            self.quantity = quantity;
+            self.barcodes = [];
         },
         start: function(){
             var self = this;
@@ -69,8 +71,10 @@
             }).then(function(data){
                 self.product = data.product;
                 self.$elem = $(QWeb.render(self.template, {
-                    product: self.product
+                    product: self.product,
+                    quantity: self.quantity,
                 }));
+                self.barcodes = data.product.barcodes;
                 $('#content').html(self.$elem);
 
                 if (self.parent.current_cart) {
@@ -150,9 +154,27 @@
         },
         process_barcode: function(barcode) {
             var self = this;
-            self.parent.start();
-            self.parent.process_barcode(barcode);
-            self.destroy();
+            var qty = self.$elem.find('#quantity input').get(0).value;
+            console.log(""+barcode);
+            console.log(self.barcodes);
+            console.log("existe dans la liste:")
+            console.log(_.has(""+barcode, self.barcodes));
+
+            if(!_.has(barcode, self.barcodes)){
+            //if we scanned another product, then add the previous product before processing the barcode
+                console.log("pas meme produit");
+                self.parent.start();
+                self.parent.add_product(self.id, parseInt(qty));
+                self.parent.process_barcode(barcode);
+                self.destroy();
+            }else{
+                console.log("meme produit");
+                //if we scanned the same product, simply update the quantity
+                qty++;
+                self.$elem.find('#quantity input').get(0).value = qty;
+            }
+
+            console.log(self.parent.received_products);
         },
     });
 

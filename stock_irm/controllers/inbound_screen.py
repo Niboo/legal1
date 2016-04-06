@@ -77,31 +77,39 @@ class InboundController(http.Controller):
 SELECT pp.id, pt.name, psi.name
 FROM product_template AS pt
   JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
-  JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id,
-res_partner AS rp
+  JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id
+  JOIN xx_product_supplierinfo_tags AS psitags on psitags.res_id = psi.id,
+  res_partner AS rp
+
 WHERE (pt.name ilike %s
-OR pp.ean13 ilike %s)
+OR pp.ean13 ilike %s
+OR psitags.name ilike %s)
+
 AND pt.sale_ok IS TRUE
 AND psi.name = rp.id
 AND rp.commercial_partner_id = %s
 ORDER BY pp.id
 LIMIT %s
 OFFSET %s
-""", [search, search, supplier_id, search_limit, search_offset])
+""", [search, search, search, supplier_id, search_limit, search_offset])
         products_results = cr.fetchall()
 
         cr.execute("""
 SELECT count(*)
 FROM product_template AS pt
   JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
-  JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id,
-res_partner AS rp
+  JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id
+  JOIN xx_product_supplierinfo_tags AS psitags on psitags.res_id = psi.id,
+  res_partner AS rp
+
 WHERE (pt.name ilike %s
-OR pp.ean13 ilike %s)
+OR pp.ean13 ilike %s
+OR psitags.name ilike %s)
+
 AND pt.sale_ok IS TRUE
 AND psi.name = rp.id
 AND rp.commercial_partner_id = %s
-""", [search, search, supplier_id])
+""", [search, search, search, supplier_id])
 
         products_count = cr.fetchall()
 
@@ -127,8 +135,25 @@ AND rp.commercial_partner_id = %s
 
         product = env['product.product'].browse(int(id))
 
+        # retrieve the partner and its child to search for supplier info
+        supplier_childs = env['res.partner'].browse(int(supplier_id)).child_ids
+
         supplier_info = product.seller_ids.filtered(
-            lambda r: r.name.id == int(supplier_id))
+            lambda r: r.name.id == int(supplier_id) or
+                      r.name.id in supplier_childs.ids)
+
+        if len(supplier_info) != 1:
+            results = {
+                'status': 'error',
+                'message': """
+There is more or less than one supplier info for this product:
+product id: %s, supplier id: %s
+""" % (product.id, supplier_id)
+            }
+            return results
+        barcodes = supplier_info.xx_tag_ids.mapped('name')
+        if product.ean13:
+            barcodes.append(product.ean13)
 
         results = {
             'status': 'ok',
@@ -136,8 +161,8 @@ AND rp.commercial_partner_id = %s
                 'name': product.name,
                 'description': product.description,
                 'default_code': product.default_code,
-                'supplier_code': supplier_info and supplier_info.product_code or 'N/A',
-                'barcodes': supplier_info and supplier_info.xx_tags_ids or [],
+                'supplier_code': supplier_info.product_code or 'N/A',
+                'barcodes': barcodes,
             }
         }
         return results
@@ -200,7 +225,6 @@ AND rp.commercial_partner_id = %s
         for product_id, cart_dict in pickings.iteritems():
             product = env['product.product'].browse(int(product_id))
 
-
             # multiple location could be found for the same product
             for cart_id, location_dict in cart_dict.iteritems():
                 del(location_dict['index'])
@@ -208,7 +232,6 @@ AND rp.commercial_partner_id = %s
                 cart = env['stock.location'].browse(int(cart_id))
 
                 for box_id, quantity in location_dict.iteritems():
-
                     qty = quantity
 
                     # search or create an available box on this cart
