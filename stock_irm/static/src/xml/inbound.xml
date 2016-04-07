@@ -105,19 +105,6 @@
                     <div class="col-md-12">
                         <h3><t t-esc="product.description"/></h3>
                     </div>
-                    <div class="col-md-12" id="barcodes">
-                        <div class="col-md-2 col-xs-2">
-                            <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
-                        </div>
-                        <div class="col-md-10 col-xs-10">
-                            <ul>
-                                <t t-foreach="product.barcodes" t-as="barcode">
-                                    <li><t t-esc="barcode.name"/></li>
-                                </t>
-                            </ul>
-                        </div>
-                    </div>
-                    <hr/>
                     <div class="col-md-12">
                         <div class="col-md-3 col-xs-6">
                             <h4>Product code :</h4>
@@ -132,7 +119,43 @@
                             <h4><t t-esc="product.supplier_code"/></h4>
                         </div>
                     </div>
-
+                    <hr class="solid"/>
+                    <b>Barcodes:</b>
+                    <div class="col-md-12 information-box" id="barcodes">
+                        <div class="col-md-2 col-xs-2">
+                            <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
+                        </div>
+                        <div class="col-md-10 col-xs-10">
+                            <ul>
+                                <t t-foreach="barcodes" t-as="barcode">
+                                    <li><t t-esc="barcode"/></li>
+                                </t>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr class="solid"/>
+                    <b>Item is also in:</b>
+                    <div class="col-md-12 information-box">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Cart</th>
+                                    <th>Box</th>
+                                    <th>Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="list_cart_with_product" t-as="item">
+                                    <tr>
+                                        <td><t t-esc="item.cart_name"/></td>
+                                        <td><t t-esc="item.box"/></td>
+                                        <td><t t-esc="item.quantity"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr/>
                 </div>
             </div>
             <div class="row">

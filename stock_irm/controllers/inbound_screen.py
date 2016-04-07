@@ -27,13 +27,15 @@ from datetime import datetime
 class InboundController(http.Controller):
     @http.route('/inbound_screen', type='http', auth="user")
     def inbound_screen(self, **kw):
-        inbound_suppliers  = http.request.env['res.partner'].search(
-            [('is_in_inbound','=',True)]
-            ,order='sequence'
+        current_user = http.request.env['res.users'].browse(http.request.uid)
+        inbound_suppliers = http.request.env['res.partner'].search([
+            ('is_in_inbound', '=', True)],
+            order='sequence'
         )
 
         return http.request.render('stock_irm.inbound_screen', {
-              'suppliers': inbound_suppliers,
+            'suppliers': inbound_suppliers,
+            'user_name': current_user.partner_id.name
         })
 
     @http.route('/inbound_screen/get_suppliers', type='json', auth="user")
@@ -158,6 +160,7 @@ product id: %s, supplier id: %s
         results = {
             'status': 'ok',
             'product': {
+                'id': product.id,
                 'name': product.name,
                 'description': product.description,
                 'default_code': product.default_code,

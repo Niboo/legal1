@@ -151,60 +151,59 @@
             });
         },
         add_product: function(product_id, qty){
-            console.log(qty);
-
             var self = this;
             var product = {};
-            var cart = {};
+            var cart_box_list = {};
             var quantity = 0;
             var index;
 
+            // check if we already have the product id in our received products
+
+            // product is a list of the carts in which the product exists
             if (_.has(self.received_products, product_id)) {
                 product = self.received_products[product_id];
             } else {
                 self.received_products[product_id] = product;
-                self.current_cart.location += 1;
             }
 
             if (_.has(product, self.current_cart.id)) {
-                cart = product[self.current_cart.id];
+                cart_box_list = product[self.current_cart.id];
             } else {
-                product[self.current_cart.id] = cart;
+                product[self.current_cart.id] = cart_box_list;
             }
 
-            if (!_.isEmpty(cart)){
-                index = cart['index'];
-                quantity = cart[index];
+            if (!_.isEmpty(cart_box_list)){
+                index = cart_box_list['index'];
+                quantity = cart_box_list[index];
             } else {
-                index = self.current_cart.location;
-                cart['index'] = index;
+                index = self.current_cart.box_index;
+                cart_box_list['index'] = index;
             }
-            //if (_.has(cart, self.current_cart.location)) {
-            //    quantity = cart[self.current_cart.location];
-            //}
 
             quantity += qty;
 
-            cart[index] = quantity;
+            cart_box_list[index] = quantity;
         },
-        select_location: function(product_id){
+        select_box: function(product_id, cart_selection){
             var self = this;
-
             if (_.has(self.received_products, product_id)) {
                 var product = self.received_products[product_id];
                 if (_.has(product, self.current_cart.id)) {
-                    var cart = product[self.current_cart.id];
-                    return cart['index']
+                    var cart = product[self.current_cart.id]
+                    return cart['index'];
                 }
             }
-            return self.current_cart.location;
+            if(!cart_selection){
+                self.current_cart.box_index += 1;
+            }
+            return self.current_cart.box_index;
         },
         select_cart: function(cart_id, cart_name){
             var self = this;
             var cart = {
                 name: cart_name,
                 id: cart_id,
-                location: 1,
+                box_index: 1,
             }
 
             if (_.has(self.carts, cart_id)) {
@@ -223,12 +222,13 @@
                 pickings: self.received_products,
             }).then(function(data){
                 if (data.status == 'ok'){
-                    self.show_modal('Picking Confirmed!', 'Wait for redirection...');
+                    self.show_modal('Picking Confirmed!', "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");
                     window.setTimeout(function(){
                         window.location.href = "/inbound_screen";
                     }, 3000);
                 } else {
-                    self.show_modal('Picking not confirmed.', data.message);
+                    // this error message should not be blocking so we add "false" to the call
+                    self.show_modal('Picking not confirmed.', data.message, false);
                 }
             }).fail(function(data){
                 console.log('FAIL');

@@ -62,7 +62,7 @@
                                     <!--<li role="separator" class="divider" />-->
                                 </ul>
                                 <ul class="nav navbar-nav navbar-center">
-                                    <li><a href="#"><span class="glyphicon glyphicon-user" /> Samuel Lefever</a></li>
+                                    <li><a href="#"><span class="glyphicon glyphicon-user"/> <t t-esc="user_name"/></a></li>
                                 </ul>
                                 <ul class="nav navbar-nav navbar-right">
                                     <li id="search"><a href="#"><span class="glyphicon glyphicon-search" /> Search</a></li>

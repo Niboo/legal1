@@ -131,13 +131,12 @@ h2{
 }
 
 #rack{
-    font-size: 6em;
+    font-size: 3em;
     background-color: #d9534f;
     color: #fff;
 }
 
 #rack:hover{
-    font-size: 6em;
     background-color: #c9433f;
     color: #fff;
     cursor: hand;
@@ -157,7 +156,7 @@ h2{
     width: 50%;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 5%;
+    /*margin-top: 5%;*/
 }
 
 #quantity .btn {
@@ -243,10 +242,25 @@ h2{
     display: table-cell;
     text-align: center;
     vertical-align: middle;
-
     font-size: 1.3em;
     text-align: center;
     font-family: 'Lato' , sans-serif;
     line-height: 30px;
     color: #333;
+}
+
+/* ########## tick */
+
+.fa-10x {
+  font-size: 10em;
+}
+
+/* ########## barcodes */
+.information-box {
+    height: 22%;
+}
+
+.solid{
+    border-style: inset;
+    border-width: 1px;
 }

@@ -39,7 +39,6 @@
         start: function(){
             var self = this;
             self.get_product();
-            self.next_box_index = 0;
             if (! self.parent.current_cart) {
                 self.get_carts();
             }
@@ -69,10 +68,30 @@
                 id: self.id,
                 supplier_id: self.parent.supplier_id
             }).then(function(data){
+                var cart_id;
+                var box_id;
+                var quantity;
+                var cart_with_product = []
+
+                // building the array with the needed information
+                if(self.parent.received_products[self.id]){
+                    $.each( self.parent.received_products[self.id], function( key, value ) {
+                        $.each(value, function(key, value){
+                            if(key!="index"){
+                                box_id = key;
+                                quantity = value;
+                            }
+                        });
+                        cart_with_product.push({"cart_name":self.parent.carts[key]["name"], "box": box_id, "quantity":quantity});
+                    });
+                }
+
                 self.product = data.product;
                 self.$elem = $(QWeb.render(self.template, {
                     product: self.product,
                     quantity: self.quantity,
+                    barcodes: data.product.barcodes,
+                    list_cart_with_product: cart_with_product || []
                 }));
                 self.barcodes = data.product.barcodes;
                 $('#content').html(self.$elem);
@@ -102,22 +121,23 @@
         },
         add_listener_on_carts: function(){
             var self = this;
-
             self.$modal.find('.modal-body .cart').click(function(event){
                 event.preventDefault();
                 var cart_id = $(event.currentTarget).attr('cart-id');
                 var cart_name = $(event.currentTarget).attr('cart-name');
                 self.parent.select_cart(cart_id, cart_name)
                 self.$modal.modal('hide');
-                self.display_cart_info();
+                self.display_cart_info(true);
+                self.add_listener_for_barcode();
             })
         },
-        display_cart_info: function(){
+        display_cart_info: function(cart_selection){
+            if (typeof(cart_selection)==='undefined') cart_selection = false;
             var self = this;
             var cart = self.parent.current_cart;
-            var location = self.parent.select_location();
+            var box = self.parent.select_box(self.id, cart_selection);
 
-            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' / ' + location + '</span>');
+            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' / ' + box + '</span>');
         },
         add_listener_on_search_button: function(){
             var self = this;
@@ -141,6 +161,7 @@
         },
         add_listener_on_confirm_button: function(){
             var self = this;
+
             self.$nav.find('#confirm a').show();
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){

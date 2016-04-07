@@ -84,11 +84,21 @@
             self.add_listener_for_barcode();
             self.add_listener_on_closing_modal()
         },
-        show_modal: function(title, content){
+        show_modal: function(title, content, block_modal){
             var self = this;
+            if (typeof(block_modal)==='undefined') block_modal = true;
+
+            $(document).off('keypress.barcode');
             self.$modal.find('.modal-title').html(title);
             self.$modal.find('.modal-body').html(content);
-            self.$modal.modal("show");
+            if(block_modal){
+                self.$modal.modal({
+                    backdrop: 'static', // prevent from closing when clicking beside the modal
+                    keyboard: false  // prevent closing when clicking on "escape"
+                });
+            }else{
+                self.$modal.modal();
+            }
         },
         add_listener_on_closing_modal: function(){
             var self = this;
