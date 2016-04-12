@@ -29,6 +29,7 @@
     	init: function (supplier_id) {
             this._super();
             var self = this;
+            self.nb_already_printed = 0;
             self.carts = {};
             self.current_cart = false;
             self.template = 'product_selector';
@@ -150,7 +151,7 @@
                 }
             });
         },
-        add_product: function(product_id, qty){
+        add_product: function(product_id, qty, product_name, barcode){
             var self = this;
             var product = {};
             var cart_box_list = {};
@@ -158,7 +159,6 @@
             var index;
 
             // check if we already have the product id in our received products
-
             // product is a list of the carts in which the product exists
             if (_.has(self.received_products, product_id)) {
                 product = self.received_products[product_id];
@@ -183,6 +183,12 @@
             quantity += qty;
 
             cart_box_list[index] = quantity;
+
+            // print the remaining labels in case the user manually changed the quantity
+            if(qty > self.nb_already_printed){
+                self.print_label(product_name, barcode, qty-self.nb_already_printed);
+            }
+            self.nb_already_printed = 0;
         },
         select_box: function(product_id, cart_selection){
             var self = this;
@@ -241,6 +247,16 @@
             self.$elem.find('#results').empty();
             self.get_products();
         },
+        print_label: function(product_name, barcode, quantity){
+            //TODO: the url should be a parameter found in odoo? how to manage this?
+            return $.ajax('http://192.168.50.137/printer/wfmprint', {
+                dataType: 'xml',
+                data: {'dev':"E",'oname':"DYNAPPS",'otype':"ZPL","FN11":product_name, "FN12":barcode,"PQ":quantity},
+                context: {
+                    url: 'http://192.168.50.137/printer/wfmprint'
+                }
+            })
+        }
     });
 
     instance.stock_irm.inbound_product_picking = inbound_product_picking;

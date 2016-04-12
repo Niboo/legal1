@@ -35,6 +35,8 @@
             self.product;
             self.quantity = quantity;
             self.barcodes = [];
+            self.number_is_ok = true;
+
         },
         start: function(){
             var self = this;
@@ -49,11 +51,25 @@
                 qty = $('#quantity input').val();
                 if($(event.currentTarget).attr('data-dir') == 'up'){
                     $('#quantity input').val(parseInt(qty) + 1);
-                } else {
+                } else if ($(event.currentTarget).attr('data-dir') == 'dwn'){
                     if(qty > 1){
                         $('#quantity input').val(parseInt(qty) - 1);
                     }
+                } else if ($(event.currentTarget).attr('data-dir') == 'print'){
+                    self.parent.print_label(self.product.name, self.barcodes[0], qty-self.parent.nb_already_printed);
+                    self.parent.nb_already_printed = qty;
+                    $('#print_button').hide();
                 }
+
+                if(parseInt(qty = $('#quantity input').val()) != self.parent.nb_already_printed){
+                    $('#print_button').show();
+                    self.number_is_ok = false;
+                }else{
+                    self.number_is_ok = true;
+                    $('#print_button').hide();
+                }
+                // force to lose focus to avoid adding +1 when scanning another product
+                $(':focus').blur()
             });
         },
         add_listener_on_cart_button: function(){
@@ -100,6 +116,11 @@
                     self.display_cart_info();
                 }
 
+                // print the label the first time
+                console.log("print label premier scan");
+                self.parent.print_label(self.product.name, self.barcodes[0] , 1)
+                self.parent.nb_already_printed += 1;
+
                 self.add_listener_on_quantity();
                 self.add_listener_on_cart_button();
             })
@@ -143,7 +164,7 @@
             var self = this;
             self.$nav.find('#search a').show();
             self.$nav.off('click.search');
-            self.$nav.on('click.search', '#search a', function(event){
+            self.$nav.on('click.search', '#search a', function (event) {
                 var qty = self.$elem.find('#quantity input').get(0).value
                 self.parent.add_product(self.id, parseInt(qty));
                 self.destroy();
@@ -161,10 +182,9 @@
         },
         add_listener_on_confirm_button: function(){
             var self = this;
-
             self.$nav.find('#confirm a').show();
             self.$nav.off('click.confirm');
-            self.$nav.on('click.confirm', '#confirm a', function(event){
+            self.$nav.on('click.confirm', '#confirm a', function (event) {
                 var qty = self.$elem.find('#quantity input').get(0).value
                 self.parent.add_product(self.id, parseInt(qty));
                 self.parent.confirm();
@@ -175,18 +195,38 @@
         },
         process_barcode: function(barcode) {
             var self = this;
+
             var qty = self.$elem.find('#quantity input').get(0).value;
 
             if(!_.contains(self.barcodes, barcode.replace(/[\n\r]+/g, ''))){
-                //if we scanned another product, then add the previous product before processing the barcode
-                self.parent.start();
-                self.parent.add_product(self.id, parseInt(qty));
-                self.parent.process_barcode(barcode);
-                self.destroy();
+                if(self.is_enough_label_printed()){
+                   //if we scanned another product, then add the previous product before processing the barcode
+                    self.parent.start();
+                    self.parent.add_product(self.id, parseInt(qty));
+                    self.parent.process_barcode(barcode);
+                    self.destroy();
+                }
             }else{
-                //if we scanned the same product, simply update the quantity
+                //if we scanned the same product, simply update the quantity and print the label
                 qty++;
                 self.$elem.find('#quantity input').get(0).value = qty;
+
+                // print the label each time we scan again
+                console.log("print label car même produit")
+                self.parent.print_label(self.product.name, self.product.barcodes[0], 1)
+                self.parent.nb_already_printed += 1;
+            }
+        },
+        is_enough_label_printed: function(){
+            var self = this;
+            if(parseInt($('#quantity input').val()) > self.parent.nb_already_printed){
+                self.show_modal('Not enough label printed', "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>  You didn't print enough labels</b>", false);
+                console.log("false")
+                return false;
+            }else{
+                console.log("true")
+
+                return true;
             }
         },
     });

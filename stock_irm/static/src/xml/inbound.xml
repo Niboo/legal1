@@ -85,6 +85,11 @@
         </t>
     </t>
 
+    <t t-name="print_error_message">
+        <!-- cart selection modal -->
+        <b>You didn't print enough stickers for this item.</b>
+    </t>
+
     <t t-name="result_more">
         <div class="text-center col-xs-12 col-md-12">
             <a href="#" id="more" role="button" class="btn btn-primary btn-lg">More...</a>
@@ -283,6 +288,9 @@
                         <span class="input-group-btn">
 				        	<button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
 				        </span>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" id="print_button" style="display:none;" data-dir="print"><span class="glyphicon glyphicon-print"></span></button>
+                        </span>
                     </div>
                 </div>
             </div>
