@@ -87,7 +87,10 @@
 
     <t t-name="print_error_message">
         <!-- cart selection modal -->
-        <b>You didn't print enough stickers for this item.</b>
+        <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>  You didn't print enough labels</b>
+        <a id="modal_print_button" href="#" class="btn btn-lg btn-success">
+            Print missing labels
+        </a>
     </t>
 
     <t t-name="result_more">
@@ -168,7 +171,7 @@
                     <span>Select a cart</span>
                 </div>
 
-                <div class="col-md-7">
+                <div class="col-md-4">
 
                     <div id="quantity" class="input-group">
                         <span class="input-group-btn">
@@ -288,6 +291,11 @@
                         <span class="input-group-btn">
 				        	<button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
 				        </span>
+
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="quantity" class="input-group">
                         <span class="input-group-btn">
                             <button class="btn btn-default" id="print_button" style="display:none;" data-dir="print"><span class="glyphicon glyphicon-print"></span></button>
                         </span>

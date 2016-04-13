@@ -181,13 +181,7 @@
             }
 
             quantity += qty;
-
             cart_box_list[index] = quantity;
-
-            // print the remaining labels in case the user manually changed the quantity
-            if(qty > self.nb_already_printed){
-                self.print_label(product_name, barcode, qty-self.nb_already_printed);
-            }
             self.nb_already_printed = 0;
         },
         select_box: function(product_id, cart_selection){

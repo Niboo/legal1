@@ -92,15 +92,11 @@
             self.$modal.find('.modal-body').html(content);
             if(block_modal){
                 self.$modal.modal({
-                    //backdrop: 'static', // prevent from closing when clicking beside the modal
-                    //keyboard: false  // prevent closing when clicking on "escape"
+                    backdrop: 'static', // prevent from closing when clicking beside the modal
+                    keyboard: false  // prevent closing when clicking on "escape"
                 });
             }else{
                 self.$modal.modal();
-                $('#modalWindow').on('hidden.bs.modal', function () {
-                    console.log("ferme");
-                    self.add_listener_for_barcode();
-                })
             }
         },
         add_listener_on_closing_modal: function(){
