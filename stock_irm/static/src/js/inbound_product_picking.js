@@ -243,13 +243,14 @@
         },
         print_label: function(product_name, barcode, quantity){
             //TODO: the url should be a parameter found in odoo? how to manage this?
-            return $.ajax('http://192.168.50.137/printer/wfmprint', {
-                dataType: 'xml',
-                data: {'dev':"E",'oname':"DYNAPPS",'otype':"ZPL","FN11":product_name, "FN12":barcode,"PQ":quantity},
-                context: {
-                    url: 'http://192.168.50.137/printer/wfmprint'
-                }
-            })
+            //return $.ajax('http://192.168.50.137/printer/wfmprint', {
+            //    dataType: 'xml',
+            //    data: {'dev':"E",'oname':"DYNAPPS",'otype':"ZPL","FN11":product_name, "FN12":barcode,"PQ":quantity},
+            //    context: {
+            //        url: 'http://192.168.50.137/printer/wfmprint'
+            //    }
+            //})
+            console.log("print "+quantity+" etiquettes")
         }
     });
 

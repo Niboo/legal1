@@ -19,6 +19,10 @@
 #
 ##############################################################################
 
-from . import res_partner
-from . import res_users
-from . import printing_printer
+from openerp import models, api, fields
+
+
+class PrintingPrinter(models.Model):
+    _inherit = 'printing.printer'
+
+    ip_adress = fields.Char("IP adress")

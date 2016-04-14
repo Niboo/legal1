@@ -32,10 +32,14 @@ Module
     'depends': [
         'base',
         'xx_product_supplierinfo_tags',
+        'dyn_report_to_printer_location',
+        'base_report_to_printer',
     ],
     'data': [
         'views/res_partner.xml',
         'templates/inbound_screen.xml',
+        'views/res_users.xml',
+        'views/printing_printers.xml',
     ],
     'qweb': [
     ],

@@ -88,7 +88,6 @@
                 self.$modal.modal('hide');
                 self.parent.nb_already_printed = qty;
                 self.add_listener_for_barcode();
-
             })
         },
         get_product: function(){

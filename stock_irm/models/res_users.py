@@ -19,6 +19,22 @@
 #
 ##############################################################################
 
-from . import res_partner
-from . import res_users
-from . import printing_printer
+from openerp import models, api, fields
+
+
+class ResUsers(models.Model):
+
+    _inherit = "res.users"
+
+    login_code = fields.Integer("Login code", default=-1)
+    login_barcode = fields.Char("Login barcode")
+
+    _sql_constraints = [
+        ('login_code_secured',
+         "CHECK(login_code > 1000 OR login_code = -1)",
+         'This login code is not secured enough'),
+
+        ('barcode_unique',
+         'UNIQUE(login_barcode)',
+         'The login barcode should be unique'),
+    ]

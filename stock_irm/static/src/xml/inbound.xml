@@ -85,11 +85,31 @@
         </t>
     </t>
 
+    <t t-name="worklocation_result">
+        <!-- cart selection modal -->
+        <t t-foreach="worklocations" t-as="worklocation">
+            <a href="#" class="btn btn-lg btn-success worklocation" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
+            </a>
+        </t>
+    </t>
+
     <t t-name="print_error_message">
         <!-- cart selection modal -->
         <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>  You didn't print enough labels</b>
         <a id="modal_print_button" href="#" class="btn btn-lg btn-success">
             Print missing labels
+        </a>
+    </t>
+
+    <t t-name="change_user">
+        <!-- cart selection modal -->
+        <b style='font-size: 2em'>Change user</b><br/>
+        <div id="login-image" style="background-repeat: no-repeat; background-size: 100px 100px; width:100px; height:100px; display:none"></div>
+        Login: <input id="login" type="text" class="form-control text-center"/>
+        Code: <input id="login_code" type="text" class="form-control text-center"/>
+        <a id="modal_changer_user_button" href="#" class="btn btn-lg btn-success">
+            Change User
         </a>
     </t>
 

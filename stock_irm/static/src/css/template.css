@@ -267,3 +267,7 @@ h2{
     border-style: inset;
     border-width: 1px;
 }
+
+.worklocation{
+    width: 32%;
+}

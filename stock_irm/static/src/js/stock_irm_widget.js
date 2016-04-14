@@ -30,11 +30,9 @@
     var stock_irm_widget= instance.Class.extend({
         init: function () {
             var self = this;
-
             self.session = new instance.Session();
             self.$nav = $('nav');
             self.$modal = $('#modalWindow');
-
             self.add_listeners();
         },
         add_listener_on_search_button: function(){
@@ -72,6 +70,49 @@
                 pressed = true;
             });
         },
+        add_listener_on_user_button: function(){
+            var self = this;
+            var pressed = false;
+            var chars = [];
+            self.$nav.off('click.change-user');
+            self.$nav.on('click.change-user', '#change-user a', function (event) {
+                var $result = $(QWeb.render('change_user', {}));
+                self.show_modal('Please enter your login information', $result, false);
+                $(document).off('keypress.barcode');
+                $(document).on('keypress.barcode', function(e) {
+                    chars.push(String.fromCharCode(e.which));
+                    if (pressed == false) {
+                        setTimeout(function(){
+                            if (chars.length >= 6) {
+                                self.session.rpc('/inbound_screen/get_user', {
+                                    'barcode': chars.join("").replace(/[\n\r]+/g, '')
+                                }).then(function(data){
+                                    if(data.status == "ok"){
+                                        self.$modal.find('#login').val(data.login);
+                                        self.$modal.find('#login-image').html("<div style=\"background-image:url('"+data.image+"');\"></div>");
+                                        self.$modal.find('#login-image').show();
+                                    }else{
+                                        console.log("pas de user trouvé");
+                                    }
+                                });
+                            }
+                            chars = [];
+                            pressed = false;
+                        },500);
+                    }
+                    pressed = true;
+                });
+
+                self.$modal.find('#modal_changer_user_button').click(function(event){
+                    event.preventDefault();
+                    login = self.$modal.find('#login').val();
+                    code = self.$modal.find('#login_code').val();
+
+                    //TODO: really change the user connected to odoo. This only change the user being used on the page
+                    window.location.href = "/inbound_screen/change_user?login="+login+"&login_code="+code;
+                })
+            });
+        },
         process_barcode: function(barcode){
             // dummy method to process barcode
             console.log("Barcode Scanned: " + barcode);
@@ -82,7 +123,12 @@
             self.add_listener_on_search_button();
             self.add_listener_on_confirm_button();
             self.add_listener_for_barcode();
-            self.add_listener_on_closing_modal()
+            self.add_listener_on_closing_modal();
+            self.add_listener_on_user_button();
+            self.add_listener_on_worklocation_button();
+            if(!self.worklocation){
+                self.get_worklocations();
+            }
         },
         show_modal: function(title, content, block_modal){
             var self = this;
@@ -108,6 +154,48 @@
             })
         },
         destroy: function(){
+        },
+        add_listener_on_worklocation_button: function(){
+            var self = this;
+
+            self.$nav.off('click.change-worklocation');
+            self.$nav.on('click.change-worklocation', '#change-worklocation a', function (event) {
+                self.get_worklocations();
+            });
+        },
+        get_worklocations: function(){
+            var self = this;
+
+            self.session.rpc('/inbound_screen/get_worklocations', {
+            }).then(function(data){
+                self.worklocations = data.worklocations;
+                var $result = $(QWeb.render('worklocation_result', {
+                    worklocations: self.worklocations,
+                }));
+                self.show_modal('Work Location Selection', $result);
+                self.add_listener_on_worklocations();
+            });
+        },
+        add_listener_on_worklocations: function(){
+            var self = this;
+            self.$modal.find('.modal-body .worklocation').click(function(event){
+                event.preventDefault();
+                var worklocation_id = $(event.currentTarget).attr('worklocation-id');
+                var worklocation_name = $(event.currentTarget).attr('worklocation-name');
+                self.worklocation = {
+                    name: worklocation_name,
+                    id: worklocation_id,
+                }
+
+                self.session.rpc('/inbound_screen/get_worklocation_printers', {
+                    'location_id':self.worklocation.id}
+                ).then(function(data){
+                    self.printers = data.printers;
+                });
+                self.$modal.modal('hide');
+                self.$nav.find('#change-worklocation').html('<a href="#"><span class="glyphicon glyphicon-cog"/> '+self.worklocation.name+'</a>');
+
+            })
         },
     });
 

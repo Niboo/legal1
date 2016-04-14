@@ -336,3 +336,87 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
                    }
 
         return results
+
+    @http.route('/inbound_screen/change_user', type='http', auth="user")
+    def change_user(self, login, login_code, **kw):
+        code = int(login_code)
+        if(code == -1):
+            raise exceptions.ValidationError('This code is invalid')
+
+        current_user = http.request.env['res.users'].search(
+            [('login','=',login),
+             ('login_code','=',login_code),
+             ('active','=',True)]
+        )
+
+        if not current_user:
+            raise exceptions.ValidationError('No user logged!')
+
+        inbound_suppliers = http.request.env['res.partner'].search([
+            ('is_in_inbound', '=', True)],
+            order='sequence'
+        )
+
+        return http.request.render('stock_irm.inbound_screen', {
+            'suppliers': inbound_suppliers,
+            'user_name': current_user.partner_id.name,
+            'image': "/web/binary/image?model=res.users&id=%s&field=image_medium" % current_user.id
+        })
+
+    @http.route('/inbound_screen/get_worklocations', type='json', auth="user")
+    def get_worklocation(self, **kw):
+        env = http.request.env
+        wklc = env['work_location']
+        worklocations = list()
+        domain = []
+
+        wklc = wklc.search(domain)
+
+        for location in wklc:
+            worklocations.append({
+                'id': location.id,
+                'name': location.name,
+            })
+
+        results = {'status': 'ok',
+                   'worklocations': worklocations}
+
+        return results
+
+    @http.route('/inbound_screen/get_worklocation_printers',
+                type='json',
+                auth="user")
+    def get_worklocation_printers(self, location_id, **kw):
+        env = http.request.env
+        wklc = env['work_location']
+
+        printers = []
+        for line in wklc.browse(int(location_id)).work_location_printer_ids:
+            printers.append({'id':line.printing_printer_id.id,
+                             'ip_adress':line.printing_printer_id.ip_adress})
+        results = {'status': 'ok',
+                   'printers': printers}
+
+        return results
+
+    @http.route('/inbound_screen/get_user', type='json', auth="user")
+    def get_user(self, barcode="",  **kw):
+        env = http.request.env
+        domain = []
+
+        if barcode:
+            domain.append(('login_barcode','=',barcode))
+
+        user = env['res.users'].search(
+            domain
+        )
+        if user:
+            results = {'status': 'ok',
+                       'username': user.name,
+                       'user_id':user.id,
+                       'login':user.login,
+                       'image': "/web/binary/image?model=res.users&id=%s&field=image_medium" % user.id}
+
+            return results
+        else:
+            return {"status": 'error'};
