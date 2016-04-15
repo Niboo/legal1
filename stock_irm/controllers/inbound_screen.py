@@ -22,6 +22,7 @@
 from openerp import http
 from openerp import exceptions
 from datetime import datetime
+from openerp.http import request
 
 
 class InboundController(http.Controller):
@@ -340,6 +341,7 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
     @http.route('/inbound_screen/change_user', type='http', auth="user")
     def change_user(self, login, login_code, **kw):
         code = int(login_code)
+
         if(code == -1):
             raise exceptions.ValidationError('This code is invalid')
 
@@ -351,6 +353,18 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
 
         if not current_user:
             raise exceptions.ValidationError('No user logged!')
+
+        # request.session.logout(keep_db=True)
+        # request.session.authenticate(request.session.db, login=current_user.login,
+        #                               password=current_user.password)
+
+        # self.db = request.session.db
+        # self.uid = current_user.id
+        # self.login = current_user.login
+        # self.password = current_user.password
+        # request.uid = current_user.id
+        # request.disable_db = False
+
 
         inbound_suppliers = http.request.env['res.partner'].search([
             ('is_in_inbound', '=', True)],
@@ -410,6 +424,7 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
         user = env['res.users'].search(
             domain
         )
+
         if user:
             results = {'status': 'ok',
                        'username': user.name,

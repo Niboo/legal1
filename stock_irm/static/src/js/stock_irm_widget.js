@@ -192,6 +192,7 @@
                 ).then(function(data){
                     self.printers = data.printers;
                 });
+                //TODO: keep the location between pages to avoid having the popup each time
                 self.$modal.modal('hide');
                 self.$nav.find('#change-worklocation').html('<a href="#"><span class="glyphicon glyphicon-cog"/> '+self.worklocation.name+'</a>');
 

@@ -38,3 +38,7 @@ class ResUsers(models.Model):
          'UNIQUE(login_barcode)',
          'The login barcode should be unique'),
     ]
+
+    # def authenticate(self, db, login, password, user_agent_env):
+    #     print "test"
+    #     return super(ResUsers, self).authenticate(db, login, password, user_agent_env)
