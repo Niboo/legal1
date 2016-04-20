@@ -114,10 +114,32 @@
             self.$nav.find('#back a').show();
             self.$nav.off('click.back');
             self.$nav.on('click.back', '#back a', function(event){
-                self.destroy();
+                var $result = $(QWeb.render('go_back'));
+                self.show_modal('Are you sure you want to go back?', $result, false);
+                self.add_listener_on_goback_button();
+                self.add_listener_on_continue_button();
+            })
+        },
+        add_listener_on_ask_close: function(){
+            var self = this;
+            self.$elem.find("div[data-target='#closeBoxModal']").click(function(){
+                self.propose_close();
+            })
+        },
+        add_listener_on_goback_button: function(){
+            var self = this;
+            self.$modal.find('.modal-body .goback').click(function(event){
+                self.$modal.modal('hide');
                 window.location.href = "/inbound_screen";
             })
         },
+        add_listener_on_continue_button: function(){
+            var self = this;
+            self.$modal.find('.modal-body .continue').click(function(event){
+                self.$modal.modal('hide');
+            })
+        },
+
         get_products: function(){
             var self = this;
             self.session.rpc('/inbound_screen/get_products', {
