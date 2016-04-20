@@ -40,6 +40,7 @@ Module
         'templates/inbound_screen.xml',
         'views/res_users.xml',
         'views/printing_printers.xml',
+        'views/work_location.xml',
     ],
     'qweb': [
     ],

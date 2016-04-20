@@ -19,7 +19,19 @@
 #
 ##############################################################################
 
-from . import res_partner
-from . import res_users
-from . import printing_printer
-from . import work_location
+from openerp import models, api, fields
+from openerp.exceptions import ValidationError
+
+
+class WorkLocation(models.Model):
+
+    _inherit = "work_location"
+
+    @api.one
+    @api.constrains('work_location_printer_ids')
+    def check_single_label_printer(self):
+        label_printer_type_id = self.env.ref('stock_irm.label_printer_type')
+        if len(self.work_location_printer_ids.filtered(
+                lambda r: r.document_type_id.id == label_printer_type_id.id))>1:
+            raise ValidationError("""
+You can only set a single label printer for each Work Location""")
