@@ -19,8 +19,11 @@
 #
 ##############################################################################
 
-from . import res_partner
-from . import res_users
-from . import printing_printer
-from . import work_location
-from . import stock_location
+from openerp import models, api, fields
+
+
+class StockLocation(models.Model):
+
+    _inherit = "stock.location"
+
+    is_in_usage = fields.Boolean("Currently in usage", default=False)

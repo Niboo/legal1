@@ -178,7 +178,8 @@ product id: %s, supplier id: %s
         env = http.request.env
         inbound_carts = list()
 
-        domain = [('location_id', '=', env.ref('__ow__.stock_location_input').id)]
+        domain = [('location_id', '=',
+                   env.ref('__ow__.stock_location_input').id)]
 
         carts = env['stock.location'].search(
             domain
@@ -186,6 +187,7 @@ product id: %s, supplier id: %s
 
         for cart in carts:
             inbound_carts.append({
+                'is_in_usage': cart.is_in_usage,
                 'id': cart.id,
                 'name': cart.name,
             })
@@ -450,3 +452,11 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
             return results
         else:
             return {"status": 'error'};
+
+    @http.route('/inbound_screen/book_cart',
+                type='json',
+                auth="user")
+    def book_cart(self, cart_id, **kw):
+        env = http.request.env
+
+        env['stock.location'].browse(int(cart_id)).is_in_usage = True

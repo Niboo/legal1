@@ -41,6 +41,7 @@ Module
         'views/res_users.xml',
         'views/printing_printers.xml',
         'views/work_location.xml',
+        'views/stock_location.xml',
     ],
     'qweb': [
     ],

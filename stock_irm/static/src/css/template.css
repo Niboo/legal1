@@ -271,3 +271,8 @@ h2{
 .worklocation{
     width: 32%;
 }
+
+a[is-in-usage='true'] {
+    background-color: #FFB100;
+    border-color: #FFB100;
+}

@@ -158,6 +158,11 @@
             var quantity = 0;
             var index;
 
+            // we book the cart only when adding a product (to avoid booking when missclicking)
+            self.session.rpc('/inbound_screen/book_cart', {
+                cart_id: self.current_cart.id,
+            })
+
             // check if we already have the product id in our received products
             // product is a list of the carts in which the product exists
             if (_.has(self.received_products, product_id)) {

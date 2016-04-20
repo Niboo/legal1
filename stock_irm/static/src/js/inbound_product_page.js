@@ -160,7 +160,15 @@
                 self.$modal.modal('hide');
                 self.display_cart_info(true);
                 self.add_listener_for_barcode();
-            })
+            });
+            $("a[is-in-usage='true']").hide()
+            $('div.tags').find('input:checkbox').live('click', function () {
+                if($('#display-all-cart').is(':checked')){
+                    $("a[is-in-usage='true']").show()
+                }else{
+                    $("a[is-in-usage='true']").hide()
+                }
+            });
         },
         display_cart_info: function(cart_selection){
             if (typeof(cart_selection)==='undefined') cart_selection = false;
