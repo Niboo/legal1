@@ -60,13 +60,7 @@
                     $('#quantity_to_print').val(qty-self.parent.nb_already_printed);
                 }
 
-                if(parseInt($('#quantity input').val()) > self.parent.nb_already_printed){
-                    $('#print_button').css({'color':'red'});
-                    $('#already_printed_quantity').css({'color':'red'});
-                }else{
-                    $('#print_button').css({'color':'green'});
-                    $('#already_printed_quantity').css({'color':'green'});
-                }
+                self.color_printed_labels(parseInt($('#quantity_to_print').val()));
                 // force to lose focus to avoid adding +1 when scanning another product
                 $(':focus').blur()
             });
@@ -99,8 +93,8 @@
                         self.parent.nb_already_printed += qty_to_print;
                         $('#already_printed_quantity').val(self.parent.nb_already_printed);
                         $('#quantity_to_print').val(0);
-                        $('#already_printed_quantity').css({'color':'green'});
-                        $('#print_button').css({'color':'green'});
+                        self.color_printed_labels(parseInt($('#quantity_to_print').val()));
+
                     }
                 }
                 $(':focus').blur()
@@ -114,14 +108,27 @@
         },
         add_listener_on_modal_print_button: function(){
             var self = this;
+            qty_to_print = parseInt($('#quantity_to_print').val());
+
             self.$modal.find('#modal_print_button').click(function(event){
                 event.preventDefault();
-                self.parent.print_label(self.product.name, self.barcodes[0], parseInt(qty)-self.parent.nb_already_printed);
-                $('#print_button').hide();
+                self.parent.print_label(self.product.name, self.barcodes[0], qty_to_print);
                 self.$modal.modal('hide');
-                self.parent.nb_already_printed = qty;
+                self.parent.nb_already_printed = self.parent.nb_already_printed + qty_to_print
+                $('#already_printed_quantity').val(self.parent.nb_already_printed);
+                $('#quantity_to_print').val(0);
+                self.color_printed_labels(parseInt($('#quantity_to_print').val()));
                 self.add_listener_for_barcode();
             })
+        },
+        color_printed_labels: function(missing_labels){
+            if(missing_labels>0){
+                $('#print_button').css({'color':'red'});
+                $('#already_printed_quantity').css({'color':'red'});
+            }else{
+                $('#print_button').css({'color':'green'});
+                $('#already_printed_quantity').css({'color':'green'});
+            }
         },
         get_product: function(){
             var self = this;
@@ -272,7 +279,7 @@
         },
         is_enough_label_printed: function(){
             var self = this;
-            if(parseInt($('#quantity input').val()) > self.parent.nb_already_printed){
+            if(parseInt($('#quantity_to_print').val())>0){
                 var $result = $(QWeb.render('print_error_message', {}));
                 self.show_modal('Not enough label printed', $result, false);
                 self.add_listener_on_modal_print_button();
