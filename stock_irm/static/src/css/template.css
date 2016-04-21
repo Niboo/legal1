@@ -154,7 +154,7 @@ h2{
 /* ########## QUANTITY */
 
 #quantity {
-    width: 75%;
+    /*width: 75%;*/
     margin-left: auto;
     margin-right: auto;
     /*margin-top: 5%;*/
@@ -175,6 +175,39 @@ h2{
 #quantity input {
     font-size: 2.5em;
 }
+
+#label-quantity .btn {
+    width: 70px;
+}
+
+#label-quantity .btn, #label-quantity input {
+    height: 70px;
+}
+
+#label-quantity .btn {
+    font-size: 1.5vw;
+}
+
+#label-quantity input {
+    font-size: 2.5em;
+}
+
+#label-printed .btn {
+    width: 70px;
+}
+
+#label-printed .btn, #label-printed input {
+    height: 70px;
+}
+
+#label-printed .btn {
+    font-size: 1.5vw;
+}
+
+#label-printed input {
+    font-size: 2.5em;
+}
+
 
 #modal_print_button{
     margin-left:55%;

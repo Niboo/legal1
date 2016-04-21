@@ -195,13 +195,26 @@
                     <hr/>
                 </div>
             </div>
+            <div>
+                <div class="col-md-4">
+                    <h4>Put in box:</h4>
+                </div>
+                <div class="col-md-3">
+                    <h4>Quantity to add:</h4>
+                </div>
+                <div class="col-md-3">
+                    <h4>Missing labels:</h4>
+                </div>
+                <div class="col-md-2">
+                    <h4>Already printed:</h4>
+                </div>
+            </div>
             <div class="row">
-                <div id="rack" data-target='#cartSelectionModal' class="col-md-5 text-center">
+                <div id="rack" data-target='#cartSelectionModal' class="col-md-4 text-center">
                     <span>Select a cart</span>
                 </div>
 
-                <div class="col-md-4">
-
+                <div class="col-md-3">
                     <div id="quantity" class="input-group">
                         <span class="input-group-btn">
                             <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
@@ -324,10 +337,22 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div id="quantity" class="input-group">
+                    <div id="label-quantity" class="input-group column-inbound">
                         <span class="input-group-btn">
-                            <button class="btn btn-default" id="print_button" style="display:none;" data-dir="print"><span class="glyphicon glyphicon-print"></span></button>
+                            <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
                         </span>
+                        <input id="quantity_to_print" type="text" class="form-control text-center" value="0"/>
+                        <span class="input-group-btn">
+				        	<button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+				        </span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div id="label-printed" class="input-group column-inbound">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" text="255" id="print_button" data-dir="print"><span class="glyphicon glyphicon-print"></span></button>
+                        </span>
+                        <input id="already_printed_quantity" type="text" class="form-control text-center" value="1"/>
                     </div>
                 </div>
             </div>

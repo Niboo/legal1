@@ -47,8 +47,6 @@
             var self = this;
             self.$elem.find('#quantity button').click(function(event){
                 qty = parseInt($('#quantity input').val());
-
-
                 if($(event.currentTarget).attr('data-dir') == 'up'){
                     qty++;
                     $('#quantity input').val(qty);
@@ -57,19 +55,54 @@
                         qty--;
                         $('#quantity input').val(qty);
                     }
-                } else if ($(event.currentTarget).attr('data-dir') == 'print'){
-                    self.parent.print_label(self.product.name, self.barcodes[0], qty-self.parent.nb_already_printed);
-                    self.parent.nb_already_printed = qty;
-                    $('#print_button').hide();
+                }
+                if(qty-self.parent.nb_already_printed >= 0){
+                    $('#quantity_to_print').val(qty-self.parent.nb_already_printed);
                 }
 
                 if(parseInt($('#quantity input').val()) > self.parent.nb_already_printed){
-                    $('#print_button').show();
+                    $('#print_button').css({'color':'red'});
+                    $('#already_printed_quantity').css({'color':'red'});
                 }else{
-                    $('#print_button').hide();
+                    $('#print_button').css({'color':'green'});
+                    $('#already_printed_quantity').css({'color':'green'});
                 }
-
                 // force to lose focus to avoid adding +1 when scanning another product
+                $(':focus').blur()
+            });
+        },
+        add_listener_on_label_quantity: function(){
+            var self = this;
+            self.$elem.find('#label-quantity button').click(function(event){
+                qty = parseInt($('#quantity_to_print').val());
+                already_printed = parseInt($('#already_printed_quantity').val());
+                if($(event.currentTarget).attr('data-dir') == 'up'){
+                    qty++;
+                    $('#quantity_to_print').val(qty);
+                } else if ($(event.currentTarget).attr('data-dir') == 'dwn'){
+                    if(qty > 0){
+                        qty--;
+                        $('#quantity_to_print').val(qty);
+                    }
+                }
+                $(':focus').blur()
+            });
+        },
+        add_listener_on_print_button: function(){
+            var self = this;
+            qty_to_print = parseInt($('#quantity_to_print').val());
+            self.$elem.find('#label-printed button').click(function(event){
+                qty_to_print = parseInt($('#quantity_to_print').val());
+                if ($(event.currentTarget).attr('data-dir') == 'print'){
+                    if (qty_to_print > 0 ){
+                        self.parent.print_label(self.product.name, self.barcodes[0], qty_to_print);
+                        self.parent.nb_already_printed += qty_to_print;
+                        $('#already_printed_quantity').val(self.parent.nb_already_printed);
+                        $('#quantity_to_print').val(0);
+                        $('#already_printed_quantity').css({'color':'green'});
+                        $('#print_button').css({'color':'green'});
+                    }
+                }
                 $(':focus').blur()
             });
         },
@@ -79,7 +112,7 @@
                 self.get_carts();
             })
         },
-        add_listener_on_print_button: function(){
+        add_listener_on_modal_print_button: function(){
             var self = this;
             self.$modal.find('#modal_print_button').click(function(event){
                 event.preventDefault();
@@ -132,7 +165,9 @@
                 self.parent.print_label(self.product.name, self.barcodes[0] , 1)
                 self.parent.nb_already_printed += 1;
                 self.add_listener_on_quantity();
+                self.add_listener_on_label_quantity();
                 self.add_listener_on_cart_button();
+                self.add_listener_on_print_button();
             })
         },
         get_carts: function(){
@@ -240,7 +275,7 @@
             if(parseInt($('#quantity input').val()) > self.parent.nb_already_printed){
                 var $result = $(QWeb.render('print_error_message', {}));
                 self.show_modal('Not enough label printed', $result, false);
-                self.add_listener_on_print_button();
+                self.add_listener_on_modal_print_button();
                 return false;
             }else{
                 return true;
