@@ -343,32 +343,13 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
         return results
 
     @http.route('/inbound_screen/change_user', type='http', auth="user")
-    def change_user(self, login, login_code, **kw):
-        code = int(login_code)
+    def change_user(self, login, password, **kw):
+        password
 
-        if(code == -1):
-            raise exceptions.ValidationError('This code is invalid')
-
-        current_user = http.request.env['res.users'].search(
-            [('login','=',login),
-             ('login_code','=',login_code),
-             ('active','=',True)]
-        )
-
-        if not current_user:
-            raise exceptions.ValidationError('No user logged!')
-
-        # request.session.logout(keep_db=True)
-        # request.session.authenticate(request.session.db, login=current_user.login,
-        #                               password=current_user.password)
-
-        # self.db = request.session.db
-        # self.uid = current_user.id
-        # self.login = current_user.login
-        # self.password = current_user.password
-        # request.uid = current_user.id
-        # request.disable_db = False
-
+        request.session.logout(keep_db=True)
+        request.session.authenticate(request.session.db, login=login,
+                                      password=password)
+        current_user = http.request.env['res.users'].browse(http.request.uid)
 
         inbound_suppliers = http.request.env['res.partner'].search([
             ('is_in_inbound', '=', True)],

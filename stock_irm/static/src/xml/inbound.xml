@@ -115,9 +115,9 @@
     <t t-name="change_user">
         <!-- cart selection modal -->
         <b style='font-size: 2em'>Change user</b><br/>
-        <div id="login-image" style="background-repeat: no-repeat; background-size: 100px 100px; width:100px; height:100px; display:none"></div>
+        <div id="login-image" style="display:none"></div>
         Login: <input id="login" type="text" class="form-control text-center"/>
-        Code: <input id="login_code" type="text" class="form-control text-center"/>
+        Password: <input id="password" type="text" class="form-control text-center"/>
         <a id="modal_changer_user_button" href="#" class="btn btn-lg btn-success">
             Change User
         </a>

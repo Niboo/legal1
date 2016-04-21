@@ -89,7 +89,7 @@
                                 }).then(function(data){
                                     if(data.status == "ok"){
                                         self.$modal.find('#login').val(data.login);
-                                        self.$modal.find('#login-image').html("<div style=\"background-image:url('"+data.image+"');\"></div>");
+                                        self.$modal.find('#login-image').html("<img src='"+data.image+"'/>");
                                         self.$modal.find('#login-image').show();
                                     }else{
                                         console.log("pas de user trouvé");
@@ -106,9 +106,10 @@
                 self.$modal.find('#modal_changer_user_button').click(function(event){
                     event.preventDefault();
                     login = self.$modal.find('#login').val();
-                    code = self.$modal.find('#login_code').val();
+                    password = self.$modal.find('#password').val();
 
-                    window.location.href = "/inbound_screen/change_user?login="+login+"&login_code="+code;
+                    //TODO: really change the user connected to odoo. This only change the user being used on the page
+                    window.location.href = "/inbound_screen/change_user?login="+login+"&password="+password;
                 })
             });
         },
