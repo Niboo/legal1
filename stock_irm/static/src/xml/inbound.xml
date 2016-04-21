@@ -123,8 +123,7 @@
         <div class="container page">
             <div class="row">
                 <div class="col-md-5">
-                    <div class="square"
-                         style="background-image:url('/stock_irm/static/img/product1.jpg');"></div>
+                    <div class="square"  t-att-style="'background-image:url(\'' + product.image + '\');'"></div>
                 </div>
                 <div class="col-md-7">
                     <div class="col-md-12">

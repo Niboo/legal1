@@ -167,6 +167,7 @@ product id: %s, supplier id: %s
                 'default_code': product.default_code,
                 'supplier_code': supplier_info.product_code or 'N/A',
                 'barcodes': barcodes,
+                'image': "/web/binary/image?model=product.product&id=%s&field=image" % product.id,
             }
         }
         return results
