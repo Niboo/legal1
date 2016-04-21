@@ -36,7 +36,8 @@ class InboundController(http.Controller):
 
         return http.request.render('stock_irm.inbound_screen', {
             'suppliers': inbound_suppliers,
-            'user_name': current_user.partner_id.name
+            'user_name': current_user.partner_id.name,
+            'worklocation_name': current_user.work_location_id.name,
         })
 
     @http.route('/inbound_screen/get_suppliers', type='json', auth="user")
@@ -375,7 +376,8 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
         return http.request.render('stock_irm.inbound_screen', {
             'suppliers': inbound_suppliers,
             'user_name': current_user.partner_id.name,
-            'image': "/web/binary/image?model=res.users&id=%s&field=image_medium" % current_user.id
+            'worklocation_name': current_user.work_location_id.name,
+            'worklocation_id': current_user.work_location_id.id
         })
 
     @http.route('/inbound_screen/get_worklocations', type='json', auth="user")
@@ -397,6 +399,18 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
                    'worklocations': worklocations}
 
         return results
+
+    @http.route('/inbound_screen/switch_worklocation',
+                type='json',
+                auth="user")
+    def switch_worklocation(self, new_work_location_id, **kw):
+        env = http.request.env
+        user = env['res.users'].browse(request.uid)
+        user.work_location_id = int(new_work_location_id)
+
+        results = {'status': 'ok'}
+        return results
+
 
     @http.route('/inbound_screen/get_worklocation_printers',
                 type='json',

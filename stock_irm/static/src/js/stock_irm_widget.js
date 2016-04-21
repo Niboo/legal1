@@ -108,7 +108,6 @@
                     login = self.$modal.find('#login').val();
                     code = self.$modal.find('#login_code').val();
 
-                    //TODO: really change the user connected to odoo. This only change the user being used on the page
                     window.location.href = "/inbound_screen/change_user?login="+login+"&login_code="+code;
                 })
             });
@@ -126,9 +125,6 @@
             self.add_listener_on_closing_modal();
             self.add_listener_on_user_button();
             self.add_listener_on_worklocation_button();
-            if(!self.worklocation){
-                self.get_worklocations();
-            }
         },
         show_modal: function(title, content, block_modal){
             var self = this;
@@ -182,19 +178,22 @@
                 event.preventDefault();
                 var worklocation_id = $(event.currentTarget).attr('worklocation-id');
                 var worklocation_name = $(event.currentTarget).attr('worklocation-name');
-                self.worklocation = {
-                    name: worklocation_name,
-                    id: worklocation_id,
-                }
 
                 self.session.rpc('/inbound_screen/get_worklocation_printers', {
-                    'location_id':self.worklocation.id}
-                ).then(function(data){
-                    self.printers = data.printers;
+                    'location_id':worklocation_id,
+                }).then(function(data){
+                    self.worklocation = {
+                        name: worklocation_name,
+                        id: worklocation_id,
+                    }
+                    self.$nav.find('#change-worklocation').html('<a href="#"><span class="glyphicon glyphicon-cog"/> '+self.worklocation.name+'</a>');
+                    self.session.rpc('/inbound_screen/switch_worklocation', {
+                        'new_work_location_id':self.worklocation.id,
+                    }).then(function(data){
+                        self.printer = data.printer;
+                    });
                 });
-                //TODO: keep the location between pages to avoid having the popup each time
                 self.$modal.modal('hide');
-                self.$nav.find('#change-worklocation').html('<a href="#"><span class="glyphicon glyphicon-cog"/> '+self.worklocation.name+'</a>');
 
             })
         },

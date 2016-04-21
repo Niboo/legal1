@@ -29,6 +29,7 @@ class ResUsers(models.Model):
     login_code = fields.Integer("Login code", default=-1)
     login_barcode = fields.Char("Login barcode")
 
+
     _sql_constraints = [
         ('login_code_secured',
          "CHECK(login_code > 1000 OR login_code = -1)",
@@ -39,6 +40,3 @@ class ResUsers(models.Model):
          'The login barcode should be unique'),
     ]
 
-    # def authenticate(self, db, login, password, user_agent_env):
-    #     print "test"
-    #     return super(ResUsers, self).authenticate(db, login, password, user_agent_env)

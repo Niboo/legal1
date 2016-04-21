@@ -12,6 +12,7 @@
                           <group>
                                <field name="login_barcode"/>
                                <field name="login_code" required="True" password="True"/>
+                               <field name="work_location_id"/>
                           </group>
                     </page>
                 </notebook>
