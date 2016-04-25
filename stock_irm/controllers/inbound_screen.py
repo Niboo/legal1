@@ -347,19 +347,6 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
         request.session.logout(keep_db=True)
         request.session.authenticate(request.session.db, login=kw['login'],
                                      password=kw['password'])
-        current_user = http.request.env['res.users'].browse(http.request.uid)
-
-        inbound_suppliers = http.request.env['res.partner'].search([
-            ('is_in_inbound', '=', True)],
-            order='sequence'
-        )
-
-        return http.request.render('stock_irm.inbound_screen', {
-            'suppliers': inbound_suppliers,
-            'user_name': current_user.partner_id.name,
-            'worklocation_name': current_user.work_location_id.name,
-            'worklocation_id': current_user.work_location_id.id
-        })
 
     @http.route('/inbound_screen/get_worklocations', type='json', auth="user")
     def get_worklocation(self, **kw):
