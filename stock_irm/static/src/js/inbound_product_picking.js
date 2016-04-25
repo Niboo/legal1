@@ -29,7 +29,6 @@
     	init: function (supplier_id) {
             this._super();
             var self = this;
-            self.nb_already_printed = 0;
             self.carts = {};
             self.current_cart = false;
             self.template = 'product_selector';
@@ -209,7 +208,6 @@
 
             quantity += qty;
             cart_box_list[index] = quantity;
-            self.nb_already_printed = 0;
         },
         select_box: function(product_id, cart_selection){
             var self = this;
