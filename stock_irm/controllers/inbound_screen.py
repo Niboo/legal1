@@ -341,7 +341,6 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
                    }
 
         return results
-
     @http.route('/inbound_screen/change_user', type='http', auth="user")
     def change_user(self, **kw):
         request.session.logout(keep_db=True)

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <!-- Supplier templates-->
+    <t t-name="go_picking">
+        <div class="container">
+            <div id="create-wave" class="row">
+                <span>Create a picking wave</span>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="worklocation_result">
+        <!-- cart selection modal -->
+        <t t-foreach="worklocations" t-as="worklocation">
+            <a href="#" class="btn btn-lg btn-success worklocation" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
+            </a>
+        </t>
+    </t>
+
+    <t t-name="change_user">
+        <!-- cart selection modal -->
+        <b style='font-size: 2em'>Change user</b><br/>
+        <div id="login-image" style="background-repeat: no-repeat; background-size: 100px 100px; width:100px; height:100px; display:none"></div>
+        Login: <input id="login" type="text" class="form-control text-center"/>
+        Password: <input id="password" type="password" class="form-control text-center"/>
+        <a id="modal_changer_user_button" href="#" class="btn btn-lg btn-success">
+            Change User
+        </a>
+    </t>
+</templates>

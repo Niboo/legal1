@@ -19,5 +19,18 @@
 #
 ##############################################################################
 
-from . import inbound_screen
-from . import picking_waves
+from openerp import http
+from openerp import exceptions
+from datetime import datetime
+from openerp.http import request
+
+
+class InboundController(http.Controller):
+    @http.route('/picking_waves', type='http', auth="user")
+    def picking_waves(self, **kw):
+        current_user = http.request.env['res.users'].browse(http.request.uid)
+
+        return http.request.render('stock_irm.picking_waves', {
+            'user_name': current_user.partner_id.name,
+            'worklocation_name': current_user.work_location_id.name,
+        })

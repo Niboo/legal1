@@ -233,3 +233,18 @@ a[is-in-usage='true'] {
     right: 5%;
 }
 
+#create-wave{
+    text-align: center;
+    font-size: 3em;
+    background-color: #d9534f;
+    color: #fff;
+    width:50%;
+    margin:0 auto;
+}
+
+#create-wave:hover{
+    background-color: #c9433f;
+    color: #fff;
+    cursor: hand;
+}
+

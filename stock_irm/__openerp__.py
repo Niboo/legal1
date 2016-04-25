@@ -38,6 +38,7 @@ Module
     'data': [
         'views/res_partner.xml',
         'templates/inbound_screen.xml',
+        'templates/picking_waves.xml',
         'views/res_users.xml',
         'views/printing_printers.xml',
         'views/work_location.xml',
