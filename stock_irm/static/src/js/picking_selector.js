@@ -44,7 +44,10 @@
         add_listener_on_supplier: function(){
             var self = this;
             self.$elem.find('#create-wave').click(function(event){
-
+                self.session.rpc('/picking_waves/create_picking', {
+                }).then(function(data){
+                    console.log("then");
+                });
             })
         },
     });

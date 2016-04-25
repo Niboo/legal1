@@ -34,3 +34,26 @@ class InboundController(http.Controller):
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
         })
+
+    @http.route('/picking_waves/create_picking', type='json', auth="user")
+    def create_picking(self, **kw):
+        env = http.request.env
+        env['stock.picking.wave'].create(
+            {'user_id': http.request.uid}
+        )
+
+        picking_type_ids = env['stock.picking.type'].search([
+            ('code', '=', 'outgoing'),
+            ('active', '=', True)
+        ]).ids
+
+        pickings_ids = env['stock.picking'].search([
+            ('picking_type_id', 'in', picking_type_ids),
+            ('state', '=', 'waiting')
+        ], limit=15).ids
+
+        stock_move_ids = env['stock.move'].search([
+            ('pickinh_id', 'in', pickings_ids)
+        ])
+
+        # stock_move_ids = sorted(line_list, key=itemgetter(0, 1, 2, 3))
