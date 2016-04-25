@@ -117,7 +117,7 @@
         <b style='font-size: 2em'>Change user</b><br/>
         <div id="login-image" style="display:none"></div>
         Login: <input id="login" type="text" class="form-control text-center"/>
-        Password: <input id="password" type="text" class="form-control text-center"/>
+        Password: <input id="password" type="password" class="form-control text-center"/>
         <a id="modal_changer_user_button" href="#" class="btn btn-lg btn-success">
             Change User
         </a>

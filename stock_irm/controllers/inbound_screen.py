@@ -343,12 +343,10 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
         return results
 
     @http.route('/inbound_screen/change_user', type='http', auth="user")
-    def change_user(self, login, password, **kw):
-        password
-
+    def change_user(self, **kw):
         request.session.logout(keep_db=True)
-        request.session.authenticate(request.session.db, login=login,
-                                      password=password)
+        request.session.authenticate(request.session.db, login=kw['login'],
+                                      password=kw['password'])
         current_user = http.request.env['res.users'].browse(http.request.uid)
 
         inbound_suppliers = http.request.env['res.partner'].search([

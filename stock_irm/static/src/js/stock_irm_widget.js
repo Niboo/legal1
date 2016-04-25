@@ -108,8 +108,10 @@
                     login = self.$modal.find('#login').val();
                     password = self.$modal.find('#password').val();
 
-                    //TODO: really change the user connected to odoo. This only change the user being used on the page
-                    window.location.href = "/inbound_screen/change_user?login="+login+"&password="+password;
+                    data = {'login':login,'password':password}
+                    $.post("/inbound_screen/change_user", data, function(data, status){
+                        location.reload();
+                    })
                 })
             });
         },
