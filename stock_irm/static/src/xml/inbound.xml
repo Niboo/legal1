@@ -84,20 +84,24 @@
             </label>
         </div>
         <!-- cart selection modal -->
-        <t t-foreach="carts" t-as="cart">
-            <a href="#" class="btn btn-lg btn-success cart" t-att-cart-id="cart.id" t-att-cart-name="cart.name" t-att-is-in-usage="cart.is_in_usage">
-                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="cart.name" />
-            </a>
-        </t>
+        <div class="row">
+            <t t-foreach="carts" t-as="cart">
+                <a href="#" class="btn btn-lg btn-success cart col-md-3" t-att-cart-id="cart.id" t-att-cart-name="cart.name" t-att-is-in-usage="cart.is_in_usage">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="cart.name" />
+                </a>
+            </t>
+        </div>
     </t>
 
     <t t-name="worklocation_result">
         <!-- cart selection modal -->
-        <t t-foreach="worklocations" t-as="worklocation">
-            <a href="#" class="btn btn-lg btn-success worklocation" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
-                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
-            </a>
-        </t>
+        <div class="row">
+            <t t-foreach="worklocations" t-as="worklocation">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
+                </a>
+            </t>
+        </div>
     </t>
 
     <t t-name="print_error_message">
@@ -158,7 +162,7 @@
                         <div class="col-md-2 col-xs-2">
                             <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
                         </div>
-                        <div class="col-md-10 col-xs-10">
+                        <div class="col-md-10 col-xs-10 tags">
                             <ul>
                                 <t t-foreach="barcodes" t-as="barcode">
                                     <li><t t-esc="barcode"/></li>

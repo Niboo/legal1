@@ -150,6 +150,7 @@ h2{
 #rack .glyphicon {
     vertical-align: sub;
 }
+
 /* ########## QUANTITY */
 
 #quantity {
@@ -258,18 +259,28 @@ h2{
   font-size: 10em;
 }
 
+/* ########## modal */
+
+.cart, .worklocation {
+    margin: 2% 4% 2% 4%;
+}
+
+.modal-dialog {
+    width: 1000px;
+}
+
 /* ########## barcodes */
 .information-box {
-    height: 22%;
+    min-height: 22%;
+}
+
+.information-box .tags{
+    min-height: 15%;
 }
 
 .solid{
     border-style: inset;
     border-width: 1px;
-}
-
-.worklocation{
-    width: 32%;
 }
 
 a[is-in-usage='true'] {
