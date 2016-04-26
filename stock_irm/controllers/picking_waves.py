@@ -54,14 +54,11 @@ class InboundController(http.Controller):
         # retrieve the pickings with that type
         picking_ids = env['stock.picking'].search([
             ('picking_type_id', 'in', picking_type_ids.ids),
-            ('state', '=', 'waiting')
+            ('state', '=', 'assigned')
         ], limit=15)
 
         # attach them to the wave and confirm the wave
         wave.picking_ids = picking_ids
-        for picking in picking_ids:
-            picking.force_assign()
-        wave.confirm_picking()
 
         # search the stock moves related to those pickings,
         stock_move_ids = env['stock.move'].search([
@@ -84,5 +81,4 @@ class InboundController(http.Controller):
                  })
 
         results = {'status': 'ok', 'pickings': picking_list}
-        print results
         return results
