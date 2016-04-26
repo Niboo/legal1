@@ -33,6 +33,7 @@
             self.session = new instance.Session();
             self.$nav = $('nav');
             self.$modal = $('#modalWindow');
+
             self.add_listeners();
         },
         add_listener_on_search_button: function(){
@@ -136,6 +137,11 @@
             if (typeof(footer)==='undefined') footer = '';
             if (typeof(block_modal)==='undefined') block_modal = true;
 
+            if (block_modal){
+                self.$modal = $('#blockedModalWindow');
+            }else{
+                self.$modal = $('#modalWindow');
+            }
             $(document).off('keypress.barcode');
             self.$modal.find('.modal-title').html(title);
             self.$modal.find('.modal-body').html(content);
@@ -177,7 +183,7 @@
                 var $result = $(QWeb.render('worklocation_result', {
                     worklocations: self.worklocations,
                 }));
-                self.show_modal('Work Location Selection', $result);
+                self.show_modal('Work Location Selection', $result, false);
                 self.add_listener_on_worklocations();
             });
         },
