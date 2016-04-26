@@ -33,6 +33,7 @@ class InboundController(http.Controller):
         return http.request.render('stock_irm.picking_waves', {
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
+            'title': 'Picking Waves',
         })
 
     @http.route('/picking_waves/create_picking', type='json', auth="user")

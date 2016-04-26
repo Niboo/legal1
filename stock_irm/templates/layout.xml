@@ -9,17 +9,9 @@
 
             <!-- jQuery stuff -->
             <script type="text/javascript" src="/web/static/lib/jquery/jquery.js"></script>
-            <!--<script type="text/javascript" src="/web/static/lib/jquery.blockUI/jquery.blockUI.js"></script>-->
-            <!--<script type="text/javascript" src="/web/static/lib/jquery.hotkeys/jquery.hotkeys.js"></script>-->
-            <!--<script type="text/javascript" src="/web/static/lib/jquery.placeholder/jquery.placeholder.js"></script>-->
-            <!--<script type="text/javascript" src="/web/static/lib/jquery.timeago/jquery.timeago.js"></script>-->
-            <!--<script type="text/javascript" src="/web/static/lib/jquery.form/jquery.form.js"></script>-->
-
-            <!--<script type="text/javascript" src="/web/static/lib/jquery.ba-bbq/jquery.ba-bbq.js"></script>-->
 
             <script type="text/javascript" src="/web/static/lib/qweb/qweb2.js"></script>
             <script type="text/javascript" src="/web/static/src/js/openerpframework.js"></script>
-            <!--<script type="text/javascript" src="/web/static/src/js/tour.js"></script>-->
 
             <!--BOOTSTRAP-->
             <link id="bootstrap_css" rel='stylesheet' href='/web/static/lib/bootstrap/css/bootstrap.css' />
@@ -30,6 +22,13 @@
             <!--STOCK IRM-->
             <link href="/stock_irm/static/src/css/template.css" rel="stylesheet"/>
             <script type="text/javascript" src="/stock_irm/static/src/js/stock_irm_widget.js"></script>
+        </template>
+
+        <template id="stock_irm.assets_picking" name="Stock IRM assets for Picking">
+            <script type="text/javascript" src="/stock_irm/static/src/js/picking_selector.js"></script>
+        </template>
+
+        <template id="stock_irm.assets_inbound" name="Stock IRM assets for Inbound">
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_supplier_selector.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_picking.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_page.js"></script>
@@ -39,7 +38,7 @@
             <html lang="en">
                 <head>
                     <meta charset="UTF-8"/>
-                    <title>Inbound</title>
+                    <title t-esc="title" />
                     <t t-call-assets="stock_irm.assets" t-js="false"/>
                 </head>
                 <body>
@@ -87,11 +86,22 @@
                         <t t-raw="0"/>
                     </div>
                     <t t-call-assets="stock_irm.assets" t-css="false"/>
+                    <t t-if="title == 'Inbound'">
+                        <t t-call-assets="stock_irm.assets_inbound" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'Picking Waves'">
+                        <t t-call-assets="stock_irm.assets_picking" t-css="false"/>
+                    </t>
                 </body>
             </html>
         </template>
 
         <template id="stock_irm.inbound_screen" name="Inbound Screen">
+            <t t-call="stock_irm.layout">
+            </t>
+        </template>
+
+        <template id="stock_irm.picking_waves" name="Inbound Screen">
             <t t-call="stock_irm.layout">
             </t>
         </template>

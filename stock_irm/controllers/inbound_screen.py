@@ -38,6 +38,7 @@ class InboundController(http.Controller):
             'suppliers': inbound_suppliers,
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
+            'title': 'Inbound',
         })
 
     @http.route('/inbound_screen/get_suppliers', type='json', auth="user")

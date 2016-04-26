@@ -25,7 +25,7 @@
         _lt = instance._lt;
     var QWeb = instance.qweb;
 
-    var picking_selector = instance.picking_waves.widget.extend({
+    var picking_selector = instance.stock_irm.widget.extend({
     	init: function () {
             this._super();
             var self = this;
