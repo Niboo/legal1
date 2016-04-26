@@ -4,8 +4,10 @@
     <!-- Supplier templates-->
     <t t-name="go_picking">
         <div class="container">
-            <div id="create-wave" class="row">
-                <span>Create a picking wave</span>
+            <div id="results" class="scan-row">
+                <div id="create-wave" class="row">
+                    <span>Create a picking wave</span>
+                </div>
             </div>
         </div>
     </t>
@@ -29,4 +31,62 @@
             Change User
         </a>
     </t>
+
+    <t t-name="picking_products">
+        <div id="current_picking">
+            Pick product
+            <t t-esc="picking.product.product_name" />
+            *
+            <t t-esc="picking.product.product_quantity" />
+            In location
+            <t t-esc="picking.location_name" />
+        </div>
+        <div>
+            <a href="#">
+                <img t-att-src="image" class="center-block img-responsive" />
+            </a>
+        </div>
+        <div id="count">
+
+        </div>
+    </t>
+
+    <t t-name="counter">
+        <div class="col-md-3">
+            <div id="quantity" class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                </span>
+                <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                </span>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="print_error_message">
+        <!-- cart selection modal -->
+        <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>  You didn't scan the right <t t-esc="type" /></b>
+        <t t-if="type == 'product'">
+            <div style='font-size: 2em'>You should scan the following product:</div>
+            <div>
+                <a href="#">
+                    <img t-att-src="image" class="center-block img-responsive" />
+                </a>
+            </div>
+            <div style='font-size: 2em'>Found in location <b><t t-esc="location" /></b></div>
+        </t>
+        <t t-if="type== 'location'">
+            <div style='font-size: 2em'>You should put your item in the location <b><t t-esc="dest_location"/></b></div>
+        </t>
+    </t>
+
+    <t t-name="counter_error">
+        <!-- cart selection modal -->
+        <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>You selected too much products!</b>
+        <div style='font-size: 2em'>You selected <t t-esc="real"/> items but you only needed <t t-esc="expected"/> items</div>
+    </t>
+
+
 </templates>

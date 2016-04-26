@@ -69,16 +69,36 @@ class InboundController(http.Controller):
         picking_list = []
         for move in sorted(stock_move_ids,
                            key=lambda x: x.location_dest_id.name):
+
             picking_list.append(
                 {'picking_id': move.picking_id.id,
-                 'product_id': move.product_id.id,
-                 'product_name': move.product_id.name,
-                 'product_image':
+                 'move_id': move.id,
+                 'product': {
+                     'product_id': move.product_id.id,
+                     'product_name': move.product_id.name,
+                     'product_quantity': move.product_uom_qty,
+                     'product_image':
                      "/web/binary/image?model=product.product&id=%s&field=image"
                      % move.product_id.id,
+                     'ean13': move.product_id.ean13
+                 },
                  'location_id': move.location_id.id,
-                 'location_name': move.location_id.name
+                 'location_name': move.location_id.name,
+                 'location_barcode': move.location_id.loc_barcode,
+                 'location_dest_id': move.location_dest_id.id,
+                 'location_dest_name': move.location_dest_id.name,
+                 'location_dest_barcode': move.location_dest_id.loc_barcode
                  })
 
         results = {'status': 'ok', 'pickings': picking_list}
         return results
+
+    @http.route('/picking_waves/validate_move', type='json', auth="user")
+    def validate_move(self, move_id, **kw):
+        env = http.request.env
+        move = env['stock.move'].browse(int(move_id))
+        move.action_done()
+        picking = env['stock.picking'].browse(move.picking_id)
+
+        if not any(move.state != 'done' for move in picking.move_lines):
+            print "PICKING IS FINISHED!!"

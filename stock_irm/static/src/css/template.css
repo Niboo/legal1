@@ -248,3 +248,16 @@ a[is-in-usage='true'] {
     cursor: hand;
 }
 
+#current_picking{
+    text-align: center;
+    background-color: #d9534f;
+    color: #fff;
+    width:50%;
+    margin:0 auto;
+}
+
+#current_picking:hover{
+    background-color: #c9433f;
+    color: #fff;
+    cursor: hand;
+}
