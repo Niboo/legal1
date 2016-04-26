@@ -95,6 +95,10 @@
                             </div>
                         </nav>
                     </div>
+
+                    <button name="print_wave" type="button object" class="btn btn-default" id="btn-print-wave">Print Wave</button>
+                    <button name="print_pickings" type="button object" class="btn btn-default" id="btn-print-pickings">Print all pickings</button>
+
                     <div id="content">
                         <t t-raw="0"/>
                     </div>
@@ -107,7 +111,10 @@
                     </t>
                 </body>
             </html>
+
+
         </template>
+
 
         <template id="stock_irm.inbound_screen" name="Inbound Screen">
             <t t-call="stock_irm.layout">

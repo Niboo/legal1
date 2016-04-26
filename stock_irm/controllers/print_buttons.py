@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Jerome Guerriat
-#    Copyright 2015 Niboo SPRL
+#    Author: Tobias Zehntner
+#    Copyright 2016 Niboo SPRL
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -19,6 +19,23 @@
 #
 ##############################################################################
 
-from . import inbound_screen
-from . import picking_waves
-from . import print_buttons
+from openerp import http
+from openerp import exceptions
+from datetime import datetime
+from openerp.http import request
+
+
+class PrintController(http.Controller):
+    @http.route('/print_wave', type='json', auth="user")
+    def print_wave(self, wave_id, **kw):
+        env = http.request.env
+        current_wave = env['stock.picking.wave'].browse(wave_id)
+
+        current_wave.print_wave()
+
+    @http.route('/print_pickings', type='json', auth="user")
+    def print_picking(self, wave_id, **kw):
+        env = http.request.env
+        current_wave = env['stock.picking.wave'].browse(wave_id)
+
+        current_wave.print_picking()

@@ -118,6 +118,38 @@
                 })
             });
         },
+
+
+        add_listener_on_print_wave_button: function() {
+            var self = this;
+            wave_id = 506;
+
+            $('#btn-print-wave').click(function() {
+
+                self.session.rpc('/print_wave', {
+                       'wave_id' : wave_id,
+                }).then(function() {
+                    alert("done!");
+                })
+            });
+        },
+
+        add_listener_on_print_pickings_button: function() {
+            var self = this;
+            wave_id = 506;
+            
+            $('#btn-print-pickings').click(function() {
+
+                self.session.rpc('/print_pickings', {
+                    'wave_id' : wave_id,
+
+                }).then(function() {
+                    alert("done!");
+                })
+            });
+        },
+
+
         process_barcode: function(barcode){
             // dummy method to process barcode
             console.log("Barcode Scanned: " + barcode);
@@ -131,6 +163,11 @@
             self.add_listener_on_closing_modal();
             self.add_listener_on_user_button();
             self.add_listener_on_worklocation_button();
+            self.add_listener_on_print_wave_button();
+            self.add_listener_on_print_pickings_button();
+            // if(!self.worklocation){
+            //     self.get_worklocations();
+            // }
         },
         show_modal: function(title, content, footer, block_modal){
             var self = this;
