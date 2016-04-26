@@ -153,137 +153,36 @@ h2{
 
 /* ########## QUANTITY */
 
-#quantity {
-    /*width: 75%;*/
+#quantity, #label-quantity, #label-printed {
     margin-left: auto;
     margin-right: auto;
-    /*margin-top: 5%;*/
 }
 
-#quantity .btn {
-    width: 70px;
+#quantity .btn, #quantity .btn, #quantity input,
+#label-quantity .btn, #label-quantity input,
+#label-printed .btn, #label-printed .btn,
+#label-printed input
+{
+    height: 100px;
 }
 
-#quantity .btn, #quantity input {
-    height: 70px;
+#quantity .btn, #quantity .btn, #label-quantity .btn,
+#label-printed .btn, #label-printed .btn
+{
+    width: 90px;
 }
 
-#quantity .btn {
-    font-size: 1.5vw;
+#quantity .btn, #label-quantity .btn, #label-printed .btn
+{
+    font-size: 2vw;
 }
 
-#quantity input {
+#quantity input, #label-printed input, #label-quantity input {
     font-size: 2.5em;
 }
-
-#label-quantity .btn {
-    width: 70px;
-}
-
-#label-quantity .btn, #label-quantity input {
-    height: 70px;
-}
-
-#label-quantity .btn {
-    font-size: 1.5vw;
-}
-
-#label-quantity input {
-    font-size: 2.5em;
-}
-
-#label-printed .btn {
-    width: 70px;
-}
-
-#label-printed .btn, #label-printed input {
-    height: 70px;
-}
-
-#label-printed .btn {
-    font-size: 1.5vw;
-}
-
-#label-printed input {
-    font-size: 2.5em;
-}
-
 
 #modal_print_button{
     margin-left:55%;
-}
-/* ########## NUMPAD */
-
-/*#quantity input:focus ~ .num-pad, .num-pad:hover{*/
-    /*display: block;*/
-/*}*/
-
-.num-pad{
-    position: absolute;
-    left: 25%;
-    bottom: 80px;
-    right: auto;
-    width: 50%;
-    background-color: white;
-    border: solid 1px;
-    border-color: #BBB;
-    display: none;
-}
-
-.num-pad .circle:before{
-    content: "";
-    display: block;
-    padding-top: 100%;
-}
-
-.num-pad .circle {
-    position: relative;
-    overflow: hidden;
-    width: 29.2%;
-    float: left;
-    margin: 2%;
-
-    border: 1px solid #9e9e9e;
-    -webkit-border-radius: 100%;
-    border-radius: 100%;
-    -moz-border-radius: 100%;
-    background-color: #fff;
-    color: #333;
-    cursor: pointer;
-}
-
-.circle:hover{
-    background-color: #9e9e9e;
-    color: #fff;
-    transition-property: background-color .2s linear 0s;
-    -moz-transition: background-color .2s linear 0s;
-    -webkit-transition: background-color .2s linear 0s;
-    -o-transition: background-color .2s linear 0s;
-}
-
-.num-pad .num{
-    position:  absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-}
-
-.num-pad .num div{
-   display: table;
-   width: 100%;
-   height: 100%;
-}
-
-.num-pad span {
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    font-size: 1.3em;
-    text-align: center;
-    font-family: 'Lato' , sans-serif;
-    line-height: 30px;
-    color: #333;
 }
 
 /* ########## tick */
@@ -320,3 +219,17 @@ a[is-in-usage='true'] {
     background-color: #FFB100;
     border-color: #FFB100;
 }
+
+/* ########## product page */
+
+#product_row{
+    height: 80%;
+}
+
+#qty_row {
+    position: fixed;
+    bottom: 10px;
+    left: 5%;
+    right: 5%;
+}
+
