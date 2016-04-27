@@ -50,18 +50,15 @@
             self.$elem.find('#create-wave').click(function(event){
                 self.session.rpc('/picking_waves/create_picking', {
                 }).then(function(data){
-                    self.pickings = data.pickings;
-                    self.current_picking = 0;
+                    self.move_list = data.move_list;
+                    self.current_move = 0;
+                    self.pickings = data.picking_list
 
-                    self.$elem = $(QWeb.render('picking_products', {
-                            picking: data.pickings[self.current_picking],
-                            'image': self.pickings[self.current_picking]['product'].product_image,
-
+                    self.$elem = $(QWeb.render('picking_layout', {
+                        'wave_id': data.wave_id,
                     }));
-
                     $('#content').html(self.$elem);
-                    self.current_barcode_needed = data.pickings[self.current_picking]['product'].ean13;
-                    self.current_barcode_type = "product";
+                    self.display_page();
                 });
             })
 
@@ -69,6 +66,32 @@
             self.starting_time = new Date().getTime();
             self.add_listener_for_barcode();
 
+        },
+        display_page: function(){
+            var self = this;
+
+            // generate the picking column
+            // todo: color the pickings
+            var $picking_list = $(QWeb.render('picking_list',{
+                'pickings': self.pickings,
+            }));
+            self.$elem.find("#picking_list").html($picking_list);
+
+            // generate the current product
+            var $current_produt = $(QWeb.render('current_product',{
+                'product': self.move_list[self.current_move]['product'],
+                'location_dest_name' : self.move_list[self.current_move].location_dest_name
+            }));
+            self.$elem.find("#current_product").html($current_produt);
+
+            var $next_products = $(QWeb.render('next_products',{
+                // retrieve the next 5 products to display them
+                'moves': self.move_list.slice(self.current_move+1,self.current_move+6)
+            }));
+            self.$elem.find("#next_products").html($next_products);
+
+            self.current_product_barcode = self.move_list[self.current_move]['product'].ean13;
+            self.current_destination_barcode = self.move_list[self.current_move].location_dest_barcode
         },
         add_listener_for_barcode: function(){
             var self = this;
@@ -93,83 +116,77 @@
         process_barcode: function(barcode){
             var self = this;
 
-            // check if the barcode scanned is the barcode we needed
-            is_same_barcode = barcode.replace(/[\n\r]+/g, '')==self.current_barcode_needed;
-
             // hide the modal if we scanned another product/location with an open modal
             self.$modal.modal('hide');
 
-            // Add the counter after the first scan and begin listening on it
-            var $result = $(QWeb.render('counter',{}));
-            $('#count').html($result);
-            self.add_listener_on_quantity();
+            // check if the barcode scanned is the barcode we needed
+            is_product_barcode = barcode.replace(/[\n\r]+/g, '')==self.current_product_barcode;
+            is_destination_barcode = barcode.replace(/[\n\r]+/g, '')==self.current_destination_barcode;
 
-            if(self.current_barcode_type == "location"){
-                // we need a location barcode
-                if (is_same_barcode){
-                    // if we got the needed barcode, go to the next picking
-                    self.current_barcode_type = "product";
-                    self.current_picking++;
-                    self.current_barcode_needed = self.pickings[self.current_picking].product.ean13;
+            qty = parseInt($('#quantity_wave input').val());
 
-                    // validate the current move
+            if(is_product_barcode){
+                qty++
+                $('#info').show();
+                $('#quantity_wave input').val(qty);
+                self.add_listener_on_quantity();
+
+            }else if(is_destination_barcode){
+                // location scanned
+                if(qty == self.move_list[self.current_move].product.product_quantity){
+                    // right location scanned, validate the move
                     self.session.rpc('/picking_waves/validate_move', {
-                        'move_id': self.pickings[self.current_picking].move_id,
+                        'move_id': self.move_list[self.current_move].move_id,
                     }).then(function(data){
-                        // display the next product needed
-                        self.$elem = $(QWeb.render('picking_products', {
-                            picking: self.pickings[self.current_picking],
-                            'image': self.pickings[self.current_picking]['product'].product_image,
-                        }));
-                        $('#content').html(self.$elem);
-
-                        // should probably use this elsewhere :D
-                        var msec = self.starting_time - new Date().getTime()
-                        console.log("it took "+msec+" milliseconds to complete this picking")
+                        $("#"+data.picking_id).css({"width":data.progress_done+'%'});
                     });
 
-                }else{
-                    // if we didnt scan what we wanted, display an error message
-                    var $result = $(QWeb.render('print_error_message',{
-                        'type':'location',
-                        'dest_location': self.pickings[self.current_picking].location_dest_name
-                    }));
-                    self.show_modal('Location Error', $result, false);
-                }
+                    // HAPPY FLOW! Go to the next product
+                    self.current_move++;
 
-            }else if(self.current_barcode_type == "product"){
-
-                // we need a product barcode
-                if (is_same_barcode){
-                    //todo ICI plein de choses
-                    if (parseInt($('#quantity input').val()) == self.pickings[self.current_picking].product.product_quantity){
-
-                        // we have the correct amount of items
-                        self.current_barcode_type = "location";
-                        self.current_barcode_needed = self.pickings[self.current_picking].location_dest_barcode;
-
-                    }else if (parseInt($('#quantity input').val()) > self.pickings[self.current_picking].product.product_quantity){
-
-                        // we have TOO MUCH products!
-                        var $result = $(QWeb.render('counter_error',{
-                            'real': parseInt($('#quantity input').val()),
-                            'expected': self.pickings[self.current_picking].product.product_quantity
-                        }));
-
-                        self.show_modal('Counter error', $result, false);
+                    if(self.current_move >= self.move_list.length){
+                        //Then we have finished the scanning!
+                        var msec = self.starting_time - new Date().getTime()
+                        console.log("it took "+msec+" milliseconds to complete this picking")
+                    }else{
+                        self.current_product_barcode = self.move_list[self.current_move].product.ean13;
+                        self.current_destination_barcode = self.move_list[self.current_move].location_dest_barcode;
+                        self.display_page();
                     }
 
+
                 }else{
-                    // display an error message if we didnt scan the correct label
+                    // Not the expected quantity, display an error modal
+                    var $result = $(QWeb.render('counter_error',{
+                        'real': qty,
+                        'expected': self.move_list[self.current_move].product.product_quantity
+                    }));
+                    self.show_modal('Item Count Error', $result, false);
+                }
+            }else{
+                if(qty == 0){
                     var $result = $(QWeb.render('print_error_message',{
                         'type':'product',
-                        'image': self.pickings[self.current_picking]['product'].product_image,
-                        'location': self.pickings[self.current_picking].location_name
+                        'image': self.move_list[self.current_move].product.product_image,
+                        'location': self.move_list[self.current_move].product.location_name
                     }));
                     self.show_modal('Product Error', $result, false);
+                }else if(qty == self.move_list[self.current_move].product.product_quantity){
+                    // good number of product, but not good location
+                    var $result = $(QWeb.render('print_error_message',{
+                        'type':'location',
+                        'dest_location': self.move_list[self.current_move].location_dest_name
+                    }));
+                    self.show_modal('Location Error', $result, false);
+                }else{
+                    // More product expected, but something else scanned
+                    var $result = $(QWeb.render('counter_error',{
+                        'real': qty,
+                        'expected': self.move_list[self.current_move].product.product_quantity
+                    }));
+                    self.show_modal('Item Count Error', $result, false);
                 }
             }
-
         },
         show_modal: function(title, content, block_modal){
             var self = this;
@@ -195,9 +212,10 @@
         },
         add_listener_on_quantity: function(){
             var self = this;
-            self.$elem.find('#quantity button').click(function(event){
-                qty = parseInt($('#quantity input').val());
+            qty = parseInt($('#quantity_wave input').val());
 
+            $('#quantity_wave button').off('click.quantity');
+            $('#quantity_wave button').on('click.quantity', function (event) {
                 if($(event.currentTarget).attr('data-dir') == 'up'){
                     qty++;
                 } else if ($(event.currentTarget).attr('data-dir') == 'dwn'){
@@ -205,9 +223,16 @@
                         qty--;
                     }
                 }
-                $('#quantity input').val(qty);
+                $('#quantity_wave input').val(qty);
                 $(':focus').blur()
             });
+            console.log(qty);
+            console.log(self.move_list[self.current_move].product.product_quantity);
+            if(qty == self.move_list[self.current_move].product.product_quantity){
+                $('#info').show();
+            }else{
+                $('#info').hide();
+            }
         },
     });
     instance.picking_waves.picking_selector = new picking_selector();

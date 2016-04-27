@@ -57,6 +57,8 @@ class InboundController(http.Controller):
             ('state', '=', 'assigned')
         ], limit=15)
 
+
+
         # attach them to the wave and confirm the wave
         wave.picking_ids = picking_ids
 
@@ -65,12 +67,25 @@ class InboundController(http.Controller):
             ('picking_id', 'in', wave.picking_ids.ids)
         ])
 
-        # sort the location by alphabetical name
         picking_list = []
+
+        for picking in picking_ids:
+            progress = 100/len(picking.move_lines) *\
+                       len(picking.move_lines.filtered(
+                           lambda r: r.state == 'done')
+                       )
+
+            picking_list.append({
+                'picking_id': picking.id,
+                'progress_done': progress,
+            })
+
+        # sort the location by alphabetical name
+        move_list = []
         for move in sorted(stock_move_ids,
                            key=lambda x: x.location_dest_id.name):
 
-            picking_list.append(
+            move_list.append(
                 {'picking_id': move.picking_id.id,
                  'move_id': move.id,
                  'product': {
@@ -80,17 +95,18 @@ class InboundController(http.Controller):
                      'product_image':
                      "/web/binary/image?model=product.product&id=%s&field=image"
                      % move.product_id.id,
-                     'ean13': move.product_id.ean13
+                     'ean13': move.product_id.ean13,
+                     'location_id': move.location_id.id,
+                     'location_name': move.location_id.name,
                  },
-                 'location_id': move.location_id.id,
-                 'location_name': move.location_id.name,
                  'location_barcode': move.location_id.loc_barcode,
                  'location_dest_id': move.location_dest_id.id,
                  'location_dest_name': move.location_dest_id.name,
                  'location_dest_barcode': move.location_dest_id.loc_barcode
                  })
 
-        results = {'status': 'ok', 'pickings': picking_list}
+        results = {'status': 'ok', 'move_list': move_list,
+                   'picking_list': picking_list, 'wave_id': wave.id}
         return results
 
     @http.route('/picking_waves/validate_move', type='json', auth="user")
@@ -98,7 +114,23 @@ class InboundController(http.Controller):
         env = http.request.env
         move = env['stock.move'].browse(int(move_id))
         move.action_done()
-        picking = env['stock.picking'].browse(move.picking_id)
+        picking = env['stock.picking'].browse(move.picking_id.id)
 
+        percentage_complete = 100/len(picking.move_lines) \
+                              * \
+                              len(picking.move_lines.filtered(
+                                  lambda r: r.state == 'done')
+                              )
+
+        results = {
+            "status": "ok",
+            "progress_done": percentage_complete,
+            "picking_id": picking.id,
+        }
+        # if every move for this picking is "done", then the picking itself
+        # is finished
         if not any(move.state != 'done' for move in picking.move_lines):
-            print "PICKING IS FINISHED!!"
+            results['finished_piking_id'] = picking.id
+
+        print results
+        return results

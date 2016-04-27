@@ -261,3 +261,33 @@ a[is-in-usage='true'] {
     color: #fff;
     cursor: hand;
 }
+
+#quantity_wave .btn, #quantity_wave .btn, #quantity_wave input,
+#label-quantity .btn, #label-quantity input,
+#label-printed .btn, #label-printed .btn,
+#label-printed input
+{
+    height: 50px;
+}
+
+#quantity_wave input, #label-printed input, #label-quantity input {
+    font-size: 2.5em;
+}
+
+#quantity_wave {
+    padding-left: 10%;
+}
+
+.picking_progress{
+    background-color: rgba(255,0,0,0.5);
+    height: 50px;
+}
+
+.picking_done{
+    background-color: rgba(0,255,0,0.5);
+}
+
+.a_picking{
+    border: 0px;
+    padding: 0px 0px;
+}

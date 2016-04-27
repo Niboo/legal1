@@ -32,39 +32,6 @@
         </a>
     </t>
 
-    <t t-name="picking_products">
-        <div id="current_picking">
-            Pick product
-            <t t-esc="picking.product.product_name" />
-            *
-            <t t-esc="picking.product.product_quantity" />
-            In location
-            <t t-esc="picking.location_name" />
-        </div>
-        <div>
-            <a href="#">
-                <img t-att-src="image" class="center-block img-responsive" />
-            </a>
-        </div>
-        <div id="count">
-
-        </div>
-    </t>
-
-    <t t-name="counter">
-        <div class="col-md-3">
-            <div id="quantity" class="input-group">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-                </span>
-                <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
-                <span class="input-group-btn">
-                    <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-                </span>
-            </div>
-        </div>
-    </t>
-
     <t t-name="print_error_message">
         <!-- cart selection modal -->
         <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>  You didn't scan the right <t t-esc="type" /></b>
@@ -84,9 +51,105 @@
 
     <t t-name="counter_error">
         <!-- cart selection modal -->
-        <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>You selected too much products!</b>
-        <div style='font-size: 2em'>You selected <t t-esc="real"/> items but you only needed <t t-esc="expected"/> items</div>
+        <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>You didn't select the right number of item</b>
+        <div style='font-size: 2em'>Selected count: <t t-esc="real"/>, expected: <t t-esc="expected"/> items</div>
     </t>
+
+    <t t-name="picking_layout">
+        <h1>Wave <t t-esc="wave_id"/></h1>
+        <div class="row">
+            <div id="picking_list" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+
+            </div>
+            <div id="product-list" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <div id="current_product" class="row">picking_id
+
+                </div>
+                <div id="next_products" class="row">
+
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="picking_list">
+        <h4>Pickings</h4>
+        <ul class="list-group">
+            <t t-foreach="pickings" t-as="picking">
+                <li class="list-group-item text-center a_picking">
+                    <div class="progress picking_progress">
+                        <div t-att-id="picking.picking_id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+picking.progress_done+'%;'">
+                             <span><b><span t-esc="picking.picking_id"/></b></span>
+                        </div>
+                    </div>
+                </li>
+            </t>
+        </ul>
+    </t>
+
+    <t t-name="current_product">
+        <div class="row">
+            <div id="current-product-img" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <a href="#">
+                    <img t-att-src="product.product_image" class="center-block img-responsive" />
+                </a>
+            </div>
+            <div id="current-product-description" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <h4>Pick product <span t-esc="product.product_name"/></h4>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td class="text-left">Location</td>
+                            <td id="current-product-location" class="text-right"><span t-esc="product.location_name"/></td>
+                        </tr>
+                        <tr>
+                            <td class="text-left" style="width:30%;height:70px;">Quantity in hand</td>
+                            <td class="text-right">
+                                <div id="quantity-left" class="input-group">
+                                    <div id="quantity_wave" class="input-group">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                                        </span>
+                                        <input id="input_quantity" type="text" class="form-control text-center" value="0"/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Quantity needed</td>
+                            <td id="current-product-quantity" class="text-right"><span t-esc="product.product_quantity"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <span id="info" class="text-left" style="display:none"><h2 style='color:red'>Put in box <span t-esc="location_dest_name"/></h2></span>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="next_products">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Next products</th>
+                    <th>Quantity</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-foreach="moves" t-as="move">
+                    <tr>
+                        <td><span t-esc="move.product.product_name"/></td>
+                        <td><span t-esc="move.product.product_quantity"/></td>
+                        <td><span t-esc="move.product.location_name"/></td>
+                    </tr>
+                </t>
+            </tbody>
+        </table>
+    </t>
+
 
 
 </templates>

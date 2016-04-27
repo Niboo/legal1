@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <!--<t t-name="picking_list">-->
+        <!--<h4>Pickings</h4>-->
+        <!--<ul class="list-group">-->
+            <!--<t t-foreach="pickings" t-as="picking">-->
+                <!--<li class="list-group-item list-group-item-danger"><span t-esc="picking.id"/></li>-->
+            <!--</t>-->
+        <!--</ul>-->
+    <!--</t>-->
+
+    <!--<t t-name="current_product">-->
+        <!--<div class="row">-->
+            <!--<div id="current-product-img" class="col-xs-12 col-sm-4 col-md-4 col-lg-4">-->
+                <!--<a href="#">-->
+                    <!--<img t-att-src="product.image" class="center-block img-responsive" />-->
+                <!--</a>-->
+            <!--</div>-->
+            <!--<div id="current-product-description" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">-->
+                <!--<h4><span t-esc="product.name"/></h4>-->
+                <!--<table class="table">-->
+                    <!--<tbody>-->
+                        <!--<tr>-->
+                            <!--<td class="text-left">Quantity</td>-->
+                            <!--<td id="current-product-quantity" class="text-right">50</td>-->
+                        <!--</tr>-->
+                        <!--<tr>-->
+                            <!--<td class="text-left">Quantity left</td>-->
+                            <!--<td class="text-right">-->
+                                <!--<div id="quantity-left" class="input-group">-->
+                                    <!--<div id="quantity" class="input-group">-->
+                                        <!--<span class="input-group-btn">-->
+                                            <!--<button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>-->
+                                        <!--</span>-->
+                                        <!--<input id="input_quantity" type="text" class="form-control text-center" value="1"/>-->
+                                        <!--<span class="input-group-btn">-->
+                                            <!--<button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>-->
+                                        <!--</span>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</td>-->
+                        <!--</tr>-->
+                        <!--<tr>-->
+                            <!--<td class="text-left">Location</td>-->
+                            <!--<td id="current-product-location" class="text-right"><span t-esc="product.location"/></td>-->
+                        <!--</tr>-->
+                        <!--<tr>-->
+                            <!--<td class="text-left">Scan the location when you picked all products</td>-->
+                        <!--</tr>-->
+                    <!--</tbody>-->
+                <!--</table>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</t>-->
+
+    <!--<t t-name="next_products">-->
+        <!--<table class="table table-striped">-->
+            <!--<thead>-->
+                <!--<tr>-->
+                    <!--<th>Next products</th>-->
+                    <!--<th>Location</th>-->
+                <!--</tr>-->
+            <!--</thead>-->
+            <!--<tbody>-->
+                <!--<t t-foreach="products" t-as="product">-->
+                    <!--<tr>-->
+                        <!--<td><span t-esc="product.name"/></td>-->
+                        <!--<td><span t-esc="product.location"/></td>-->
+                    <!--</tr>-->
+                <!--</t>-->
+            <!--</tbody>-->
+        <!--</table>-->
+    <!--</t>-->
+
+
+</templates>

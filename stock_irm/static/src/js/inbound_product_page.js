@@ -281,7 +281,6 @@
                     self.parent.add_product(self.id, parseInt(qty));
                     self.parent.process_barcode(barcode);
                     self.destroy();
-
                 }
             }else{
                 //if we scanned the same product, simply update the quantity and print the label
