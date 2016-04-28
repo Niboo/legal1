@@ -296,7 +296,7 @@
             var self = this;
             if(self.quantity_to_print>0){
                 var $result = $(QWeb.render('print_error_message', {}));
-                self.show_modal('Not enough label printed', $result, false);
+                self.show_modal('Not enough label printed', $result, '', false);
                 self.add_listener_on_modal_print_button();
                 return false;
             }else{

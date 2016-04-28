@@ -77,7 +77,8 @@
             self.$nav.off('click.change-user');
             self.$nav.on('click.change-user', '#change-user a', function (event) {
                 var $result = $(QWeb.render('change_user', {}));
-                self.show_modal('Please enter your login information', $result, false);
+                var $footer = $(QWeb.render('change_user_footer', {}));
+                self.show_modal('Please enter your login information', $result, $footer, false);
                 $(document).off('keypress.barcode');
                 $(document).on('keypress.barcode', function(e) {
                     chars.push(String.fromCharCode(e.which));
@@ -105,10 +106,11 @@
 
                 self.$modal.find('#modal_changer_user_button').click(function(event){
                     event.preventDefault();
-                    login = self.$modal.find('#login').val();
-                    password = self.$modal.find('#password').val();
+                    var login = self.$modal.find('#login').val();
+                    var password = self.$modal.find('#password').val();
 
-                    data = {'login':login,'password':password}
+                    var data = {'login':login,'password':password}
+                    console.log(data);
                     $.post("/inbound_screen/change_user", data, function(data, status){
                         location.reload();
                     })
@@ -129,12 +131,15 @@
             self.add_listener_on_user_button();
             self.add_listener_on_worklocation_button();
         },
-        show_modal: function(title, content, block_modal){
+        show_modal: function(title, content, footer, block_modal){
             var self = this;
+            if (typeof(footer)==='undefined') footer = '';
             if (typeof(block_modal)==='undefined') block_modal = true;
+
             $(document).off('keypress.barcode');
             self.$modal.find('.modal-title').html(title);
             self.$modal.find('.modal-body').html(content);
+            self.$modal.find('.modal-footer').html(footer);
             if(block_modal){
                 self.$modal.modal({
                     backdrop: 'static', // prevent from closing when clicking beside the modal
@@ -150,6 +155,7 @@
             self.$modal.on('hide.bs.modal', function() {
                 self.$modal.find('.modal-title').empty();
                 self.$modal.find('.modal-body').empty();
+                self.$modal.find('.modal-footer').empty();
             })
         },
         destroy: function(){

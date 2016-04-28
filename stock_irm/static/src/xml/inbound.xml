@@ -114,11 +114,27 @@
 
     <t t-name="change_user">
         <!-- cart selection modal -->
-        <b style='font-size: 2em'>Change user</b><br/>
-        <div id="login-image" style="display:none"></div>
-        Login: <input id="login" type="text" class="form-control text-center"/>
-        Password: <input id="password" type="password" class="form-control text-center"/>
-        <a id="modal_changer_user_button" href="#" class="btn btn-lg btn-success">
+        <div class="row">
+            <div class="col-md-3" />
+            <div class="col-md-6" >
+                <form class="oe_login_form" role="form" method="post" _lpchecked="1">
+                    <div id="login-image" style="display:none"></div>
+                    <div class="form-group">
+                        <label for="login" class="control-label">Email</label>
+                        <input id="login" type="text" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control-label">Password</label>
+                        <input id="password" type="password" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" />
+        </div>
+    </t>
+
+    <t t-name="change_user_footer">
+        <a id="modal_changer_user_button" href="#" class="btn btn-success">
             Change User
         </a>
     </t>
@@ -251,8 +267,8 @@
 
     </t>
     <t t-name="go_back">
-        <a href="#" id="close" class="btn btn-lg btn-success goback"> Go Back </a>
-        <a href="#" id="cancel" class="btn btn-lg btn-success continue"> Continue this picking </a>
+        <a href="#" id="close" class="btn btn-danger pull-left goback"> Go Back </a>
+        <a href="#" id="cancel" class="btn btn-success continue"> Continue this picking </a>
     </t>
 
 </templates>

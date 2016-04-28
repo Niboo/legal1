@@ -114,7 +114,7 @@
             self.$nav.off('click.back');
             self.$nav.on('click.back', '#back a', function(event){
                 var $result = $(QWeb.render('go_back'));
-                self.show_modal('Are you sure you want to go back?', $result, false);
+                self.show_modal('Are you sure you want to go back?', 'All your change will be canceled', $result, false);
                 self.add_listener_on_goback_button();
                 self.add_listener_on_continue_button();
             })
@@ -253,7 +253,7 @@
                     }, 3000);
                 } else {
                     // this error message should not be blocking so we add "false" to the call
-                    self.show_modal('Picking not confirmed.', data.message, false);
+                    self.show_modal('Picking not confirmed.', data.message, '', false);
                 }
             }).fail(function(data){
                 console.log('FAIL');

@@ -346,7 +346,7 @@ No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
     def change_user(self, **kw):
         request.session.logout(keep_db=True)
         request.session.authenticate(request.session.db, login=kw['login'],
-                                      password=kw['password'])
+                                     password=kw['password'])
         current_user = http.request.env['res.users'].browse(http.request.uid)
 
         inbound_suppliers = http.request.env['res.partner'].search([
