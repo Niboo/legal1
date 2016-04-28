@@ -51,6 +51,7 @@
                 self.session.rpc('/picking_waves/create_picking', {
                 }).then(function(data){
                     self.move_list = data.move_list;
+                    console.log(self.move_list);
                     self.current_move = 0;
                     self.pickings = data.picking_list
 
@@ -89,6 +90,7 @@
                 'moves': self.move_list.slice(self.current_move+1,self.current_move+6)
             }));
             self.$elem.find("#next_products").html($next_products);
+
 
             self.current_product_barcode = self.move_list[self.current_move]['product'].ean13;
             self.current_destination_barcode = self.move_list[self.current_move].location_dest_barcode
@@ -138,6 +140,13 @@
                     self.session.rpc('/picking_waves/validate_move', {
                         'move_id': self.move_list[self.current_move].move_id,
                     }).then(function(data){
+                        index = $.map(self.pickings, function(obj, index) {
+                            if(obj.picking_id == data.picking_id) {
+                                return index;
+                            }
+                        })
+
+                        self.pickings[index].progress_done = data.progress_done
                         $("#"+data.picking_id).css({"width":data.progress_done+'%'});
                     });
 
@@ -153,7 +162,6 @@
                         self.current_destination_barcode = self.move_list[self.current_move].location_dest_barcode;
                         self.display_page();
                     }
-
 
                 }else{
                     // Not the expected quantity, display an error modal
@@ -226,8 +234,6 @@
                 $('#quantity_wave input').val(qty);
                 $(':focus').blur()
             });
-            console.log(qty);
-            console.log(self.move_list[self.current_move].product.product_quantity);
             if(qty == self.move_list[self.current_move].product.product_quantity){
                 $('#info').show();
             }else{
