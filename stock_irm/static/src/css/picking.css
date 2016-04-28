@@ -1,0 +1,22 @@
+
+/* Padding between columns */
+/*.col-picking {
+    margin-left: 0px;
+    margin-right: 0px;
+}*/
+
+.picking_progress {
+    background-color: rgba(242,222,222,1.0);
+}
+
+.picking_done {
+    background-color: rgba(223,240,216,1.0);
+}
+.progress-bar {
+    font-size: 1.5em;
+    color: rgba(125,125,125,1.0);
+    margin: 10px;
+}
+.form-control {
+    font-size: 1em;
+}

@@ -89,6 +89,7 @@ class InboundController(http.Controller):
                 {'picking_id': move.picking_id.id,
                  'move_id': move.id,
                  'product': {
+                     'picking_id' : move.picking_id.id,
                      'product_id': move.product_id.id,
                      'product_name': move.product_id.name,
                      'product_quantity': move.product_uom_qty,

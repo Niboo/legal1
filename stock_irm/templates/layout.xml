@@ -22,6 +22,10 @@
             <!--STOCK IRM-->
             <link href="/stock_irm/static/src/css/template.css" rel="stylesheet"/>
             <script type="text/javascript" src="/stock_irm/static/src/js/stock_irm_widget.js"></script>
+
+            <!--PICKING-->
+            <link href="/stock_irm/static/src/css/picking.css" rel="stylesheet"/>
+
         </template>
 
         <template id="stock_irm.assets_picking" name="Stock IRM assets for Picking">
