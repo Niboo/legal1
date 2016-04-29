@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Jérôme Guerriat
+#    Author: Jerome Guerriat
 #    Copyright 2015 Niboo SPRL
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -19,38 +19,11 @@
 #
 ##############################################################################
 
-{
-    'name': 'Inventory Responsive Management',
-    'category': 'Category',
-    'summary': 'Summary',
-    'website': '',
-    'version': '9.1.0',
-    'description': """
-Module
-        """,
-    'author': 'Niboo',
-    'depends': [
-        'base',
-        'xx_product_supplierinfo_tags',
-        'dyn_report_to_printer_location',
-        'base_report_to_printer',
-        'stock',
-    ],
-    'data': [
-        'views/res_partner.xml',
-        'templates/layout.xml',
-        'views/res_users.xml',
-        'views/printing_printers.xml',
-        'views/work_location.xml',
-        'views/stock_location.xml',
-        'views/stock_picking_type.xml',
-    ],
-    'qweb': [
-    ],
-    'demo': [
-    ],
-    'css': [
-    ],
-    'installable': True,
-    'application': True,
-}
+from openerp import models, api, fields
+
+
+class StockPickingType(models.Model):
+
+    _inherit = "stock.picking.type"
+
+    is_for_picking_wave = fields.Boolean("Is in picking waves")

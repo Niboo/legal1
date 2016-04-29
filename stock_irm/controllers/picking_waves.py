@@ -20,6 +20,9 @@
 ##############################################################################
 
 from openerp import http
+from openerp import exceptions
+from datetime import datetime
+from openerp.http import request
 
 
 class InboundController(http.Controller):
@@ -81,18 +84,22 @@ class InboundController(http.Controller):
     def create_picking(self, **kw):
         env = http.request.env
 
-        # retrieve the picking type we want to search (stock -> client)
+        # create a wave
+        wave = env['stock.picking.wave'].create({
+            'user_id': http.request.uid,
+        })
+
+        # retrieve the picking types that are for picking waves
         picking_type_ids = env['stock.picking.type'].search([
-            ('code', '=', 'outgoing'),
+            ('is_for_picking_wave', '=', True),
             ('active', '=', True)
         ])
 
         # retrieve the pickings with that type
         picking_ids = env['stock.picking'].search([
             ('picking_type_id', 'in', picking_type_ids.ids),
-            ('state', '=', 'assigned'),
-            ('wave_id', '=', False)
-        ], limit=15)
+            ('state', '=', 'assigned')
+        ], limit=15, order="min_date")
 
         if not picking_ids:
             return {'status': 'empty'}
@@ -208,29 +215,27 @@ class InboundController(http.Controller):
         for move in sorted(stock_move_ids,
                            key=lambda x: (x.location_dest_id.name,
                                           x.product_id.id)):
-            if move.state == "assigned":
 
-                move_list.append(
-                    {'picking_id': move.picking_id.id,
-                     'move_id': move.id,
-                     'product': {
-                         'picking_name' : move.picking_id.name,
-                         'product_id': move.product_id.id,
-                         'product_name': move.product_id.name,
-                         'product_description': move.product_id.description,
-                         'product_quantity': move.product_uom_qty,
-                         'product_image':
-                         "/web/binary/image?model=product.product&id=%s&field=image"
-                         % move.product_id.id,
-                         'ean13': move.product_id.ean13,
-                         'location_id': move.location_id.id,
-                         'location_name': move.location_id.name,
-                         'location_dest_name': move.location_dest_id.name,
-                     },
-                     'location_barcode': move.location_id.loc_barcode,
-                     'location_dest_id': move.location_dest_id.id,
-                     'location_dest_name': move.location_dest_id.name,
-                     'location_dest_barcode': move.location_dest_id.loc_barcode
-                     })
+            move_list.append(
+                {'picking_id': move.picking_id.id,
+                 'move_id': move.id,
+                 'product': {
+                     'picking_name': move.picking_id.name,
+                     'product_id': move.product_id.id,
+                     'product_name': move.product_id.name,
+                     'product_description': move.product_id.description,
+                     'product_quantity': move.product_uom_qty,
+                     'product_image':
+                     "/web/binary/image?model=product.product&id=%s&field=image"
+                     % move.product_id.id,
+                     'ean13': move.product_id.ean13,
+                     'location_id': move.location_id.id,
+                     'location_name': move.location_id.name,
+                 },
+                 'location_barcode': move.location_id.loc_barcode,
+                 'location_dest_id': move.location_dest_id.id,
+                 'location_dest_name': move.location_dest_id.name,
+                 'location_dest_barcode': move.location_dest_id.loc_barcode
+                 })
 
         return move_list
