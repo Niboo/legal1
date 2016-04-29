@@ -78,6 +78,7 @@ class InboundController(http.Controller):
             picking_list.append({
                 'picking_id': picking.id,
                 'progress_done': progress,
+                'picking_name' : picking.name,
             })
 
         # sort the location by alphabetical name
@@ -89,7 +90,7 @@ class InboundController(http.Controller):
                 {'picking_id': move.picking_id.id,
                  'move_id': move.id,
                  'product': {
-                     'picking_id' : move.picking_id.id,
+                     'picking_name' : move.picking_id.name,
                      'product_id': move.product_id.id,
                      'product_name': move.product_id.name,
                      'product_quantity': move.product_uom_qty,
@@ -99,6 +100,7 @@ class InboundController(http.Controller):
                      'ean13': move.product_id.ean13,
                      'location_id': move.location_id.id,
                      'location_name': move.location_id.name,
+                     'location_dest_name': move.location_dest_id.name,
                  },
                  'location_barcode': move.location_id.loc_barcode,
                  'location_dest_id': move.location_dest_id.id,

@@ -1,10 +1,4 @@
-
-/* Padding between columns */
-/*.col-picking {
-    margin-left: 0px;
-    margin-right: 0px;
-}*/
-
+/* Overwrite template.css */
 .picking_progress {
     background-color: rgba(242,222,222,1.0);
 }
@@ -12,11 +6,48 @@
 .picking_done {
     background-color: rgba(223,240,216,1.0);
 }
-.progress-bar {
-    font-size: 1.5em;
-    color: rgba(125,125,125,1.0);
+
+/* Specific to picking.xml */
+#progress-bar-picking-list {
     margin: 10px;
-}
-.form-control {
     font-size: 1em;
+    color: rgba(125, 125, 125, 1.0);
 }
+#picking-list {
+    margin: 0px;
+    padding: 0px;
+    border-radius: 0px;
+}
+#product-list {
+    padding-left: 30px;
+    padding-right: 30px;
+}
+#picking-list-group {
+    padding: 0px;
+}
+#current-product-name-row {
+    min-height: 150px;
+}
+#current-product-quantity-row {
+    min-height: 100px;
+}
+#next-products-table tr td {
+    height: 100px;
+    vertical-align: middle;
+}
+.input-picking {
+    min-width: 150px;
+    margin-right: auto;
+    margin-left: auto;
+}
+.form-control-picking {
+    font-size: 2.5em;
+    height: 50px;
+    padding: 0px;
+    min-width: 50px;
+}
+.form-control-picking-buttons {
+    height: 50px;
+    width: 50px;
+}
+

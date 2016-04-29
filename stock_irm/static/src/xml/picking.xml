@@ -57,17 +57,21 @@
 
     <t t-name="picking_layout">
         <div class="container">
-            <h1>Wave <t t-esc="wave_id"/></h1>
-            <hr/>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h1>Wave <t t-esc="wave_id"/></h1>
+                    <hr/>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-                    <div id="picking_list" class="">
+                    <div id="picking_list">
 
                     </div>
                 </div>
                 <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
                     <div id="product-list">
-                        <div id="current_product" class="row">picking_id
+                        <div id="current_product" class="row">
 
                         </div>
                         <div id="next_products" class="row">
@@ -80,13 +84,12 @@
     </t>
 
     <t t-name="picking_list">
-        <h4>Pickings</h4>
         <ul class="list-group">
             <t t-foreach="pickings" t-as="picking">
-                <li class="list-group-item text-center a_picking">
-                    <div class="progress picking_progress">
-                        <div t-att-id="picking.picking_id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+picking.progress_done+'%;'">
-                           <span t-esc="picking.picking_id"/>
+                <li class="list-group-item" id="picking-list-group">
+                    <div class="progress picking_progress" id="picking-list">
+                        <div t-att-id="picking.picking_id" id="progress-bar-picking-list" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+picking.progress_done+'%;'">
+                           <span t-esc="picking.picking_name"/>
                         </div>
                     </div>
                 </li>
@@ -96,84 +99,74 @@
 
     <t t-name="current_product">
         <div class="row">
-            <div id="current-product-img" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <a href="#">
-                    <img t-att-src="product.product_image" class="center-block img-responsive" />
-                    </a>
+            <div id="current-product-img" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <a href="#">
+                        <img t-att-src="product.product_image" class="center-block img-responsive" />
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div id="current-product-description" class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                <div class="row">
+            <div id="current-product-description" class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+                <div class="row" id="current-product-name-row">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                         <h3><span t-esc="product.product_name"/></h3>
                     </div>
                 </div>
-                <hr/>
                 <div class="row">
-                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 text-center">
-                        <div class="form-control">
+                    <hr/>
+                </div>
+                <div class="row text-center" id="current-product-quantity-row">
+                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                        <div class="form-control form-control-picking center-block text-center">
                             <div t-esc="product.product_quantity"/>
                         </div>
-                    </div>
-                    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 text-center">
-                        <div id="quantity-left" class="input-group">
-                            <div id="quantity_wave" class="input-group">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-                                </span>
-                                <input type="text" class="form-control text-center" value="0"/>
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-                                </span>
-                            </div>
-                        </div>
+                        <h4><span t-esc="product.location_dest_name"/></h4>
                     </div>
                     <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
-                        <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                        <h3><i class="fa fa-arrow-right" aria-hidden="true"></i></h3>
                     </div>
-                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 text-center">
-                        <div class="form-control">15</div>
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <div class="input-group input-picking text-center">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default form-control-picking-buttons" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                            </span>
+                            <input type="text" class="form-control text-center form-control-picking" value="0"/>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default form-control-picking-buttons" data-dir="dwn"><span class="glyphicon glyphicon-plus"></span></button>
+                            </span>
+                        </div>
+                        <h4>on hand</h4>
+                    </div>
+                    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
+                        <h3><i class="fa fa-arrow-right" aria-hidden="true"></i></h3>
+                    </div>
+                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                        <div class="form-control form-control-picking center-block text-center">15</div>
+                        <h4><span t-esc="product.picking_name"/></h4>
                     </div>
                 </div>
-                <div class="row text-center">
-                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">to pick in <h2><span t-esc="product.location_name"/></h2></div>
-                    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">on hand</div>
-                    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center"/>
-                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">in picking <h2><span t-esc="product.picking_id"/></h2></div>
-                </div>
-                <span id="info" class="text-left" style="display:none"><h2 style='color:red'>Put in box <span t-esc="location_dest_name"/></h2></span>
             </div>
         </div>
     </t>
 
     <t t-name="next_products">
         <div class="row">
-            <hr/>
-            <h4>Next products</h4>
-            <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Quantity</th>
-                    <th>Location</th>
-                </tr>
-            </thead>
-            <tbody>
+            <table class="table" id="next-products-table">
                 <t t-foreach="moves" t-as="move">
                     <tr>
                         <td><a href="#"><img t-att-src="product.product_image" class="center-block img-responsive"/></a></td>
                         <td><span t-esc="move.product.product_name"/></td>
+                        <td><div class="form-control"><span t-esc="move.product.location_dest_name"/></div></td>
                         <td><span t-esc="move.product.product_quantity"/></td>
-                        <td><span t-esc="move.product.location_name"/></td>
+                        <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
+                        <td><span t-esc="move.product.picking_name"/></td>
                     </tr>
                 </t>
-            </tbody>
-        </table>
+            </table>
         </div>
     </t>
 
-
-
 </templates>
+
