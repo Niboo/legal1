@@ -82,6 +82,8 @@
     color: #fff;
     width:50%;
     margin:0 auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 #create-wave:hover{

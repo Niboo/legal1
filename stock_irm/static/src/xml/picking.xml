@@ -82,16 +82,16 @@
                         <h1>Wave <t t-esc="wave_id"/></h1>
                         <hr/>
                         <div id="picking_list">
-
+                            <t t-call="picking_list" />
                         </div>
                     </div>
                     <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
                         <div id="product-list">
                             <div id="current_product" class="row">
-
+                                <t t-call="current_product" />
                             </div>
                             <div id="next_products" class="row">
-
+                                <t t-call="next_products" />
                             </div>
                         </div>
                     </div>
