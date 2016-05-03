@@ -24,18 +24,20 @@
             <script type="text/javascript" src="/stock_irm/static/src/js/stock_irm_widget.js"></script>
 
             <!--PICKING-->
-            <link href="/stock_irm/static/src/css/picking.css" rel="stylesheet"/>
+
 
         </template>
 
         <template id="stock_irm.assets_picking" name="Stock IRM assets for Picking">
             <script type="text/javascript" src="/stock_irm/static/src/js/picking_selector.js"></script>
+            <link href="/stock_irm/static/src/css/picking.css" rel="stylesheet"/>
         </template>
 
         <template id="stock_irm.assets_inbound" name="Stock IRM assets for Inbound">
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_supplier_selector.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_picking.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_page.js"></script>
+            <link href="/stock_irm/static/src/css/inbound.css" rel="stylesheet"/>
         </template>
 
         <template id="stock_irm.layout" name="Stock IRM Header">
@@ -44,6 +46,12 @@
                     <meta charset="UTF-8"/>
                     <title t-esc="title" />
                     <t t-call-assets="stock_irm.assets" t-js="false"/>
+                    <t t-if="title == 'Inbound'">
+                        <t t-call-assets="stock_irm.assets_inbound" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Picking Waves'">
+                        <t t-call-assets="stock_irm.assets_picking" t-js="false"/>
+                    </t>
                 </head>
                 <body>
                     <div class="modal fade" id="modalWindow" tabindex="-1" role="dialog">

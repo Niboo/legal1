@@ -1,0 +1,202 @@
+
+/* ########## SEARCH */
+
+#custom-search-input{
+    padding: 3px;
+    border: solid 1px #E4E4E4;
+    border-radius: 6px;
+    background-color: #fff;
+}
+
+#custom-search-input input{
+    border: 0;
+    box-shadow: none;
+}
+
+#custom-search-input button{
+    margin: 2px 0 0 0;
+    background: none;
+    box-shadow: none;
+    border: 0;
+    color: #666666;
+    padding: 0 8px 0 10px;
+    border-left: solid 1px #ccc;
+}
+
+#custom-search-input button:hover{
+    border: 0;
+    box-shadow: none;
+    border-left: solid 1px #ccc;
+}
+
+#custom-search-input .glyphicon-search{
+    font-size: 23px;
+}
+
+.result-row, .result-row >div{
+    margin-top: 15px;
+}
+
+.thumbnail{
+    margin-bottom: 0px;
+}
+
+.square-label{
+    text-align: center;
+    word-wrap: break-word;
+    height: 3em;
+    overflow: hidden;
+}
+
+.square{
+    width: 100%;
+    padding-bottom : 100%;
+    background-position:center center;
+    background-repeat:no-repeat;
+    background-size:contain; /* you change this to "contain" if you don't want the images to be cropped */
+}
+
+.scan-row img{
+    width: 50%;
+}
+
+h2{
+    color: #999999;
+    font-size: 1.4em;
+    font-stretch: normal;
+    font-weight: normal;
+}
+
+#results .btn{
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+
+/* ########## PAGE */
+
+.page{
+    margin-top: 2%;
+}
+
+#barcodes > div:last-child {
+    border-left: 1px solid #ccc;
+}
+
+#barcodes img{
+    width: 100%;
+}
+
+#barcodes ul{
+    margin-top: 2%;
+}
+
+#barcodes li{
+    display: block;
+    font-size: 1.5em;
+    margin: 1%;
+}
+
+/* ########## RACK */
+
+.label {
+    font-size: 2em;
+}
+
+#rack{
+    font-size: 3em;
+    background-color: #d9534f;
+    color: #fff;
+}
+
+#rack:hover{
+    background-color: #c9433f;
+    color: #fff;
+    cursor: hand;
+}
+
+#rack span{
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+#rack .glyphicon {
+    vertical-align: sub;
+}
+
+/* ########## QUANTITY */
+
+#quantity, #label-quantity, #label-printed {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#quantity .btn, #quantity .btn, #quantity input,
+#label-quantity .btn, #label-quantity input,
+#label-printed .btn, #label-printed .btn,
+#label-printed input
+{
+    height: 100px;
+}
+
+#quantity .btn, #quantity .btn, #label-quantity .btn,
+#label-printed .btn, #label-printed .btn
+{
+    width: 90px;
+}
+
+#quantity .btn, #label-quantity .btn, #label-printed .btn
+{
+    font-size: 2vw;
+}
+
+#quantity input, #label-printed input, #label-quantity input {
+    font-size: 2.5em;
+}
+
+#modal_print_button{
+    margin-left:55%;
+}
+
+/* ########## tick */
+
+.fa-10x {
+  font-size: 10em;
+}
+
+/* ########## modal */
+
+.cart {
+    margin: 2% 4% 2% 4%;
+}
+
+/* ########## barcodes */
+.information-box {
+    min-height: 22%;
+}
+
+.information-box .tags{
+    min-height: 15%;
+}
+
+.solid{
+    border-style: inset;
+    border-width: 1px;
+}
+
+a[is-in-usage='true'] {
+    background-color: #FFB100;
+    border-color: #FFB100;
+}
+
+/* ########## product page */
+
+#product_row{
+    height: 80%;
+}
+
+#qty_row {
+    position: fixed;
+    bottom: 10px;
+    left: 5%;
+    right: 5%;
+}
