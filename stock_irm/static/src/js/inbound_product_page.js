@@ -132,14 +132,14 @@
             })
         },
         color_printed_labels: function(missing_labels){
-            color = "green";
-            if(missing_labels > 0){
+            var self = this;
+            var color = "green";
+            if(self.is_enough_label_printed() > 0){
                 color = "red"
             }
 
             $('#print_button').css({'color':color});
             $('#already_printed_quantity').css({'color':color});
-
         },
         get_product: function(){
             var self = this;
