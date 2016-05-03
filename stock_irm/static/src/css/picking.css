@@ -29,11 +29,13 @@
     min-height: 300px;
 }
 #current-product-quantity-row {
-    min-height: 150px;
+    min-height: 110px;
 }
 #next-products-table tr td {
     height: 100px;
     vertical-align: middle;
+    border-top: 0px;
+    border-bottom: 1px solid #ddd;
 }
 .input-picking {
     min-width: 150px;
@@ -56,10 +58,6 @@
 {
     height: 100px;
     width: 100px;
-}
-
-#quantity_wave {
-    padding-left: 10%;
 }
 
 .picking_progress{
@@ -130,6 +128,12 @@ body {
 #next-product-img {
     max-width: 100px;
 }
+#current-product-img {
+    max-width: 500px;
+}
 .buttons-icons-quantity {
     line-height: 2.8;
+}
+#quantity-input-value {
+ min-width: 150px;
 }
