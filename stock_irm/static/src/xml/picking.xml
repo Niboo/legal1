@@ -86,8 +86,6 @@
             <div class="container">
                 <div class="row">
                     <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-                        <h1>Wave <t t-esc="wave_id"/></h1>
-                        <hr/>
                         <div id="picking_list">
                             <t t-call="picking_list" />
                         </div>
