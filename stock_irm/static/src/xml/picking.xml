@@ -105,7 +105,7 @@
             <t t-foreach="pickings" t-as="picking">
                 <li class="list-group-item" id="picking-list-group">
                     <div class="progress picking_progress" id="picking-list">
-                        <div t-att-id="picking.picking_id" id="progress-bar-picking-list" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+picking.progress_done+'%;'">
+                        <div t-att-id="picking.picking_id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+picking.progress_done+'%;'">
                            <span t-esc="picking.picking_name"/>
                         </div>
                     </div>
@@ -138,7 +138,7 @@
 
         <div class="row text-center" id="current-product-quantity-row">
             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-                        <div class="form-control form-control-picking center-block text-center">
+                        <div id="expected_qty" class="form-control form-control-picking center-block text-center">
                             <div t-esc="product.product_quantity"/>
                         </div>
                         <h4><span t-esc="product.location_dest_name"/></h4>
@@ -163,7 +163,7 @@
                 <h3><i class="fa fa-arrow-right" aria-hidden="true"></i></h3>
             </div>
             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-                <div class="form-control form-control-picking center-block text-center">15</div>
+                <div id="qty_in_box" class="form-control form-control-picking center-block text-center">0</div>
                 <h4><span t-esc="product.picking_name"/></h4>
             </div>
         </div>
@@ -186,5 +186,15 @@
         </div>
     </t>
 
+    <t t-name="picking_empty">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h2>No picking were found!</h2>
+                    <hr/>
+                </div>
+            </div>
+        </div>
+    </t>
 </templates>
 

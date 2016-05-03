@@ -39,6 +39,7 @@
 
         start: function(){
             var self = this;
+            self.qty_in_box = 0;
             self.first_pass = false;
             self.$elem = $(QWeb.render(this.template));
             $('#content').html(self.$elem);
@@ -58,9 +59,10 @@
                     else{
                         self.move_list = data.move_list;
                         self.current_move = 0;
-                        self.pickings = data.picking_list
+                        self.pickings = data.picking_list;
+                        self.wave_id = data.wave_id;
                         self.$elem = $(QWeb.render('picking_layout', {
-                            'wave_id': data.wave_id,
+                            'wave_id': self.wave_id,
                         }));
                         $('#content').html(self.$elem);
                         self.display_page();
@@ -133,7 +135,6 @@
             qty = parseInt($('#quantity_wave input').val());
 
             if(is_product_barcode){
-                console.log("it is the barcode product");
                 qty++
                 $('#info').show();
                 $('#quantity_wave input').val(qty);
@@ -141,9 +142,7 @@
 
             }else if(is_destination_barcode){
                 // location scanned
-                console.log("it is the destination barcode");
-
-                if(qty == self.move_list[self.current_move].product.product_quantity){
+                if(qty+self.qty_in_box == self.move_list[self.current_move].product.product_quantity){
                     // right location scanned, validate the move
                     self.session.rpc('/picking_waves/validate_move', {
                         'move_id': self.move_list[self.current_move].move_id,
@@ -153,31 +152,48 @@
                                 return index;
                             }
                         })
-
                         self.pickings[index].progress_done = data.progress_done
                         $("#"+data.picking_id).css({"width":data.progress_done+'%'});
+                        self.qty_in_box = 0;
                     });
 
                     // HAPPY FLOW! Go to the next product
                     self.current_move++;
 
                     if(self.current_move >= self.move_list.length){
-                        //Then we have finished the scanning!
-                        var msec = self.starting_time - new Date().getTime()
-                        console.log("it took "+msec+" milliseconds to complete this picking")
+                        var msec = new Date().getTime() - self.starting_time;
+
+                        self.session.rpc('/picking_waves/validate_wave', {
+                            'wave_id': self.wave_id,
+                            'time_to_complete': msec,
+                        }).then(function(data){
+                            if (data.status == 'ok'){
+                                self.show_modal('Wave Finished!', "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");
+                                window.setTimeout(function(){
+                                    window.location.href = "/picking_waves";
+                                }, 3000);
+                            }
+                        });
                     }else{
                         self.current_product_barcode = self.move_list[self.current_move].product.ean13;
                         self.current_destination_barcode = self.move_list[self.current_move].location_dest_barcode;
                         self.display_page();
                     }
-
                 }else{
-                    // Not the expected quantity, display an error modal
-                    var $result = $(QWeb.render('counter_error',{
-                        'real': qty,
-                        'expected': self.move_list[self.current_move].product.product_quantity
-                    }));
-                    self.show_modal('Item Count Error', $result, "", false);
+                    qty = parseInt($('#quantity_wave input').val());
+                    if((self.qty_in_box + qty)<=self.move_list[self.current_move].product.product_quantity){
+                        self.qty_in_box += qty;
+                        $('#quantity_wave input').val(0);
+                        $('#qty_in_box').text(self.qty_in_box);
+                        $('#expected_qty').text(self.move_list[self.current_move].product.product_quantity-self.qty_in_box);
+                    }else{
+                        // Not the expected quantity, display an error modal
+                        var $result = $(QWeb.render('counter_error',{
+                            'real': qty+self.qty_in_box,
+                            'expected': self.move_list[self.current_move].product.product_quantity
+                        }));
+                        self.show_modal('Item Count Error', $result, "", false);
+                    }
                 }
             }else{
                 if(qty == 0){

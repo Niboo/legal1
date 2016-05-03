@@ -19,9 +19,12 @@
 #
 ##############################################################################
 
-from . import res_partner
-from . import res_users
-from . import printing_printer
-from . import work_location
-from . import stock_location
-from . import picking_waves
+from openerp import models, api, fields
+from openerp.exceptions import ValidationError
+
+
+class PickingWave(models.Model):
+
+    _inherit = "stock.picking.wave"
+
+    time_to_complete = fields.Float("Time Passed")

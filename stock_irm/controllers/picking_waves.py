@@ -141,5 +141,16 @@ class InboundController(http.Controller):
         if not any(move.state != 'done' for move in picking.move_lines):
             results['finished_piking_id'] = picking.id
 
-        print results
+        return results
+
+    @http.route('/picking_waves/validate_wave', type='json', auth="user")
+    def validate_wave(self, wave_id, time_to_complete, **kw):
+        env = http.request.env
+        wave = env['stock.picking.wave'].browse(int(wave_id))
+
+        wave.time_to_complete = time_to_complete
+
+        results = {
+            "status": "ok",
+        }
         return results
