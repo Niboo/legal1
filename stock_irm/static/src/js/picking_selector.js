@@ -45,8 +45,23 @@
             $('#content').html(self.$elem);
             self.$modal = $('#modalWindow');
             self.add_listener_on_create_picking();
+            self.add_listener_on_choose_picking();
         },
-
+        add_listener_on_choose_picking: function(){
+            var self = this;
+            self.$elem.find('#choose-wave').click(function(event){
+                self.session.rpc('/picking_waves/current_user_waves', {
+                }).then(function(data){
+                    var $result = $(QWeb.render('select_wave', {
+                        waves: data.waves,
+                    }));
+                    self.show_modal('Wave Selection', $result, "", false);
+                });
+            })
+            // save the starting time, add the listener for barcode
+            self.starting_time = new Date().getTime();
+            self.add_listener_for_barcode();
+        },
         add_listener_on_create_picking: function(){
             var self = this;
             self.$elem.find('#create-wave').click(function(event){
@@ -82,9 +97,32 @@
                     self.current_move_index + 6)
             }));
             $('#content').html(self.$elem);
-
+            self.add_listener_on_manual_input();
             self.current_product_barcode = self.move_list[self.current_move_index]['product'].ean13;
             self.current_destination_barcode = self.move_list[self.current_move_index].location_dest_barcode;
+        },
+        add_listener_on_manual_input: function(){
+            var self = this;
+            $("#manual-barcode-input").off('click.manual');
+            $("#manual-barcode-input").on('click.manual', function (event) {
+                self.add_listener_on_numpad();
+            });
+        },
+        add_listener_on_numpad: function(){
+            var self = this;
+            $('.num-pad .circle').off('click.numpad');
+            $('.num-pad .circle').on('click.numpad', function (event) {
+                var $target = $(event.currentTarget);
+                value = $target.find("span").text()
+                if(value=="C"){
+                   self.$elem.find('#manual-barcode').val("");
+                }else if(value=="Enter"){
+                      self.process_barcode(self.$elem.find('#manual-barcode').val());
+                }else{
+                    self.$elem.find('#manual-barcode').val(self.$elem.find('#manual-barcode').val()+value);
+                    self.$elem.find('#manual-barcode').val("");
+                }
+            });
         },
         add_listener_for_barcode: function(){
             var self = this;

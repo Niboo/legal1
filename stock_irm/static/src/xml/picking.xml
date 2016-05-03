@@ -8,6 +8,13 @@
                 <div id="create-wave" class="row">
                     <span>Create a picking wave</span>
                 </div>
+                <div class="row">
+                    <br/>
+                </div>
+                <div id="choose-wave" class="row">
+                    <span>Choose an existing picking wave</span>
+                </div>
+
             </div>
         </div>
     </t>
@@ -127,9 +134,98 @@
                 <span t-esc="product.product_description"/>
             </div>
             <div id="current-product-buttons" class="col-xs-2 col-sm-2 col-md-3 col-lg-3 text-right">
-                <p><button type="button" class="btn btn-info btn-large buttons-product">
+                <button id="manual-barcode-input" type="button" class="btn btn-info btn-large buttons-product">
                     <i class="fa fa-barcode" aria-hidden="true"></i>
-                </button></p>
+                </button>
+                <div class="num-pad">
+                    <input id="manual-barcode" type="text" class="form-control text-center numpad-control-picking"/>
+
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>2</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>3</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>4</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>6</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>7</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>8</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>9</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>C</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="circle">
+                        <div class="num">
+                            <div>
+                                <span>Enter</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <p><button type="button" class="btn btn-danger btn-large buttons-product">
                     <i class="fa fa-minus-circle" aria-hidden="true"></i>
                 </button></p>
@@ -202,5 +298,17 @@
             </div>
         </div>
     </t>
+
+    <t t-name="select_wave">
+        <!-- wave selection modal -->
+        <div class="row">
+            <t t-foreach="waves" t-as="wave">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="wave.id" t-att-worklocation-name="wave.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span><t t-esc="wave.name" />
+                </a>
+            </t>
+        </div>
+    </t>
+
 </templates>
 

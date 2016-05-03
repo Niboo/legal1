@@ -114,6 +114,7 @@ class InboundController(http.Controller):
                      'location_dest_barcode': move.location_dest_id.loc_barcode
                      })
 
+        wave.confirm_picking()
         results = {'status': 'ok', 'move_list': move_list,
                    'picking_list': picking_list, 'wave_id': wave.id}
         return results
@@ -149,8 +150,26 @@ class InboundController(http.Controller):
         wave = env['stock.picking.wave'].browse(int(wave_id))
 
         wave.time_to_complete = time_to_complete
-
+        wave.done()
         results = {
             "status": "ok",
         }
+        return results
+
+    @http.route('/picking_waves/current_user_waves', type='json', auth='user')
+    def current_user_waves(self, **kw):
+        env = http.request.env
+        waves = env['stock.picking.wave'].search([
+            ('state', '=', 'in_progress'),
+            ('user_id', '=', http.request.uid)
+        ])
+
+        wave_list = []
+        for wave in waves:
+            wave_list.append({
+                'id': wave.id,
+                'name': wave.name,
+            })
+        results = {'status': 'ok',
+                   'waves': wave_list}
         return results
