@@ -83,31 +83,36 @@ class InboundController(http.Controller):
 
         # sort the location by alphabetical name
         move_list = []
+        if not stock_move_ids:
+            return {'status': 'empty'}
+
+
         for move in sorted(stock_move_ids,
                            key=lambda x: x.location_dest_id.name):
+            if move.state == "assigned":
 
-            move_list.append(
-                {'picking_id': move.picking_id.id,
-                 'move_id': move.id,
-                 'product': {
-                     'picking_name' : move.picking_id.name,
-                     'product_id': move.product_id.id,
-                     'product_name': move.product_id.name,
-                     'product_description': move.product_id.description,
-                     'product_quantity': move.product_uom_qty,
-                     'product_image':
-                     "/web/binary/image?model=product.product&id=%s&field=image"
-                     % move.product_id.id,
-                     'ean13': move.product_id.ean13,
-                     'location_id': move.location_id.id,
-                     'location_name': move.location_id.name,
+                move_list.append(
+                    {'picking_id': move.picking_id.id,
+                     'move_id': move.id,
+                     'product': {
+                         'picking_name' : move.picking_id.name,
+                         'product_id': move.product_id.id,
+                         'product_name': move.product_id.name,
+                         'product_description': move.product_id.description,
+                         'product_quantity': move.product_uom_qty,
+                         'product_image':
+                         "/web/binary/image?model=product.product&id=%s&field=image"
+                         % move.product_id.id,
+                         'ean13': move.product_id.ean13,
+                         'location_id': move.location_id.id,
+                         'location_name': move.location_id.name,
+                         'location_dest_name': move.location_dest_id.name,
+                     },
+                     'location_barcode': move.location_id.loc_barcode,
+                     'location_dest_id': move.location_dest_id.id,
                      'location_dest_name': move.location_dest_id.name,
-                 },
-                 'location_barcode': move.location_id.loc_barcode,
-                 'location_dest_id': move.location_dest_id.id,
-                 'location_dest_name': move.location_dest_id.name,
-                 'location_dest_barcode': move.location_dest_id.loc_barcode
-                 })
+                     'location_dest_barcode': move.location_dest_id.loc_barcode
+                     })
 
         results = {'status': 'ok', 'move_list': move_list,
                    'picking_list': picking_list, 'wave_id': wave.id}

@@ -39,6 +39,7 @@
 
         start: function(){
             var self = this;
+            self.first_pass = false;
             self.$elem = $(QWeb.render(this.template));
             $('#content').html(self.$elem);
             self.$modal = $('#modalWindow');
@@ -50,15 +51,20 @@
             self.$elem.find('#create-wave').click(function(event){
                 self.session.rpc('/picking_waves/create_picking', {
                 }).then(function(data){
-                    self.move_list = data.move_list;
-                    self.current_move = 0;
-                    self.pickings = data.picking_list
-
-                    self.$elem = $(QWeb.render('picking_layout', {
-                        'wave_id': data.wave_id,
-                    }));
-                    $('#content').html(self.$elem);
-                    self.display_page();
+                    if(data.status == "empty"){
+                        self.$elem = $(QWeb.render('picking_empty', {
+                        }));
+                        $('#content').html(self.$elem);                    }
+                    else{
+                        self.move_list = data.move_list;
+                        self.current_move = 0;
+                        self.pickings = data.picking_list
+                        self.$elem = $(QWeb.render('picking_layout', {
+                            'wave_id': data.wave_id,
+                        }));
+                        $('#content').html(self.$elem);
+                        self.display_page();
+                    }
                 });
             })
 
@@ -70,11 +76,12 @@
         display_page: function(){
             var self = this;
 
-            // generate the picking column
-            // todo: color the pickings
-            var $picking_list = $(QWeb.render('picking_list',{
-                'pickings': self.pickings,
-            }));
+            if(!self.first_pass){
+                var $picking_list = $(QWeb.render('picking_list',{
+                    'pickings': self.pickings,
+                }));
+            }
+            self.first_pass = true;
             self.$elem.find("#picking_list").html($picking_list);
 
             // generate the current product
@@ -89,7 +96,6 @@
                 'moves': self.move_list.slice(self.current_move+1,self.current_move+6)
             }));
             self.$elem.find("#next_products").html($next_products);
-
 
             self.current_product_barcode = self.move_list[self.current_move]['product'].ean13;
             self.current_destination_barcode = self.move_list[self.current_move].location_dest_barcode
