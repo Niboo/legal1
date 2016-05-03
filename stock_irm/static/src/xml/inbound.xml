@@ -172,43 +172,48 @@
                             <h4><t t-esc="product.supplier_code"/></h4>
                         </div>
                     </div>
-                    <hr class="solid"/>
-                    <b>Barcodes:</b>
-                    <div class="col-md-12 information-box" id="barcodes">
-                        <div class="col-md-2 col-xs-2">
-                            <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
+                    <t t-if="list_cart_with_product.length">
+                        <hr class="solid"/>
+                        <div>
+                            <b>Item is also in:</b>
+                            <div class="col-md-12 information-box">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Cart</th>
+                                            <th>Box</th>
+                                            <th>Quantity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="list_cart_with_product" t-as="item">
+                                            <tr>
+                                                <td><t t-esc="item.cart_name"/></td>
+                                                <td><t t-esc="item.box"/></td>
+                                                <td><t t-esc="item.quantity"/></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="col-md-10 col-xs-10 tags">
-                            <ul>
-                                <t t-foreach="barcodes" t-as="barcode">
-                                    <li><t t-esc="barcode"/></li>
-                                </t>
-                            </ul>
+                    </t>
+                    <hr class="solid"/>
+                    <div>
+                        <b>Barcodes:</b>
+                        <div class="col-md-12 information-box" id="barcodes">
+                            <div class="col-md-2 col-xs-2">
+                                <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
+                            </div>
+                            <div class="col-md-10 col-xs-10 tags">
+                                <ul>
+                                    <t t-foreach="barcodes" t-as="barcode">
+                                        <li><t t-esc="barcode"/></li>
+                                    </t>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                    <hr class="solid"/>
-                    <b>Item is also in:</b>
-                    <div class="col-md-12 information-box">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Cart</th>
-                                    <th>Box</th>
-                                    <th>Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="list_cart_with_product" t-as="item">
-                                    <tr>
-                                        <td><t t-esc="item.cart_name"/></td>
-                                        <td><t t-esc="item.box"/></td>
-                                        <td><t t-esc="item.quantity"/></td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-                    </div>
-                    <hr/>
                 </div>
             </div>
         </div>

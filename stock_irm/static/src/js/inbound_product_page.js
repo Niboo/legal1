@@ -148,10 +148,9 @@
                 supplier_id: self.parent.supplier_id
             }).then(function(data){
                 
-                var cart_id;
                 var box_id;
                 var quantity;
-                var cart_with_product = []
+                var cart_with_product = new Array();
 
                 // building the array with the needed information
                 if(self.parent.received_products[self.id]){
@@ -162,7 +161,9 @@
                                 quantity = value;
                             }
                         });
-                        cart_with_product.push({"cart_name":self.parent.carts[key]["name"], "box": box_id, "quantity":quantity});
+                        cart_with_product.push({
+                            "cart_name":self.parent.carts[key]["name"],
+                            "box": box_id, "quantity":quantity});
                     });
                 }
 
@@ -171,7 +172,7 @@
                     product: self.product,
                     quantity: self.quantity,
                     barcodes: data.product.barcodes,
-                    list_cart_with_product: cart_with_product || []
+                    list_cart_with_product: cart_with_product
                 }));
                 self.barcodes = data.product.barcodes;
                 $('#content').html(self.$elem);
