@@ -104,14 +104,16 @@
             $('.num-pad .circle').off('click.numpad');
             $('.num-pad .circle').on('click.numpad', function (event) {
                 var $target = $(event.currentTarget);
-                value = $target.find("span").text()
+                value = $target.find("span").text();
+                console.log(value);
                 if(value=="C"){
                    self.$elem.find('#manual-barcode').val("");
                 }else if(value=="Enter"){
-                      self.process_barcode(self.$elem.find('#manual-barcode').val());
+                    self.process_barcode(self.$elem.find('#manual-barcode').val());
+                    self.$elem.find('#manual-barcode').val("");
+
                 }else{
                     self.$elem.find('#manual-barcode').val(self.$elem.find('#manual-barcode').val()+value);
-                    self.$elem.find('#manual-barcode').val("");
                 }
             });
         },
