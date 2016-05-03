@@ -122,11 +122,11 @@
                     <img t-att-src="product.product_image" class="center-block img-responsive"/>
                 </a>
             </div>
-            <div id="current-product-description" class="col-xs-11 col-sm-11 col-md-7 col-lg-7">
+            <div id="current-product-description" class="col-xs-10 col-sm-10 col-md-6 col-lg-5">
                 <h3><span t-esc="product.product_name"/></h3>
                 <span t-esc="product.product_description"/>
             </div>
-            <div id="current-product-buttons" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+            <div id="current-product-buttons" class="col-xs-2 col-sm-2 col-md-3 col-lg-3 text-right">
                 <p><button type="button" class="btn btn-info btn-large buttons-product">
                     <i class="fa fa-barcode" aria-hidden="true"></i>
                 </button></p>
@@ -144,23 +144,23 @@
                         <h4><span t-esc="product.location_dest_name"/></h4>
                     </div>
             <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
-                <h3><i class="fa fa-arrow-right" aria-hidden="true"></i></h3>
+                <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
                 <div class="input-group input-picking text-center">
                     <div id="quantity_wave" class="input-group input-picking text-center">
                          <span class="input-group-btn">
-                             <button class="btn btn-default form-control-picking-buttons" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                             <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
                          </span>
                          <input type="text" class="form-control text-center form-control-picking" value="0"/>
                          <span class="input-group-btn">
-                            <button class="btn btn-default form-control-picking-buttons" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                            <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
                          </span>
                     </div>
                 </div>
             </div>
             <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
-                <h3><i class="fa fa-arrow-right" aria-hidden="true"></i></h3>
+                <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
             </div>
             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
                 <div id="qty_in_box" class="form-control form-control-picking center-block text-center">0</div>
@@ -174,9 +174,9 @@
             <table class="table" id="next-products-table">
                 <t t-foreach="moves" t-as="move">
                     <tr>
-                        <td><a href="#"><img t-att-src="product.product_image" class="center-block img-responsive"/></a></td>
+                        <td id="next-product-img"><a href="#"><img t-att-src="product.product_image" class="center-block img-responsive"/></a></td>
                         <td><span t-esc="move.product.product_name"/></td>
-                        <td><div class="form-control"><span t-esc="move.product.location_dest_name"/></div></td>
+                        <td><div class="form-control text-center"><span t-esc="move.product.location_dest_name"/></div></td>
                         <td><span t-esc="move.product.product_quantity"/></td>
                         <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
                         <td><span t-esc="move.product.picking_name"/></td>
