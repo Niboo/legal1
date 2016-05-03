@@ -8,13 +8,6 @@
                 <div id="create-wave" class="row">
                     <span>Create a picking wave</span>
                 </div>
-                <div class="row">
-                    <br/>
-                </div>
-                <div id="choose-wave" class="row">
-                    <span>Choose an existing picking wave</span>
-                </div>
-
             </div>
         </div>
     </t>

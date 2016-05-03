@@ -36,6 +36,25 @@ class InboundController(http.Controller):
             'title': 'Picking Waves',
         })
 
+    @http.route('/picking_waves/get_picking', type='json', auth="user")
+    def get_picking(self, **kw):
+        env = http.request.env
+
+        wave_list = []
+        waves = env['stock.picking.wave'].search([
+            ('user_id', '=', http.request.uid)])
+
+        for wave in waves:
+            wave_list.append({
+                'name': wave.name,
+            })
+
+        results = {'status': 'ok',
+                   'waves': wave_list,
+                   }
+        return results
+
+
     @http.route('/picking_waves/create_picking', type='json', auth="user")
     def create_picking(self, **kw):
         env = http.request.env

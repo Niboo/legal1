@@ -41,26 +41,17 @@
             var self = this;
             self.qty_in_box = 0;
             self.first_pass = false;
-            self.$elem = $(QWeb.render(this.template));
-            $('#content').html(self.$elem);
-            self.$modal = $('#modalWindow');
-            self.add_listener_on_create_picking();
-            self.add_listener_on_choose_picking();
-        },
-        add_listener_on_choose_picking: function(){
-            var self = this;
-            self.$elem.find('#choose-wave').click(function(event){
-                self.session.rpc('/picking_waves/current_user_waves', {
-                }).then(function(data){
-                    var $result = $(QWeb.render('select_wave', {
+
+            self.session.rpc('/picking_waves/get_picking', {})
+            .then(function(data){
+                if (data.status == 'ok'){
+                    self.$elem = $(QWeb.render(self.template, {
                         waves: data.waves,
                     }));
-                    self.show_modal('Wave Selection', $result, "", false);
-                });
-            })
-            // save the starting time, add the listener for barcode
-            self.starting_time = new Date().getTime();
-            self.add_listener_for_barcode();
+                    $('#content').html(self.$elem);
+                    self.add_listener_on_create_picking();
+                }
+            });
         },
         add_listener_on_create_picking: function(){
             var self = this;
