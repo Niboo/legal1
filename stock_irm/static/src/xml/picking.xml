@@ -14,20 +14,38 @@
 
     <t t-name="worklocation_result">
         <!-- cart selection modal -->
-        <t t-foreach="worklocations" t-as="worklocation">
-            <a href="#" class="btn btn-lg btn-success worklocation" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
-                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
-            </a>
-        </t>
+        <div class="row">
+            <t t-foreach="worklocations" t-as="worklocation">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
+                </a>
+            </t>
+        </div>
     </t>
 
     <t t-name="change_user">
         <!-- cart selection modal -->
-        <b style='font-size: 2em'>Change user</b><br/>
-        <div id="login-image" style="background-repeat: no-repeat; background-size: 100px 100px; width:100px; height:100px; display:none"></div>
-        Login: <input id="login" type="text" class="form-control text-center"/>
-        Password: <input id="password" type="password" class="form-control text-center"/>
-        <a id="modal_changer_user_button" href="#" class="btn btn-lg btn-success">
+        <div class="row">
+            <div class="col-md-3" />
+            <div class="col-md-6" >
+                <form class="oe_login_form" role="form" method="post" _lpchecked="1">
+                    <div id="login-image" style="display:none"></div>
+                    <div class="form-group">
+                        <label for="login" class="control-label">Email</label>
+                        <input id="login" type="text" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control-label">Password</label>
+                        <input id="password" type="password" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" />
+        </div>
+    </t>
+
+    <t t-name="change_user_footer">
+        <a id="modal_changer_user_button" href="#" class="btn btn-success">
             Change User
         </a>
     </t>
@@ -112,6 +130,7 @@
                 <div class="row" id="current-product-name-row">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                         <h3><span t-esc="product.product_name"/></h3>
+                        <span t-esc="product.product_description"/>
                     </div>
                 </div>
                 <div class="row">
@@ -128,13 +147,13 @@
                         <h3><i class="fa fa-arrow-right" aria-hidden="true"></i></h3>
                     </div>
                     <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <div class="input-group input-picking text-center">
+                        <div id="quantity_wave" class="input-group input-picking text-center">
                             <span class="input-group-btn">
                                 <button class="btn btn-default form-control-picking-buttons" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
                             </span>
                             <input type="text" class="form-control text-center form-control-picking" value="0"/>
                             <span class="input-group-btn">
-                                <button class="btn btn-default form-control-picking-buttons" data-dir="dwn"><span class="glyphicon glyphicon-plus"></span></button>
+                                <button class="btn btn-default form-control-picking-buttons" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
                             </span>
                         </div>
                         <h4>on hand</h4>

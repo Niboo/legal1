@@ -80,8 +80,8 @@
                 var $result = $(QWeb.render('change_user', {}));
                 var $footer = $(QWeb.render('change_user_footer', {}));
                 self.show_modal('Please enter your login information', $result, $footer, false);
-                $(document).off('keypress.barcode');
-                $(document).on('keypress.barcode', function(e) {
+                $(document).off('keypress.barcodeuser');
+                $(document).on('keypress.barcodeuser', function(e) {
                     chars.push(String.fromCharCode(e.which));
                     if (pressed == false) {
                         setTimeout(function(){
@@ -154,6 +154,10 @@
             }else{
                 self.$modal.modal();
             }
+            self.$modal.on('hidden.bs.modal', function () {
+                $(document).off('keypress.barcodeuser');
+                self.add_listeners();
+            });
         },
         add_listener_on_closing_modal: function(){
             var self = this;
@@ -183,7 +187,7 @@
                 var $result = $(QWeb.render('worklocation_result', {
                     worklocations: self.worklocations,
                 }));
-                self.show_modal('Work Location Selection', $result, false);
+                self.show_modal('Work Location Selection', $result, "", false);
                 self.add_listener_on_worklocations();
             });
         },
