@@ -39,11 +39,11 @@ body {
 /* Picking Waves Progress Bar*/
 /* Overwrite template.css */
 .picking_progress {
-    background-color: rgba(242,222,222,1.0);
+    background-color: rgba(255,148,148,1.0);
 }
 /* Overwrite template.css */
 .picking_done {
-    background-color: rgba(223,240,216,1.0);
+    background-color: rgba(159,204,135,1.0);
 }
 #progress-bar-picking-list {
     font-size: 1em;
