@@ -82,7 +82,7 @@ body {
     width: 150px;
     margin-top: 10px;
 }
-#current-product-buttons {
+.current-product-buttons {
     padding-top: 15px;
 }
 #next-product-img {
@@ -251,6 +251,10 @@ body {
 
 .wave-row{
     width: 50%;
+}
+
+.wave-div{
+    margin-top: 10px;
 }
 
 .time-complete{

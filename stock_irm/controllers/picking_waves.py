@@ -44,10 +44,12 @@ class InboundController(http.Controller):
         ])
 
         for wave in waves:
-            wave_list.append({
-                'name': wave.name,
-                'id': wave.id,
-            })
+            if wave.picking_ids:
+
+                wave_list.append({
+                    'name': wave.name,
+                    'id': wave.id,
+                })
 
         results = {'status': 'ok',
                    'waves': wave_list,
@@ -61,7 +63,7 @@ class InboundController(http.Controller):
         selected_wave = env['stock.picking.wave'].browse(int(wave_id))
 
         stock_move_ids = env['stock.move'].search([
-            ('picking_id', 'in', selected_wave.picking_ids.ids),
+            ('picking_id.wave_id', '=', selected_wave.id),
         ])
 
         picking_list = []
@@ -112,7 +114,9 @@ class InboundController(http.Controller):
                      })
 
         results = {'status': 'ok', 'move_list': move_list,
-                   'picking_list': picking_list, 'wave_id': selected_wave.id}
+                   'picking_list': picking_list, 'wave_id': selected_wave.id,
+                   'wave_name': selected_wave.name
+                   }
         return results
 
     @http.route('/picking_waves/create_picking', type='json', auth="user")
@@ -196,7 +200,9 @@ class InboundController(http.Controller):
 
         wave.confirm_picking()
         results = {'status': 'ok', 'move_list': move_list,
-                   'picking_list': picking_list, 'wave_id': wave.id}
+                   'picking_list': picking_list, 'wave_id': wave.id,
+                   'wave_name': wave.name
+                   }
         return results
 
     @http.route('/picking_waves/validate_move', type='json', auth="user")
@@ -234,7 +240,6 @@ class InboundController(http.Controller):
 
         for picking in wave.picking_ids:
             if any(move.state != 'done' for move in picking.move_lines):
-                print "move not done!"
                 # if any move is not done, this picking can't
                 # be confirmed with this wave.
                 picking.wave_id = False
@@ -256,10 +261,11 @@ class InboundController(http.Controller):
 
         wave_list = []
         for wave in waves:
-            wave_list.append({
-                'id': wave.id,
-                'name': wave.name,
-            })
+            if wave.picking_ids:
+                wave_list.append({
+                    'id': wave.id,
+                    'name': wave.name,
+                })
 
         results = {'status': 'ok',
                    'waves': wave_list}

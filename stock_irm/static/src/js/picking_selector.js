@@ -61,6 +61,7 @@
                                 self.current_move_index = 0;
                                 self.pickings = data.picking_list;
                                 self.wave_id = data.wave_id;
+                                self.wave_name = data.wave_name;
                                 self.display_page();
 
                                 // save the starting time, add the listener for barcode
@@ -85,6 +86,8 @@
                         self.current_move_index = 0;
                         self.pickings = data.picking_list;
                         self.wave_id = data.wave_id;
+                        self.wave_name = data.wave_name;
+                        console.log(self.wave_name);
                         self.display_page();
 
                         // save the starting time, add the listener for barcode
@@ -106,8 +109,8 @@
                     self.current_move_index + 6)
             }));
             $('#content').html(self.$elem);
-            $('#wave-id').html(self.wave_id);
-            $('#wave-id').show();
+            $('#wave-id').html(self.wave_name);
+            $('#wave-id-li').show();
             $('#print').show();
             self.add_listener_on_manual_input();
             self.add_listener_on_skip_picking();
@@ -127,7 +130,7 @@
             $("#skip-picking-line").off('click.skip');
             $("#skip-picking-line").on('click.skip', function (event) {
                 self.current_move_index++;
-                $("#current_product").animate({left:'100%', opacity: '0'}, function(){
+                $("#current_product").animate({left:'110%', opacity:'0', backgroundColor: "red"}, function(){
                     if(self.current_move_index >= self.move_list.length){
                         // No more products
                         self.validate_wave();
@@ -259,7 +262,7 @@
 
             // HAPPY FLOW! Go to the next product
             self.current_move_index++;
-            $("#current_product").animate({left:'100%', opacity: '0'}, function(){
+            $("#current_product").animate({right:'110%', opacity: '0', backgroundColor: "green"}, function(){
                 if(self.current_move_index >= self.move_list.length){
                     // No more products
                     self.validate_wave();
