@@ -20,9 +20,6 @@
 ##############################################################################
 
 from openerp import http
-from openerp import exceptions
-from datetime import datetime
-from openerp.http import request
 
 
 class InboundController(http.Controller):
@@ -54,7 +51,6 @@ class InboundController(http.Controller):
                    }
         return results
 
-
     @http.route('/picking_waves/create_picking', type='json', auth="user")
     def create_picking(self, **kw):
         env = http.request.env
@@ -76,8 +72,6 @@ class InboundController(http.Controller):
             ('state', '=', 'assigned')
         ], limit=15)
 
-
-
         # attach them to the wave and confirm the wave
         wave.picking_ids = picking_ids
 
@@ -97,7 +91,7 @@ class InboundController(http.Controller):
             picking_list.append({
                 'picking_id': picking.id,
                 'progress_done': progress,
-                'picking_name' : picking.name,
+                'picking_name': picking.name,
             })
 
         # sort the location by alphabetical name
@@ -107,7 +101,8 @@ class InboundController(http.Controller):
 
 
         for move in sorted(stock_move_ids,
-                           key=lambda x: x.location_dest_id.name):
+                           key=lambda x: (x.location_dest_id.name,
+                                          x.product_id.id)):
             if move.state == "assigned":
 
                 move_list.append(
@@ -145,7 +140,7 @@ class InboundController(http.Controller):
         move.action_done()
         picking = env['stock.picking'].browse(move.picking_id.id)
 
-        percentage_complete = 100/len(picking.move_lines) \
+        percentage_complete = 100.0/len(picking.move_lines) \
                               * \
                               len(picking.move_lines.filtered(
                                   lambda r: r.state == 'done')
@@ -156,6 +151,7 @@ class InboundController(http.Controller):
             "progress_done": percentage_complete,
             "picking_id": picking.id,
         }
+
         # if every move for this picking is "done", then the picking itself
         # is finished
         if not any(move.state != 'done' for move in picking.move_lines):
@@ -169,7 +165,16 @@ class InboundController(http.Controller):
         wave = env['stock.picking.wave'].browse(int(wave_id))
 
         wave.time_to_complete = time_to_complete
+
+        for picking in wave.picking_ids:
+            print picking.id
+            if any(move.state != 'done' for move in picking.move_lines):
+                print "move not done!"
+                # if any move is not done, this picking can't be confirmed with this wave.
+                picking.wave_id = False
+
         wave.done()
+
         results = {
             "status": "ok",
         }
@@ -189,6 +194,7 @@ class InboundController(http.Controller):
                 'id': wave.id,
                 'name': wave.name,
             })
+
         results = {'status': 'ok',
                    'waves': wave_list}
         return results

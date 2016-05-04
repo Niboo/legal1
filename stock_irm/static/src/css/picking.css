@@ -238,8 +238,13 @@ body {
 .numpad-control-picking {
     font-size: 2em;
     height: 50px;
-    /*padding: 0px;*/
-    /*min-width: 50px;*/
-    /*max-width: 150px;*/
-    /*line-height: 1.8;*/
+}
+
+.img-300{
+    max-width: 300px;
+    max-height: 300px;
+}
+
+.fa-5x {
+  font-size: 5em;
 }

@@ -54,12 +54,12 @@
     <t t-name="print_error_message">
         <!-- cart selection modal -->
         <div class="error-message">
-            <span class='fa fa-times fa-10x error-icon'></span><b>  You didn't scan the right <t t-esc="type" /></b>
+            <span class='fa fa-times fa-5x error-icon'></span><b>  You didn't scan the right <t t-esc="type" /></b>
             <t t-if="type == 'product'">
                 <div>You should scan the following product:</div>
                 <div>
                     <a href="#">
-                        <img t-att-src="image" class="center-block img-responsive" />
+                        <img t-att-src="image" class="center-block img-responsive img-300" />
                     </a>
                 </div>
                 <div>Found in location <b><t t-esc="location" /></b></div>
@@ -73,7 +73,7 @@
     <t t-name="counter_error">
         <!-- cart selection modal -->
         <div class="error-message">
-            <span class='fa fa-times fa-10x error-icon'></span><b>  You didn't select the right number of item</b>
+            <span class='fa fa-times fa-5x error-icon'></span><b>  You didn't select the right number of item</b>
             <div>Selected count: <t t-esc="real"/>, expected: <t t-esc="expected"/> item(s)</div>
         </div>
     </t>
@@ -89,7 +89,7 @@
                     </div>
                     <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
                         <div id="product-list">
-                            <div id="current_product" class="row">
+                            <div id="current_product" class="row" style="position:relative;">
                                 <t t-call="current_product" />
                             </div>
                             <div id="next_products" class="row">
@@ -220,10 +220,9 @@
                         </div>
                     </div>
                 </div>
-
-                <p><button type="button" class="btn btn-danger btn-large buttons-product">
+                <button id="skip-picking-line" type="button" class="btn btn-danger btn-large buttons-product">
                     <i class="fa fa-minus-circle" aria-hidden="true"></i>
-                </button></p>
+                </button>
             </div>
         </div>
 

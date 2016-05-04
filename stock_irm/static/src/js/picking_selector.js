@@ -27,7 +27,7 @@
     instance.picking_waves = {}
 
     var picking_selector = instance.stock_irm.widget.extend({
-    	init: function () {
+        init: function () {
             this._super();
             var self = this;
 
@@ -77,7 +77,6 @@
         },
         display_page: function(){
             var self = this;
-
             self.$elem = $(QWeb.render('picking_layout', {
                 'wave_id': self.wave_id,
                 'pickings': self.pickings,
@@ -89,6 +88,8 @@
             }));
             $('#content').html(self.$elem);
             self.add_listener_on_manual_input();
+            self.add_listener_on_skip_picking();
+
             self.current_product_barcode = self.move_list[self.current_move_index]['product'].ean13;
             self.current_destination_barcode = self.move_list[self.current_move_index].location_dest_barcode;
         },
@@ -97,6 +98,22 @@
             $("#manual-barcode-input").off('click.manual');
             $("#manual-barcode-input").on('click.manual', function (event) {
                 self.add_listener_on_numpad();
+            });
+        },
+        add_listener_on_skip_picking: function(){
+            var self = this;
+            $("#skip-picking-line").off('click.skip');
+            $("#skip-picking-line").on('click.skip', function (event) {
+                self.current_move_index++;
+                $("#current_product").animate({left:'100%', opacity: '0'}, function(){
+                    if(self.current_move_index >= self.move_list.length){
+                        // No more products
+                        self.validate_wave();
+                    }else{
+                        self.display_page();
+                    }
+                })
+
             });
         },
         add_listener_on_numpad: function(){
@@ -221,15 +238,16 @@
 
             // HAPPY FLOW! Go to the next product
             self.current_move_index++;
-
-            if(self.current_move_index >= self.move_list.length){
-                // No more products
-                self.validate_wave();
-            }else{
-                self.current_product_barcode = self.move_list[self.current_move_index].product.ean13;
-                self.current_destination_barcode = self.move_list[self.current_move_index].location_dest_barcode;
-                self.display_page();
-            }
+            $("#current_product").animate({left:'100%', opacity: '0'}, function(){
+                if(self.current_move_index >= self.move_list.length){
+                    // No more products
+                    self.validate_wave();
+                }else{
+                    self.current_product_barcode = self.move_list[self.current_move_index].product.ean13;
+                    self.current_destination_barcode = self.move_list[self.current_move_index].location_dest_barcode;
+                    self.display_page();
+                }
+            })
         },
         validate_wave: function(){
             var self = this;
@@ -240,7 +258,7 @@
                 'time_to_complete': msec,
             }).then(function(data){
                 if (data.status == 'ok'){
-                    self.show_modal('Wave Finished!', "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");
+                    self.show_modal('Wave Finished!', "<i class='fa fa-check fa-5x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");
                     window.setTimeout(function(){
                         window.location.href = "/picking_waves";
                     }, 3000);
