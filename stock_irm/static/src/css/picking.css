@@ -248,3 +248,13 @@ body {
 .fa-5x {
   font-size: 5em;
 }
+
+.wave-row{
+    width: 50%;
+}
+
+.time-complete{
+    text-align:center;
+    color:red;
+    font-size: 3em;
+}

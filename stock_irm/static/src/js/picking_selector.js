@@ -36,20 +36,39 @@
             });
             self.template = 'go_picking';
         },
-
         start: function(){
             var self = this;
             self.qty_in_box = 0;
             self.first_pass = false;
 
-            self.session.rpc('/picking_waves/get_picking', {})
-            .then(function(data){
+            self.session.rpc('/picking_waves/get_waves', {}).then(function(data){
                 if (data.status == 'ok'){
                     self.$elem = $(QWeb.render(self.template, {
                         waves: data.waves,
                     }));
                     $('#content').html(self.$elem);
                     self.add_listener_on_create_picking();
+                    self.$elem.find('.wave-div a').click(function(event){
+                        var wave_id = $(event.currentTarget).attr('wave-id');
+                        self.session.rpc('/picking_waves/get_wave', {
+                            'wave_id': wave_id,
+                        }).then(function(data){
+                            if(data.status == "empty"){
+                                self.$elem = $(QWeb.render('picking_empty', {}));
+                                $('#content').html(self.$elem);
+                            } else {
+                                self.move_list = data.move_list;
+                                self.current_move_index = 0;
+                                self.pickings = data.picking_list;
+                                self.wave_id = data.wave_id;
+                                self.display_page();
+
+                                // save the starting time, add the listener for barcode
+                                self.starting_time = new Date().getTime();
+                                self.add_listener_for_barcode();
+                            }
+                        });
+                    })
                 }
             });
         },
@@ -87,6 +106,9 @@
                     self.current_move_index + 6)
             }));
             $('#content').html(self.$elem);
+            $('#wave-id').html(self.wave_id);
+            $('#wave-id').show();
+            $('#print').show();
             self.add_listener_on_manual_input();
             self.add_listener_on_skip_picking();
 
@@ -122,7 +144,6 @@
             $('.num-pad .circle').on('click.numpad', function (event) {
                 var $target = $(event.currentTarget);
                 value = $target.find("span").text();
-                console.log(value);
                 if(value=="C"){
                    self.$elem.find('#manual-barcode').val("");
                 }else if(value=="Enter"){
@@ -258,7 +279,26 @@
                 'time_to_complete': msec,
             }).then(function(data){
                 if (data.status == 'ok'){
-                    self.show_modal('Wave Finished!', "<i class='fa fa-check fa-5x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");
+                    var secs = msec/1000
+                    var hours = Math.floor(secs / (60 * 60));
+                    var divisor_for_minutes = secs % (60 * 60);
+                    var minutes = Math.floor(divisor_for_minutes / 60);
+                    var divisor_for_seconds = divisor_for_minutes % 60;
+                    var seconds = Math.ceil(divisor_for_seconds);
+                    var time = ""
+                    if(minutes < 10){
+                        time = hours+ ":0" + minutes
+                    }else{
+                        time = hours+ ":0" + minutes
+                    }
+                    if(seconds < 10){
+                        time += ":0" + seconds
+                    }else{
+                        time += ":" + seconds
+                    }
+                    self.show_modal('Wave Finished!',
+                        "<i class='fa fa-check fa-5x' style='color:green'></i>" +"<b style='font-size: 2em'>Wait for redirection...</b>"
+                        ,"<b style='font-size: 3em;'>Time to complete: </b><b class='time-complete'>"+time+"</b>");
                     window.setTimeout(function(){
                         window.location.href = "/picking_waves";
                     }, 3000);

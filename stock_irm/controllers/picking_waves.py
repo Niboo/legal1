@@ -33,17 +33,20 @@ class InboundController(http.Controller):
             'title': 'Picking Waves',
         })
 
-    @http.route('/picking_waves/get_picking', type='json', auth="user")
-    def get_picking(self, **kw):
+    @http.route('/picking_waves/get_waves', type='json', auth="user")
+    def get_waves(self, **kw):
         env = http.request.env
 
         wave_list = []
         waves = env['stock.picking.wave'].search([
-            ('user_id', '=', http.request.uid)])
+            ('user_id', '=', http.request.uid),
+            ('state', '=', 'in_progress'),
+        ])
 
         for wave in waves:
             wave_list.append({
                 'name': wave.name,
+                'id': wave.id,
             })
 
         results = {'status': 'ok',
@@ -51,14 +54,70 @@ class InboundController(http.Controller):
                    }
         return results
 
+    @http.route('/picking_waves/get_wave', type='json', auth="user")
+    def get_wave(self, wave_id, **kw):
+        env = http.request.env
+
+        selected_wave = env['stock.picking.wave'].browse(int(wave_id))
+
+        stock_move_ids = env['stock.move'].search([
+            ('picking_id', 'in', selected_wave.picking_ids.ids),
+        ])
+
+        picking_list = []
+
+        for picking in selected_wave.picking_ids:
+            progress = 100/len(picking.move_lines) *\
+                       len(picking.move_lines.filtered(
+                           lambda r: r.state == 'done')
+                       )
+
+            picking_list.append({
+                'picking_id': picking.id,
+                'progress_done': progress,
+                'picking_name': picking.name,
+            })
+
+        # sort the location by alphabetical name
+        move_list = []
+        if not stock_move_ids:
+            return {'status': 'empty'}
+
+        for move in sorted(stock_move_ids,
+                           key=lambda x: (x.location_dest_id.name,
+                                          x.product_id.id)):
+            if move.state == "assigned":
+
+                move_list.append(
+                    {'picking_id': move.picking_id.id,
+                     'move_id': move.id,
+                     'product': {
+                         'picking_name': move.picking_id.name,
+                         'product_id': move.product_id.id,
+                         'product_name': move.product_id.name,
+                         'product_description': move.product_id.description,
+                         'product_quantity': move.product_uom_qty,
+                         'product_image':
+                         "/web/binary/image?model=product.product&id=%s&field=image"
+                         % move.product_id.id,
+                         'ean13': move.product_id.ean13,
+                         'location_id': move.location_id.id,
+                         'location_name': move.location_id.name,
+                         'location_dest_name': move.location_dest_id.name,
+                     },
+                     'location_barcode': move.location_id.loc_barcode,
+                     'location_dest_id': move.location_dest_id.id,
+                     'location_dest_name': move.location_dest_id.name,
+                     'location_dest_barcode': move.location_dest_id.loc_barcode
+                     })
+
+        results = {'status': 'ok', 'move_list': move_list,
+                   'picking_list': picking_list, 'wave_id': selected_wave.id}
+        return results
+
     @http.route('/picking_waves/create_picking', type='json', auth="user")
     def create_picking(self, **kw):
         env = http.request.env
-
-        # create a wave
-        wave = env['stock.picking.wave'].create({
-            'user_id': http.request.uid,
-        })
 
         # retrieve the picking type we want to search (stock -> client)
         picking_type_ids = env['stock.picking.type'].search([
@@ -69,15 +128,23 @@ class InboundController(http.Controller):
         # retrieve the pickings with that type
         picking_ids = env['stock.picking'].search([
             ('picking_type_id', 'in', picking_type_ids.ids),
-            ('state', '=', 'assigned')
+            ('state', '=', 'assigned'),
+            ('wave_id', '=', False)
         ], limit=15)
 
-        # attach them to the wave and confirm the wave
+        if not picking_ids:
+            return {'status': 'empty'}
+
+        # create a wave and attach the pickings we found
+        wave = env['stock.picking.wave'].create({
+            'user_id': http.request.uid,
+        })
+        #
         wave.picking_ids = picking_ids
 
         # search the stock moves related to those pickings,
         stock_move_ids = env['stock.move'].search([
-            ('picking_id', 'in', wave.picking_ids.ids)
+            ('picking_id', 'in', wave.picking_ids.ids),
         ])
 
         picking_list = []
@@ -98,7 +165,6 @@ class InboundController(http.Controller):
         move_list = []
         if not stock_move_ids:
             return {'status': 'empty'}
-
 
         for move in sorted(stock_move_ids,
                            key=lambda x: (x.location_dest_id.name,
@@ -167,10 +233,10 @@ class InboundController(http.Controller):
         wave.time_to_complete = time_to_complete
 
         for picking in wave.picking_ids:
-            print picking.id
             if any(move.state != 'done' for move in picking.move_lines):
                 print "move not done!"
-                # if any move is not done, this picking can't be confirmed with this wave.
+                # if any move is not done, this picking can't
+                # be confirmed with this wave.
                 picking.wave_id = False
 
         wave.done()

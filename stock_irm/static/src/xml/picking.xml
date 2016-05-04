@@ -9,6 +9,20 @@
                     <span>Create a picking wave</span>
                 </div>
             </div>
+            <t t-if="waves.length">
+                <div class="row">
+                    <br/>
+                    <h3 class="text-center">Or pick a wave that was not completed</h3>
+                    <br/>
+                    <t t-foreach="waves" t-as="wave">
+                        <div class="col-md-3 wave-div">
+                            <a href="#" class="btn btn-lg btn-success wave" t-att-wave-id="wave.id" t-att-wave-name="wave.name">
+                                <span class="glyphicon glyphicon-indent-right" aria-hidden="true"></span> <t t-esc="wave.name" />
+                            </a>
+                        </div>
+                    </t>
+                </div>
+            </t>
         </div>
     </t>
 
