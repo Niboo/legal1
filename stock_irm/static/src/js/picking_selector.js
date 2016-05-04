@@ -204,7 +204,7 @@
 
                 if(sum == move_qty){
                     self.trigger_next_product(current_move);
-                }else if(sum < move_qty){
+                }else if(sum < move_qty && sum != 0){
                     // Update the quantity
                     var qty_to_take = move_qty - self.qty_in_box;
                     self.qty_in_box = sum;
