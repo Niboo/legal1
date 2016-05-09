@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Jérôme Guerriat
+#    Author: Jerome Guerriat
 #    Copyright 2015 Niboo SPRL
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -19,41 +19,31 @@
 #
 ##############################################################################
 
-{
-    'name': 'Inventory Responsive Management',
-    'category': 'Category',
-    'summary': 'Summary',
-    'website': '',
-    'version': '9.1.0',
-    'description': """
-Module
-        """,
-    'author': 'Niboo',
-    'depends': [
-        'xx_product_supplierinfo_tags',
-        'dyn_report_to_printer_location',
-        'base_report_to_printer',
-        'stock_picking_wave',
-        'stock',
-        'procurement',
-    ],
-    'data': [
-        'views/res_partner.xml',
-        'templates/layout.xml',
-        'views/res_users.xml',
-        'views/printing_printers.xml',
-        'views/work_location.xml',
-        'views/stock_location.xml',
-        'views/sale_order.xml',
-        'views/stock_picking.xml',
-        'views/stock_picking_type.xml',
-    ],
-    'qweb': [
-    ],
-    'demo': [
-    ],
-    'css': [
-    ],
-    'installable': True,
-    'application': True,
-}
+from openerp import models, api, fields
+
+
+class ProcurementOrder(models.Model):
+
+    _inherit = "procurement.order"
+
+    def run_scheduler(self, cr, uid, use_new_cursor=False, company_id=False, context=None):
+        if context is None:
+            context = {}
+
+        ctx = context.copy()
+        ctx['skip_reservation'] = True
+        print "run sheduler mec"
+        return super(ProcurementOrder, self).run_scheduler(cr, uid, use_new_cursor, company_id, context=ctx)
+
+
+class StockMove(models.Model):
+    _inherit = "stock.move"
+
+    def action_assign(self, cr, uid, ids, context=None):
+        print context
+        if context and context.get('skip_reservation', False) == True:
+            print "retourne rien!"
+            return {}
+        else:
+            print "fais le normalement"
+            return super(StockMove, self).action_assign(cr, uid, ids, context)
