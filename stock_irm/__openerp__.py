@@ -43,6 +43,8 @@ Module
         'views/printing_printers.xml',
         'views/work_location.xml',
         'views/stock_location.xml',
+        'views/sale_order.xml',
+        'views/stock_picking.xml',
         'views/stock_picking_type.xml',
     ],
     'qweb': [

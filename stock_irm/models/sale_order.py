@@ -19,11 +19,28 @@
 #
 ##############################################################################
 
-from . import res_partner
-from . import res_users
-from . import printing_printer
-from . import work_location
-from . import stock_location
-from . import picking_waves
-from . import sale_order
-from . import stock_picking_type
+from openerp import models, api, fields
+
+
+class SaleOrder(models.Model):
+
+    _inherit = "sale.order"
+
+    order_weight = fields.Integer("Priority weight")
+
+    @api.model
+    def create(self, vals):
+        if vals.get('order_weight') == 0 or not vals.get('order_weight'):
+            weight = 0
+            for line in vals.get('order_line'):
+                weight += line[2]['product_uos_qty']
+
+            vals['order_weight'] = weight
+        return super(SaleOrder, self).create(vals)
+
+    @api.multi
+    def action_button_confirm(self):
+        value = super(SaleOrder, self).action_button_confirm()
+        for picking in self.picking_ids:
+            picking.order_weight = self.order_weight
+        return value

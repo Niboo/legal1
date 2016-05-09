@@ -34,6 +34,8 @@ class StockPicking(models.Model):
 
     _inherit = "stock.picking"
 
+    order_weight = fields.Integer("Priority weight")
+
     @api.one
     def copy(self, default={}):
         default['wave_id'] = False
