@@ -66,52 +66,10 @@ class InboundController(http.Controller):
             ('picking_id.wave_id', '=', selected_wave.id),
         ])
 
-        picking_list = []
-
-        for picking in selected_wave.picking_ids:
-            progress = 100/len(picking.move_lines) *\
-                       len(picking.move_lines.filtered(
-                           lambda r: r.state == 'done')
-                       )
-
-            picking_list.append({
-                'picking_id': picking.id,
-                'progress_done': progress,
-                'picking_name': picking.name,
-            })
+        picking_list = self.create_picking_info(selected_wave)
 
         # sort the location by alphabetical name
-        move_list = []
-        if not stock_move_ids:
-            return {'status': 'empty'}
-
-        for move in sorted(stock_move_ids,
-                           key=lambda x: (x.location_dest_id.name,
-                                          x.product_id.id)):
-            if move.state == "assigned":
-
-                move_list.append(
-                    {'picking_id': move.picking_id.id,
-                     'move_id': move.id,
-                     'product': {
-                         'picking_name': move.picking_id.name,
-                         'product_id': move.product_id.id,
-                         'product_name': move.product_id.name,
-                         'product_description': move.product_id.description,
-                         'product_quantity': move.product_uom_qty,
-                         'product_image':
-                         "/web/binary/image?model=product.product&id=%s&field=image"
-                         % move.product_id.id,
-                         'ean13': move.product_id.ean13,
-                         'location_id': move.location_id.id,
-                         'location_name': move.location_id.name,
-                         'location_dest_name': move.location_dest_id.name,
-                     },
-                     'location_barcode': move.location_id.loc_barcode,
-                     'location_dest_id': move.location_dest_id.id,
-                     'location_dest_name': move.location_dest_id.name,
-                     'location_dest_barcode': move.location_dest_id.loc_barcode
-                     })
+        move_list = self.create_moves_info(selected_wave)
 
         results = {'status': 'ok', 'move_list': move_list,
                    'picking_list': picking_list, 'wave_id': selected_wave.id,
@@ -146,57 +104,12 @@ class InboundController(http.Controller):
         #
         wave.picking_ids = picking_ids
 
-        # search the stock moves related to those pickings,
-        stock_move_ids = env['stock.move'].search([
-            ('picking_id', 'in', wave.picking_ids.ids),
-        ])
-
-        picking_list = []
-
-        for picking in picking_ids:
-            progress = 100/len(picking.move_lines) *\
-                       len(picking.move_lines.filtered(
-                           lambda r: r.state == 'done')
-                       )
-
-            picking_list.append({
-                'picking_id': picking.id,
-                'progress_done': progress,
-                'picking_name': picking.name,
-            })
+        picking_list = self.create_picking_info(wave)
 
         # sort the location by alphabetical name
-        move_list = []
-        if not stock_move_ids:
+        move_list = self.create_moves_info(wave)
+        if not move_list:
             return {'status': 'empty'}
-
-        for move in sorted(stock_move_ids,
-                           key=lambda x: (x.location_dest_id.name,
-                                          x.product_id.id)):
-            if move.state == "assigned":
-
-                move_list.append(
-                    {'picking_id': move.picking_id.id,
-                     'move_id': move.id,
-                     'product': {
-                         'picking_name' : move.picking_id.name,
-                         'product_id': move.product_id.id,
-                         'product_name': move.product_id.name,
-                         'product_description': move.product_id.description,
-                         'product_quantity': move.product_uom_qty,
-                         'product_image':
-                         "/web/binary/image?model=product.product&id=%s&field=image"
-                         % move.product_id.id,
-                         'ean13': move.product_id.ean13,
-                         'location_id': move.location_id.id,
-                         'location_name': move.location_id.name,
-                         'location_dest_name': move.location_dest_id.name,
-                     },
-                     'location_barcode': move.location_id.loc_barcode,
-                     'location_dest_id': move.location_dest_id.id,
-                     'location_dest_name': move.location_dest_id.name,
-                     'location_dest_barcode': move.location_dest_id.loc_barcode
-                     })
 
         wave.confirm_picking()
         results = {'status': 'ok', 'move_list': move_list,
@@ -270,3 +183,54 @@ class InboundController(http.Controller):
         results = {'status': 'ok',
                    'waves': wave_list}
         return results
+
+    def create_picking_info(self, wave_id):
+        picking_list = []
+        for picking in wave_id.picking_ids:
+            progress = 100/len(picking.move_lines) *\
+                       len(picking.move_lines.filtered(
+                           lambda r: r.state == 'done')
+                       )
+
+            picking_list.append({
+                'picking_id': picking.id,
+                'progress_done': progress,
+                'picking_name': picking.name,
+            })
+        return picking_list
+
+    def create_moves_info(self, wave_id):
+        stock_move_ids = wave_id.env['stock.move'].search([
+            ('picking_id', 'in', wave_id.picking_ids.ids),
+        ])
+
+        move_list = []
+        for move in sorted(stock_move_ids,
+                           key=lambda x: (x.location_dest_id.name,
+                                          x.product_id.id)):
+            if move.state == "assigned":
+
+                move_list.append(
+                    {'picking_id': move.picking_id.id,
+                     'move_id': move.id,
+                     'product': {
+                         'picking_name' : move.picking_id.name,
+                         'product_id': move.product_id.id,
+                         'product_name': move.product_id.name,
+                         'product_description': move.product_id.description,
+                         'product_quantity': move.product_uom_qty,
+                         'product_image':
+                         "/web/binary/image?model=product.product&id=%s&field=image"
+                         % move.product_id.id,
+                         'ean13': move.product_id.ean13,
+                         'location_id': move.location_id.id,
+                         'location_name': move.location_id.name,
+                         'location_dest_name': move.location_dest_id.name,
+                     },
+                     'location_barcode': move.location_id.loc_barcode,
+                     'location_dest_id': move.location_dest_id.id,
+                     'location_dest_name': move.location_dest_id.name,
+                     'location_dest_barcode': move.location_dest_id.loc_barcode
+                     })
+
+        return move_list

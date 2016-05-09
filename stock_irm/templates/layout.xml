@@ -24,13 +24,11 @@
             <script type="text/javascript" src="/stock_irm/static/src/js/stock_irm_widget.js"></script>
 
             <!--PICKING-->
-
-
         </template>
 
         <template id="stock_irm.assets_picking" name="Stock IRM assets for Picking">
             <script type="text/javascript" src="/stock_irm/static/src/js/picking_selector.js"></script>
-            <script type="text/javascript" src="/stock_irm/static/src/js/jquery-ui.js"></script>
+            <script type="text/javascript" src="/web/static/lib/jquery.ui//js/jquery-ui-1.9.1.custom.js"></script>
             <link href="/stock_irm/static/src/css/picking.css" rel="stylesheet"/>
         </template>
 

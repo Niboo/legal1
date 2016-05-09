@@ -29,12 +29,13 @@ class PickingWave(models.Model):
 
     time_to_complete = fields.Float("Time Passed")
 
+
 class StockPicking(models.Model):
 
     _inherit = "stock.picking"
 
     @api.one
     def copy(self, default={}):
-        value = super(StockPicking, self).copy()
-        value.wave_id = False
+        default['wave_id'] = False
+        value = super(StockPicking, self).copy(default)
         return value
