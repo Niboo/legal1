@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+    <data noupdate="1">
+        <record id="base.main_company" model="res.company">
+            <field name="name">Onderdelenwinkel.nl BV</field>
+            <field name="vat">NL851437722B01</field>
+        </record>
+    </data>
+</openerp>
