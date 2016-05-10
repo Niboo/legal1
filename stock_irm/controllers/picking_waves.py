@@ -95,8 +95,23 @@ class InboundController(http.Controller):
         # retrieve the pickings with that type
         picking_ids = env['stock.picking'].search([
             ('picking_type_id', 'in', picking_type_ids.ids),
-            ('state', '=', 'assigned')
-        ], limit=15, order="min_date")
+            ('state', '=', 'assigned'),
+            ('wave_id', '=', False)
+        ], order='order_weight DESC', limit=15)
+
+        cpt = 0
+        while len(picking_ids) < 15:
+            picking = env['stock.picking'].search([
+                ('picking_type_id', 'in', picking_type_ids.ids),
+                # ('state', '=', 'assigned'),
+                ('state', '=', 'confirmed'),
+                ('wave_id', '=', False)
+            ], order='order_weight DESC', limit=1, offset=cpt)
+            cpt += 1
+
+            # todo check if picking can be fullfilled
+            if True:
+                picking.action_assign()
 
         if not picking_ids:
             return {'status': 'empty'}

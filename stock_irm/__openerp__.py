@@ -36,6 +36,7 @@ Module
         'stock_picking_wave',
         'stock',
         'procurement',
+        'stock_weight_reservation',
     ],
     'data': [
         'views/res_partner.xml',

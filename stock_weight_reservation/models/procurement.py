@@ -22,25 +22,23 @@
 from openerp import models, api, fields
 
 
-class SaleOrder(models.Model):
+class ProcurementOrder(models.Model):
 
-    _inherit = "sale.order"
-
-    order_weight = fields.Integer("Priority weight")
+    _inherit = "procurement.order"
 
     @api.model
-    def create(self, vals):
-        if vals.get('order_weight') == 0 or not vals.get('order_weight'):
-            weight = 0
-            for line in vals.get('order_line'):
-                weight += line[2]['product_uos_qty']
+    def run_scheduler(self, use_new_cursor=False, company_id=False):
+        return super(ProcurementOrder, self.with_context(skip_reservation=True)).run_scheduler(use_new_cursor, company_id)
 
-            vals['order_weight'] = weight
-        return super(SaleOrder, self).create(vals)
+
+class StockMove(models.Model):
+    _inherit = "stock.move"
 
     @api.multi
-    def action_button_confirm(self):
-        value = super(SaleOrder, self).action_button_confirm()
-        for picking in self.picking_ids:
-            picking.order_weight = self.order_weight
-        return value
+    def action_assign(self):
+        # do not assign procurement that are run through the scheduler
+        if self._context and self._context.get('skip_reservation', False) == True:
+            # skip reservation
+            return {}
+        else:
+            return super(StockMove, self).action_assign()

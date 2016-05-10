@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Jerome Guerriat
+#    Author: Jérôme Guerriat
 #    Copyright 2015 Niboo SPRL
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -19,23 +19,33 @@
 #
 ##############################################################################
 
-from openerp import models, api, fields
-from openerp.exceptions import ValidationError
+{
+    'name': 'Stock Reservation by weight',
+    'category': 'Category',
+    'summary': 'Summary',
+    'website': '',
+    'version': '9.1.0',
+    'description': """
+This module does not reserve quantity when a procurement is ran with the schedulers.
+It adds a weight on sale orders and pickings. Pickings should be processed in the weight order
 
-
-class PickingWave(models.Model):
-
-    _inherit = "stock.picking.wave"
-
-    time_to_complete = fields.Float("Time Passed")
-
-
-class StockPicking(models.Model):
-
-    _inherit = "stock.picking"
-
-    @api.one
-    def copy(self, default={}):
-        default['wave_id'] = False
-        value = super(StockPicking, self).copy(default)
-        return value
+        """,
+    'author': 'Niboo',
+    'depends': [
+        'sale',
+        'stock',
+        'procurement',
+    ],
+    'data': [
+        'views/sale_order.xml',
+        'views/stock_picking.xml',
+    ],
+    'qweb': [
+    ],
+    'demo': [
+    ],
+    'css': [
+    ],
+    'installable': True,
+    'application': True,
+}

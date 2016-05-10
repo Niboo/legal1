@@ -19,23 +19,6 @@
 #
 ##############################################################################
 
-from openerp import models, api, fields
-from openerp.exceptions import ValidationError
-
-
-class PickingWave(models.Model):
-
-    _inherit = "stock.picking.wave"
-
-    time_to_complete = fields.Float("Time Passed")
-
-
-class StockPicking(models.Model):
-
-    _inherit = "stock.picking"
-
-    @api.one
-    def copy(self, default={}):
-        default['wave_id'] = False
-        value = super(StockPicking, self).copy(default)
-        return value
+from . import procurement
+from . import sale_order
+from . import picking_waves

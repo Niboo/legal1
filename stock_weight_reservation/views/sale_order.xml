@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="sale.view_order_form" />
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="order_weight"></field>
+                    <field name="priority"></field>
                 </xpath>
             </field>
         </record>
