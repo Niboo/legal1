@@ -20,7 +20,7 @@
 ##############################################################################
 
 from openerp import http
-from openerp import exceptions
+from openerp import exceptions, osv
 from datetime import datetime
 from openerp.http import request
 

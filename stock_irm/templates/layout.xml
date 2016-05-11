@@ -80,7 +80,7 @@
                             <div class="collapse navbar-collapse">
                                 <ul class="nav navbar-nav navbar-left">
                                     <li id="back"><a href="#"><span class="glyphicon glyphicon-chevron-left" /></a></li>
-                                    <li id="wave-id-li" style="display:none;" class="navbar-ok"><a href="#"><span id="wave-id"/></a></li>
+                                    <li id="wave-id-li" style="display:none;" class="navbar-default"><a href="#"><span id="wave-id"/></a></li>
                                     <!--<li role="separator" class="divider" />-->
                                 </ul>
                                 <ul class="nav navbar-nav navbar-center">
@@ -90,14 +90,12 @@
                                 <ul class="nav navbar-nav navbar-right">
                                     <li id="search"><a href="#"><span class="glyphicon glyphicon-search" /> Search</a></li>
                                     <li id="confirm" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-ok" /> Confirm</a></li>
-                                    <li id="print" style="display:none;" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-print" /> Print</a></li>
+                                    <li id="print-wave" style="display:none;" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-print"/> Print Wave</a></li>
+                                    <li id="print-pickings" style="display:none;" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-print"/> Print All Pickings</a></li>
                                 </ul>
                             </div>
                         </nav>
                     </div>
-
-                    <button name="print_wave" type="button object" class="btn btn-default" id="btn-print-wave">Print Wave</button>
-                    <button name="print_pickings" type="button object" class="btn btn-default" id="btn-print-pickings">Print all pickings</button>
 
                     <div id="content">
                         <t t-raw="0"/>

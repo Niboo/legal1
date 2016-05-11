@@ -118,38 +118,28 @@
                 })
             });
         },
-
-
         add_listener_on_print_wave_button: function() {
             var self = this;
-            wave_id = 506;
-
-            $('#btn-print-wave').click(function() {
-
+            
+            $('#print-wave').click(function() {
                 self.session.rpc('/print_wave', {
-                       'wave_id' : wave_id,
+                       'wave_id' : self.wave_id,
                 }).then(function() {
-                    alert("done!");
+                    alert("Done!");
                 })
             });
         },
-
         add_listener_on_print_pickings_button: function() {
             var self = this;
-            wave_id = 506;
-            
-            $('#btn-print-pickings').click(function() {
 
+            $('#print-pickings').click(function() {
                 self.session.rpc('/print_pickings', {
-                    'wave_id' : wave_id,
-
+                    'wave_id' : self.wave_id,
                 }).then(function() {
-                    alert("done!");
+                    alert("Done!");
                 })
             });
         },
-
-
         process_barcode: function(barcode){
             // dummy method to process barcode
             console.log("Barcode Scanned: " + barcode);
