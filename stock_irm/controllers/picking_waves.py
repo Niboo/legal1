@@ -93,25 +93,36 @@ class InboundController(http.Controller):
         ])
 
         # retrieve the pickings with that type
-        picking_ids = env['stock.picking'].search([
-            ('picking_type_id', 'in', picking_type_ids.ids),
-            ('state', '=', 'assigned'),
-            ('wave_id', '=', False)
-        ], order='order_weight DESC', limit=15)
+        picking_ids = []
 
         cpt = 0
         while len(picking_ids) < 15:
+            # search for a confirmed picking
             picking = env['stock.picking'].search([
                 ('picking_type_id', 'in', picking_type_ids.ids),
-                # ('state', '=', 'assigned'),
+                ('wave_id', '=', False),
+                '|', '|', '|',
+                ('state', '=', 'waiting'),
+                ('state', '=', 'partially_available'),
                 ('state', '=', 'confirmed'),
-                ('wave_id', '=', False)
-            ], order='order_weight DESC', limit=1, offset=cpt)
+                # also take the "assigned" ones, since they may have been begon
+                # in another wave
+                ('state', '=', 'assigned'),
+            ], order='priority DESC, id', limit=1, offset=cpt)
             cpt += 1
 
-            # todo check if picking can be fullfilled
-            if True:
-                picking.action_assign()
+            if not picking:
+                break
+
+            # check if the selected picking is fully available, assign and treat
+            # it if its the case
+            for move in picking.move_lines:
+                if move.product_id.qty_available < move.product_qty:
+                    break
+            else:
+                for move in picking.move_lines:
+                    move.force_assign()
+                picking_ids.append(picking.id)
 
         if not picking_ids:
             return {'status': 'empty'}
@@ -120,13 +131,11 @@ class InboundController(http.Controller):
         wave = env['stock.picking.wave'].create({
             'user_id': http.request.uid,
         })
-        #
+
         wave.picking_ids = picking_ids
-
         picking_list = self.create_picking_info(wave)
-
-        # sort the location by alphabetical name
         move_list = self.create_moves_info(wave)
+
         if not move_list:
             return {'status': 'empty'}
 
@@ -222,7 +231,6 @@ class InboundController(http.Controller):
         stock_move_ids = wave_id.env['stock.move'].search([
             ('picking_id', 'in', wave_id.picking_ids.ids),
         ])
-
         move_list = []
         for move in sorted(stock_move_ids,
                            key=lambda x: (x.location_dest_id.name,

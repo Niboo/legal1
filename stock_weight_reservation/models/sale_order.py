@@ -30,17 +30,17 @@ class SaleOrder(models.Model):
 
     @api.model
     def create(self, vals):
-        if vals.get('order_weight') == 0 or not vals.get('order_weight'):
+        if vals.get('priority') == 0 or not vals.get('priority'):
             weight = 0
             for line in vals.get('order_line'):
                 weight += line[2]['product_uos_qty']
 
-            vals['order_weight'] = weight
+            vals['priority'] = weight
         return super(SaleOrder, self).create(vals)
 
     @api.multi
     def action_button_confirm(self):
         value = super(SaleOrder, self).action_button_confirm()
         for picking in self.picking_ids:
-            picking.order_weight = self.order_weight
+            picking.priority = self.priority
         return value
