@@ -181,6 +181,16 @@ class InboundController(http.Controller):
                 # be confirmed with this wave.
                 picking.wave_id = False
 
+                # The location of the box should now be in the temp location
+                new_loc = env['stock.location'].create({
+                    'location_id':
+                        env.ref('putaway_apply.default_temp_location').id,
+                    'name': "%s - picking %s" % (picking.move_lines[0].location_dest_id.name, picking.id),
+                })
+
+                picking.move_lines[0].location_dest_id.location_id = new_loc
+
+
         wave.done()
 
         results = {

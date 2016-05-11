@@ -98,7 +98,6 @@
                         self.pickings = data.picking_list;
                         self.wave_id = data.wave_id;
                         self.wave_name = data.wave_name;
-                        console.log(self.wave_name);
                         self.display_page();
 
                         // save the starting time, add the listener for barcode
@@ -146,7 +145,8 @@
             $('#content').html(self.$elem);
             $('#wave-id').html(self.wave_name);
             $('#wave-id-li').show();
-	        $('#print-pickings').show();
+	    $('#print-wave').show();
+	    $('#print-pickings').show();
             self.add_listener_on_manual_input();
             self.add_listener_on_skip_picking();
             self.add_listener_on_picking_list();
@@ -328,28 +328,44 @@
                 'time_to_complete': msec,
             }).then(function(data){
                 if (data.status == 'ok'){
-                    var secs = msec/1000
+                    var secs = msec/1000;
                     var hours = Math.floor(secs / (60 * 60));
                     var divisor_for_minutes = secs % (60 * 60);
                     var minutes = Math.floor(divisor_for_minutes / 60);
                     var divisor_for_seconds = divisor_for_minutes % 60;
                     var seconds = Math.ceil(divisor_for_seconds);
-                    var time = ""
+                    var time = "";
                     if(minutes < 10){
-                        time = hours+ ":0" + minutes
+                        time = hours+ ":0" + minutes;
                     }else{
-                        time = hours+ ":0" + minutes
+                        time = hours+ ":0" + minutes;
                     }
                     if(seconds < 10){
-                        time += ":0" + seconds
+                        time += ":0" + seconds;
                     }else{
-                        time += ":" + seconds
+                        time += ":" + seconds;
                     }
                     self.show_modal('Wave Finished!',
                         "<i class='fa fa-check fa-5x' style='color:green'></i>" +"<b style='font-size: 2em'>Wait for redirection...</b>"
                         ,"<b style='font-size: 3em;'>Time to complete: </b><b class='time-complete'>"+time+"</b>");
                     window.setTimeout(function(){
-                        window.location.href = "/picking_waves";
+                        var to_outputs = [];
+                        var to_temps = [];
+                        $.each(self.pickings, function(key, value){
+                            if(value['progress_done']<100){
+                                to_temps.push(value);
+                            }else{
+                                to_outputs.push(value);
+                            }
+                        });
+
+                        self.$modal.modal('hide');
+                        self.$elem = $(QWeb.render("wave_done", {
+                            to_outputs: to_outputs,
+                            to_temps: to_temps,
+                        }));
+                        $('#content').html(self.$elem);
+                        self.add_listener_on_endbox();
                     }, 3000);
                 }
             });
@@ -416,7 +432,18 @@
 
                 self.show_modal(current_picking[0].picking_name, $result, "", false);
             })
+        },    });
+	add_listener_on_endbox: function(){
+            var self = this;
+            self.$elem.find('.end-box').click(function(event){
+                event.preventDefault();
+                if($(event.currentTarget).hasClass("btn-warning")){
+                    $(event.currentTarget).switchClass("btn-warning", "btn-success", 100)
+                }else{
+                    $(event.currentTarget).switchClass("btn-success", "btn-warning", 100)
+                }
+                $(':focus').blur();
+            })
         },
-    });
     instance.picking_waves.picking_selector = new picking_selector();
 })();

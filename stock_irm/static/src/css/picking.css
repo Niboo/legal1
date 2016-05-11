@@ -302,3 +302,8 @@ html, body {
     color:red;
     font-size: 3em;
 }
+
+.end-box{
+   margin: 2% 4% 2% 4%;
+   height: 100px;
+}
