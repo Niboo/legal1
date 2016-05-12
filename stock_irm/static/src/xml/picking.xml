@@ -234,7 +234,6 @@
                         </div>
                     </div>
                 </div>
-                <br/>
                 <button id="skip-picking-line" type="button" class="btn btn-danger btn-large buttons-product">
                     <i class="fa fa-minus-circle" aria-hidden="true"></i>
                 </button>
