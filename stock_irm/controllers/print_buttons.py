@@ -20,9 +20,8 @@
 ##############################################################################
 
 from openerp import http
-from openerp import exceptions, osv
-from datetime import datetime
 from openerp.http import request
+from openerp import exceptions
 
 
 class PrintController(http.Controller):
@@ -30,8 +29,14 @@ class PrintController(http.Controller):
     def print_wave(self, wave_id, **kw):
         env = http.request.env
         current_wave = env['stock.picking.wave'].browse(wave_id)
+        data = {}
 
-        current_wave.print_wave()
+        try:
+            current_wave.print_wave()
+            return {'status': 'ok'}
+        except:
+            return {'status': 'error',
+                    'message':'Print error.'}
 
     @http.route('/print_pickings', type='json', auth="user")
     def print_picking(self, wave_id, **kw):
@@ -39,3 +44,4 @@ class PrintController(http.Controller):
         current_wave = env['stock.picking.wave'].browse(wave_id)
 
         current_wave.print_picking()
+        return {'status': 'ok'}

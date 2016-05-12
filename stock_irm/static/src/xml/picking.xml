@@ -88,6 +88,14 @@
         <!-- cart selection modal -->
         <div class="error-message">
             <span class='fa fa-times fa-5x error-icon'></span><b>  You didn't select the right number of item</b>
+            <div>Selected count: <t t-esc="error"/>, expected: <t t-esc="message"/> item(s)</div>
+        </div>
+    </t>
+
+    <t t-name="printer_error">
+        <!-- cart selection modal -->
+        <div class="error-message">
+            <span class='fa fa-times fa-5x error-icon'></span><b>  Printer error!</b>
             <div>Selected count: <t t-esc="real"/>, expected: <t t-esc="expected"/> item(s)</div>
         </div>
     </t>

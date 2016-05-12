@@ -124,8 +124,17 @@
             $('#print-wave').click(function() {
                 self.session.rpc('/print_wave', {
                        'wave_id' : self.wave_id,
-                }).then(function() {
-                    alert("Done!");
+                }).then(function(data) {
+                    if(data.status == 'ok'){
+                        console.log('Cool!')
+                    } else {
+                        console.log('Oops, not working')
+                        var $result = $(QWeb.render('printer_error',{
+                            'error': 'Error',
+                            'message': 'Print error!'
+                        }));
+                        self.show_modal('Item Count Error', $result, "", false);
+                    }
                 })
             });
         },
@@ -135,8 +144,12 @@
             $('#print-pickings').click(function() {
                 self.session.rpc('/print_pickings', {
                     'wave_id' : self.wave_id,
-                }).then(function() {
-                    alert("Done!");
+                }).then(function(data) {
+                    if(data.status == 'ok'){
+                        console.log('Cool!')
+                    } else {
+                        console.log('Oops, not working')
+                    }
                 })
             });
         },
