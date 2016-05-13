@@ -126,14 +126,14 @@
                        'wave_id' : self.wave_id,
                 }).then(function(data) {
                     if(data.status == 'ok'){
-                        console.log('Cool!')
+                        console.log('Print wave: Success')
                     } else {
-                        console.log('Oops, not working')
+                        console.log('Error while trying to print wave.')
                         var $result = $(QWeb.render('printer_error',{
-                            'error': 'Error',
-                            'message': 'Print error!'
+                            'error': data.error,
+                            'message': data.message,
                         }));
-                        self.show_modal('Item Count Error', $result, "", false);
+                        self.show_modal('Print Error', $result, "", false);
                     }
                 })
             });
@@ -146,9 +146,14 @@
                     'wave_id' : self.wave_id,
                 }).then(function(data) {
                     if(data.status == 'ok'){
-                        console.log('Cool!')
+                        console.log('Print all pickings: Success')
                     } else {
-                        console.log('Oops, not working')
+                        console.log('Error while trying to print all pickings.')
+                        var $result = $(QWeb.render('printer_error',{
+                            'error': data.error,
+                            'message': data.message,
+                        }));
+                        self.show_modal('Print Error', $result, "", false);
                     }
                 })
             });

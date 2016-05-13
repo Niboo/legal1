@@ -30,9 +30,10 @@ body {
 
 /* ERROR MESSAGES */
 .error-message {
-    font-size: 2em;
+    font-size: 1.5em;
 }
 .error-icon {
+    font-size: 10em;
     color: red;
 }
 

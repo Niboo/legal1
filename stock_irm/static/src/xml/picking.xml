@@ -65,38 +65,58 @@
         </a>
     </t>
 
+    <!-- ERROR MODALS -->
     <t t-name="print_error_message">
-        <!-- cart selection modal -->
-        <div class="error-message">
-            <span class='fa fa-times fa-5x error-icon'></span><b>  You didn't scan the right <t t-esc="type" /></b>
-            <t t-if="type == 'product'">
-                <div>You should scan the following product:</div>
-                <div>
-                    <a href="#">
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <h2>You didn't scan the right <t t-esc="type"/></h2>
+                <t t-if="type == 'product'">
+                    <p class="error-message">
+                        You should scan the following product:
+                        <a href="#">
                         <img t-att-src="image" class="center-block img-responsive img-300" />
-                    </a>
-                </div>
-                <div>Found in location <b><t t-esc="location" /></b></div>
-            </t>
-            <t t-if="type== 'location'">
-                <div>You should put your item in the location <b><t t-esc="dest_location"/></b></div>
-            </t>
+                        </a>
+                        Found in location <b><t t-esc="location"/></b>.
+                    </p>
+                </t>
+                <t t-if="type== 'location'">
+                    <p class="error-message">
+                        You should put your item in the location <b><t t-esc="dest_location"/></b>.
+                    </p>
+                </t>
+            </div>
         </div>
     </t>
 
     <t t-name="counter_error">
-        <!-- cart selection modal -->
-        <div class="error-message">
-            <span class='fa fa-times fa-5x error-icon'></span><b>  You didn't select the right number of item</b>
-            <div>Selected count: <t t-esc="error"/>, expected: <t t-esc="message"/> item(s)</div>
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <h2>You didn't select the right number of items</h2>
+                <p class="error-message">
+                    Selected: <t t-esc="real"/><br/>
+                    Expected: <b><t t-esc="expected"/></b>
+                </p>
+            </div>
         </div>
     </t>
 
     <t t-name="printer_error">
-        <!-- cart selection modal -->
-        <div class="error-message">
-            <span class='fa fa-times fa-5x error-icon'></span><b>  Printer error!</b>
-            <div>Selected count: <t t-esc="real"/>, expected: <t t-esc="expected"/> item(s)</div>
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <h2><t t-esc="error"/></h2>
+                <p class="error-message">
+                    <t t-esc="message"/>
+                </p>
+            </div>
         </div>
     </t>
 
