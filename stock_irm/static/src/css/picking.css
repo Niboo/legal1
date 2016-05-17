@@ -2,6 +2,7 @@
 
 /* Layout */
 body {
+    overflow: hidden;
     background-color: #f1f1f1;
 }
 #picking-list {
@@ -11,6 +12,8 @@ body {
     height: 40px;
 }
 #product-list {
+    overflow: auto;
+    height: 100%;
     padding-left: 15px;
     padding-right: 15px;
 }
