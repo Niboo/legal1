@@ -84,6 +84,7 @@
                                     <!--<li role="separator" class="divider" />-->
                                 </ul>
                                 <ul class="nav navbar-nav navbar-center">
+                                    <li id="fullscreen" style="display:none;" class="navbar"><a href="#"><span class="fa fa-arrows-alt" aria-hidden="true"/> Fullscreen</a></li>
                                     <li id="change-user"><a href="#"><span class="glyphicon glyphicon-user"/> <t t-esc="user_name"/></a></li>
                                     <li id="change-worklocation"><a href="#"><span class="glyphicon glyphicon-cog"/> <t t-esc="worklocation_name"/></a></li>
                                 </ul>

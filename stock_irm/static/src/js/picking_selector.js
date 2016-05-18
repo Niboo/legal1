@@ -126,8 +126,8 @@
             $('#content').html(self.$elem);
             $('#wave-id').html(self.wave_name);
             $('#wave-id-li').show();
-            $('#print-wave').show();
-            $('#print-pickings').show();
+            $('#fullscreen').show();
+	    $('#print-pickings').show();
             self.add_listener_on_manual_input();
             self.add_listener_on_skip_picking();
 
