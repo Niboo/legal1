@@ -24,19 +24,6 @@ from openerp.http import request
 
 
 class PrintController(http.Controller):
-    @http.route('/print_wave', type='json', auth="user")
-    def print_wave(self, wave_id, **kw):
-        env = http.request.env
-        current_wave = env['stock.picking.wave'].browse(wave_id)
-
-        try:
-            current_wave.print_wave()
-            return {'status': 'ok'}
-        except BaseException as e:
-            return {'status': 'error',
-                    'error' : type(e).__name__,
-                    'message': str(e)}
-
     @http.route('/print_pickings', type='json', auth="user")
     def print_picking(self, wave_id, **kw):
         env = http.request.env

@@ -90,7 +90,6 @@
                                 <ul class="nav navbar-nav navbar-right">
                                     <li id="search"><a href="#"><span class="glyphicon glyphicon-search" /> Search</a></li>
                                     <li id="confirm" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-ok" /> Confirm</a></li>
-                                    <li id="print-wave" style="display:none;" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-print"/> Print Wave</a></li>
                                     <li id="print-pickings" style="display:none;" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-print"/> Print All Pickings</a></li>
                                 </ul>
                             </div>

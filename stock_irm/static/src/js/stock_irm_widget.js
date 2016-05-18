@@ -118,26 +118,6 @@
                 })
             });
         },
-        add_listener_on_print_wave_button: function() {
-            var self = this;
-            
-            $('#print-wave').click(function() {
-                self.session.rpc('/print_wave', {
-                       'wave_id' : self.wave_id,
-                }).then(function(data) {
-                    if(data.status == 'ok'){
-                        console.log('Print wave: Success')
-                    } else {
-                        console.log('Error while trying to print wave.')
-                        var $result = $(QWeb.render('printer_error',{
-                            'error': data.error,
-                            'message': data.message,
-                        }));
-                        self.show_modal('Print Error', $result, "", false);
-                    }
-                })
-            });
-        },
         add_listener_on_print_pickings_button: function() {
             var self = this;
 
@@ -171,7 +151,6 @@
             self.add_listener_on_closing_modal();
             self.add_listener_on_user_button();
             self.add_listener_on_worklocation_button();
-            self.add_listener_on_print_wave_button();
             self.add_listener_on_print_pickings_button();
             // if(!self.worklocation){
             //     self.get_worklocations();
