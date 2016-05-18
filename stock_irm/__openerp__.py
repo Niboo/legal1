@@ -30,11 +30,11 @@ Module
         """,
     'author': 'Niboo',
     'depends': [
-        'base',
         'xx_product_supplierinfo_tags',
         'dyn_report_to_printer_location',
         'base_report_to_printer',
         'stock',
+        'stock_picking_wave',
     ],
     'data': [
         'views/res_partner.xml',
