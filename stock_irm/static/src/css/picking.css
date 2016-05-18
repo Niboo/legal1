@@ -12,6 +12,10 @@ body {
 #wave-id-li {
     margin-left: -15px;
 }
+#content {
+    top: 70px;
+    position: relative;
+}
 #picking-list {
     position: fixed;
     top: 70px;
@@ -19,7 +23,6 @@ body {
     width: 16.666666%;
 }
 #product-list {
-    top: 70px;
     position: relative;
     padding-left: 15px;
     padding-right: 15px;
@@ -128,7 +131,6 @@ body {
 }
 
 #create-wave{
-    top: 70px;
     position: relative;
     text-align: center;
     font-size: 3em;
@@ -145,10 +147,6 @@ body {
     background-color: #c9433f;
     color: #fff;
     cursor: hand;
-}
-#no-picking-found {
-    top: 70px;
-    position: relative;
 }
 
 #current_picking{
