@@ -27,16 +27,22 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
 
     priority_weight = fields.Integer("Priority")
+    priority_weight_computed = fields.Integer("Priority (computed)",
+                                              compute="_compute_weight")
 
-    @api.model
-    def create(self, vals):
-        if vals.get('priority_weight') == 0 or not vals.get('priority_weight'):
+    @api.multi
+    @api.depends('order_line')
+    def _compute_weight(self):
+        for order in self:
             weight = 0
-            for line in vals.get('order_line'):
-                weight += line[2]['product_uos_qty']
+            # compute the number of items
+            for line in order.order_line:
+                weight += line.product_uos_qty
+            order.priority_weight_computed = weight
 
-            vals['priority_weight'] = weight
-        return super(SaleOrder, self).create(vals)
+            # if the computed weight is higher, assign it
+            if order.priority_weight < order.priority_weight_computed:
+                order.priority_weight = order.priority_weight_computed
 
     @api.multi
     def action_button_confirm(self):

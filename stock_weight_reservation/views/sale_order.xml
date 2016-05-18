@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="priority_weight"></field>
+                    <field name="priority_weight_computed" attrs="{'invisible':[('priority_weight', '!=', 0)]}"></field>
                 </xpath>
             </field>
         </record>
