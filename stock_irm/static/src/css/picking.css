@@ -9,6 +9,9 @@ body {
     width: 100%;
     z-index: 500;
 }
+#wave-id-li {
+    margin-left: -15px;
+}
 #picking-list {
     position: fixed;
     top: 70px;
