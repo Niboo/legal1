@@ -19,7 +19,8 @@
 #
 ##############################################################################
 
-from openerp import models, api, fields
+from openerp import models, fields
+
 
 class StockPicking(models.Model):
 

@@ -19,7 +19,7 @@
 #
 ##############################################################################
 
-from openerp import models, api, fields
+from openerp import models, api
 
 
 class ProcurementOrder(models.Model):
@@ -28,7 +28,9 @@ class ProcurementOrder(models.Model):
 
     @api.model
     def run_scheduler(self, use_new_cursor=False, company_id=False):
-        return super(ProcurementOrder, self.with_context(skip_reservation=True)).run_scheduler(use_new_cursor, company_id)
+        return super(ProcurementOrder,
+                     self.with_context(skip_reservation=True))\
+            .run_scheduler(use_new_cursor, company_id)
 
 
 class StockMove(models.Model):
@@ -37,7 +39,7 @@ class StockMove(models.Model):
     @api.multi
     def action_assign(self):
         # do not assign procurement that are run through the scheduler
-        if self._context and self._context.get('skip_reservation', False) == True:
+        if self._context.get('skip_reservation', False):
             # skip reservation
             return {}
         else:
