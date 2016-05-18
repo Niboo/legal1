@@ -108,7 +108,7 @@ class InboundController(http.Controller):
                 # also take the "assigned" ones, since they may have been begon
                 # in another wave
                 ('state', '=', 'assigned'),
-            ], order='priority DESC, id', limit=1, offset=cpt)
+            ], order='priority_weight DESC, id', limit=1, offset=cpt)
             cpt += 1
 
             if not picking:
@@ -121,7 +121,7 @@ class InboundController(http.Controller):
                     break
             else:
                 for move in picking.move_lines:
-                    move.force_assign()
+                    move.assign()
                 picking_ids.append(picking.id)
 
         if not picking_ids:

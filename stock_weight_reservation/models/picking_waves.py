@@ -25,4 +25,4 @@ class StockPicking(models.Model):
 
     _inherit = "stock.picking"
 
-    priority = fields.Integer("Priority")
+    priority_weight = fields.Integer("Priority")

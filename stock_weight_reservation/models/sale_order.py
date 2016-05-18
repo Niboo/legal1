@@ -26,21 +26,26 @@ class SaleOrder(models.Model):
 
     _inherit = "sale.order"
 
-    priority = fields.Integer("Priority")
+    priority_weight = fields.Integer("Priority")
 
     @api.model
     def create(self, vals):
-        if vals.get('priority') == 0 or not vals.get('priority'):
+        if vals.get('priority_weight') == 0 or not vals.get('priority_weight'):
             weight = 0
             for line in vals.get('order_line'):
                 weight += line[2]['product_uos_qty']
 
-            vals['priority'] = weight
+            vals['priority_weight'] = weight
         return super(SaleOrder, self).create(vals)
 
     @api.multi
     def action_button_confirm(self):
         value = super(SaleOrder, self).action_button_confirm()
         for picking in self.picking_ids:
-            picking.priority = self.priority
+            picking.priority_weight = self.priority_weight
         return value
+
+    @api.constrains('priority_weight')
+    def _check_priority_weight(self):
+        for picking in self.picking_ids:
+            picking.priority_weight = self.priority_weight
