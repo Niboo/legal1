@@ -125,7 +125,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-                        <div id="picking_list">
+                        <div id="picking-list">
                             <t t-call="picking_list" />
                         </div>
                     </div>
@@ -147,10 +147,11 @@
     <t t-name="picking_list">
         <ul class="list-group">
             <t t-foreach="pickings" t-as="picking">
-                <li class="list-group-item" id="picking-list-group">
-                    <div class="progress picking_progress" id="picking-list">
-                        <div t-att-id="picking.picking_id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+picking.progress_done+'%;'">
-                           <div t-esc="picking.picking_name"/>
+                <li class="list-group-item">
+                    <div class="progress picking_progress" id="picking-progress-bar">
+                        <div t-att-id="picking.picking_id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+picking.progress_done+'%;'"/>
+                        <div  id="picking-name">
+                            <span t-esc="picking.picking_name"/>
                         </div>
                     </div>
                 </li>
