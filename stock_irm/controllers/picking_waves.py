@@ -121,7 +121,7 @@ class InboundController(http.Controller):
                     break
             else:
                 for move in picking.move_lines:
-                    move.assign()
+                    move.action_assign()
                 picking_ids.append(picking.id)
 
         if not picking_ids:
