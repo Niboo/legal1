@@ -20,9 +20,6 @@
 ##############################################################################
 
 from openerp import http
-from openerp import exceptions
-from datetime import datetime
-from openerp.http import request
 
 
 class InboundController(http.Controller):
