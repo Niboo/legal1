@@ -219,7 +219,7 @@ body {
     cursor: pointer;
 }
 
-.circle:hover{
+.circle:active{
     background-color: #9e9e9e;
     color: #fff;
     transition-property: background-color .2s linear 0s;

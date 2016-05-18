@@ -36,6 +36,17 @@
             });
             self.template = 'go_picking';
         },
+        launchIntoFullscreen: function(element) {
+            if(element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if(element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if(element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+            } else if(element.msRequestFullscreen) {
+                element.msRequestFullscreen();
+            }
+        },
         start: function(){
             var self = this;
             self.qty_in_box = 0;
@@ -49,6 +60,8 @@
                     $('#content').html(self.$elem);
                     self.add_listener_on_create_picking();
                     self.$elem.find('.wave-div a').click(function(event){
+                        self.launchIntoFullscreen(document.documentElement)
+
                         var wave_id = $(event.currentTarget).attr('wave-id');
                         self.session.rpc('/picking_waves/get_wave', {
                             'wave_id': wave_id,
@@ -76,6 +89,8 @@
         add_listener_on_create_picking: function(){
             var self = this;
             self.$elem.find('#create-wave').click(function(event){
+                self.launchIntoFullscreen(document.documentElement)
+
                 self.session.rpc('/picking_waves/create_picking', {})
                         .then(function(data){
                     if(data.status == "empty"){
@@ -127,19 +142,21 @@
             });
         },
         add_listener_on_skip_picking: function(){
+
             var self = this;
+
             $("#skip-picking-line").off('click.skip');
             $("#skip-picking-line").on('click.skip', function (event) {
                 self.current_move_index++;
-                $("#current_product").animate({left:'110%', opacity:'0', backgroundColor: "red"}, function(){
+                $("#current_product").animate({opacity: '0.4', backgroundColor: "red"}, 200);
+                $('#current_product').hide("slide",{direction:'right', backgroundColor: "red"}, 400, function(){
                     if(self.current_move_index >= self.move_list.length){
                         // No more products
                         self.validate_wave();
                     }else{
                         self.display_page();
                     }
-                })
-
+                });
             });
         },
         add_listener_on_numpad: function(){
@@ -157,6 +174,8 @@
                 }else{
                     self.$elem.find('#manual-barcode').val(self.$elem.find('#manual-barcode').val()+value);
                 }
+                $(':focus').blur()
+
             });
         },
         add_listener_for_barcode: function(){
@@ -188,6 +207,7 @@
             // check if the barcode scanned is the barcode we needed
             var is_product_barcode = barcode.replace(/[\n\r]+/g, '') == self.current_product_barcode;
             var is_destination_barcode = barcode.replace(/[\n\r]+/g, '') == self.current_destination_barcode;
+            console.log(self.current_destination_barcode)
 
             var qty = parseInt($('#quantity_wave input').val());
             var current_move = self.move_list[self.current_move_index]
@@ -263,7 +283,8 @@
 
             // HAPPY FLOW! Go to the next product
             self.current_move_index++;
-            $("#current_product").animate({right:'110%', opacity: '0', backgroundColor: "green"}, function(){
+            $("#current_product").animate({opacity: '0.4', backgroundColor: "green"}, 200);
+            $('#current_product').hide("slide",{direction:'left', backgroundColor: "green"}, 400, function(){
                 if(self.current_move_index >= self.move_list.length){
                     // No more products
                     self.validate_wave();
