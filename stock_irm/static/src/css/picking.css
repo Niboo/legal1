@@ -2,18 +2,25 @@
 
 /* Layout */
 body {
-    overflow: hidden;
     background-color: #f1f1f1;
 }
+#navbar {
+    position: fixed;
+    width: 100%;
+    z-index: 10000;
+}
 #picking-list {
+    position: fixed;
+    top: 70px;
+    left: 15px;
+    width: 16.666666%;
     margin: 0px;
-    padding: 0px;
-    border-radius: 0px;
+    padding: 5px;
     height: 40px;
 }
 #product-list {
-    overflow: auto;
-    height: 100%;
+    top: 70px;
+    position: relative;
     padding-left: 15px;
     padding-right: 15px;
 }
@@ -119,6 +126,8 @@ body {
 }
 
 #create-wave{
+    top: 70px;
+    position: relative;
     text-align: center;
     font-size: 3em;
     background-color: #d9534f;
@@ -127,12 +136,17 @@ body {
     margin:0 auto;
     padding-top: 20px;
     padding-bottom: 20px;
+    border-radius: 5px;
 }
 
 #create-wave:hover{
     background-color: #c9433f;
     color: #fff;
     cursor: hand;
+}
+#no-picking-found {
+    top: 70px;
+    position: relative;
 }
 
 #current_picking{

@@ -150,7 +150,7 @@
                 <li class="list-group-item" id="picking-list-group">
                     <div class="progress picking_progress" id="picking-list">
                         <div t-att-id="picking.picking_id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+picking.progress_done+'%;'">
-                           <span t-esc="picking.picking_name"/>
+                           <div t-esc="picking.picking_name"/>
                         </div>
                     </div>
                 </li>
@@ -328,8 +328,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <h2>No picking were found!</h2>
-                    <hr/>
+                    <div id="no-picking-found" class="text-center">
+                        <hr/>
+                        <h2>No pickings were found!</h2>
+                        <hr/>
+                    </div>
                 </div>
             </div>
         </div>
