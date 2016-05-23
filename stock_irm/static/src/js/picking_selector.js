@@ -36,17 +36,6 @@
             });
             self.template = 'go_picking';
         },
-        launchIntoFullscreen: function(element) {
-            if(element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if(element.mozRequestFullScreen) {
-                element.mozRequestFullScreen();
-            } else if(element.webkitRequestFullscreen) {
-                element.webkitRequestFullscreen();
-            } else if(element.msRequestFullscreen) {
-                element.msRequestFullscreen();
-            }
-        },
         start: function(){
             var self = this;
             self.qty_in_box = 0;
@@ -60,7 +49,6 @@
                     $('#content').html(self.$elem);
                     self.add_listener_on_create_picking();
                     self.$elem.find('.wave-div a').click(function(event){
-                        self.launchIntoFullscreen(document.documentElement)
 
                         var wave_id = $(event.currentTarget).attr('wave-id');
                         self.session.rpc('/picking_waves/get_wave', {
@@ -89,7 +77,6 @@
         add_listener_on_create_picking: function(){
             var self = this;
             self.$elem.find('#create-wave').click(function(event){
-                self.launchIntoFullscreen(document.documentElement)
 
                 self.session.rpc('/picking_waves/create_picking', {})
                         .then(function(data){
@@ -126,8 +113,7 @@
             $('#content').html(self.$elem);
             $('#wave-id').html(self.wave_name);
             $('#wave-id-li').show();
-            $('#fullscreen').show();
-	    $('#print-pickings').show();
+	        $('#print-pickings').show();
             self.add_listener_on_manual_input();
             self.add_listener_on_skip_picking();
 

@@ -118,6 +118,13 @@
                 })
             });
         },
+        add_listener_on_fullscreen_button: function() {
+            var self = this;
+
+            $('#fullscreen').click(function() {
+                self.toggleFullScreen(document.documentElement);
+            });
+        },
         add_listener_on_print_pickings_button: function() {
             var self = this;
 
@@ -152,6 +159,7 @@
             self.add_listener_on_user_button();
             self.add_listener_on_worklocation_button();
             self.add_listener_on_print_pickings_button();
+            self.add_listener_on_fullscreen_button();
             // if(!self.worklocation){
             //     self.get_worklocations();
             // }
@@ -239,6 +247,26 @@
                 self.$modal.modal('hide');
 
             })
+        },
+        toggleFullScreen: function(element) {
+          if ((document.fullScreenElement && document.fullScreenElement !== null) ||
+           (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+            if (document.documentElement.requestFullScreen) {
+              document.documentElement.requestFullScreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+              document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullScreen) {
+              document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+            }
+          } else {
+            if (document.cancelFullScreen) {
+              document.cancelFullScreen();
+            } else if (document.mozCancelFullScreen) {
+              document.mozCancelFullScreen();
+            } else if (document.webkitCancelFullScreen) {
+              document.webkitCancelFullScreen();
+            }
+          }
         },
     });
 

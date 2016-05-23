@@ -48,23 +48,11 @@
         add_listener_on_supplier: function(){
             var self = this;
             self.$elem.find('#results a').click(function(event){
-                self.launchIntoFullscreen(document.documentElement);
                 var supplier_id = $(event.currentTarget).attr('data-id');
                 var ProductPicking = instance.stock_irm.inbound_product_picking;
                 self.product_picking = new ProductPicking(supplier_id);
                 self.product_picking.start();
             })
-        },
-        launchIntoFullscreen: function(element) {
-            if(element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if(element.mozRequestFullScreen) {
-                element.mozRequestFullScreen();
-            } else if(element.webkitRequestFullscreen) {
-                element.webkitRequestFullscreen();
-            } else if(element.msRequestFullscreen) {
-                element.msRequestFullscreen();
-            }
         },
         get_suppliers: function(search){
             var self = this;
