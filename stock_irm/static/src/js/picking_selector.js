@@ -203,6 +203,7 @@
                 $('#info').show();
                 $('#quantity_wave input').val(qty);
                 self.add_listener_on_quantity();
+                self.change_background_on_quantity(qty);
 
             }else if(is_destination_barcode){
                 // location scanned
@@ -329,10 +330,24 @@
                         qty--;
                     }
                 }
+                self.change_background_on_quantity(qty);
                 self.$elem.find('#quantity_wave input').val(qty);
                 $(':focus').blur()
             });
         },
+        change_background_on_quantity: function(qty){
+            var self = this;
+            var expected_qty = parseInt(self.$elem.find('#expected_qty').html());
+            var current_product_div = document.getElementById( 'current_product' );
+
+            if(qty == expected_qty) {
+                current_product_div.style.backgroundColor = 'rgba(159,204,135,0.5)';
+            } else if(qty > expected_qty) {
+                current_product_div.style.backgroundColor = 'rgba(255,148,148,0.5)';
+            } else {
+                current_product_div.style.backgroundColor = 'rgba(255,255,255,1.0)';
+            };
+        }
     });
     instance.picking_waves.picking_selector = new picking_selector();
 })();
