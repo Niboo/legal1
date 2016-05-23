@@ -116,6 +116,7 @@
 	        $('#print-pickings').show();
             self.add_listener_on_manual_input();
             self.add_listener_on_skip_picking();
+            self.add_listener_on_picking_list();
 
             self.current_product_barcode = self.move_list[self.current_move_index]['product'].ean13;
             self.current_destination_barcode = self.move_list[self.current_move_index].location_dest_barcode;
@@ -347,7 +348,26 @@
             } else {
                 current_product_div.style.backgroundColor = 'rgba(255,255,255,1.0)';
             };
-        }
+        },
+        add_listener_on_picking_list: function() {
+            var self = this;
+            
+            self.$elem.find('#picking-list a').click(function(event){
+                var picking_id = $(event.currentTarget).attr('data-id');
+                console.log('Clicked on picking ', picking_id);
+
+                
+                var $result = $(QWeb.render('picking_list',{
+                        'type':'product',
+                        'image': '',
+                        'name': '',
+                        'location': '',
+                        'quantity': '',
+                    }));
+                
+                 self.show_modal('Picking Info', $result, "", false);
+            })
+        },
     });
     instance.picking_waves.picking_selector = new picking_selector();
 })();
