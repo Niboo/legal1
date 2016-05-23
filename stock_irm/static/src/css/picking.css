@@ -109,6 +109,9 @@ html, body {
 #current-product-img {
     max-width: 500px;
 }
+#next-product-img, #current-product-img img {
+    border-radius: 5px;
+}
 .buttons-icons-quantity {
     line-height: 2.8;
 }
