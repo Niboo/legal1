@@ -162,7 +162,7 @@
     <t t-name="current_product">
         <div class="row" id="current-product-name-row">
             <div id="current-product-img" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-                <h3><span t-esc="product.location_dest_name"/></h3>
+                <h3><span t-esc="location_name"/></h3>
                 <a href="#">
                     <img t-att-src="product.product_image" class="center-block img-responsive"/>
                 </a>
@@ -300,7 +300,7 @@
         </div>
         <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-left">
-                <h4><span t-esc="product.location_dest_name"/></h4>
+                <h4><span t-esc="location_name"/></h4>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right">
                 <h4><span t-esc="product.picking_name"/></h4>
@@ -315,7 +315,7 @@
                     <tr>
                         <td id="next-product-img"><a href="#"><img t-att-src="product.product_image" class="center-block img-responsive"/></a></td>
                         <td><span t-esc="move.product.product_name"/></td>
-                        <td><div class="form-control text-center"><span t-esc="move.product.location_dest_name"/></div></td>
+                        <td><div class="form-control text-center"><span t-esc="move.product.location_name"/></div></td>
                         <td><span t-esc="move.product.product_quantity"/></td>
                         <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
                         <td><span t-esc="move.product.picking_name"/></td>

@@ -105,7 +105,7 @@
                 'wave_id': self.wave_id,
                 'pickings': self.pickings,
                 'product': self.move_list[self.current_move_index]['product'],
-                'location_dest_name': self.move_list[self.current_move_index].location_dest_name,
+                'location_name': self.move_list[self.current_move_index].product.location_name,
                 'moves': self.move_list.slice(
                     self.current_move_index + 1,
                     self.current_move_index + 6)
