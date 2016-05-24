@@ -215,9 +215,9 @@ class InboundController(http.Controller):
 
             move_list.append(
                 {'picking_id': move.picking_id.id,
+                 'picking_name': move.picking_id.name,
                  'move_id': move.id,
                  'product': {
-                     'picking_name': move.picking_id.name,
                      'product_id': move.product_id.id,
                      'product_name': move.product_id.name,
                      'product_description': move.product_id.description,

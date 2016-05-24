@@ -163,15 +163,13 @@
 
     <t t-name="picking_info">
         <div class="row">
-            <table class="table" id="picking-info">
-                <t t-foreach="moves" t-as="move">
+            <table class="table" id="picking-info-table">
+                <t t-foreach="products" t-as="product">
                     <tr>
-                        <td id="next-product-img"><a href="#"><img t-att-src="product.product_image" class="center-block img-responsive"/></a></td>
-                        <td><span t-esc="move.product.product_name"/></td>
-                        <td><div class="form-control text-center"><span t-esc="move.product.location_name"/></div></td>
-                        <td><span t-esc="move.product.product_quantity"/></td>
-                        <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
-                        <td><span t-esc="move.product.picking_name"/></td>
+                        <td id="next-product-img"><a href="#"><img t-att-src="product.product.product_image" class="center-block img-responsive"/></a></td>
+                        <td><span t-esc="product.product.product_name"/></td>
+                        <td><div class="form-control text-center"><span t-esc="product.product.location_name"/></div></td>
+                        <td><span t-esc="product.product.product_quantity"/></td>
                     </tr>
                 </t>
             </table>
@@ -337,7 +335,7 @@
                         <td><div class="form-control text-center"><span t-esc="move.product.location_name"/></div></td>
                         <td><span t-esc="move.product.product_quantity"/></td>
                         <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
-                        <td><span t-esc="move.product.picking_name"/></td>
+                        <td><span t-esc="move.picking_name"/></td>
                     </tr>
                 </t>
             </table>

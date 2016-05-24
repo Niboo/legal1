@@ -353,19 +353,17 @@
             var self = this;
             
             self.$elem.find('#picking-list a').click(function(event){
-                var picking_id = $(event.currentTarget).attr('data-id');
-                console.log('Clicked on picking ', picking_id);
 
-                
-                var $result = $(QWeb.render('picking_list',{
-                        'type':'product',
-                        'image': '',
-                        'name': '',
-                        'location': '',
-                        'quantity': '',
+                var picking_id = $(event.currentTarget).attr('data-id');
+                current_picking = jQuery.grep(self.move_list, function( a ) {
+                    return a.picking_id == picking_id;
+                });
+
+                var $result = $(QWeb.render('picking_info',{
+                        'products': current_picking,
                     }));
-                
-                 self.show_modal('Picking Info', $result, "", false);
+
+                self.show_modal(current_picking[0].picking_name, $result, "", false);
             })
         },
     });
