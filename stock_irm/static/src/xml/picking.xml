@@ -166,7 +166,7 @@
             <table class="table" id="picking-info-table">
                 <t t-foreach="products" t-as="product">
                     <tr>
-                        <td id="next-product-img"><a href="#"><img t-att-src="product.product.product_image" class="center-block img-responsive"/></a></td>
+                        <td id="picking-product-img"><a href="#"><img t-att-src="product.product.product_image" class="center-block img-responsive"/></a></td>
                         <td><span t-esc="product.product.product_name"/></td>
                         <td><div class="form-control text-center"><span t-esc="product.product.location_name"/></div></td>
                         <td><span t-esc="product.product.product_quantity"/></td>
