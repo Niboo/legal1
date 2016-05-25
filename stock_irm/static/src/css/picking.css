@@ -133,14 +133,17 @@ html, body {
 #next_products {
     padding: 15px;
 }
-#next-products-table tr td, #picking-info-table tr td {
+#next-products-table td, #picking-info-table td {
     height: 100px;
+    border: 0px;
     vertical-align: middle;
-    border-top: 0px;
-    border-bottom: 1px solid #ddd;
 }
-
-
+#next-products-table tr, #picking-info-table tr {
+    border-top: 1px solid #ddd;
+}
+#next-products-table tr:first-child, #picking-info-table tr:first-child {
+    border-top: 0px;
+}
 
 /* SELECT WAVE SCREEN */
 
