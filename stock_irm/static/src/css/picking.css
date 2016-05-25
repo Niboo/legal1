@@ -6,7 +6,7 @@ html, body {
     width: 100%;
     height: 100%;
 }
-#navbar {
+.navbar {
     position: fixed;
     width: 100%;
     z-index: 500;
@@ -28,13 +28,11 @@ html, body {
 #product-list {
     position: relative;
     padding-left: 15px;
-    padding-right: 15px;
 }
 #current_product {
     background-color: #fff;
     border-radius: 5px;
-    padding-left: 15px;
-    padding-right: 15px;
+    padding: 15px;
     margin-bottom: 15px;
 }
 #current-product-name-row {
@@ -101,7 +99,7 @@ html, body {
 .buttons-product {
     font-size: 5em;
     width: 150px;
-    margin-top: 10px;
+    margin-bottom: 15px;
 }
 .current-product-buttons {
     padding-top: 15px;
@@ -123,12 +121,16 @@ html, body {
 }
 
 /* Next Products */
-#next-products-table, #picking-info-table tr td {
+#next_products {
+    padding: 15px;
+}
+#next-products-table tr td, #picking-info-table tr td {
     height: 100px;
     vertical-align: middle;
     border-top: 0px;
     border-bottom: 1px solid #ddd;
 }
+
 
 
 /* SELECT WAVE SCREEN */
