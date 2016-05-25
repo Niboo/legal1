@@ -56,10 +56,18 @@ html, body {
 .picking_progress {
     background-color: rgba(255,148,148,1.0);
     font-size: 1em;
-    margin: -10px;
-    margin-left: -15px;
-    margin-right: -15px;
     height: 40px;
+}
+.list-group-item {
+    background-color: #f1f1f1;
+    padding: 5px;
+}
+.progress {
+    margin: 0px;
+}
+.progress-bar {
+    -webkit-box-shadow: inset 0 0px 0 rgba(0, 0, 0, 0);
+    box-shadow: inset 0 0px 0 rgba(0, 0, 0, 0);
 }
 /* Overwrite template.css */
 .picking_done {
@@ -67,6 +75,7 @@ html, body {
 }
 #picking-name {
     padding: 5px;
+    padding-top: 7px;
     position: absolute;
     color: #fff;
     font-size: 18px;
