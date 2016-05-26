@@ -48,10 +48,15 @@
         add_listener_on_supplier: function(){
             var self = this;
             self.$elem.find('#results a').click(function(event){
-                var supplier_id = $(event.currentTarget).attr('data-id');
-                var ProductPicking = instance.stock_irm.inbound_product_picking;
-                self.product_picking = new ProductPicking(supplier_id);
-                self.product_picking.start();
+                if($('#change-worklocation').attr('data-id')){
+                    var supplier_id = $(event.currentTarget).attr('data-id');
+                    var ProductPicking = instance.stock_irm.inbound_product_picking;
+                    self.product_picking = new ProductPicking(supplier_id);
+                    self.product_picking.start();
+                }else{
+                    self.get_worklocations("You must select a worklocation first!", true);
+                }
+
             })
         },
         get_suppliers: function(search){

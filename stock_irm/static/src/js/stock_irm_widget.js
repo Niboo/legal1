@@ -207,10 +207,10 @@
 
             self.$nav.off('click.change-worklocation');
             self.$nav.on('click.change-worklocation', '#change-worklocation a', function (event) {
-                self.get_worklocations();
+                self.get_worklocations("Work Location Selection", false);
             });
         },
-        get_worklocations: function(){
+        get_worklocations: function(title, block_modal){
             var self = this;
 
             self.session.rpc('/inbound_screen/get_worklocations', {
@@ -219,7 +219,7 @@
                 var $result = $(QWeb.render('worklocation_result', {
                     worklocations: self.worklocations,
                 }));
-                self.show_modal('Work Location Selection', $result, "", false);
+                self.show_modal(title, $result, "", block_modal);
                 self.add_listener_on_worklocations();
             });
         },
