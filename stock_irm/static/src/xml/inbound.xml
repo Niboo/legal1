@@ -112,6 +112,11 @@
         </a>
     </t>
 
+    <t t-name="no_cart_message">
+        <!-- cart selection modal -->
+        <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>No carts could be found. <br/> Please contact the warehouse manager</b>
+    </t>
+
     <t t-name="change_user">
         <!-- cart selection modal -->
         <div class="row">

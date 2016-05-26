@@ -198,12 +198,17 @@
             self.session.rpc('/inbound_screen/get_carts', {
             }).then(function(data){
                 self.carts = data.carts;
-                var $result = $(QWeb.render('cart_result', {
-                    carts: self.carts,
-                }));
+                if(self.carts.length == 0){
+                    var $result = $(QWeb.render('no_cart_message', {}));
+                    self.show_modal('Cart Error', $result, '', true);
+                }else{
+                    var $result = $(QWeb.render('cart_result', {
+                        carts: self.carts,
+                    }));
 
-                self.show_modal('Cart Selection', $result);
-                self.add_listener_on_carts();
+                    self.show_modal('Cart Selection', $result);
+                    self.add_listener_on_carts();
+                }
             });
         },
         add_listener_on_carts: function(){
