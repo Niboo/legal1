@@ -179,8 +179,7 @@ product id: %s, supplier id: %s
         env = http.request.env
         inbound_carts = list()
 
-        domain = [('location_id', '=',
-                   env.ref('__ow__.stock_location_input').id)]
+        domain = [('is_inbound_cart', '=', True)]
 
         carts = env['stock.location'].search(
             domain

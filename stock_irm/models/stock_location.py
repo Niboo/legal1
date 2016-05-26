@@ -27,3 +27,5 @@ class StockLocation(models.Model):
     _inherit = "stock.location"
 
     is_in_usage = fields.Boolean("Currently in usage", default=False)
+
+    is_inbound_cart = fields.Boolean("Is an inbound cart", default=False)
