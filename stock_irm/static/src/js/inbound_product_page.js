@@ -73,6 +73,7 @@
         add_listener_on_label_quantity: function(){
             var self = this;
             self.$elem.find('#label-quantity button').click(function(event){
+                qty = parseInt($('#label-quantity input').val());
 
                 if($(event.currentTarget).attr('data-dir') == 'up'){
                     self.quantity_to_print++;
@@ -134,7 +135,7 @@
         color_printed_labels: function(missing_labels){
             var self = this;
             var color = "green";
-            if(self.is_enough_label_printed() > 0){
+            if(self.quantity_to_print>0){
                 color = "red"
             }
 
