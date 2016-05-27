@@ -44,7 +44,7 @@ class SaleOrder(models.Model):
     def action_button_confirm(self):
         value = super(SaleOrder, self).action_button_confirm()
         for picking in self.picking_ids:
-            picking.priority_weight = self.priority_weight
+            picking.priority_weight = self.priority_weight or self.priority_weight_computed
         return value
 
     @api.constrains('priority_weight')
