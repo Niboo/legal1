@@ -21,4 +21,4 @@
 
 from . import procurement
 from . import sale_order
-from . import picking_waves
+from . import stock_picking
