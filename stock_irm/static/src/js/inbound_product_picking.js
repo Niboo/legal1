@@ -254,7 +254,7 @@
 
             self.session.rpc('/inbound_screen/process_picking', {
                 supplier_id: self.supplier_id,
-                pickings: self.received_products,
+                results: self.received_products,
             }).then(function(data){
                 if (data.status == 'ok'){
                     self.show_modal('Picking Confirmed!', "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");

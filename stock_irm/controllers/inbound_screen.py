@@ -223,134 +223,197 @@ product id: %s, supplier id: %s
 
         return results
 
+    def treat_box(self, product, cart, box_id, quantity, supplier, picking):
+        env = http.request.env
+
+        # search or create an available box on this cart
+        dest_box = env['stock.location'].search([
+            ('location_id','=',cart.id),
+            ('name','=',str(box_id))
+        ])
+
+        if len(dest_box) > 1:
+            message = 'Multiple locations have been found on cart "%s" with ' \
+                      'the name: "%s" <br/> (product "%s") ' \
+                      % (cart.name, str(box_id), product.name)
+
+            env.cr.rollback()
+            return {
+                'status': 'error',
+                'message': message
+            }
+
+        if not dest_box:
+            dest_box = env['stock.location'].create({
+                'location_id': cart.id,
+                'name': str(box_id),
+            })
+
+        if not quantity:
+            message = 'No quantity provided for "%s" in cart "%s"' \
+                      % (product.name, cart.name)
+
+            env.cr.rollback()
+            return {
+                'status': 'error',
+                'message': message
+            }
+
+        quantity = self.look_for_existing_moves(supplier, product, quantity,
+                                                dest_box)
+
+        if quantity:
+            picking = self.create_moves_for_leftover(picking, supplier, product,
+                                                     quantity, dest_box)
+
+        return picking
+
+    def create_moves_for_leftover(self, picking, supplier, product, qty,
+                                  dest_box):
+        """
+        If no stock move are found, we have to create a
+        picking and a stock move
+        :param picking:
+        :param supplier:
+        :return:
+        """
+        env = http.request.env
+
+        picking_type_id = env['stock.picking.type'].search([
+            ('is_receipts', '=', True)
+        ])
+        if not picking_type_id:
+            raise Exception('Please, set a picking type to be used for'
+                            'receipt')
+
+        if not picking:
+            picking = env['stock.picking'].create({
+                'partner_id': supplier.id,
+                'picking_type_id': picking_type_id.id,
+            })
+
+        picking.write({
+            'move_lines': [(0, 0, {
+                'product_id': product.id,
+                'product_uom_qty': qty,
+                'picking_type_id': picking_type_id.id,
+                'location_dest_id': dest_box.id,
+                'location_id': env.ref('stock.stock_location_suppliers').id,
+                'product_uom': product.uom_id.id,
+                'name': 'automated picking - %s' % product.name,
+            })]
+        })
+
+        return picking
+
+    def look_for_existing_moves(self, supplier, product, qty, dest_box):
+        """
+        Loop to retrieve existing receiving moves corresponding to the product
+        :return:
+        """
+        env = http.request.env
+
+        while qty > 0:
+            # retrieve a stock move for this product
+            stock_move = env['stock.move'].search([
+                ('picking_id.partner_id.id', '=', supplier.id),
+                ('state', '=', 'assigned'),
+                ('product_id', '=', product.id),
+            ], order='create_date asc', limit=1)
+
+            if not stock_move:
+                break
+
+            qty_to_process = qty
+            # search the quantity to process on this stock move
+            if qty >= stock_move.product_uom_qty:
+                qty_to_process = stock_move.product_uom_qty
+            else:
+                stock_move.product_uom_qty -= qty_to_process
+
+                stock_move = env['stock.move'].create({
+                    'product_id': stock_move.product_id.id,
+                    'product_uom_qty': qty_to_process,
+                    'picking_type_id': stock_move.picking_type_id.id,
+                    'location_dest_id': stock_move.location_dest_id.id,
+                    'location_id': stock_move.location_id.id,
+                    'product_uom': stock_move.product_uom.id,
+                    'name': stock_move.name,
+                    'picking_id': stock_move.picking_id.id,
+                })
+
+            qty -= qty_to_process
+
+            # create the pack operation
+            # pack_datas = {
+            #     'product_id': product.id,
+            #     'product_uom_id': product.uom_id.id,
+            #     'product_qty': qty_to_process,
+            #     'location_id': env.ref('stock.stock_location_suppliers').id,
+            #     'location_dest_id': dest_box.id,
+            #     'date': datetime.now(),
+            #     'picking_id': stock_move.picking_id.id,
+            # }
+
+            # env['stock.pack.operation'].create(pack_datas)
+            stock_move.action_done()
+
+        return qty
+
+    def create_pack_operation(self, picking):
+        env = http.request.env
+
+        for line in picking.move_lines:
+            pack_datas = {
+                'product_id': line.product_id.id,
+                'product_uom_id': line.product_id.uom_id.id,
+                'product_qty': line.product_uom_qty,
+                'location_id': line.location_id.id,
+                'location_dest_id': line.location_dest_id.id,
+                'date': datetime.now(),
+                'picking_id': picking.id,
+            }
+
+            env['stock.pack.operation'].create(pack_datas)
+
     @http.route('/inbound_screen/process_picking', type='json', auth="user")
-    def process_picking(self, supplier_id, pickings,  **kw):
+    def process_picking(self, supplier_id, results,  **kw):
         env = http.request.env
         supplier = env['res.partner'].browse(supplier_id)
-        nb_picking_created = 0
-        nb_picking_filled = 0
-        stock_move_lines = []
-        stock_picking = False
+        picking = False
 
         # pickings is a list of products, within which there is a list of carts
         # and a quantity by carts
         try:
-            for product_id, cart_dict in pickings.iteritems():
+            for product_id, cart_dict in results.iteritems():
                 product = env['product.product'].browse(int(product_id))
 
                 # multiple location could be found for the same product
                 for cart_id, location_dict in cart_dict.iteritems():
-                    del(location_dict['index'])
+                    if location_dict.get('index'):
+                        del(location_dict['index'])
 
                     cart = env['stock.location'].browse(int(cart_id))
 
                     for box_id, quantity in location_dict.iteritems():
-                        qty = quantity
+                        picking = self.treat_box(product, cart, box_id,
+                                                 quantity, supplier, picking)
 
-                        # search or create an available box on this cart
-                        dest_box = env['stock.location'].search([
-                            ('location_id', '=', int(cart_id)),
-                            ('name', '=', str(box_id))
-                        ])
+            if picking:
+                picking.action_confirm()
+                self.create_pack_operation(picking)
+                picking.do_transfer()
 
-                        if len(dest_box) > 1:
 
-                            message = """
-    Multiple locations have been found on cart "%s" with the name: "%s" <br/>
-    (product "%s") """ % (cart.name, str(box_id), product.name)
-
-                            env.cr.rollback()
-                            results = {'status': 'error',
-                                       'message': message
-                                       }
-                            return results
-
-                        if not dest_box:
-                            dest_box = env['stock.location'].create({
-                                'location_id': int(cart_id),
-                                'name': str(box_id),
-                            })
-
-                        if not qty:
-                            message = """
-    No quantity provided for "%s" in cart "%s" """ % (product.name, cart.name)
-
-                            env.cr.rollback()
-                            results = {'status': 'error',
-                                       'message': message
-                                       }
-                            return results
-
-                        while qty > 0:
-                            # retrieve a stock move for this product
-                            stock_move = env['stock.move'].search([
-                                ('picking_id.partner_id', '=', supplier.id),
-                                ('picking_id.state', '=', 'assigned'),
-                                ('product_id', '=', product.id),
-                            ], order='create_date asc', limit=1)
-
-                            if not stock_move:
-                                if not stock_picking:
-                                    picking_type_id =\
-                                        env['stock.picking.type'].search(
-                                            [('is_receipts' ,'=', True)]
-                                        )
-                                    if not picking_type_id:
-                                        raise
-                                    stock_picking = env['stock.picking'].create({
-                                        'partner_id': supplier.id,
-                                        # 'move_lines': stock_move_lines,
-                                        'picking_type_id':
-                                            picking_type_id.id,
-                                    })
-                                # if no stock move are found, we have to create a
-                                # picking and a stock move
-                                stock_move_lines.append((0, 0, {
-                                    'product_id': product.id,
-                                    'product_uom_qty': qty,
-                                    'picking_type_id':
-                                        picking_type_id.id,
-                                    'location_dest_id':
-                                        dest_box.id,
-                                    'location_id':
-                                        env.ref('stock.stock_location_suppliers').id,
-                                    'product_uom': product.uom_id.id,
-                                    'name': 'automated picking - %s' % product.name,
-                                }))
-
-                            # search the quantity to process on this stock move
-                            if stock_move.product_uom_qty and qty >= stock_move.product_uom_qty:
-                                qty_to_process = stock_move.product_uom_qty
-                                nb_picking_filled += 1
-                            else:
-                                qty_to_process = qty
-
-                            # compute the remaining quantity to process
-                            qty = qty - qty_to_process
-
-                            # create the pack operation
-                            pack_datas = {
-                                'product_id': product.id,
-                                'product_uom_id': product.uom_id.id,
-                                'product_qty': qty_to_process,
-                                'location_id': env.ref('stock.stock_location_suppliers').id,
-                                'location_dest_id': dest_box.id,
-                                'date': datetime.now(),
-                                'picking_id': stock_picking.id,
-                            }
-
-                            env['stock.pack.operation'].create(pack_datas)
-                            stock_move.picking_id.do_transfer()
-            if stock_move_lines:
-                stock_picking.move_lines = stock_move_lines
-
-            results = {'status': 'ok',
-                       'nb_picking_created': nb_picking_created,
-                       'nb_picking_filled': nb_picking_filled,
-                       }
+            results = {
+                'status': 'ok',
+                'nb_picking_created': 0,
+                'nb_picking_filled': 0,
+            }
             return results
 
         except Exception as e:
+            raise
             return {'status': 'error',
                     'error' : type(e).__name__,
                     'message': str(e)}
