@@ -389,9 +389,27 @@ product id: %s, supplier id: %s
         user = env['res.users'].browse(request.uid)
         user.work_location_id = int(new_work_location_id)
 
-        results = {'status': 'ok'}
-        return results
+        return self.get_printer_ip()
 
+    @http.route('/inbound_screen/get_printer_ip', type='json', auth="user")
+    def get_printer_ip(self, **kw):
+        env = http.request.env
+        WorkLocationPrinter = env['work_location_printer']
+        label_printer_type = env.ref('stock_irm.label_printer_type')
+        printer_ip = False
+
+        user = env['res.users'].browse(request.uid)
+
+        work_location_printer = WorkLocationPrinter.search(
+            [('document_type_id', '=', label_printer_type.id),
+             ('work_location_id', '=', user.work_location_id.id)])
+
+        if work_location_printer.printing_printer_id:
+            printer_ip = work_location_printer.printing_printer_id.ip_adress
+
+        results = {'status': 'ok',
+                   'printer_ip': printer_ip}
+        return results
 
     @http.route('/inbound_screen/get_worklocation_printers',
                 type='json',

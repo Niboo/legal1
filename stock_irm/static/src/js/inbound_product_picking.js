@@ -42,6 +42,16 @@
             self.search = '';
             self.add_listener_on_search();
             self.add_listeners();
+            self.get_printer_ip();
+        },
+        get_printer_ip: function(){
+            var self = this;
+            self.session.rpc('/inbound_screen/get_printer_ip')
+                .then(function(data){
+                if(data.status == 'ok'){
+                    self.printer_ip = data.printer_ip;
+                }
+            });
         },
         refresh: function(){
             var self = this;
@@ -270,16 +280,17 @@
             self.get_products();
         },
         print_label: function(product_name, barcode, quantity){
-            //TODO: the url should be retrieved from selected worklocation's printers
-            //TODO: uncomment this code (commented to avoid printing labels when testing)
-            //return $.ajax('http://192.168.50.137/printer/wfmprint', {
-            //    dataType: 'xml',
-            //    data: {'dev':"E",'oname':"DYNAPPS",'otype':"ZPL","FN11":product_name, "FN12":barcode,"PQ":quantity},
-            //    context: {
-            //        url: 'http://192.168.50.137/printer/wfmprint'
-            //    }
-            //})
-            console.log("print "+quantity+" etiquettes")
+            // TODO: the url should be retrieved from selected worklocation's printers
+            // TODO: uncomment this code (commented to avoid printing labels when testing)
+            url = 'http://' + this.printer_ip + '/printer/wfmprint';
+            return $.ajax(url , {
+               dataType: 'xml',
+               data: {'dev':"E",'oname':"DYNAPPS",'otype':"ZPL","FN11":product_name, "FN12":barcode,"PQ":quantity},
+               context: {
+                   url: url
+               }
+            })
+            // console.log("print "+quantity+" etiquettes")
         }
     });
 

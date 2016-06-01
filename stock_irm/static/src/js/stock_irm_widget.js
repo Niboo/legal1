@@ -239,7 +239,7 @@
                     self.session.rpc('/inbound_screen/switch_worklocation', {
                         'new_work_location_id':self.worklocation.id,
                     }).then(function(data){
-                        self.printer = data.printer;
+                        self.printer_ip = data.printer_ip;
                     });
                 });
                 self.$modal.modal('hide');
