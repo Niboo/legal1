@@ -252,11 +252,11 @@
                         window.location.href = "/inbound_screen";
                     }, 3000);
                 } else {
-                        var $result = $(QWeb.render('exception_modal',{
-                            'error': data.error,
-                            'message': data.message,
-                        }));
-                        self.show_modal('Print Error', $result, "", false);
+                    var $result = $(QWeb.render('exception_modal',{
+                        'error': data.error,
+                        'message': data.message,
+                    }));
+                    self.show_modal('Print Error', $result, "", false);
                 }
             }).fail(function(data){
                 console.log('FAIL');
