@@ -214,11 +214,15 @@
                     var $result = $(QWeb.render('no_cart_message', {}));
                     self.show_modal('Cart Error', $result, '', true);
                 }else{
+
                     var $result = $(QWeb.render('cart_result', {
                         carts: self.carts,
                     }));
-
-                    self.show_modal('Cart Selection', $result);
+                    var block_modal = true;
+                    if(self.parent.current_cart){
+                        block_modal = false;
+                    }
+                    self.show_modal('Cart Selection', $result, '', block_modal);
                     self.add_listener_on_carts();
                 }
             });
