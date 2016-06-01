@@ -186,6 +186,7 @@
                 self.parent.print_label(self.product.name, self.barcodes[0] , 1)
                 self.nb_already_printed += 1;
 
+
                 self.add_listener_on_quantity();
                 self.add_listener_on_label_quantity();
                 self.add_listener_on_cart_button();
@@ -296,6 +297,8 @@
                 // print the label each time we scan again
                 self.parent.print_label(self.product.name, self.product.barcodes[0], 1)
                 self.nb_already_printed += 1;
+                $('#already_printed_quantity').val(self.nb_already_printed);
+
             }
         },
         is_enough_label_printed: function(){

@@ -226,6 +226,7 @@
                 event.preventDefault();
                 var worklocation_id = $(event.currentTarget).attr('worklocation-id');
                 var worklocation_name = $(event.currentTarget).attr('worklocation-name');
+                $('#change-worklocation').attr('data-id', worklocation_id);
 
                 self.session.rpc('/inbound_screen/get_worklocation_printers', {
                     'location_id':worklocation_id,

@@ -74,6 +74,11 @@
                 </div>
             </div>
         </t>
+        <t t-if="!products.length">
+            <div class="col-xs-2 col-md-2">
+                <b>No matching product found</b>
+            </div>
+        </t>
     </t>
 
     <t t-name="cart_result">
