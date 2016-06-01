@@ -131,6 +131,9 @@
                     </div>
                     <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
                         <div id="product-list">
+                            <div id="info_message">
+
+                            </div>
                             <div id="current_product" class="row" style="position:relative;">
                                 <t t-call="current_product" />
                             </div>
@@ -364,6 +367,39 @@
                     <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span><t t-esc="wave.name" />
                 </a>
             </t>
+        </div>
+    </t>
+
+    <t t-name="info_first_barcode">
+        <div class="alert alert-warning fade in" style="text-align:center">
+            <b>Scan the product or enter the barcode manually by clicking on</b>
+            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="info_more_barcode">
+        <div class="alert alert-info fade in" style="text-align:center">
+            <b>Scan more product or enter the barcode manually by clicking on</b>
+            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="info_location_barcode">
+        <div class="alert alert-success fade in" style="text-align:center">
+            <b>Please scan the location or enter its location manually by clicking on</b>
+            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="info_too_much_barcode">
+        <div class="alert alert-danger fade in" style="text-align:center">
+            <b>You have selected too much product!</b>
         </div>
     </t>
 

@@ -150,6 +150,8 @@
             self.add_listener_on_manual_input();
             self.add_listener_on_skip_picking();
             self.add_listener_on_picking_list();
+            var $message = $(QWeb.render('info_first_barcode'));
+            $('#info_message').html($message)
 
             self.current_product_barcode = self.move_list[self.current_move_index]['product'].ean13;
             self.current_destination_barcode = self.move_list[self.current_move_index].location_dest_barcode;
@@ -376,10 +378,16 @@
 
             if(qty == expected_qty) {
                 current_product_div.style.backgroundColor = 'rgba(159,204,135,0.5)';
+                var $message = $(QWeb.render('info_location_barcode'));
+                $('#info_message').html($message)
             } else if(qty > expected_qty) {
                 current_product_div.style.backgroundColor = 'rgba(255,148,148,0.5)';
+                var $message = $(QWeb.render('info_too_much_barcode'));
+                $('#info_message').html($message)
             } else {
                 current_product_div.style.backgroundColor = 'rgba(255,255,255,1.0)';
+                var $message = $(QWeb.render('info_more_barcode'));
+                $('#info_message').html($message)
             };
         },
         add_listener_on_picking_list: function() {
