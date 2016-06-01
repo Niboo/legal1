@@ -70,6 +70,15 @@
                 $(':focus').blur()
             });
         },
+        add_listener_on_keyboard_quantity: function(){
+            var self = this;
+
+            $('#quantity_to_print').keyup(function(event){
+                $('#quantity_to_print').val(event.currentTarget.value);
+                self.quantity_to_print = parseInt(event.currentTarget.value);
+                self.color_printed_labels(self.quantity_to_print);
+            })
+        },
         add_listener_on_label_quantity: function(){
             var self = this;
             self.$elem.find('#label-quantity button').click(function(event){
@@ -188,6 +197,7 @@
 
 
                 self.add_listener_on_quantity();
+                self.add_listener_on_keyboard_quantity();
                 self.add_listener_on_label_quantity();
                 self.add_listener_on_cart_button();
                 self.add_listener_on_print_button();

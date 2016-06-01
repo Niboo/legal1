@@ -239,6 +239,7 @@
                 $('#info').show();
                 $('#quantity_wave input').val(qty);
                 self.add_listener_on_quantity();
+                self.add_listener_on_keyboard_quantity();
                 self.change_background_on_quantity(qty);
 
             }else if(is_destination_barcode){
@@ -359,6 +360,7 @@
 
             $('#quantity_wave button').off('click.quantity');
             $('#quantity_wave button').on('click.quantity', function (event) {
+                var qty = parseInt($('#quantity_wave input').val());
                 if($(event.currentTarget).attr('data-dir') == 'up'){
                     qty++;
                 } else if ($(event.currentTarget).attr('data-dir') == 'dwn'){
@@ -370,6 +372,14 @@
                 self.$elem.find('#quantity_wave input').val(qty);
                 $(':focus').blur()
             });
+        },
+        add_listener_on_keyboard_quantity: function(){
+            var self = this;
+
+            $('#quantity-input-value').keyup(function(event){
+               var qty = parseInt($('#quantity_wave input').val());
+                self.change_background_on_quantity(qty);
+            })
         },
         change_background_on_quantity: function(qty){
             var self = this;
