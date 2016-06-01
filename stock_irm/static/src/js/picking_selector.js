@@ -432,8 +432,8 @@
 
                 self.show_modal(current_picking[0].picking_name, $result, "", false);
             })
-        },    });
-	add_listener_on_endbox: function(){
+        },
+	    add_listener_on_endbox: function(){
             var self = this;
             self.$elem.find('.end-box').click(function(event){
                 event.preventDefault();
@@ -445,5 +445,6 @@
                 $(':focus').blur();
             })
         },
+        });
     instance.picking_waves.picking_selector = new picking_selector();
 })();
