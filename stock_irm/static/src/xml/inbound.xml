@@ -278,7 +278,7 @@
     </t>
     <t t-name="go_back">
         <a href="#" id="close" class="btn btn-danger pull-left goback"> Go Back </a>
-        <a href="#" id="cancel" class="btn btn-success continue"> Continue this picking </a>
+        <a href="#" id="continue_picking" class="btn btn-success continue"> Continue this picking </a>
     </t>
 
 </templates>

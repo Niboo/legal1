@@ -264,7 +264,6 @@
         },
         add_listener_on_confirm_button: function(){
             var self = this;
-            self.$nav.find('#confirm a').show();
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function (event) {
                 if(self.is_enough_label_printed()) {

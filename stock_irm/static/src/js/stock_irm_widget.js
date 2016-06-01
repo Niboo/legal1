@@ -39,17 +39,14 @@
         add_listener_on_search_button: function(){
             var self = this;
             self.$nav.off('click.search');
-            self.$nav.find('#search a').hide();
         },
         add_listener_on_back_button: function(){
             var self = this;
             self.$nav.off('click.back');
-            self.$nav.find('#back a').hide();
         },
         add_listener_on_confirm_button: function(){
             var self = this;
             self.$nav.off('click.confirm');
-            self.$nav.find('#confirm a').hide();
         },
         add_listener_for_barcode: function(){
             var self = this;

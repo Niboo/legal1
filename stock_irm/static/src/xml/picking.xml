@@ -367,5 +367,37 @@
         </div>
     </t>
 
+    <t t-name="wave_done">
+        <t t-if="to_outputs.length">
+            <br/>
+                <h3 class="text-center">To Output:</h3>
+            <br/>
+            <div class="row">
+                <t t-foreach="to_outputs" t-as="to_out">
+                    <a href="#" class="btn end-box btn-lg btn-warning col-md3" t-att-picking-id="to_out.picking_id" t-att-picking-name="to_out.picking_name">
+                        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="to_out.picking_name" />
+                    </a>
+                </t>
+            </div>
+        </t>
+        <t t-if="to_temps.length">
+            <br/>
+                <h3 class="text-center">To Temporary location:</h3>
+            <br/>
+            <div class="row">
+                <t t-foreach="to_temps" t-as="to_temp">
+                    <a href="#" class="btn end-box btn-lg btn-warning col-md3" t-att-picking-id="to_temp.picking_id" t-att-picking-name="to_temp.picking_name">
+                        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="to_temp.picking_name" />
+                    </a>
+                </t>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="go_back">
+        <a href="#" id="close_wave" class="btn btn-danger pull-left goback"> Go Back </a>
+        <a href="#" id="continue_wave" class="btn btn-success continue"> Continue this wave </a>
+    </t>
+
 </templates>
 

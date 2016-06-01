@@ -99,9 +99,8 @@
             var self = this;
 
             if (_.isEmpty(self.received_products)) {
-                self.$nav.find('#confirm a').hide();
+
             } else {
-                self.$nav.find('#confirm a').show();
                 self.$nav.off('click.confirm');
                 self.$nav.on('click.confirm', '#confirm a', function(event){
                     self.confirm();
@@ -127,14 +126,15 @@
         },
         add_listener_on_goback_button: function(){
             var self = this;
-            self.$modal.find('.modal-body .goback').click(function(event){
+            self.$modal.find('#close').click(function(event){
                 self.$modal.modal('hide');
                 window.location.href = "/inbound_screen";
             })
         },
         add_listener_on_continue_button: function(){
             var self = this;
-            self.$modal.find('.modal-body .continue').click(function(event){
+            console.log("wtf")
+            self.$modal.find('#continue_picking').click(function(event){
                 self.$modal.modal('hide');
             })
         },

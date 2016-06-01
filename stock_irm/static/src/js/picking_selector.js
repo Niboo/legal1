@@ -48,16 +48,21 @@
                     }));
                     $('#content').html(self.$elem);
                     self.add_listener_on_create_picking();
+
                     self.$elem.find('.wave-div a').click(function(event){
 
                         var wave_id = $(event.currentTarget).attr('wave-id');
                         self.session.rpc('/picking_waves/get_wave', {
                             'wave_id': wave_id,
                         }).then(function(data){
+                            self.$nav.find('#back').show();
+
+
                             if(data.status == "empty"){
                                 self.$elem = $(QWeb.render('picking_empty', {}));
                                 $('#content').html(self.$elem);
                             } else {
+                                self.$nav.find('#print-pickings').show();
                                 self.move_list = data.move_list;
                                 self.current_move_index = 0;
                                 self.pickings = data.picking_list;
@@ -80,10 +85,14 @@
 
                 self.session.rpc('/picking_waves/create_picking', {})
                         .then(function(data){
+                    self.$nav.find('#back').show();
+                            self.add_listener_on_back_button();
                     if(data.status == "empty"){
                         self.$elem = $(QWeb.render('picking_empty', {}));
                         $('#content').html(self.$elem);
                     } else {
+                        self.$nav.find('#print-pickings').show();
+
                         self.move_list = data.move_list;
                         self.current_move_index = 0;
                         self.pickings = data.picking_list;
@@ -97,6 +106,30 @@
                         self.add_listener_for_barcode();
                     }
                 });
+            })
+        },
+        add_listener_on_back_button: function(){
+            var self = this;
+            self.$nav.find('#back a').show();
+            self.$nav.off('click.back');
+            self.$nav.on('click.back', '#back a', function(event){
+                var $result = $(QWeb.render('go_back'));
+                self.show_modal('Are you sure you want to go back?', 'All your change will be canceled', $result, false);
+                self.add_listener_on_goback_button();
+                self.add_listener_on_continue_button();
+            })
+        },
+        add_listener_on_goback_button: function(){
+            var self = this;
+            self.$modal.find('#close_wave').click(function(event){
+                self.$modal.modal('hide');
+                window.location.href = "/picking_waves";
+            })
+        },
+        add_listener_on_continue_button: function(){
+            var self = this;
+            self.$modal.find('#continue_wave').click(function(event){
+                self.$modal.modal('hide');
             })
         },
         display_page: function(){

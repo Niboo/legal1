@@ -53,6 +53,9 @@
                     var ProductPicking = instance.stock_irm.inbound_product_picking;
                     self.product_picking = new ProductPicking(supplier_id);
                     self.product_picking.start();
+                    self.$nav.find('#back').show();
+                    self.$nav.find('#search').show();
+                    self.$nav.find('#confirm').show();
                 }else{
                     self.get_worklocations("You must select a worklocation first!", true);
                 }
