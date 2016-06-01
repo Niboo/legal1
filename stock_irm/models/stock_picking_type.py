@@ -20,6 +20,7 @@
 ##############################################################################
 
 from openerp import models, api, fields
+from openerp.exceptions import Warning
 
 
 class StockPickingType(models.Model):
@@ -27,3 +28,14 @@ class StockPickingType(models.Model):
     _inherit = "stock.picking.type"
 
     is_for_picking_wave = fields.Boolean("Is in picking waves")
+
+    is_receipts = fields.Boolean("Is Receipts")
+
+    @api.multi
+    @api.constrains('is_receipts')
+    def _check_single_inbound_receipt(self):
+        self.ensure_one()
+        if len(self.env['stock.picking.type'].search(
+                [('is_receipts', '=', True)])) > 1:
+            raise Warning("You should not select multiple inbound screen"
+                          " picking type")

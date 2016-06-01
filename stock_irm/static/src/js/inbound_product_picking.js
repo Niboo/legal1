@@ -252,8 +252,11 @@
                         window.location.href = "/inbound_screen";
                     }, 3000);
                 } else {
-                    // this error message should not be blocking so we add "false" to the call
-                    self.show_modal('Picking not confirmed.', data.message, '', false);
+                        var $result = $(QWeb.render('exception_modal',{
+                            'error': data.error,
+                            'message': data.message,
+                        }));
+                        self.show_modal('Print Error', $result, "", false);
                 }
             }).fail(function(data){
                 console.log('FAIL');
