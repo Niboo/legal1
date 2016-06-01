@@ -80,7 +80,7 @@ class InboundController(http.Controller):
         search = '%%%s%%' % search
 
         cr.execute("""
-SELECT pp.id, pt.name, psi.name
+SELECT pp.id, pt.name
 FROM product_template AS pt
   JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
   JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id
@@ -94,6 +94,7 @@ OR psitags.name ilike %s)
 AND pt.sale_ok IS TRUE
 AND psi.name = rp.id
 AND rp.commercial_partner_id = %s
+GROUP BY pt.name, pp.id
 ORDER BY pp.id
 LIMIT %s
 OFFSET %s
