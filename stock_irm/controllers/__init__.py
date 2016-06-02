@@ -22,3 +22,4 @@
 from . import inbound_screen
 from . import picking_waves
 from . import print_wave
+from . import stock_index
