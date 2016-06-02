@@ -19,11 +19,26 @@
 #
 ##############################################################################
 
-from openerp import models, fields
+from openerp import models, fields, api
 
 
 class StockPicking(models.Model):
 
     _inherit = "stock.picking"
 
-    priority_weight = fields.Float("Priority")
+    priority_weight = fields.Float("Priority",
+                                   compute='set_priority_weight',
+                                   store=True)
+
+    @api.multi
+    @api.depends('group_id')
+    def set_priority_weight(self):
+        for picking in self:
+            sale = self.env['sale.order'].search([
+                ('procurement_group_id', '=', picking.group_id.id),
+                ('procurement_group_id', '!=', False)
+            ])
+
+            if sale and (sale.priority_weight or sale.priority_weight_computed):
+                picking.priority_weight = \
+                    sale.priority_weight or sale.priority_weight_computed
