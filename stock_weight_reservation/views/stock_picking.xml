@@ -11,5 +11,17 @@
                 </xpath>
             </field>
         </record>
+
+        <record id="pick_tree_weight" model="ir.ui.view">
+            <field name="name">Add weight reference to picking tree view</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.vpicktree" />
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                    <field name="priority_weight" />
+                </field>
+            </field>
+        </record>
+
     </data>
 </openerp>
