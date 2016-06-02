@@ -81,11 +81,6 @@ class InboundController(http.Controller):
     def create_picking(self, **kw):
         env = http.request.env
 
-        # create a wave
-        wave = env['stock.picking.wave'].create({
-            'user_id': http.request.uid,
-        })
-
         # retrieve the picking types that are for picking waves
         picking_type_ids = env['stock.picking.type'].search([
             ('is_for_picking_wave', '=', True),
@@ -112,6 +107,7 @@ class InboundController(http.Controller):
             cpt += 1
 
             if not picking:
+                # if no more picking is found, then exit the loop
                 break
 
             # check if the selected picking is fully available, assign and treat
@@ -230,6 +226,7 @@ class InboundController(http.Controller):
     def create_moves_info(self, wave_id):
         stock_move_ids = wave_id.env['stock.move'].search([
             ('picking_id', 'in', wave_id.picking_ids.ids),
+            ('state', '!=', 'done')
         ])
         move_list = []
         for move in sorted(stock_move_ids,
