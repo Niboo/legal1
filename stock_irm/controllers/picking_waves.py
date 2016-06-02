@@ -256,7 +256,7 @@ class InboundController(http.Controller):
                  'location_barcode': move.location_id.loc_barcode,
                  'location_dest_id': move.location_dest_id.id,
                  'location_dest_name': move.location_dest_id.name,
-                 'location_dest_barcode': move.location_dest_id.loc_barcode
+                 'location_dest_barcode': move.picking_id.name
                  })
 
         return move_list
