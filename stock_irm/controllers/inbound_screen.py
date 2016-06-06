@@ -228,8 +228,8 @@ product id: %s, supplier id: %s
 
         # search or create an available box on this cart
         dest_box = env['stock.location'].search([
-            ('location_id','=',cart.id),
-            ('name','=',str(box_id))
+            ('location_id', '=', cart.id),
+            ('name', '=', str(box_id))
         ])
 
         if len(dest_box) > 1:
@@ -306,6 +306,36 @@ product id: %s, supplier id: %s
 
         return picking
 
+    def update_dest_pickings(self, current_move):
+        # update the "dest" moves to reflect the true source location
+        while current_move.move_dest_id:
+            current_move.move_dest_id.location_id =\
+                current_move.location_dest_id
+            current_move = current_move.move_dest_id
+
+    def update_and_create_dest_moves(self, current_move, new_move, qty_to_process):
+        env = http.request.env
+
+        # first update the locations
+        self.update_dest_pickings(current_move)
+
+        # then update the existing moves and create complementary moves
+        while current_move.move_dest_id:
+            current_move = current_move.move_dest_id
+
+            stock_move = env['stock.move'].create({
+                'product_id': current_move.product_id.id,
+                'product_uom_qty': qty_to_process,
+                'picking_type_id': current_move.picking_type_id.id,
+                'location_dest_id': current_move.location_dest_id.id,
+                'location_id': new_move.location_dest_id.id or current_move.location_id.id,
+                'product_uom': current_move.product_uom.id,
+                'name': current_move.name,
+                'origin': current_move.origin,
+                'picking_id': current_move.picking_id.id,
+            })
+            new_move = new_move.move_dest_id
+
     def look_for_existing_moves(self, supplier, product, qty, dest_box):
         """
         Loop to retrieve existing receiving moves corresponding to the product
@@ -314,6 +344,7 @@ product id: %s, supplier id: %s
         env = http.request.env
 
         while qty > 0:
+
             # retrieve a stock move for this product
             stock_move = env['stock.move'].search([
                 ('picking_id.partner_id.id', '=', supplier.id),
@@ -325,22 +356,35 @@ product id: %s, supplier id: %s
                 break
 
             qty_to_process = qty
+
+            # The next move have to change its source location to become
+            # available
+
             # search the quantity to process on this stock move
             if qty >= stock_move.product_uom_qty:
                 qty_to_process = stock_move.product_uom_qty
+                stock_move.location_dest_id = dest_box.id
+
+                if stock_move.move_dest_id:
+                    self.update_dest_pickings(stock_move)
+                stock_move.action_done()
             else:
                 stock_move.product_uom_qty -= qty_to_process
 
-                stock_move = env['stock.move'].create({
+                new_move = env['stock.move'].create({
                     'product_id': stock_move.product_id.id,
                     'product_uom_qty': qty_to_process,
                     'picking_type_id': stock_move.picking_type_id.id,
-                    'location_dest_id': stock_move.location_dest_id.id,
+                    'location_dest_id': dest_box.id,
                     'location_id': stock_move.location_id.id,
                     'product_uom': stock_move.product_uom.id,
                     'name': stock_move.name,
                     'picking_id': stock_move.picking_id.id,
                 })
+                new_move.action_done()
+
+                self.update_and_create_dest_moves(stock_move, new_move, qty_to_process)
+
 
             qty -= qty_to_process
 
@@ -356,7 +400,7 @@ product id: %s, supplier id: %s
             # }
 
             # env['stock.pack.operation'].create(pack_datas)
-            stock_move.action_done()
+
 
         return qty
 
