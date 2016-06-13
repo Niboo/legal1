@@ -22,6 +22,7 @@
 from openerp import http
 
 class StockIndex(http.Controller):
+
     @http.route('/stock_index', type='http', auth="user")
     def stock_index(self, **kw):
         current_user = http.request.env['res.users'].browse(http.request.uid)
