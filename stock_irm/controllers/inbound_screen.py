@@ -306,18 +306,19 @@ product id: %s, supplier id: %s
 
         return picking
 
-    def update_dest_pickings(self, current_move):
-        # update the "dest" moves to reflect the true source location
-        while current_move.move_dest_id:
-            current_move.move_dest_id.location_id =\
-                current_move.location_dest_id
-            current_move = current_move.move_dest_id
+    # def update_dest_pickings(self, current_move):
+    #     # update the "dest" moves to reflect the true source location
+    #     while current_move.move_dest_id:
+    #         current_move.move_dest_id.location_id =\
+    #             current_move.location_dest_id
+    #         current_move = current_move.move_dest_id
 
     def update_and_create_dest_moves(self, current_move, new_move, qty_to_process):
         env = http.request.env
 
         # first update the locations
-        self.update_dest_pickings(current_move)
+        current_move.move_dest_id.location_id =\
+            current_move.location_dest_id
 
         # then update the existing moves and create complementary moves
         while current_move.move_dest_id:
@@ -366,7 +367,8 @@ product id: %s, supplier id: %s
                 stock_move.location_dest_id = dest_box.id
 
                 if stock_move.move_dest_id:
-                    self.update_dest_pickings(stock_move)
+                    stock_move.move_dest_id.location_id =\
+                        stock_move.location_dest_id
                 stock_move.action_done()
             else:
                 stock_move.product_uom_qty -= qty_to_process
