@@ -35,7 +35,6 @@ class StockPicking(models.Model):
     def _compute_priority_weight(self):
         for picking in self:
             sale = self.env['sale.order'].search([
-                '|',
                 ('procurement_group_id', '=', picking.group_id.id),
                 ('procurement_group_id', '!=', False)
             ])
