@@ -8,17 +8,25 @@
                 <t t-if="is_wh_user">
                     <div class="row">
                         <div class="col-md-4">
-                            <a id="goto_inbound_screen" type="button" href="/inbound_screen" class="btn btn-success goto-button">Go To Inbound Screen</a>
+                            <a id="goto_inbound_screen" type="button" href="/inbound_screen" class="btn btn-success goto-button button-color-inbound index-button">Inbound Screen<br/>
+                                <i class="fa fa-truck big-icon" aria-hidden="true"></i>
+                            </a>
                         </div>
                         <div class="col-md-4">
-                            <a id="goto_picking_waves" type="button" href="/picking_waves" class="btn btn-success goto-button">Go To Picking Waves Screen</a>
+                            <a id="goto_picking_waves" type="button" href="/picking_waves" class="btn btn-success goto-button button-color-picking index-button">Picking Waves Screen<br/>
+                                <i class="fa fa-cart-arrow-down big-icon" aria-hidden="true"></i>
+                            </a>
                         </div>
                         <div class="col-md-4">
-                            <a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Go To My Inventories</a><br/>
-                            <t t-if="is_wh_manager">
-                                <a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Go To Create Inventory Screen</a><br/>
-                                <a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Go To Validate Inventory Screen</a><br/>
-                            </t>
+                            <a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button index-button">My Inventories<br/>
+                                <i class="fa fa-cubes big-icon" aria-hidden="true"></i>
+                            </a>
+                            <br/>
+                            <!-- Keep it just in case :)-->
+                            <!--<t t-if="is_wh_manager">-->
+                                <!--<a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Create Inventory Screen</a><br/>-->
+                                <!--<a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Validate Inventory Screen</a><br/>-->
+                            <!--</t>-->
                         </div>
                     </div>
                 </t>

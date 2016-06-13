@@ -5,3 +5,27 @@
     margin-top:15px;
     font-size:1.5em;
 }
+
+.button-color-inbound{
+    background-color: rgba(84, 128, 202, 0.80);
+    border-color: #427899
+}
+.button-color-inbound:hover{
+    background-color: rgba(84, 128, 202, 1);
+}
+
+.button-color-picking{
+    background-color: rgba(217, 83, 79, 0.8);
+    border-color: #992020
+}
+.button-color-picking:hover{
+    background-color: rgba(217, 83, 79, 1);
+}
+
+.index-button{
+    height: 40%;
+}
+
+.big-icon {
+  font-size: 10em !important;
+}
