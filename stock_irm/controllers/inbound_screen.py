@@ -306,26 +306,6 @@ product id: %s, supplier id: %s
 
         return picking
 
-    def update_and_create_dest_moves(self, current_move, new_move, qty_to_process):
-        env = http.request.env
-
-        # then update the existing moves and create complementary moves
-        while current_move.move_dest_id:
-            current_move = current_move.move_dest_id
-
-            stock_move = env['stock.move'].create({
-                'product_id': current_move.product_id.id,
-                'product_uom_qty': qty_to_process,
-                'picking_type_id': current_move.picking_type_id.id,
-                'location_dest_id': current_move.location_dest_id.id,
-                'location_id': new_move.location_dest_id.id or current_move.location_id.id,
-                'product_uom': current_move.product_uom.id,
-                'name': current_move.name,
-                'origin': current_move.origin,
-                'picking_id': current_move.picking_id.id,
-            })
-            new_move = new_move.move_dest_id
-
     def look_for_existing_moves(self, supplier, product, qty, dest_box):
         """
         Loop to retrieve existing receiving moves corresponding to the product
@@ -370,8 +350,6 @@ product id: %s, supplier id: %s
                     'picking_id': stock_move.picking_id.id,
                 })
                 new_move.action_done()
-
-                self.update_and_create_dest_moves(stock_move, new_move, qty_to_process)
 
 
             qty -= qty_to_process
