@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Stock Index Menu -->
+        <record id="stock_index" model="ir.actions.act_url">
+                <field name="name">Stock Index</field>
+                <field name="type">ir.actions.act_url</field>
+                <field name="target">self</field>
+                <field name="url">/stock_index</field>
+        </record>
+
+        <menuitem action="stock_index"
+                name="Stock Index"
+                id="menu_stock_index"
+                groups="group_stock_manager,group_stock_user"
+                sequence="80"/>
+
+    </data>
+</openerp>

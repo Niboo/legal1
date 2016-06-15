@@ -46,6 +46,7 @@ Module
         'views/work_location.xml',
         'views/stock_location.xml',
         'views/stock_picking_type.xml',
+        'views/stock_index_view.xml'
     ],
     'qweb': [
     ],
