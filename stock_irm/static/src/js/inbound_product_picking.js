@@ -280,17 +280,30 @@
             self.get_products();
         },
         print_label: function(product_name, barcode, quantity){
-            // TODO: the url should be retrieved from selected worklocation's printers
-            // TODO: uncomment this code (commented to avoid printing labels when testing)
-            url = 'http://' + this.printer_ip + '/printer/wfmprint';
-            return $.ajax(url , {
-               dataType: 'xml',
-               data: {'dev':"E",'oname':"DYNAPPS",'otype':"ZPL","FN11":product_name, "FN12":barcode,"PQ":quantity},
-               context: {
-                   url: url
-               }
-            })
-            // console.log("print "+quantity+" etiquettes")
+            if(this.printer_ip){
+                try {
+                    url = 'http://' + this.printer_ip + '/printer/wfmprint';
+                    return $.ajax(url, {
+                        dataType: 'xml',
+                        data: {
+                            'dev': "E",
+                            'oname': "DYNAPPS",
+                            'otype': "ZPL",
+                            "FN11": product_name,
+                            "FN12": barcode,
+                            "PQ": quantity
+                        },
+                        context: {
+                            url: url
+                        }
+                    });
+                }
+                catch(err){
+                    console.log("Error during printing");
+                }
+            }else{
+                console.log("No printer could be found");
+            }
         }
     });
 
