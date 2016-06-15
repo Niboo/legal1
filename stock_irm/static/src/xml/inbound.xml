@@ -300,4 +300,16 @@
         </div>
     </t>
 
+
+    <t t-name="supplier_purchase_orders">
+        <div class="row">
+            <t t-foreach="purchase_orders" t-as="purchase">
+                <a href="#" class="btn btn-lg btn-success location-btn col-md-3" t-att-purchase-id="purchase.id" t-att-purchase-name="purchase.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="purchase.name" />
+                </a>
+            </t>
+        </div>
+    </t>
+
+
 </templates>

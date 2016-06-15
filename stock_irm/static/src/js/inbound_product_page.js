@@ -284,7 +284,25 @@
                 if(self.is_enough_label_printed()) {
                     var qty = self.$elem.find('#quantity input').get(0).value
                     self.parent.add_product(self.id, parseInt(qty));
-                    self.parent.confirm();
+                    self.$nav.off('click.confirm');
+                    self.$nav.on('click.confirm', '#confirm a', function(event){
+                        console.log("mais enfin!")
+                        self.session.rpc('/inbound_screen/search_supplier_purchase', {
+                            supplier: self.parent.supplier_id,
+                        }).then(function(data){
+                            if (data.status == 'ok'){
+                                var $body = $(QWeb.render('supplier_purchase_orders',{
+                                    'purchase_orders': data.orders,
+                                }));
+
+                                self.show_modal("Select the impacted purchases orders",$body,"",true);
+
+                            } else {
+                                //todo manage this
+                            }
+                        })
+
+                    })
                 }
             })
         },

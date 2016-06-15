@@ -225,10 +225,9 @@ product id: %s, supplier id: %s
 
         return results
 
-    def treat_box(self, product, cart, box_id, quantity, supplier, picking):
+    def search_dest_box(self, box_id, cart, product):
         env = http.request.env
 
-        # search or create an available box on this cart
         dest_box = env['stock.location'].search([
             ('location_id', '=', cart.id),
             ('name', '=', str(box_id))
@@ -251,15 +250,26 @@ product id: %s, supplier id: %s
                 'name': str(box_id),
             })
 
-        if not quantity:
-            message = 'No quantity provided for "%s" in cart "%s"' \
+        return dest_box
+
+    def no_quantity_error(self, product, cart):
+        env = http.request.env
+
+        message = 'No quantity provided for "%s" in cart "%s"' \
                       % (product.name, cart.name)
 
-            env.cr.rollback()
-            return {
-                'status': 'error',
-                'message': message
-            }
+        env.cr.rollback()
+        return {
+            'status': 'error',
+            'message': message
+        }
+
+    def treat_box(self, product, cart, box_id, quantity, supplier, picking):
+        # search or create an available box on this cart
+        dest_box = self.search_dest_box(box_id, cart, product);
+
+        if not quantity:
+            self.no_quantity_error(product, cart)
 
         quantity = self.look_for_existing_moves(supplier, product, quantity,
                                                 dest_box)
@@ -269,6 +279,18 @@ product id: %s, supplier id: %s
                                                      quantity, dest_box)
 
         return picking
+
+    def get_receipt_picking_type(self):
+        env = http.request.env
+
+        picking_type_id = env['stock.picking.type'].search([
+            ('is_receipts', '=', True)
+        ])
+        if not picking_type_id:
+            raise Exception('Please, set a picking type to be used for'
+                            'receipt')
+
+        return picking_type_id
 
     def create_moves_for_leftover(self, picking, supplier, product, qty,
                                   dest_box):
@@ -281,12 +303,7 @@ product id: %s, supplier id: %s
         """
         env = http.request.env
 
-        picking_type_id = env['stock.picking.type'].search([
-            ('is_receipts', '=', True)
-        ])
-        if not picking_type_id:
-            raise Exception('Please, set a picking type to be used for'
-                            'receipt')
+        picking_type_id = self.get_receipt_picking_type()
 
         if not picking:
             picking = env['stock.picking'].create({
@@ -388,47 +405,109 @@ product id: %s, supplier id: %s
 
             env['stock.pack.operation'].create(pack_datas)
 
-    @http.route('/inbound_screen/process_picking', type='json', auth="user")
-    def process_picking(self, supplier_id, results,  **kw):
+    def create_whole_new_picking(self, supplier, inbound_list):
         env = http.request.env
-        supplier = env['res.partner'].browse(supplier_id)
-        picking = False
 
-        # pickings is a list of products, within which there is a list of carts
-        # and a quantity by carts
-        try:
-            for product_id, cart_dict in results.iteritems():
-                product = env['product.product'].browse(int(product_id))
+        picking_type_id = self.get_receipt_picking_type()
+        picking = env['stock.picking'].create({
+            'partner_id': supplier.id,
+            'picking_type_id': picking_type_id.id,
+        })
 
-                # multiple location could be found for the same product
-                for cart_id, location_dict in cart_dict.iteritems():
-                    if location_dict.get('index'):
-                        del(location_dict['index'])
+        for product_id, cart_dict in inbound_list.iteritems():
+            product = env['product.product'].browse(int(product_id))
 
-                    cart = env['stock.location'].browse(int(cart_id))
+            # multiple location could be found for the same product
+            for cart_id, location_dict in cart_dict.iteritems():
+                if location_dict.get('index'):
+                    del(location_dict['index'])
 
-                    for box_id, quantity in location_dict.iteritems():
-                        picking = self.treat_box(product, cart, box_id,
+                cart = env['stock.location'].browse(int(cart_id))
+
+                for box_id, quantity in location_dict.iteritems():
+                    self.create_new_moves(product, cart, box_id,
                                                  quantity, supplier, picking)
 
-            if picking:
-                picking.action_confirm()
-                self.create_pack_operation(picking)
-                picking.do_transfer()
+        picking.action_confirm()
+        results = {
+            'status': 'ok',
+            'nb_picking_created': 0,
+            'nb_picking_filled': 0,
+        }
+        return results
+
+    def create_new_moves(self, product, cart, box_id,
+                         quantity, supplier, picking):
+        dest_box = self.search_dest_box(box_id, cart, product);
+        self.create_moves_for_leftover(picking, supplier, product,
+                                                     quantity, dest_box)
+
+    @http.route('/inbound_screen/search_supplier_purchase', type='json',
+                auth='user')
+    def search_supplier_purchase(self, supplier):
+        env = http.request.env
+        purchase_orders = env['purchase.order'].search([
+            ('partner_id', '=', int(supplier)),
+            ('state', '=', 'approved')
+        ])
+
+        orders = []
+        for order in purchase_orders:
+            orders.append({'name': order.name})
+
+        results = {'status': 'ok',
+                   'orders': orders}
+
+        return results
+
+    @http.route('/inbound_screen/process_picking', type='json', auth="user")
+    def process_picking(self, supplier_id, results, picking_ids,  **kw):
+        env = http.request.env
+        supplier = env['res.partner'].browse(supplier_id)
+
+        if not picking_ids:
+            # if no picking is sent, then create a whole new one
+            return self.create_whole_new_picking(supplier, results)
+        else:
+            picking = False
 
 
-            results = {
-                'status': 'ok',
-                'nb_picking_created': 0,
-                'nb_picking_filled': 0,
-            }
-            return results
-
-        except Exception as e:
-            raise
-            return {'status': 'error',
-                    'error' : type(e).__name__,
-                    'message': str(e)}
+            #
+            # # pickings is a list of products, within which there is a list of carts
+            # # and a quantity by carts
+            # try:
+            #     for product_id, cart_dict in results.iteritems():
+            #         product = env['product.product'].browse(int(product_id))
+            #
+            #         # multiple location could be found for the same product
+            #         for cart_id, location_dict in cart_dict.iteritems():
+            #             if location_dict.get('index'):
+            #                 del(location_dict['index'])
+            #
+            #             cart = env['stock.location'].browse(int(cart_id))
+            #
+            #             for box_id, quantity in location_dict.iteritems():
+            #                 picking = self.treat_box(product, cart, box_id,
+            #                                          quantity, supplier, picking)
+            #
+            #     if picking:
+            #         picking.action_confirm()
+            #         self.create_pack_operation(picking)
+            #         picking.do_transfer()
+            #
+            #
+            #     results = {
+            #         'status': 'ok',
+            #         'nb_picking_created': 0,
+            #         'nb_picking_filled': 0,
+            #     }
+            #     return results
+            #
+            # except Exception as e:
+            #     raise
+            #     return {'status': 'error',
+            #             'error' : type(e).__name__,
+            #             'message': str(e)}
 
     @http.route('/inbound_screen/change_user', type='http', auth="user")
     def change_user(self, **kw):

@@ -252,9 +252,12 @@
         confirm: function() {
             var self = this;
 
+            //todo: this is the confirm without any picking selected
+
             self.session.rpc('/inbound_screen/process_picking', {
                 supplier_id: self.supplier_id,
                 results: self.received_products,
+                picking_ids: false
             }).then(function(data){
                 if (data.status == 'ok'){
                     self.show_modal('Picking Confirmed!', "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");
