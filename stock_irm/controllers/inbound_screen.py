@@ -462,7 +462,7 @@ product id: %s, supplier id: %s
     def switch_worklocation(self, new_work_location_id, **kw):
         env = http.request.env
         user = env['res.users'].browse(request.uid)
-        user.work_location_id = int(new_work_location_id)
+        user.sudo().work_location_id = int(new_work_location_id)
 
         return self.get_printer_ip()
 
