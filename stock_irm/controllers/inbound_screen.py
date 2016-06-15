@@ -292,6 +292,7 @@ product id: %s, supplier id: %s
                 'location_id': env.ref('stock.stock_location_suppliers').id,
                 'product_uom': product.uom_id.id,
                 'name': 'automated picking - %s' % product.name,
+                'delivery_order_id': delivery_order.id,
             })]
         })
 

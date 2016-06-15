@@ -192,6 +192,10 @@ a[is-in-usage='true'] {
     background-color: white;
 }
 
+#delivery_note{
+    width: 90%;
+}
+
 .purchase-btn{
     background-color: rgba(84, 128, 202, 0.80);
     border-color: #427899;

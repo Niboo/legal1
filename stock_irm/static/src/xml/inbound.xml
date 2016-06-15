@@ -300,8 +300,19 @@
         </div>
     </t>
 
+    <t t-name="confirm_inbound_modal">
+        <div class="row">
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <textarea id="delivery_note" name="Note" rows="10"/>
+            </div>
+        </div>
+    </t>
+    <t t-name="confirm_note">
+        <a href="#" id="close" class="btn btn-danger pull-left goback"> Cancel </a>
+        <a href="#" id="confirm_note" class="btn btn-success continue"> Confirm  </a>
+    </t>
 
-    <t t-name="supplier_purchase_orders">
+  <t t-name="supplier_purchase_orders">
         <div class="row">
             <t t-foreach="purchase_orders" t-as="purchase">
                 <a href="#" class="btn btn-lg btn-success purchase-btn col-md-3" t-att-purchase-id="purchase.id" t-att-purchase-name="purchase.name">
@@ -315,7 +326,7 @@
         <a href="#" id="cancel" class="btn btn-danger pull-left"> Cancel </a>
         <a href="#" id="select_purchases" class="btn btn-success" style="display:none"> Bound to Selected Purchases </a>
         <a href="#" id="no_purchases" class="btn btn-success">Continue Without Purchases </a>
-        azdazd
     </t>
+
 
 </templates>

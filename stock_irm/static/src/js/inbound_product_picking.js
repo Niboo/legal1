@@ -143,7 +143,6 @@
         },
         add_listener_on_continue_button: function(){
             var self = this;
-            console.log("wtf")
             self.$modal.find('#continue_picking').click(function(event){
                 self.$modal.modal('hide');
             })
@@ -251,33 +250,49 @@
         },
         confirm: function(purchase_orders) {
             var self = this;
-
-            //todo: this is the confirm without any picking selected
-
-            self.session.rpc('/inbound_screen/process_picking', {
-                supplier_id: self.supplier_id,
-                results: self.received_products,
-                purchase_orders: purchase_orders
-            }).then(function(data){
-                if (data.status == 'ok'){
-                    self.show_modal('Picking Confirmed!', "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");
-                    window.setTimeout(function(){
-                        window.location.href = "/inbound_screen";
-                    }, 3000);
-                } else {
+            var $result = $(QWeb.render('confirm_inbound_modal'));
+            var $footer = $(QWeb.render('confirm_note'));
+            self.show_modal('Confirm this picking', $result, $footer, true);
+            self.add_listener_on_close_button();
+            self.add_listener_on_confirm_note_button();
+        },
+        add_listener_on_close_button: function(){
+            var self = this;
+            $('#close').off('click.back');
+            $('#close').on('click.back', function(event){
+                self.$modal.modal('hide');
+            })
+        },
+        add_listener_on_confirm_note_button: function(){
+            var self = this;
+            $('#confirm_note').off('click.confirm');
+            $('#confirm_note').on('click.confirm', function (event) {
+                self.session.rpc('/inbound_screen/process_picking', {
+                    supplier_id: self.supplier_id,
+                    results: self.received_products,
+                    note: $('#delivery_note').val(),
+		    purchase_orders: purchase_orders,
+                }).then(function(data){
+                    if (data.status == 'ok'){
+                        self.show_modal('Picking Confirmed!', "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");
+                        window.setTimeout(function(){
+                            window.location.href = "/inbound_screen";
+                        }, 3000);
+                    } else {
+                        var $result = $(QWeb.render('exception_modal',{
+                            'error': data.error,
+                            'message': data.message,
+                        }));
+                        self.show_modal('Print Error', $result, "", false);
+                    }
+                }).fail(function(data){
                     var $result = $(QWeb.render('exception_modal',{
-                        'error': data.error,
-                        'message': data.message,
-                    }));
-                    self.show_modal('Error', $result, "", false);
-                }
-            }).fail(function(data){
-                var $result = $(QWeb.render('exception_modal',{
                         'error': data.data.arguments[0],
                         'message': data.data.arguments[1],
                     }));
                     self.show_modal(data.message, $result, "", false);
-            });
+                });
+            })
         },
         process_barcode: function(barcode) {
             var self = this;
