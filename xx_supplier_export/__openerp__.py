@@ -7,6 +7,8 @@
     ],
     'data': [
         'views/res_partner.xml',
+        'views/purchase_order_view_inherit.xml',
+        'wizard/display_csv_view.xml'
     ],
     "author": "DynApps",
     "category": "DynApps/Customizations",
