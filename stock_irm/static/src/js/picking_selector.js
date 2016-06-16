@@ -215,7 +215,7 @@
                         }
                         chars = [];
                         pressed = false;
-                    },500);
+                    },100);
                 }
                 pressed = true;
             });
