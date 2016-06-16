@@ -287,7 +287,6 @@
                     self.parent.add_product(self.id, parseInt(qty));
                     self.$nav.off('click.confirm');
                     self.$nav.on('click.confirm', '#confirm a', function(event){
-                        console.log("mais enfin!")
                         self.session.rpc('/inbound_screen/search_supplier_purchase', {
                             supplier: self.parent.supplier_id,
                         }).then(function(data){
@@ -324,7 +323,6 @@
                     self.selected_purchases.push(purchase_id);
                     $(event.currentTarget).addClass('selected-purchase-btn');
                 }
-                console.log(self.selected_purchases)
                 if(self.selected_purchases.length>0){
                     $('#no_purchases').hide();
                     $('#select_purchases').show();

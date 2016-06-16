@@ -228,6 +228,7 @@ product id: %s, supplier id: %s
     def search_dest_box(self, box_id, cart, product):
         env = http.request.env
 
+
         dest_box = env['stock.location'].search([
             ('location_id', '=', cart.id),
             ('name', '=', str(box_id))
@@ -297,72 +298,6 @@ product id: %s, supplier id: %s
 
         return picking
 
-    def look_for_existing_moves(self, supplier, product, qty, dest_box,
-                                picking_ids):
-        """
-        Loop to retrieve existing receiving moves corresponding to the product
-        :return:
-        """
-        env = http.request.env
-
-        while qty > 0:
-
-            # retrieve a stock move for this product
-            stock_move = env['stock.move'].search([
-                ('picking_id.partner_id.id', '=', supplier.id),
-                ('state', '=', 'assigned'),
-                ('product_id', '=', product.id),
-                ('picking_id', 'in', picking_ids)
-            ], order='create_date asc', limit=1)
-
-            if not stock_move:
-                break
-
-            qty_to_process = qty
-
-            # The next move have to change its source location to become
-            # available
-
-            # search the quantity to process on this stock move
-            if qty >= stock_move.product_uom_qty:
-                qty_to_process = stock_move.product_uom_qty
-                stock_move.location_dest_id = dest_box.id
-
-                stock_move.action_done()
-            else:
-                stock_move.product_uom_qty -= qty_to_process
-
-                new_move = env['stock.move'].create({
-                    'product_id': stock_move.product_id.id,
-                    'product_uom_qty': qty_to_process,
-                    'picking_type_id': stock_move.picking_type_id.id,
-                    'location_dest_id': dest_box.id,
-                    'location_id': stock_move.location_id.id,
-                    'product_uom': stock_move.product_uom.id,
-                    'name': stock_move.name,
-                    'picking_id': stock_move.picking_id.id,
-                })
-                new_move.action_done()
-
-
-            qty -= qty_to_process
-
-            # create the pack operation
-            # pack_datas = {
-            #     'product_id': product.id,
-            #     'product_uom_id': product.uom_id.id,
-            #     'product_qty': qty_to_process,
-            #     'location_id': env.ref('stock.stock_location_suppliers').id,
-            #     'location_dest_id': dest_box.id,
-            #     'date': datetime.now(),
-            #     'picking_id': stock_move.picking_id.id,
-            # }
-
-            # env['stock.pack.operation'].create(pack_datas)
-
-
-        return qty, stock_move.picking_id
-
     def create_pack_operation(self, picking):
         env = http.request.env
 
@@ -403,56 +338,17 @@ product id: %s, supplier id: %s
         env = http.request.env
         supplier = env['res.partner'].browse(supplier_id)
 
+        print results
         if not purchase_orders:
             # if no picking is sent, then create a whole new one
-            return self.create_whole_new_picking(supplier, results)
+            self.create_whole_new_picking(supplier, results)
         else:
-            picking_ids = []
-            for purchase_id in purchase_orders:
-                purchase = env['purchase.order'].browse(int(purchase_id))
-                for picking in purchase.picking_ids:
-                    picking_ids.append(picking.id)
+            self.update_existing_pickings(purchase_orders, results,
+                                                supplier)
+            print results
+            self.create_whole_new_picking(supplier, results)
 
-                for product_id, cart_dict in results.iteritems():
-                    product = env['product.product'].browse(int(product_id))
 
-                    # multiple location could be found for the same product
-                    for cart_id, location_dict in cart_dict.iteritems():
-                        if location_dict.get('index'):
-                            del(location_dict['index'])
-
-                        cart = env['stock.location'].browse(int(cart_id))
-                        for box_id, quantity in location_dict.iteritems():
-                            picking = self.treat_box(product, cart, box_id,
-                                                     quantity, supplier, picking_ids)
-
-                            # if picking:
-                            #     picking.action_confirm()
-                            #     self.create_pack_operation(picking)
-                            #     picking.do_transfer()
-            #
-            # # pickings is a list of products, within which there is a list of carts
-            # # and a quantity by carts
-            # try:
-            #     for product_id, cart_dict in results.iteritems():
-            #         product = env['product.product'].browse(int(product_id))
-            #
-            #         # multiple location could be found for the same product
-            #         for cart_id, location_dict in cart_dict.iteritems():
-            #             if location_dict.get('index'):
-            #                 del(location_dict['index'])
-            #
-            #             cart = env['stock.location'].browse(int(cart_id))
-            #
-            #             for box_id, quantity in location_dict.iteritems():
-            #                 picking = self.treat_box(product, cart, box_id,
-            #                                          quantity, supplier, picking)
-            #
-            #     if picking:
-            #         picking.action_confirm()
-            #         self.create_pack_operation(picking)
-            #         picking.do_transfer()
-            #
             #
             #     results = {
             #         'status': 'ok',
@@ -488,6 +384,8 @@ product id: %s, supplier id: %s
                 cart = env['stock.location'].browse(int(cart_id))
 
                 for box_id, quantity in location_dict.iteritems():
+                    if not quantity:
+                        self.no_quantity_error(product, cart)
                     self.create_new_moves(product, cart, box_id,
                                                  quantity, supplier, picking)
 
@@ -515,30 +413,174 @@ product id: %s, supplier id: %s
 
     def create_new_moves(self, product, cart, box_id,
                          quantity, supplier, picking):
-        # if we have to create new moves, simply create them as "leftovers"
+        # if we have to create new moves, simply create them as "leftovers" for
+        # the newly created picking
         dest_box = self.search_dest_box(box_id, cart, product);
         self.create_moves_for_leftover(picking, supplier, product,
                                                      quantity, dest_box)
 
 
-    def treat_box(self, product, cart, box_id, quantity, supplier, picking_ids):
-        # search or create an available box on this cart
-        dest_box = self.search_dest_box(box_id, cart, product);
 
-        # if no quantity is given for the box, then we have to raise an error
-        if not quantity:
-            self.no_quantity_error(product, cart)
+    def update_existing_pickings(self, purchase_orders, results, supplier):
+        picking_ids = self.retrieve_pickings_from_orders(purchase_orders)
+        product_quantities = self.create_product_qty_dict(results)
 
-        # then, try to fill moves in existing picking
-        quantity, picking = self.look_for_existing_moves(supplier, product, quantity,
-                                                dest_box, picking_ids)
+        self.treat_pickings(picking_ids, product_quantities, results)
 
-        if quantity:
-            picking = self.create_moves_for_leftover(picking, supplier, product,
-                                                     quantity, dest_box)
+    def retrieve_pickings_from_orders(self, purchase_orders):
+        env = http.request.env
+        picking_ids = []
 
-        return picking
+        # retrieve the pickings related to the selected orders
+        purchase = env['purchase.order'].search([
+            ('id', 'in', purchase_orders)
+        ], order='id ASC')
 
+        for picking in purchase.picking_ids:
+            picking_ids.append(picking)
+
+        return picking_ids
+
+    def create_product_qty_dict(self, results):
+        product_quantities = dict()
+        env = http.request.env
+
+        for product_id, cart_dict in results.iteritems():
+            product = env['product.product'].browse(int(product_id))
+
+            # multiple location could be found for the same product
+            for cart_id, location_dict in cart_dict.iteritems():
+                if location_dict.get('index'):
+                    del(location_dict['index'])
+
+                cart = env['stock.location'].browse(int(cart_id))
+                for box_id, quantity in location_dict.iteritems():
+                    if not quantity:
+                        self.no_quantity_error(product, cart)
+                    if product.id in product_quantities.keys():
+                        product_quantities[product.id] += quantity
+                    else:
+                        product_quantities[product.id] = quantity
+
+        return product_quantities
+
+    def treat_pickings(self, picking_ids, product_quantity_dict, results):
+        for picking in picking_ids:
+            for stock_move in picking.move_lines:
+
+                product_id = stock_move.product_id
+                product_uom_qty = stock_move.product_uom_qty
+                if product_id.id in product_quantity_dict.keys()\
+                    and product_quantity_dict[product_id.id] > 0:
+
+                    # if there is enough product for this move, then process the move
+                    if product_quantity_dict[product_id.id] >= product_uom_qty:
+                        self.process_move(results[str(product_id.id)], stock_move, product_uom_qty)
+
+                        product_quantity_dict[product_id.id] -= product_uom_qty
+
+                        # stock_move.location_dest_id = dest_box.id
+
+
+    def process_move(self, list_box, stock_move, quantity_to_process):
+        env = http.request.env
+        product = stock_move.product_id
+        picking_type_id = self.get_receipt_picking_type()
+
+        for cart_id, location_dict in list_box.iteritems():
+            if quantity_to_process == 0:
+                break
+            else:
+                cart = env['stock.location'].browse(cart_id)
+
+                for box_id, quantity in location_dict.iteritems():
+                    dest_box = self.search_dest_box(box_id, cart, product)
+                    if quantity >= quantity_to_process:
+                        quantity_to_process = 0
+                        list_box[cart_id][box_id] -= quantity_to_process
+                        stock_move.location_dest_id = dest_box.id
+                        stock_move.action_done()
+                    else:
+                        stock_move.product_uom_qty -= quantity
+                        quantity_to_process = stock_move.product_uom_qty
+                        new_move = env['stock.move'].create({
+                            'product_id': product.id,
+                            'product_uom_qty': quantity,
+                            'picking_type_id': picking_type_id.id,
+                            'location_dest_id': dest_box.id,
+                            'location_id': env.ref('stock.stock_location_suppliers').id,
+                            'product_uom': product.uom_id.id,
+                            'name': 'automated picking - %s' % product.name,
+                            'picking_id': stock_move.picking_id.id,
+                        })
+                        new_move.action_done()
+
+    # def treat_box(self, product, cart, box_id, quantity, supplier, picking_ids):
+    #     # search or create an available box on this cart
+    #     dest_box = self.search_dest_box(box_id, cart, product);
+    #
+    #     # then, try to fill moves in existing picking
+    #     quantity = self.look_for_existing_moves(supplier, product, quantity,
+    #                                             dest_box, picking_ids)
+    #     # if quantity:
+    #     #     picking = self.create_moves_for_leftover(picking, supplier, product,
+    #     #                                              quantity, dest_box)
+
+
+    def look_for_existing_moves(self, supplier, product, qty, dest_box,
+                                picking_ids):
+        """
+        Loop to retrieve existing receiving moves corresponding to the product
+        :return:
+        """
+        env = http.request.env
+
+        while qty > 0:
+            # try to retrieve a stock move for this product
+            stock_move = env['stock.move'].search([
+                ('picking_id.partner_id.id', '=', supplier.id),
+                ('state', '=', 'assigned'),
+                ('product_id', '=', product.id),
+                ('picking_id', 'in', picking_ids)
+            ], order='create_date asc', limit=1)
+
+            qty_to_process = qty
+
+            if not stock_move:
+                # if no stock move is found, then we have to create a stock move
+                # and
+
+                stock_move.product_uom_qty -= qty_to_process
+                picking_type_id = self.get_receipt_picking_type()
+
+                new_move = env['stock.move'].create({
+                    'product_id': product.id,
+                    'product_uom_qty': qty_to_process,
+                    'picking_type_id': picking_type_id.id,
+                    'location_dest_id': dest_box.id,
+                    'location_id': env.ref('stock.stock_location_suppliers').id,
+                    'product_uom': product.uom_id.id,
+                    'name': 'automated picking - %s' % product.name,
+                    #todo: which picking??
+                    # 'picking_id': stock_move.picking_id.id,
+                })
+                new_move.action_done()
+
+            # if the quantity received is greater or equal to the quantity
+            # of the move, then process the move
+            if qty >= stock_move.product_uom_qty:
+                qty_to_process = stock_move.product_uom_qty
+                stock_move.location_dest_id = dest_box.id
+                stock_move.action_done()
+            else:
+                # if we have less item than predicted:
+                transfert_detail = env['stock.transfer_details'].create([])
+
+
+            # deduct the processed quantity from the total quantity
+            qty -= qty_to_process
+
+        return qty
 
     def fill_possible_pickings(self):
         print "rofl"
