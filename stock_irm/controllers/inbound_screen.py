@@ -530,5 +530,10 @@ product id: %s, supplier id: %s
                 auth="user")
     def book_cart(self, cart_id, **kw):
         env = http.request.env
-
-        env['stock.location'].browse(int(cart_id)).is_in_usage = True
+        try:
+            env['stock.location'].browse(int(cart_id)).is_in_usage = True
+            return {'status': 'ok'}
+        except exceptions.AccessError as e:
+            return {'status': 'error',
+                    'error': type(e).__name__,
+                    'message': str(e)}
