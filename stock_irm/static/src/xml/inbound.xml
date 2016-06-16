@@ -304,12 +304,18 @@
     <t t-name="supplier_purchase_orders">
         <div class="row">
             <t t-foreach="purchase_orders" t-as="purchase">
-                <a href="#" class="btn btn-lg btn-success location-btn col-md-3" t-att-purchase-id="purchase.id" t-att-purchase-name="purchase.name">
-                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="purchase.name" />
+                <a href="#" class="btn btn-lg btn-success purchase-btn col-md-3" t-att-purchase-id="purchase.id" t-att-purchase-name="purchase.name">
+                    <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> <t t-esc="purchase.name" />
                 </a>
             </t>
         </div>
     </t>
 
+    <t t-name="confirm_purchase_orders">
+        <a href="#" id="cancel" class="btn btn-danger pull-left"> Cancel </a>
+        <a href="#" id="select_purchases" class="btn btn-success" style="display:none"> Bound to Selected Purchases </a>
+        <a href="#" id="no_purchases" class="btn btn-success">Continue Without Purchases </a>
+        azdazd
+    </t>
 
 </templates>

@@ -264,34 +264,6 @@ product id: %s, supplier id: %s
             'message': message
         }
 
-    def treat_box(self, product, cart, box_id, quantity, supplier, picking):
-        # search or create an available box on this cart
-        dest_box = self.search_dest_box(box_id, cart, product);
-
-        if not quantity:
-            self.no_quantity_error(product, cart)
-
-        quantity = self.look_for_existing_moves(supplier, product, quantity,
-                                                dest_box)
-
-        if quantity:
-            picking = self.create_moves_for_leftover(picking, supplier, product,
-                                                     quantity, dest_box)
-
-        return picking
-
-    def get_receipt_picking_type(self):
-        env = http.request.env
-
-        picking_type_id = env['stock.picking.type'].search([
-            ('is_receipts', '=', True)
-        ])
-        if not picking_type_id:
-            raise Exception('Please, set a picking type to be used for'
-                            'receipt')
-
-        return picking_type_id
-
     def create_moves_for_leftover(self, picking, supplier, product, qty,
                                   dest_box):
         """
@@ -325,7 +297,8 @@ product id: %s, supplier id: %s
 
         return picking
 
-    def look_for_existing_moves(self, supplier, product, qty, dest_box):
+    def look_for_existing_moves(self, supplier, product, qty, dest_box,
+                                picking_ids):
         """
         Loop to retrieve existing receiving moves corresponding to the product
         :return:
@@ -339,6 +312,7 @@ product id: %s, supplier id: %s
                 ('picking_id.partner_id.id', '=', supplier.id),
                 ('state', '=', 'assigned'),
                 ('product_id', '=', product.id),
+                ('picking_id', 'in', picking_ids)
             ], order='create_date asc', limit=1)
 
             if not stock_move:
@@ -387,7 +361,7 @@ product id: %s, supplier id: %s
             # env['stock.pack.operation'].create(pack_datas)
 
 
-        return qty
+        return qty, stock_move.picking_id
 
     def create_pack_operation(self, picking):
         env = http.request.env
@@ -405,43 +379,6 @@ product id: %s, supplier id: %s
 
             env['stock.pack.operation'].create(pack_datas)
 
-    def create_whole_new_picking(self, supplier, inbound_list):
-        env = http.request.env
-
-        picking_type_id = self.get_receipt_picking_type()
-        picking = env['stock.picking'].create({
-            'partner_id': supplier.id,
-            'picking_type_id': picking_type_id.id,
-        })
-
-        for product_id, cart_dict in inbound_list.iteritems():
-            product = env['product.product'].browse(int(product_id))
-
-            # multiple location could be found for the same product
-            for cart_id, location_dict in cart_dict.iteritems():
-                if location_dict.get('index'):
-                    del(location_dict['index'])
-
-                cart = env['stock.location'].browse(int(cart_id))
-
-                for box_id, quantity in location_dict.iteritems():
-                    self.create_new_moves(product, cart, box_id,
-                                                 quantity, supplier, picking)
-
-        picking.action_confirm()
-        results = {
-            'status': 'ok',
-            'nb_picking_created': 0,
-            'nb_picking_filled': 0,
-        }
-        return results
-
-    def create_new_moves(self, product, cart, box_id,
-                         quantity, supplier, picking):
-        dest_box = self.search_dest_box(box_id, cart, product);
-        self.create_moves_for_leftover(picking, supplier, product,
-                                                     quantity, dest_box)
-
     @http.route('/inbound_screen/search_supplier_purchase', type='json',
                 auth='user')
     def search_supplier_purchase(self, supplier):
@@ -453,7 +390,8 @@ product id: %s, supplier id: %s
 
         orders = []
         for order in purchase_orders:
-            orders.append({'name': order.name})
+            orders.append({'name': order.name,
+                           'id': order.id})
 
         results = {'status': 'ok',
                    'orders': orders}
@@ -461,17 +399,37 @@ product id: %s, supplier id: %s
         return results
 
     @http.route('/inbound_screen/process_picking', type='json', auth="user")
-    def process_picking(self, supplier_id, results, picking_ids,  **kw):
+    def process_picking(self, supplier_id, results, purchase_orders,  **kw):
         env = http.request.env
         supplier = env['res.partner'].browse(supplier_id)
 
-        if not picking_ids:
+        if not purchase_orders:
             # if no picking is sent, then create a whole new one
             return self.create_whole_new_picking(supplier, results)
         else:
-            picking = False
+            picking_ids = []
+            for purchase_id in purchase_orders:
+                purchase = env['purchase.order'].browse(int(purchase_id))
+                for picking in purchase.picking_ids:
+                    picking_ids.append(picking.id)
 
+                for product_id, cart_dict in results.iteritems():
+                    product = env['product.product'].browse(int(product_id))
 
+                    # multiple location could be found for the same product
+                    for cart_id, location_dict in cart_dict.iteritems():
+                        if location_dict.get('index'):
+                            del(location_dict['index'])
+
+                        cart = env['stock.location'].browse(int(cart_id))
+                        for box_id, quantity in location_dict.iteritems():
+                            picking = self.treat_box(product, cart, box_id,
+                                                     quantity, supplier, picking_ids)
+
+                            # if picking:
+                            #     picking.action_confirm()
+                            #     self.create_pack_operation(picking)
+                            #     picking.do_transfer()
             #
             # # pickings is a list of products, within which there is a list of carts
             # # and a quantity by carts
@@ -508,6 +466,83 @@ product id: %s, supplier id: %s
             #     return {'status': 'error',
             #             'error' : type(e).__name__,
             #             'message': str(e)}
+
+
+    def create_whole_new_picking(self, supplier, inbound_list):
+        env = http.request.env
+
+        picking_type_id = self.get_receipt_picking_type()
+        picking = env['stock.picking'].create({
+            'partner_id': supplier.id,
+            'picking_type_id': picking_type_id.id,
+        })
+
+        for product_id, cart_dict in inbound_list.iteritems():
+            product = env['product.product'].browse(int(product_id))
+
+            # multiple location could be found for the same product
+            for cart_id, location_dict in cart_dict.iteritems():
+                if location_dict.get('index'):
+                    del(location_dict['index'])
+
+                cart = env['stock.location'].browse(int(cart_id))
+
+                for box_id, quantity in location_dict.iteritems():
+                    self.create_new_moves(product, cart, box_id,
+                                                 quantity, supplier, picking)
+
+        picking.action_confirm()
+        results = {
+            'status': 'ok',
+            'nb_picking_created': 0,
+            'nb_picking_filled': 0,
+        }
+        return results
+
+
+    def get_receipt_picking_type(self):
+        env = http.request.env
+
+        picking_type_id = env['stock.picking.type'].search([
+            ('is_receipts', '=', True)
+        ])
+        if not picking_type_id:
+            raise Exception('Please, set a picking type to be used for'
+                            'receipt')
+
+        return picking_type_id
+
+
+    def create_new_moves(self, product, cart, box_id,
+                         quantity, supplier, picking):
+        # if we have to create new moves, simply create them as "leftovers"
+        dest_box = self.search_dest_box(box_id, cart, product);
+        self.create_moves_for_leftover(picking, supplier, product,
+                                                     quantity, dest_box)
+
+
+    def treat_box(self, product, cart, box_id, quantity, supplier, picking_ids):
+        # search or create an available box on this cart
+        dest_box = self.search_dest_box(box_id, cart, product);
+
+        # if no quantity is given for the box, then we have to raise an error
+        if not quantity:
+            self.no_quantity_error(product, cart)
+
+        # then, try to fill moves in existing picking
+        quantity, picking = self.look_for_existing_moves(supplier, product, quantity,
+                                                dest_box, picking_ids)
+
+        if quantity:
+            picking = self.create_moves_for_leftover(picking, supplier, product,
+                                                     quantity, dest_box)
+
+        return picking
+
+
+    def fill_possible_pickings(self):
+        print "rofl"
+
 
     @http.route('/inbound_screen/change_user', type='http', auth="user")
     def change_user(self, **kw):

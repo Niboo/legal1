@@ -37,6 +37,7 @@
             self.barcodes = [];
             self.nb_already_printed = 0;
             self.quantity_to_print = 0;
+            self.selected_purchases = [];
         },
         start: function(){
             var self = this;
@@ -294,8 +295,11 @@
                                 var $body = $(QWeb.render('supplier_purchase_orders',{
                                     'purchase_orders': data.orders,
                                 }));
+                                var $footer = $(QWeb.render('confirm_purchase_orders'));
 
-                                self.show_modal("Select the impacted purchases orders",$body,"",true);
+                                self.show_modal("Select the impacted purchases orders",$body,$footer,true);
+                                self.add_listener_on_purchase();
+                                self.add_listener_on_footer();
 
                             } else {
                                 //todo manage this
@@ -304,6 +308,46 @@
 
                     })
                 }
+            })
+        },
+        add_listener_on_purchase: function(){
+            var self = this;
+            $('.purchase-btn').click(function(event){
+                var purchase_id = parseInt($(event.currentTarget).attr('purchase-id'));
+                var index = self.selected_purchases.indexOf(purchase_id);
+
+                if(index != -1){
+                    self.selected_purchases.splice(index, 1);
+                    $(event.currentTarget).removeClass('selected-purchase-btn');
+
+                }else{
+                    self.selected_purchases.push(purchase_id);
+                    $(event.currentTarget).addClass('selected-purchase-btn');
+                }
+                console.log(self.selected_purchases)
+                if(self.selected_purchases.length>0){
+                    $('#no_purchases').hide();
+                    $('#select_purchases').show();
+                }else{
+                    $('#select_purchases').hide();
+                    $('#no_purchases').show();
+                }
+            });
+             $(':focus').blur()
+        },
+        add_listener_on_footer: function(){
+            var self = this;
+            $('#cancel').off('click.cancel');
+            $('#cancel').on('click.cancel', function (event) {
+                self.$modal.modal('hide');
+            })
+            $('#select_purchases').off('click.select_purchases');
+            $('#select_purchases').on('click.select_purchases', function (event) {
+                self.parent.confirm(self.selected_purchases);
+            })
+            $('#no_purchases').off('click.no_purchases');
+            $('#no_purchases').on('click.no_purchases', function (event) {
+                self.parent.confirm(false);
             })
         },
         destroy: function(){

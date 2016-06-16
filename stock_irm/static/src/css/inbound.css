@@ -191,3 +191,13 @@ a[is-in-usage='true'] {
     padding-right: 5%;
     background-color: white;
 }
+
+.purchase-btn{
+    background-color: rgba(84, 128, 202, 0.80);
+    border-color: #427899;
+}
+
+.selected-purchase-btn{
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+}
