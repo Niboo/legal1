@@ -42,15 +42,6 @@ html, body {
     min-height: 110px;
 }
 
-/* ERROR MESSAGES */
-.error-message {
-    font-size: 1.5em;
-}
-.error-icon {
-    font-size: 10em;
-    color: red;
-}
-
 /* Picking Waves Progress Bar*/
 /* Overwrite template.css */
 .picking_progress {
