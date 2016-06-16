@@ -266,10 +266,14 @@
                         'error': data.error,
                         'message': data.message,
                     }));
-                    self.show_modal('Print Error', $result, "", false);
+                    self.show_modal('Error', $result, "", false);
                 }
             }).fail(function(data){
-                console.log('FAIL');
+                var $result = $(QWeb.render('exception_modal',{
+                        'error': data.data.arguments[0],
+                        'message': data.data.arguments[1],
+                    }));
+                    self.show_modal(data.message, $result, "", false);
             });
         },
         process_barcode: function(barcode) {
