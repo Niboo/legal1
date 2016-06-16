@@ -74,12 +74,12 @@ class PurchaseOrder(models.Model):
         if not csv_template or not self.order_line:
             return False
         csv_data =""
-        
-        header =  safe_eval(self.partner_id.purchase_csv_header, {
-                        'order': self})
-        for header_element in header:
-            csv_data += (header_element and str(header_element) or " ") + ","
-        csv_data += "\n"
+        if self.partner_id.purchase_csv_header:
+            header =  safe_eval(self.partner_id.purchase_csv_header, {
+                            'order': self})
+            for header_element in header:
+                csv_data += (header_element and str(header_element) or " ") + ","
+            csv_data += "\n"
         for line in self.order_line:
             data = safe_eval(csv_template, {
                     'order': self,
