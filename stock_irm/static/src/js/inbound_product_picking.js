@@ -192,16 +192,6 @@
             // we book the cart only when adding a product (to avoid booking when missclicking)
             self.session.rpc('/inbound_screen/book_cart', {
                 cart_id: self.current_cart.id,
-            }).then(function(data){
-                if (data.status == 'ok'){
-                    log.console('all good')
-                } else {
-                    var $result = $(QWeb.render('exception_modal',{
-                        'error': data.error,
-                        'message': data.message,
-                    }));
-                    self.show_modal('Error', $result, "", true);
-                }
             });
 
             // check if we already have the product id in our received products
