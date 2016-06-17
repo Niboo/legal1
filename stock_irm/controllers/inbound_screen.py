@@ -63,9 +63,8 @@ class InboundController(http.Controller):
                 'name': supplier.name,
                 'image': "/web/binary/image?model=res.partner&id=%s&field=image" % supplier.id
             })
-        results = {'status': 'ok',
+        return {'status': 'ok',
                    'suppliers': inbound_suppliers}
-        return results
 
     @http.route('/inbound_screen/get_products', type='json', auth="user")
     def get_products(self, supplier_id, search="", page=0,  **kw):
@@ -196,10 +195,8 @@ product id: %s, supplier id: %s
                 'name': cart.name,
             })
 
-        results = {'status': 'ok',
+        return {'status': 'ok',
                    'carts': inbound_carts}
-
-        return results
 
     @http.route('/inbound_screen/get_cart_boxes', type='json', auth="user")
     def get_cart_boxes(self, cart_id,  **kw):
@@ -220,10 +217,8 @@ product id: %s, supplier id: %s
                 'name': box.name,
             })
 
-        results = {'status': 'ok',
+        return {'status': 'ok',
                    'cart_boxes': cart_boxes}
-
-        return results
 
     def search_dest_box(self, box_name, cart, product):
         env = http.request.env
@@ -265,10 +260,8 @@ product id: %s, supplier id: %s
         }
 
     def create_moves_for_leftover(self, picking, supplier, product, qty,
-                                  dest_box):
-        """
-        If no stock move are found, we have to create a
-        picking and a stock move
+                                  dest_box, packing_order):
+        """we have to create a picking and a stock move
         :param picking:
         :param supplier:
         :return:
@@ -292,27 +285,27 @@ product id: %s, supplier id: %s
                 'location_id': env.ref('stock.stock_location_suppliers').id,
                 'product_uom': product.uom_id.id,
                 'name': 'automated picking - %s' % product.name,
-                'delivery_order_id': delivery_order.id,
+                'packing_order_id': packing_order.id
             })]
         })
 
         return picking
-
-    def create_pack_operation(self, picking):
-        env = http.request.env
-
-        for line in picking.move_lines:
-            pack_datas = {
-                'product_id': line.product_id.id,
-                'product_uom_id': line.product_id.uom_id.id,
-                'product_qty': line.product_uom_qty,
-                'location_id': line.location_id.id,
-                'location_dest_id': line.location_dest_id.id,
-                'date': datetime.now(),
-                'picking_id': picking.id,
-            }
-
-            env['stock.pack.operation'].create(pack_datas)
+    #
+    # def create_pack_operation(self, picking):
+    #     env = http.request.env
+    #
+    #     for line in picking.move_lines:
+    #         pack_datas = {
+    #             'product_id': line.product_id.id,
+    #             'product_uom_id': line.product_id.uom_id.id,
+    #             'product_qty': line.product_uom_qty,
+    #             'location_id': line.location_id.id,
+    #             'location_dest_id': line.location_dest_id.id,
+    #             'date': datetime.now(),
+    #             'picking_id': picking.id,
+    #         }
+    #
+    #         env['stock.pack.operation'].create(pack_datas)
 
     @http.route('/inbound_screen/search_supplier_purchase', type='json',
                 auth='user')
@@ -331,37 +324,36 @@ product id: %s, supplier id: %s
             orders.append({'name': order.name,
                            'id': order.id})
 
-        results = {'status': 'ok',
+        return {'status': 'ok',
                    'orders': orders}
 
-        return results
-
     @http.route('/inbound_screen/process_picking', type='json', auth="user")
-    def process_picking(self, supplier_id, results, purchase_orders,  **kw):
+    def process_picking(self, supplier_id, results, purchase_orders, note,  **kw):
+        env = http.request.env
         try:
-            env = http.request.env
-            supplier = env['res.partner'].browse(supplier_id)
+            supplier = env['res.partner'].browse(int(supplier_id))
+            packing_order = self.create_packing_order(note)
 
-            if not purchase_orders:
-                # if no picking is sent, then create a whole new one
-                self.create_whole_new_picking(supplier, results)
-            else:
-                self.update_existing_pickings(purchase_orders, results,
-                                                    supplier)
+            if purchase_orders:
+                picking_ids = self.retrieve_pickings_from_orders(purchase_orders)
+                product_quantities = self.create_product_qty_dict(results)
+                self.treat_pickings(picking_ids, product_quantities, results, packing_order)
 
-            results = {
+            self.create_whole_new_picking(supplier, results, packing_order)
+
+            return{
                 'status': 'ok',
                 'nb_picking_created': 0,
                 'nb_picking_filled': 0,
             }
-            return results
 
         except Exception as e:
+            print e
             return {'status': 'error',
-                    'error' : type(e).__name__,
+                    'error': type(e).__name__,
                     'message': str(e)}
 
-    def create_whole_new_picking(self, supplier, inbound_list):
+    def create_whole_new_picking(self, supplier, inbound_list, packing_order):
         env = http.request.env
 
         picking_type_id = self.get_receipt_picking_type()
@@ -384,20 +376,19 @@ product id: %s, supplier id: %s
                     if not quantity:
                         self.no_quantity_error(product, cart)
                     input_location = env.ref('stock.stock_location_company')
-                    self.create_new_moves(product, cart, input_location,
-                                                 quantity, supplier, picking)
+                    self.create_moves_for_leftover(picking, supplier, product,
+                                                     quantity, input_location, packing_order)
 
         product_quantities = self.create_product_qty_dict(inbound_list)
 
         picking.action_confirm()
-        self.treat_pickings(picking, product_quantities, inbound_list)
+        self.treat_pickings(picking, product_quantities, inbound_list, packing_order)
 
-        results = {
+        return {
             'status': 'ok',
             'nb_picking_created': 0,
             'nb_picking_filled': 0,
         }
-        return results
 
     def get_receipt_picking_type(self):
         env = http.request.env
@@ -410,23 +401,6 @@ product id: %s, supplier id: %s
                             'receipt')
 
         return picking_type_id
-
-    def create_new_moves(self, product, cart, box_id,
-                         quantity, supplier, picking):
-        # if we have to create new moves, simply create them as "leftovers" for
-        # the newly created picking
-        self.create_moves_for_leftover(picking, supplier, product,
-                                                     quantity, box_id)
-
-    def update_existing_pickings(self, purchase_orders, results, supplier):
-        picking_ids = self.retrieve_pickings_from_orders(purchase_orders)
-        product_quantities = self.create_product_qty_dict(results)
-
-        self.treat_pickings(picking_ids, product_quantities, results)
-
-        # since we "emptied" results each time a box was used, we can
-        # simply create a whole new picking with what is left in results
-        self.create_whole_new_picking(supplier, results)
 
     def retrieve_pickings_from_orders(self, purchase_orders):
         env = http.request.env
@@ -470,7 +444,7 @@ product id: %s, supplier id: %s
 
         return product_quantities
 
-    def treat_pickings(self, picking_ids, product_quantity_dict, results):
+    def treat_pickings(self, picking_ids, product_quantity_dict, results, packing_order):
         env = http.request.env
 
         for picking in picking_ids:
@@ -482,6 +456,7 @@ product id: %s, supplier id: %s
             do_validate_picking = False
 
             for wizard_line in my_wizard.item_ids:
+                wizard_line.packing_order_id = packing_order.id
                 product = wizard_line.product_id
                 line_quantity = wizard_line.quantity
                 available_quantity = product_quantity_dict.get(product.id, 0)
@@ -562,10 +537,9 @@ product id: %s, supplier id: %s
                 'name': location.name,
             })
 
-        results = {'status': 'ok',
-                   'worklocations': worklocations}
+        return {'status': 'ok',
+               'worklocations': worklocations}
 
-        return results
 
     @http.route('/inbound_screen/switch_worklocation',
                 type='json',
@@ -593,9 +567,8 @@ product id: %s, supplier id: %s
         if work_location_printer.printing_printer_id:
             printer_ip = work_location_printer.printing_printer_id.ip_adress
 
-        results = {'status': 'ok',
+        return{'status': 'ok',
                    'printer_ip': printer_ip}
-        return results
 
     @http.route('/inbound_screen/get_worklocation_printers',
                 type='json',
@@ -608,10 +581,8 @@ product id: %s, supplier id: %s
         for line in wklc.browse(int(location_id)).work_location_printer_ids:
             printers.append({'id':line.printing_printer_id.id,
                              'ip_adress':line.printing_printer_id.ip_adress})
-        results = {'status': 'ok',
+        return {'status': 'ok',
                    'printers': printers}
-
-        return results
 
     @http.route('/inbound_screen/get_user', type='json', auth="user")
     def get_user(self, barcode="",  **kw):
@@ -626,13 +597,11 @@ product id: %s, supplier id: %s
         )
 
         if user:
-            results = {'status': 'ok',
+            return {'status': 'ok',
                        'username': user.name,
                        'user_id':user.id,
                        'login':user.login,
                        'image': "/web/binary/image?model=res.users&id=%s&field=image_medium" % user.id}
-
-            return results
         else:
             return {"status": 'error'};
 
@@ -641,4 +610,11 @@ product id: %s, supplier id: %s
                 auth="user")
     def book_cart(self, cart_id, **kw):
         env = http.request.env
-        env['stock.location'].browse(int(cart_id)).sudo().is_in_usage = True
+
+        env['stock.location'].browse(int(cart_id)).is_in_usage = True
+
+    def create_packing_order(self, note):
+        env = http.request.env
+        return env['stock.packing.order'].create({
+            'note': note,
+        })

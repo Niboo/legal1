@@ -254,7 +254,7 @@
             var $footer = $(QWeb.render('confirm_note'));
             self.show_modal('Confirm this picking', $result, $footer, true);
             self.add_listener_on_close_button();
-            self.add_listener_on_confirm_note_button();
+            self.add_listener_on_confirm_note_button(purchase_orders);
         },
         add_listener_on_close_button: function(){
             var self = this;
@@ -263,15 +263,15 @@
                 self.$modal.modal('hide');
             })
         },
-        add_listener_on_confirm_note_button: function(){
+        add_listener_on_confirm_note_button: function(purchase_orders){
             var self = this;
             $('#confirm_note').off('click.confirm');
             $('#confirm_note').on('click.confirm', function (event) {
                 self.session.rpc('/inbound_screen/process_picking', {
                     supplier_id: self.supplier_id,
                     results: self.received_products,
-                    note: $('#delivery_note').val(),
-		    purchase_orders: purchase_orders,
+                    note: $('#packing_note').val(),
+                    purchase_orders: purchase_orders,
                 }).then(function(data){
                     if (data.status == 'ok'){
                         self.show_modal('Picking Confirmed!', "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");

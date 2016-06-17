@@ -303,10 +303,11 @@
     <t t-name="confirm_inbound_modal">
         <div class="row">
             <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
-                <textarea id="delivery_note" name="Note" rows="10"/>
+                <textarea id="packing_note" name="Note" rows="10"/>
             </div>
         </div>
     </t>
+
     <t t-name="confirm_note">
         <a href="#" id="close" class="btn btn-danger pull-left goback"> Cancel </a>
         <a href="#" id="confirm_note" class="btn btn-success continue"> Confirm  </a>

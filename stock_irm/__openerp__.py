@@ -47,8 +47,8 @@ Module
         'views/stock_location.xml',
         'views/stock_picking_type.xml',
         'views/stock_index_view.xml',
-        'views/delivery_order.xml',
-        'data/sequence_delivery.xml',
+        'views/packing_order.xml',
+        'data/sequence_packing.xml',
     ],
     'qweb': [
     ],

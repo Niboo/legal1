@@ -26,4 +26,4 @@ from . import work_location
 from . import stock_location
 from . import picking_waves
 from . import stock_picking_type
-from . import delivery_order
+from . import packing_order

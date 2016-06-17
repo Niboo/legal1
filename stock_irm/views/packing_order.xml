@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
-        <record id="view_delivery_order" model="ir.ui.view">
-            <field name="name">stock.delivery.order.form</field>
-            <field name="model">stock.delivery.order</field>
+        <record id="view_packing_order" model="ir.ui.view">
+            <field name="name">stock.packing.order.form</field>
+            <field name="model">stock.packing.order</field>
             <field name="arch" type="xml">
-                <form string="Stock Delivery Order">
+                <form string="Stock Packing Order">
                     <sheet>
                         <group>
                             <field name="reference" />
@@ -24,11 +24,11 @@
             </field>
         </record>
 
-        <record id="view_delivery_order_tree" model="ir.ui.view">
-            <field name="name">stock.delivery.order.tree</field>
-            <field name="model">stock.delivery.order</field>
+        <record id="view_packing_order_tree" model="ir.ui.view">
+            <field name="name">stock.packing.order.tree</field>
+            <field name="model">stock.packing.order</field>
             <field name="arch" type="xml">
-                <tree string="Delivery Orders">
+                <tree string="Packing Orders">
                     <field name="reference" />
                     <field name="user_id" />
                     <field name="creation_time" />
@@ -39,15 +39,15 @@
             </field>
         </record>
 
-        <record id="delivery_order_action" model="ir.actions.act_window">
-            <field name="name">Delivery Orders</field>
-            <field name="res_model">stock.delivery.order</field>
+        <record id="packing_order_action" model="ir.actions.act_window">
+            <field name="name">Packing Orders</field>
+            <field name="res_model">stock.packing.order</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[]</field>
         </record>
 
-        <menuitem action="delivery_order_action" id="menu_delivery_order"
+        <menuitem action="packing_order_action" id="menu_packing_order"
             parent="stock.menu_stock_warehouse_mgmt" sequence="100"/>
 
     </data>

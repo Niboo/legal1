@@ -22,31 +22,32 @@
 from openerp import models, api, fields
 
 
-class DeliveryOrder(models.Model):
+class PackingOrder(models.Model):
 
-    _name = "stock.delivery.order"
+    _name = "stock.packing.order"
 
     reference = fields.Char("Reference")
     note = fields.Char("Note")
-    stock_move_ids = fields.One2many('stock.move', 'delivery_order_id',
+    stock_move_ids = fields.One2many('stock.move', 'packing_order_id',
                                      string="Related Stock Moves")
 
     user_id = fields.Many2one('res.users', string="User")
     creation_time = fields.Datetime("Created on")
     write_time = fields.Datetime("Last Written on")
 
+
     @api.multi
     def create(self, vals):
-        vals['reference'] = self.env['ir.sequence'].get('stock.delivery.order')
+        vals['reference'] = self.env['ir.sequence'].get('stock.packing.order')
         vals['creation_time'] = fields.Datetime.now()
         vals['write_time'] = fields.Datetime.now()
         vals['user_id'] = self._uid
 
-        return super(DeliveryOrder, self).create(vals)
+        return super(PackingOrder, self).create(vals)
 
 
 class StockMove(models.Model):
     _inherit = "stock.move"
 
-    delivery_order_id = fields.Many2one('stock.delivery.order',
-                                        "Delivery Order")
+    packing_order_id = fields.Many2one('stock.packing.order',
+                                        "Packing Order")
