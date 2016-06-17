@@ -225,19 +225,22 @@ product id: %s, supplier id: %s
 
         return results
 
-    def search_dest_box(self, box_id, cart, product):
+    def search_dest_box(self, box_name, cart, product):
         env = http.request.env
 
+        print box_name
+        print cart
+        print product
 
         dest_box = env['stock.location'].search([
             ('location_id', '=', cart.id),
-            ('name', '=', str(box_id))
+            ('name', '=', str(box_name))
         ])
 
         if len(dest_box) > 1:
             message = 'Multiple locations have been found on cart "%s" with ' \
                       'the name: "%s" <br/> (product "%s") ' \
-                      % (cart.name, str(box_id), product.name)
+                      % (cart.name, str(box_name), product.name)
 
             env.cr.rollback()
             return {
@@ -248,7 +251,7 @@ product id: %s, supplier id: %s
         if not dest_box:
             dest_box = env['stock.location'].create({
                 'location_id': cart.id,
-                'name': str(box_id),
+                'name': str(box_name),
             })
 
         return dest_box
@@ -284,6 +287,7 @@ product id: %s, supplier id: %s
                 'picking_type_id': picking_type_id.id,
             })
 
+        print dest_box
         picking.write({
             'move_lines': [(0, 0, {
                 'product_id': product.id,
@@ -338,15 +342,18 @@ product id: %s, supplier id: %s
         env = http.request.env
         supplier = env['res.partner'].browse(supplier_id)
 
-        print results
+        print purchase_orders
+
         if not purchase_orders:
             # if no picking is sent, then create a whole new one
             self.create_whole_new_picking(supplier, results)
         else:
             self.update_existing_pickings(purchase_orders, results,
                                                 supplier)
-            print results
-            self.create_whole_new_picking(supplier, results)
+
+            # after updating the existing picking, we need to process remaining
+            # items in the cart
+            # self.create_whole_new_picking(supplier, results)
 
 
             #
@@ -432,12 +439,12 @@ product id: %s, supplier id: %s
         picking_ids = []
 
         # retrieve the pickings related to the selected orders
-        purchase = env['purchase.order'].search([
+        purchases = env['purchase.order'].search([
             ('id', 'in', purchase_orders)
         ], order='id ASC')
-
-        for picking in purchase.picking_ids:
-            picking_ids.append(picking)
+        for purchase in purchases:
+            for picking in purchase.picking_ids:
+                picking_ids.append(picking)
 
         return picking_ids
 
@@ -470,16 +477,24 @@ product id: %s, supplier id: %s
 
                 product_id = stock_move.product_id
                 product_uom_qty = stock_move.product_uom_qty
-                if product_id.id in product_quantity_dict.keys()\
-                    and product_quantity_dict[product_id.id] > 0:
+                available_quantity = product_quantity_dict[product_id.id] or 0
 
-                    # if there is enough product for this move, then process the move
-                    if product_quantity_dict[product_id.id] >= product_uom_qty:
-                        self.process_move(results[str(product_id.id)], stock_move, product_uom_qty)
+                if available_quantity > 0:
 
+                    # If i can complete a move, i complete it
+                    if available_quantity >= product_uom_qty:
+                        results[str(product_id.id)] = self.process_move(results[str(product_id.id)], stock_move, product_uom_qty)
                         product_quantity_dict[product_id.id] -= product_uom_qty
 
+                        # if we processed the move, go to the next one
+                        continue
                         # stock_move.location_dest_id = dest_box.id
+                else:
+                    # if i cannot complete this move, split it
+                    self.split_move(stock_move, available_quantity)
+                    continue
+
+        # here are the move that couldnt be
 
 
     def process_move(self, list_box, stock_move, quantity_to_process):
@@ -496,12 +511,16 @@ product id: %s, supplier id: %s
                 for box_id, quantity in location_dict.iteritems():
                     dest_box = self.search_dest_box(box_id, cart, product)
                     if quantity >= quantity_to_process:
-                        quantity_to_process = 0
                         list_box[cart_id][box_id] -= quantity_to_process
                         stock_move.location_dest_id = dest_box.id
                         stock_move.action_done()
+                        quantity_to_process = 0
+
                     else:
                         stock_move.product_uom_qty -= quantity
+                        if stock_move.product_uom_qty == 0:
+                            stock_move.sudo().unlink()
+
                         quantity_to_process = stock_move.product_uom_qty
                         new_move = env['stock.move'].create({
                             'product_id': product.id,
@@ -514,6 +533,10 @@ product id: %s, supplier id: %s
                             'picking_id': stock_move.picking_id.id,
                         })
                         new_move.action_done()
+        return list_box
+
+    def split_move(self, move_id, available_quantity):
+        print "split move"
 
     # def treat_box(self, product, cart, box_id, quantity, supplier, picking_ids):
     #     # search or create an available box on this cart
