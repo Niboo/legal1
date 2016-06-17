@@ -228,12 +228,8 @@ product id: %s, supplier id: %s
     def search_dest_box(self, box_name, cart, product):
         env = http.request.env
 
-        print box_name
-        print cart
-        print product
-
         dest_box = env['stock.location'].search([
-            ('location_id', '=', cart.id),
+            ('location_id', '=', int(cart.id)),
             ('name', '=', str(box_name))
         ])
 
@@ -287,7 +283,6 @@ product id: %s, supplier id: %s
                 'picking_type_id': picking_type_id.id,
             })
 
-        print dest_box
         picking.write({
             'move_lines': [(0, 0, {
                 'product_id': product.id,
@@ -339,37 +334,28 @@ product id: %s, supplier id: %s
 
     @http.route('/inbound_screen/process_picking', type='json', auth="user")
     def process_picking(self, supplier_id, results, purchase_orders,  **kw):
-        env = http.request.env
-        supplier = env['res.partner'].browse(supplier_id)
+        try:
+            env = http.request.env
+            supplier = env['res.partner'].browse(supplier_id)
 
-        print purchase_orders
+            if not purchase_orders:
+                # if no picking is sent, then create a whole new one
+                self.create_whole_new_picking(supplier, results)
+            else:
+                self.update_existing_pickings(purchase_orders, results,
+                                                    supplier)
 
-        if not purchase_orders:
-            # if no picking is sent, then create a whole new one
-            self.create_whole_new_picking(supplier, results)
-        else:
-            self.update_existing_pickings(purchase_orders, results,
-                                                supplier)
+            results = {
+                'status': 'ok',
+                'nb_picking_created': 0,
+                'nb_picking_filled': 0,
+            }
+            return results
 
-            # after updating the existing picking, we need to process remaining
-            # items in the cart
-            # self.create_whole_new_picking(supplier, results)
-
-
-            #
-            #     results = {
-            #         'status': 'ok',
-            #         'nb_picking_created': 0,
-            #         'nb_picking_filled': 0,
-            #     }
-            #     return results
-            #
-            # except Exception as e:
-            #     raise
-            #     return {'status': 'error',
-            #             'error' : type(e).__name__,
-            #             'message': str(e)}
-
+        except Exception as e:
+            return {'status': 'error',
+                    'error' : type(e).__name__,
+                    'message': str(e)}
 
     def create_whole_new_picking(self, supplier, inbound_list):
         env = http.request.env
@@ -393,17 +379,21 @@ product id: %s, supplier id: %s
                 for box_id, quantity in location_dict.iteritems():
                     if not quantity:
                         self.no_quantity_error(product, cart)
-                    self.create_new_moves(product, cart, box_id,
+                    input_location = env.ref('stock.stock_location_company')
+                    self.create_new_moves(product, cart, input_location,
                                                  quantity, supplier, picking)
 
+        product_quantities = self.create_product_qty_dict(inbound_list)
+
         picking.action_confirm()
+        self.treat_pickings(picking, product_quantities, inbound_list)
+
         results = {
             'status': 'ok',
             'nb_picking_created': 0,
             'nb_picking_filled': 0,
         }
         return results
-
 
     def get_receipt_picking_type(self):
         env = http.request.env
@@ -417,22 +407,22 @@ product id: %s, supplier id: %s
 
         return picking_type_id
 
-
     def create_new_moves(self, product, cart, box_id,
                          quantity, supplier, picking):
         # if we have to create new moves, simply create them as "leftovers" for
         # the newly created picking
-        dest_box = self.search_dest_box(box_id, cart, product);
         self.create_moves_for_leftover(picking, supplier, product,
-                                                     quantity, dest_box)
-
-
+                                                     quantity, box_id)
 
     def update_existing_pickings(self, purchase_orders, results, supplier):
         picking_ids = self.retrieve_pickings_from_orders(purchase_orders)
         product_quantities = self.create_product_qty_dict(results)
 
         self.treat_pickings(picking_ids, product_quantities, results)
+
+        # since we "emptied" results each time a box was used, we can
+        # simply create a whole new picking with what is left in results
+        self.create_whole_new_picking(supplier, results)
 
     def retrieve_pickings_from_orders(self, purchase_orders):
         env = http.request.env
@@ -442,9 +432,14 @@ product id: %s, supplier id: %s
         purchases = env['purchase.order'].search([
             ('id', 'in', purchase_orders)
         ], order='id ASC')
+
         for purchase in purchases:
-            for picking in purchase.picking_ids:
-                picking_ids.append(picking)
+            # retrieve only the picking that are not done yet
+            for picking in purchase.picking_ids.filtered(
+                    lambda r: r.state != 'done'):
+
+                if picking.state != 'done':
+                    picking_ids.append(picking)
 
         return picking_ids
 
@@ -472,142 +467,75 @@ product id: %s, supplier id: %s
         return product_quantities
 
     def treat_pickings(self, picking_ids, product_quantity_dict, results):
-        for picking in picking_ids:
-            for stock_move in picking.move_lines:
+        env = http.request.env
 
-                product_id = stock_move.product_id
-                product_uom_qty = stock_move.product_uom_qty
-                available_quantity = product_quantity_dict[product_id.id] or 0
+        for picking in picking_ids:
+
+            result = picking.do_enter_transfer_details()
+            wizard_id = result['res_id']
+            my_wizard = env['stock.transfer_details'].browse(wizard_id)
+
+            do_validate_picking = False
+
+            for wizard_line in my_wizard.item_ids:
+                product = wizard_line.product_id
+                line_quantity = wizard_line.quantity
+                available_quantity = product_quantity_dict.get(product.id, 0)
 
                 if available_quantity > 0:
+                    do_validate_picking = True
+                    product_quantity_dict[product.id] -= line_quantity
+                    self.treat_picking_line(wizard_line, product, results)
 
-                    # If i can complete a move, i complete it
-                    if available_quantity >= product_uom_qty:
-                        results[str(product_id.id)] = self.process_move(results[str(product_id.id)], stock_move, product_uom_qty)
-                        product_quantity_dict[product_id.id] -= product_uom_qty
-
-                        # if we processed the move, go to the next one
-                        continue
-                        # stock_move.location_dest_id = dest_box.id
                 else:
-                    # if i cannot complete this move, split it
-                    self.split_move(stock_move, available_quantity)
+                    wizard_line.quantity = 0
                     continue
 
-        # here are the move that couldnt be
+            if do_validate_picking:
+                my_wizard.do_detailed_transfer()
 
-
-    def process_move(self, list_box, stock_move, quantity_to_process):
+    def treat_picking_line(self, wizard_line_to_treat, product, results):
         env = http.request.env
-        product = stock_move.product_id
-        picking_type_id = self.get_receipt_picking_type()
+        cart_dict = results[str(product.id)]
 
-        for cart_id, location_dict in list_box.iteritems():
-            if quantity_to_process == 0:
-                break
-            else:
-                cart = env['stock.location'].browse(cart_id)
+        for cart_id, location_dict in cart_dict.iteritems():
+            cart = env['stock.location'].browse(cart_id)
+            item_to_delete = []
 
-                for box_id, quantity in location_dict.iteritems():
-                    dest_box = self.search_dest_box(box_id, cart, product)
-                    if quantity >= quantity_to_process:
-                        list_box[cart_id][box_id] -= quantity_to_process
-                        stock_move.location_dest_id = dest_box.id
-                        stock_move.action_done()
-                        quantity_to_process = 0
+            for box_id, box_quantity in location_dict.iteritems():
+                if not wizard_line_to_treat:
+                    break
+                wizard_line = wizard_line_to_treat
 
-                    else:
-                        stock_move.product_uom_qty -= quantity
-                        if stock_move.product_uom_qty == 0:
-                            stock_move.sudo().unlink()
+                dest_box = self.search_dest_box(box_id, cart, product)
 
-                        quantity_to_process = stock_move.product_uom_qty
-                        new_move = env['stock.move'].create({
-                            'product_id': product.id,
-                            'product_uom_qty': quantity,
-                            'picking_type_id': picking_type_id.id,
-                            'location_dest_id': dest_box.id,
-                            'location_id': env.ref('stock.stock_location_suppliers').id,
-                            'product_uom': product.uom_id.id,
-                            'name': 'automated picking - %s' % product.name,
-                            'picking_id': stock_move.picking_id.id,
-                        })
-                        new_move.action_done()
-        return list_box
+                # Treat results dict
+                location_dict[box_id] -= wizard_line.quantity
+                if location_dict[box_id] <= 0:
+                    item_to_delete.append(box_id)
 
-    def split_move(self, move_id, available_quantity):
-        print "split move"
+                # Treat wizard
+                wizard_line.destinationloc_id = dest_box.id
+                wizard_line_to_treat = False
 
-    # def treat_box(self, product, cart, box_id, quantity, supplier, picking_ids):
-    #     # search or create an available box on this cart
-    #     dest_box = self.search_dest_box(box_id, cart, product);
-    #
-    #     # then, try to fill moves in existing picking
-    #     quantity = self.look_for_existing_moves(supplier, product, quantity,
-    #                                             dest_box, picking_ids)
-    #     # if quantity:
-    #     #     picking = self.create_moves_for_leftover(picking, supplier, product,
-    #     #                                              quantity, dest_box)
+                if box_quantity < wizard_line.quantity:
+                    wizard_line_dict = {
+                        'product_id': product.id,
+                        'quantity': wizard_line.quantity - box_quantity,
+                        'sourceloc_id': wizard_line.sourceloc_id.id,
+                        'destinationloc_id': wizard_line.destinationloc_id.id,
+                        'transfer_id': wizard_line.transfer_id.id,
+                        'product_uom_id': wizard_line.product_uom_id.id,
+                    }
 
+                    wizard_line.quantity = box_quantity
+                    wizard_line_to_treat = wizard_line.create(wizard_line_dict)
 
-    def look_for_existing_moves(self, supplier, product, qty, dest_box,
-                                picking_ids):
-        """
-        Loop to retrieve existing receiving moves corresponding to the product
-        :return:
-        """
-        env = http.request.env
+            for item in item_to_delete:
+                del(location_dict[item])
 
-        while qty > 0:
-            # try to retrieve a stock move for this product
-            stock_move = env['stock.move'].search([
-                ('picking_id.partner_id.id', '=', supplier.id),
-                ('state', '=', 'assigned'),
-                ('product_id', '=', product.id),
-                ('picking_id', 'in', picking_ids)
-            ], order='create_date asc', limit=1)
-
-            qty_to_process = qty
-
-            if not stock_move:
-                # if no stock move is found, then we have to create a stock move
-                # and
-
-                stock_move.product_uom_qty -= qty_to_process
-                picking_type_id = self.get_receipt_picking_type()
-
-                new_move = env['stock.move'].create({
-                    'product_id': product.id,
-                    'product_uom_qty': qty_to_process,
-                    'picking_type_id': picking_type_id.id,
-                    'location_dest_id': dest_box.id,
-                    'location_id': env.ref('stock.stock_location_suppliers').id,
-                    'product_uom': product.uom_id.id,
-                    'name': 'automated picking - %s' % product.name,
-                    #todo: which picking??
-                    # 'picking_id': stock_move.picking_id.id,
-                })
-                new_move.action_done()
-
-            # if the quantity received is greater or equal to the quantity
-            # of the move, then process the move
-            if qty >= stock_move.product_uom_qty:
-                qty_to_process = stock_move.product_uom_qty
-                stock_move.location_dest_id = dest_box.id
-                stock_move.action_done()
-            else:
-                # if we have less item than predicted:
-                transfert_detail = env['stock.transfer_details'].create([])
-
-
-            # deduct the processed quantity from the total quantity
-            qty -= qty_to_process
-
-        return qty
-
-    def fill_possible_pickings(self):
-        print "rofl"
-
+        if wizard_line_to_treat:
+            wizard_line_to_treat.unlink()
 
     @http.route('/inbound_screen/change_user', type='http', auth="user")
     def change_user(self, **kw):

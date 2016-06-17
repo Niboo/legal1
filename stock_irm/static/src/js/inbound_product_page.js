@@ -342,10 +342,12 @@
             $('#select_purchases').off('click.select_purchases');
             $('#select_purchases').on('click.select_purchases', function (event) {
                 self.parent.confirm(self.selected_purchases);
+                self.$modal.modal('hide');
             })
             $('#no_purchases').off('click.no_purchases');
             $('#no_purchases').on('click.no_purchases', function (event) {
                 self.parent.confirm(false);
+                self.$modal.modal('hide');
             })
         },
         destroy: function(){
