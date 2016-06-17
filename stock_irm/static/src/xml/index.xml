@@ -7,17 +7,17 @@
             <div id="results" class="scan-row">
                 <t t-if="is_wh_user">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <a id="goto_inbound_screen" type="button" href="/inbound_screen" class="btn btn-success goto-button button-color-inbound index-button">Inbound Screen<br/>
                                 <i class="fa fa-truck big-icon" aria-hidden="true"></i>
                             </a>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <a id="goto_picking_waves" type="button" href="/picking_waves" class="btn btn-success goto-button button-color-picking index-button">Picking Waves Screen<br/>
                                 <i class="fa fa-cart-arrow-down big-icon" aria-hidden="true"></i>
                             </a>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button index-button">My Inventories<br/>
                                 <i class="fa fa-cubes big-icon" aria-hidden="true"></i>
                             </a>
@@ -27,6 +27,11 @@
                                 <!--<a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Create Inventory Screen</a><br/>-->
                                 <!--<a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Validate Inventory Screen</a><br/>-->
                             <!--</t>-->
+                        </div>
+                        <div class="col-md-3">
+                            <a id="goto_rma" type="button" href="#" class="btn btn-success goto-button button-color-picking index-button">RMA<br/>
+                                <i class="fa fa-share-square big-icon" aria-hidden="true"></i>
+                            </a>
                         </div>
                     </div>
                 </t>
