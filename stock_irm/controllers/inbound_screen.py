@@ -317,8 +317,11 @@ product id: %s, supplier id: %s
                 auth='user')
     def search_supplier_purchase(self, supplier):
         env = http.request.env
+        supplier = env['res.partner'].search([('id', '=', int(supplier))])
+
         purchase_orders = env['purchase.order'].search([
-            ('partner_id', '=', int(supplier)),
+            ('partner_id.commercial_partner_id', '=',
+             supplier.commercial_partner_id.id),
             ('state', '=', 'approved')
         ])
 
