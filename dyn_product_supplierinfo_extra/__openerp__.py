@@ -29,7 +29,7 @@ Adds some extra information on the product supply chain.
     'author': 'DynApps',
     'website': 'http://www.dynapps.be',
     'license': 'AGPL-3',
-    'depends': ['product'],
+    'depends': ['product','stock'],
     'data': [
         'views/product.xml',
         'views/partner.xml',
