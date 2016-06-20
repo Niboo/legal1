@@ -88,6 +88,7 @@
             self.body_template = 'supplier_purchase_orders';
             self.footer_template = 'confirm_purchase_orders';
             self.title = 'Select the impacted purchases orders';
+            self.selected_purchases = [];
         },
         start: function (orders) {
             var self = this;
@@ -101,7 +102,7 @@
         },
         add_listener_on_purchase: function(){
             var self = this;
-            $('.purchase-btn').click(function(event){
+            self.$modal.find('.purchase-btn').click(function(event){
                 var purchase_id = parseInt($(event.currentTarget).attr('purchase-id'));
                 var index = self.selected_purchases.indexOf(purchase_id);
 
@@ -113,29 +114,29 @@
                     self.selected_purchases.push(purchase_id);
                     $(event.currentTarget).addClass('selected-purchase-btn');
                 }
-                if(self.selected_purchases.length>0){
-                    $('#no_purchases').hide();
-                    $('#select_purchases').show();
+                if(self.selected_purchases.length > 0){
+                    self.$modal.find('#no_purchases').hide();
+                    self.$modal.find('#select_purchases').show();
                 }else{
-                    $('#select_purchases').hide();
-                    $('#no_purchases').show();
+                    self.$modal.find('#select_purchases').hide();
+                    self.$modal.find('#no_purchases').show();
                 }
             });
              $(':focus').blur()
         },
         add_listener_on_purchase_footer: function(){
             var self = this;
-            $('#cancel').off('click.cancel');
-            $('#cancel').on('click.cancel', function (event) {
+            self.$modal.find('#cancel').off('click.cancel');
+            self.$modal.find('#cancel').on('click.cancel', function (event) {
                 self.$modal.modal('hide');
             });
-            $('#select_purchases').off('click.select_purchases');
-            $('#select_purchases').on('click.select_purchases', function (event) {
+            self.$modal.find('#select_purchases').off('click.select_purchases');
+            self.$modal.find('#select_purchases').on('click.select_purchases', function (event) {
                 var note = self.$modal.find('#packing_note').val();
                 self.caller.confirm(self.selected_purchases, note);
             });
-            $('#no_purchases').off('click.no_purchases');
-            $('#no_purchases').on('click.no_purchases', function (event) {
+            self.$modal.find('#no_purchases').off('click.no_purchases');
+            self.$modal.find('#no_purchases').on('click.no_purchases', function (event) {
                 var note = self.$modal.find('#packing_note').val();
                 self.caller.confirm(false, note);
             });
