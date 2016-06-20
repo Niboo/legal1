@@ -131,14 +131,26 @@
                     </div>
                     <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
                         <div id="product-list">
-                            <div id="info_message">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div id="info_message">
 
+                                    </div>
+                                </div>
                             </div>
-                            <div id="current_product" class="row" style="position:relative;">
-                                <t t-call="current_product" />
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div id="current_product">
+                                        <t t-call="current_product" />
+                                    </div>
+                                </div>
                             </div>
-                            <div id="next_products" class="row">
-                                <t t-call="next_products" />
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div id="next_products">
+                                        <t t-call="next_products" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -166,21 +178,23 @@
 
     <t t-name="picking_info">
         <div class="row">
-            <table class="table" id="picking-info-table">
-                <t t-foreach="products" t-as="product">
-                    <tr>
-                        <td id="picking-product-img"><a href="#"><img t-att-src="product.product.product_image" class="center-block img-responsive"/></a></td>
-                        <td><span t-esc="product.product.product_name"/></td>
-                        <td><div class="form-control text-center"><span t-esc="product.product.location_name"/></div></td>
-                        <td><span t-esc="product.product.product_quantity"/></td>
-                    </tr>
-                </t>
-            </table>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <table class="table" id="picking-info-table">
+                    <t t-foreach="products" t-as="product">
+                        <tr>
+                            <td id="picking-product-img"><a href="#"><img t-att-src="product.product.product_image" class="center-block img-responsive"/></a></td>
+                            <td><span t-esc="product.product.product_name"/></td>
+                            <td><div class="form-control text-center"><span t-esc="product.product.location_name"/></div></td>
+                            <td><span t-esc="product.product.product_quantity"/></td>
+                        </tr>
+                    </t>
+                </table>
+            </div>
         </div>
     </t>
 
     <t t-name="current_product">
-        <div class="row" id="current-product-name-row">
+        <div id="current-product-name-row" class="row">
             <div id="current-product-img" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
                 <h3><span t-esc="location_name"/></h3>
                 <a href="#">
@@ -329,20 +343,18 @@
     </t>
 
     <t t-name="next_products">
-        <div class="row">
-            <table class="table" id="next-products-table">
-                <t t-foreach="moves" t-as="move">
-                    <tr>
-                        <td id="next-product-img"><a href="#"><img t-att-src="product.product_image" class="center-block img-responsive"/></a></td>
-                        <td><span t-esc="move.product.product_name"/></td>
-                        <td><div class="form-control text-center"><span t-esc="move.product.location_name"/></div></td>
-                        <td><span t-esc="move.product.product_quantity"/></td>
-                        <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
-                        <td><span t-esc="move.picking_name"/></td>
-                    </tr>
-                </t>
-            </table>
-        </div>
+        <table class="table" id="next-products-table">
+            <t t-foreach="moves" t-as="move">
+                <tr>
+                    <td id="next-product-img"><a href="#"><img t-att-src="product.product_image" class="center-block img-responsive"/></a></td>
+                    <td><span t-esc="move.product.product_name"/></td>
+                    <td><div class="form-control text-center"><span t-esc="move.product.location_name"/></div></td>
+                    <td><span t-esc="move.product.product_quantity"/></td>
+                    <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
+                    <td><span t-esc="move.picking_name"/></td>
+                </tr>
+            </t>
+        </table>
     </t>
 
     <t t-name="picking_empty">
@@ -372,7 +384,7 @@
 
     <t t-name="info_first_barcode">
         <div class="alert alert-warning fade in" style="text-align:center">
-            <b>Scan the product or enter the barcode manually by clicking on</b>
+            <b>Scan the product or enter the barcode manually by clicking on </b>
             <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
                 <i class="fa fa-barcode" aria-hidden="true"></i>
             </button>
@@ -381,7 +393,7 @@
 
     <t t-name="info_more_barcode">
         <div class="alert alert-info fade in" style="text-align:center">
-            <b>Scan more product or enter the barcode manually by clicking on</b>
+            <b>Scan more products or enter the barcode manually by clicking on</b>
             <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
                 <i class="fa fa-barcode" aria-hidden="true"></i>
             </button>
@@ -399,7 +411,7 @@
 
     <t t-name="info_too_much_barcode">
         <div class="alert alert-danger fade in" style="text-align:center">
-            <b>You have selected too much product!</b>
+            <b>You have selected too many products!</b>
         </div>
     </t>
 
@@ -418,7 +430,7 @@
         </t>
         <t t-if="to_temps.length">
             <br/>
-                <h3 class="text-center">To Temporary location:</h3>
+                <h3 class="text-center">To temporary location:</h3>
             <br/>
             <div class="row">
                 <t t-foreach="to_temps" t-as="to_temp">

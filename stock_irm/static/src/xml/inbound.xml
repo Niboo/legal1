@@ -56,8 +56,8 @@
             <hr/>
             <div id="results" class="scan-row">
                 <div class="col-md-12">
+                    <div class="text-center"><h1>Scan a product</h1></div>
                     <img src="/stock_irm/static/img/scan.jpg" class="center-block img-responsive" />
-                    <div class="text-center"><h2>Scan a product</h2></div>
                 </div>
             </div>
         </div>
@@ -162,128 +162,149 @@
                     <div class="square"  t-att-style="'background-image:url(\'' + product.image + '\');'"></div>
                 </div>
                 <div class="col-md-8">
-                    <div class="col-md-12">
-                        <h1><t t-esc="product.name"/></h1>
-                    </div>
-                    <div class="col-md-12">
-                        <h3><t t-esc="product.description"/></h3>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="col-md-3 col-xs-6">
-                            <h4>Product code :</h4>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h1><t t-esc="product.name"/></h1>
                         </div>
-                        <div class="col-md-3 col-xs-6">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3><t t-esc="product.description"/></h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h4>Product code:</h4>
+                        </div>
+                        <div class="col-md-3">
                             <h4><t t-esc="product.default_code"/></h4>
                         </div>
-                        <div class="col-md-3 col-xs-6">
-                            <h4>Supplier code :</h4>
+                        <div class="col-md-3">
+                            <h4>Supplier code:</h4>
                         </div>
-                        <div class="col-md-3 col-xs-6">
+                        <div class="col-md-3">
                             <h4><t t-esc="product.supplier_code"/></h4>
                         </div>
                     </div>
+
                     <t t-if="list_cart_with_product.length">
-                        <hr class="solid"/>
-                        <div>
-                            <b>Item is also in:</b>
-                            <div class="col-md-12 information-box">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Cart</th>
-                                            <th>Box</th>
-                                            <th>Quantity</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="list_cart_with_product" t-as="item">
+                        <div class="row">
+                            <hr/>
+                            <div class="col-md-12">
+                                <h4>Item is also in:</h4>
+                                <div class="information-box">
+                                    <table class="table table-striped">
+                                        <thead>
                                             <tr>
-                                                <td><t t-esc="item.cart_name"/></td>
-                                                <td><t t-esc="item.box"/></td>
-                                                <td><t t-esc="item.quantity"/></td>
+                                                <th>Cart</th>
+                                                <th>Box</th>
+                                                <th>Quantity</th>
                                             </tr>
-                                        </t>
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="list_cart_with_product" t-as="item">
+                                                <tr>
+                                                    <td><t t-esc="item.cart_name"/></td>
+                                                    <td><t t-esc="item.box"/></td>
+                                                    <td><t t-esc="item.quantity"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </t>
-                    <hr class="solid"/>
-                    <div>
-                        <b>Barcodes:</b>
-                        <div class="col-md-12 information-box" id="barcodes">
-                            <div class="col-md-2 col-xs-2">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <hr/>
+                            <h4>Barcodes</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="barcodes">
+                            <div class="col-md-2">
                                 <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
                             </div>
-                            <div class="col-md-10 col-xs-10 tags">
-                                <ul>
+                            <div class="col-md-10 tags">
+                                <ul class="list-group">
                                     <t t-foreach="barcodes" t-as="barcode">
-                                        <li><t t-esc="barcode"/></li>
+                                        <li class="list-group-item"><t t-esc="barcode"/></li>
                                     </t>
                                 </ul>
                             </div>
                         </div>
                     </div>
+
+                </div>
+            </div>
+
+            <div id='qty_row'>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h4>Put in box:</h4>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>Quantity to add:</h4>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>Extra labels to print:</h4>
+                    </div>
+                    <div class="col-md-2">
+                        <h4>Already printed:</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <div id="rack" data-target='#cartSelectionModal'>
+                            <span>Select a cart</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div id="quantity" class="input-group">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                            </span>
+                            <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div id="label-quantity" class="input-group">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                            </span>
+                            <input id="quantity_to_print" type="text" class="form-control text-center" value="0"/>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div id="label-printed" class="input-group">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" text="255" id="print_button" data-dir="print"><span class="glyphicon glyphicon-print"></span></button>
+                            </span>
+                            <input id="already_printed_quantity" type="text" class="form-control text-center" value="1"/>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div id='qty_row'>
-            <div>
-                <div class="col-md-4">
-                    <h4>Put in box:</h4>
-                </div>
-                <div class="col-md-3">
-                    <h4>Quantity to add:</h4>
-                </div>
-                <div class="col-md-3">
-                    <h4>Extra labels to print:</h4>
-                </div>
-                <div class="col-md-2">
-                    <h4>Already printed:</h4>
-                </div>
-            </div>
-            <div>
-                <div id="rack" data-target='#cartSelectionModal' class="col-md-4 text-center">
-                    <span>Select a cart</span>
-                </div>
-                <div class="col-md-3">
-                    <div id="quantity" class="input-group">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-                        </span>
-                        <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-                        </span>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div id="label-quantity" class="input-group">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-                        </span>
-                        <input id="quantity_to_print" type="text" class="form-control text-center" value="0"/>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-                        </span>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div id="label-printed" class="input-group">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" text="255" id="print_button" data-dir="print"><span class="glyphicon glyphicon-print"></span></button>
-                        </span>
-                        <input id="already_printed_quantity" type="text" class="form-control text-center" value="1"/>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </t>
+
     <t t-name="go_back">
-        <a href="#" id="close" class="btn btn-danger pull-left goback"> Go Back </a>
-        <a href="#" id="continue_picking" class="btn btn-success continue"> Continue this picking </a>
+        <div class="row">
+            <div class="col-md-6">
+                <a href="#" id="close" class="btn btn-danger pull-left goback"> Go Back </a>
+            </div>
+            <div class="col-md-6">
+                <a href="#" id="continue_picking" class="btn btn-success continue"> Continue this picking </a>
+            </div>
+        </div>
     </t>
 
     <t t-name="exception_modal">
