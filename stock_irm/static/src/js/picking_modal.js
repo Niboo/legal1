@@ -25,197 +25,105 @@
         _lt = instance._lt;
     var QWeb = instance.qweb;
 
-    var no_cart_modal = instance.stock_irm.modal.widget.extend({
+    var picking_modal = instance.stock_irm.modal.widget.extend({
+        init: function (title) {
+            var self = this;
+            this._super();
+            self.body_template = 'picking_info';
+            self.title = title;
+        },
+        start: function (products) {
+            var self = this;
+            self.$body = $(QWeb.render(self.body_template, {
+                'products': products,
+            }));
+            this._super();
+        }
+    });
+
+    instance.stock_irm.modal.picking_modal = picking_modal;
+
+    var end_wave_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
             var self = this;
             this._super();
-            self.body_template = 'no_cart_message';
-            self.title = 'Cart Error';
+            self.title = 'Wave Finished!';
         },
         start: function () {
             var self = this;
-            self.$body = $(QWeb.render(self.body_template));
+            self.$body = "<i class='fa fa-check fa-5x' style='color:green'></i>" +"<b style='font-size: 2em'>Wait for redirection...</b>";
+            self.$footer = "<b style='font-size: 3em;'>Time to complete: </b><b class='time-complete'>"+time+"</b>";
             this._super();
-        },
-    });
+            window.setTimeout(function(){
+                var to_outputs = [];
+                var to_temps = [];
+                $.each(self.pickings, function(key, value){
+                    if(value['progress_done']<100){
+                        to_temps.push(value);
+                    } else {
+                        to_outputs.push(value);
+                    }
+                });
 
-    instance.stock_irm.modal.no_cart_modal = no_cart_modal;
-
-    var select_cart_modal = instance.stock_irm.modal.widget.extend({
-        init: function (caller, block) {
-            var self = this;
-            this._super(caller);
-            self.body_template = 'cart_result';
-            self.title = 'Cart Selection';
-            self.block_modal = block;
-        },
-        start: function (carts) {
-            var self = this;
-            self.$body = $(QWeb.render(self.body_template, {
-                carts: carts,
-            }));
-            this._super();
-            self.add_listener_on_carts();
-        },
-        add_listener_on_carts: function(){
-            var self = this;
-            self.$modal.find('.modal-body .cart').click(function(event){
-                event.preventDefault();
-                var cart_id = $(event.currentTarget).attr('cart-id');
-                var cart_name = $(event.currentTarget).attr('cart-name');
-                self.caller.parent.select_cart(cart_id, cart_name);
-                self.caller.display_cart_info(true);
-                self.caller.add_listener_for_barcode();
-            });
-            self.$modal.find("a[is-in-usage='true']").hide()
-            self.$modal.find('input:checkbox').live('click', function () {
-                if($('#display-all-cart').is(':checked')){
-                    self.$modal.find("a[is-in-usage='true']").show()
-                }else{
-                    self.$modal.find("a[is-in-usage='true']").hide()
-                }
-            });
-        },
-    });
-
-    instance.stock_irm.modal.select_cart_modal = select_cart_modal;
-
-    var purchase_order_modal = instance.stock_irm.modal.widget.extend({
-        init: function (caller) {
-            var self = this;
-            this._super(caller);
-            self.block_modal = true;
-            self.body_template = 'supplier_purchase_orders';
-            self.footer_template = 'confirm_purchase_orders';
-            self.title = 'Select the impacted purchases orders';
-        },
-        start: function (orders) {
-            var self = this;
-            self.$body = $(QWeb.render(self.body_template, {
-                purchase_orders: orders,
-            }));
-            self.$footer = $(QWeb.render(self.footer_template));
-            this._super();
-            self.add_listener_on_purchase();
-            self.add_listener_on_purchase_footer();
-        },
-        add_listener_on_purchase: function(){
-            var self = this;
-            $('.purchase-btn').click(function(event){
-                var purchase_id = parseInt($(event.currentTarget).attr('purchase-id'));
-                var index = self.selected_purchases.indexOf(purchase_id);
-
-                if(index != -1){
-                    self.selected_purchases.splice(index, 1);
-                    $(event.currentTarget).removeClass('selected-purchase-btn');
-
-                }else{
-                    self.selected_purchases.push(purchase_id);
-                    $(event.currentTarget).addClass('selected-purchase-btn');
-                }
-                if(self.selected_purchases.length>0){
-                    $('#no_purchases').hide();
-                    $('#select_purchases').show();
-                }else{
-                    $('#select_purchases').hide();
-                    $('#no_purchases').show();
-                }
-            });
-             $(':focus').blur()
-        },
-        add_listener_on_purchase_footer: function(){
-            var self = this;
-            $('#cancel').off('click.cancel');
-            $('#cancel').on('click.cancel', function (event) {
                 self.$modal.modal('hide');
-            });
-            $('#select_purchases').off('click.select_purchases');
-            $('#select_purchases').on('click.select_purchases', function (event) {
-                var note = self.$modal.find('#packing_note').val();
-                self.caller.confirm(self.selected_purchases, note);
-            });
-            $('#no_purchases').off('click.no_purchases');
-            $('#no_purchases').on('click.no_purchases', function (event) {
-                var note = self.$modal.find('#packing_note').val();
-                self.caller.confirm(false, note);
-            });
+                self.$elem = $(QWeb.render("wave_done", {
+                    to_outputs: to_outputs,
+                    to_temps: to_temps,
+                }));
+                $('#content').html(self.$elem);
+                self.add_listener_on_endbox();
+            }, 3000);
         },
     });
 
-    instance.stock_irm.modal.purchase_order_modal = purchase_order_modal;
+    instance.stock_irm.modal.end_wave_modal = end_wave_modal;
 
-    var not_enough_label_modal = instance.stock_irm.modal.widget.extend({
-        init: function (caller) {
+    var wrong_quantity_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
             var self = this;
-            this._super(caller);
+            this._super();
+            self.body_template = 'counter_error';
+            self.title = 'Item Count Error';
+        },
+        start: function (real, expected) {
+            var self = this;
+            self.$body = $(QWeb.render(self.body_template, {
+                'real': real,
+                'expected': expected
+            }));
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.wrong_quantity_modal = wrong_quantity_modal;
+
+    var error_modal = instance.stock_irm.modal.widget.extend({
+        init: function (title) {
+            var self = this;
+            this._super();
             self.body_template = 'print_error_message';
-            self.title = 'Not enough label printed';
+            self.title = title;
         },
-        start: function () {
+        start: function (type, location, image) {
             var self = this;
-            self.$body = $(QWeb.render(self.body_template));
-            this._super();
-            self.add_listener_on_modal_print_button();
-        },
-        add_listener_on_modal_print_button: function(){
-            var self = this;
+            if(type == 'product'){
+                self.$body = $(QWeb.render(self.body_template, {
+                    'type': type,
+                    'image': image,
+                    'location': location,
+                }));
+            } else {
+                self.$body = $(QWeb.render(self.body_template, {
+                    'type': type,
+                    'dest_location': location,
+                }));
+            }
 
-            self.$modal.find('#modal_print_button').click(function(event){
-                event.preventDefault();
-                self.caller.print_missing_labels();
-                self.$modal.modal('hide');
-                self.caller.add_listener_for_barcode();
-            })
-        },
-    });
-
-    instance.stock_irm.modal.not_enough_label_modal = not_enough_label_modal;
-
-    var box_barcode_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
-            var self = this;
-            this._super();
-            self.body_template = 'box_barcode_modal';
-            self.footer_template = 'box_barcode_footer_modal';
-            self.title = 'Scan the box barcode';
-            self.block_modal = true;
-        },
-        start: function () {
-            var self = this;
-            self.$body = $(QWeb.render(self.body_template));
-            self.$footer = $(QWeb.render(self.footer_template));
-            this._super();
-            self.add_listener_on_barcode_modal_confirm();
-        },
-        add_listener_on_barcode_modal_confirm: function(){
-            var self = this;
-            self.$modal.find('#confirm_box_barcode').off('click.box.barcode');
-            self.$modal.find('#confirm_box_barcode').on('click.box.barcode', function(event){
-                var barcode = self.$modal.find('#box_barcode').val();
-                if(barcode){
-                    self.$modal.modal('hide');
-                }
-            });
-        },
-    });
-
-    instance.stock_irm.modal.box_barcode_modal = box_barcode_modal;
-
-    var confirmed_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
-            var self = this;
-            this._super();
-            self.title = 'Picking Confirmed!';
-            self.block_modal = true;
-        },
-        start: function () {
-            var self = this;
-            self.$body = "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>";
             this._super();
         },
     });
 
-    instance.stock_irm.modal.confirmed_modal = confirmed_modal;
+    instance.stock_irm.modal.error_modal = error_modal;
 
     var back_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
@@ -241,7 +149,7 @@
         },
         add_listener_on_continue_button: function(){
             var self = this;
-            self.$modal.find('#continue_picking').click(function(event){
+            self.$modal.find('#continue_wave').click(function(event){
                 self.$modal.modal('hide');
             })
         },

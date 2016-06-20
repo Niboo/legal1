@@ -431,7 +431,7 @@
     </t>
 
     <t t-name="go_back">
-        <a href="#" id="close_wave" class="btn btn-danger pull-left goback"> Go Back </a>
+        <a href="#" id="close" class="btn btn-danger pull-left goback"> Go Back </a>
         <a href="#" id="continue_wave" class="btn btn-success continue"> Continue this wave </a>
     </t>
 

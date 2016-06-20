@@ -221,9 +221,6 @@
         process_barcode: function(barcode){
             var self = this;
 
-            // hide the modal if we scanned another product/location with an open modal
-            self.$modal.modal('hide');
-
             // check if the barcode scanned is the barcode we needed
             var is_product_barcode = barcode.replace(/[\n\r]+/g, '') == self.current_product_barcode;
             var is_destination_barcode = barcode.replace(/[\n\r]+/g, '') == self.current_destination_barcode;
@@ -256,34 +253,21 @@
                     self.$elem.find('#expected_qty').text(qty_to_take);
                 } else {
                     // Not the expected quantity, display an error modal
-                    var $result = $(QWeb.render('counter_error',{
-                        'real': sum,
-                        'expected': move_qty
-                    }));
-                    self.show_modal('Item Count Error', $result, "", false);
+                    var modal = new instance.stock_irm.modal.wrong_quantity_modal();
+                    modal.start(sum, move_qty)
                 }
             }else{
                 if(qty == 0){
-                    var $result = $(QWeb.render('print_error_message',{
-                        'type':'product',
-                        'image': current_move.product.product_image,
-                        'location': current_move.product.location_name
-                    }));
-                    self.show_modal('Product Error', $result, "", false);
-                }else if(qty == current_move.product.product_quantity){
+                    var modal = new instance.stock_irm.modal.error_modal('Product Error');
+                    modal.start('product', current_move.product.location_name, current_move.product.product_image)
+                } else if(qty == current_move.product.product_quantity){
                     // good number of product, but not good location
-                    var $result = $(QWeb.render('print_error_message',{
-                        'type':'location',
-                        'dest_location': current_move.location_dest_name
-                    }));
-                    self.show_modal('Location Error', $result, "", false);
-                }else{
+                    var modal = new instance.stock_irm.modal.error_modal('Location Error');
+                    modal.start('location', current_move.location_dest_name)
+                } else {
                     // More product expected, but something else scanned
-                    var $result = $(QWeb.render('counter_error',{
-                        'real': qty,
-                        'expected': current_move.product.product_quantity
-                    }));
-                    self.show_modal('Item Count Error', $result, "", false);
+                    var modal = new instance.stock_irm.modal.wrong_quantity_modal();
+                    modal.start(qty, current_move.product.product_quantity)
                 }
             }
         },
@@ -343,28 +327,8 @@
                     }else{
                         time += ":" + seconds;
                     }
-                    self.show_modal('Wave Finished!',
-                        "<i class='fa fa-check fa-5x' style='color:green'></i>" +"<b style='font-size: 2em'>Wait for redirection...</b>"
-                        ,"<b style='font-size: 3em;'>Time to complete: </b><b class='time-complete'>"+time+"</b>");
-                    window.setTimeout(function(){
-                        var to_outputs = [];
-                        var to_temps = [];
-                        $.each(self.pickings, function(key, value){
-                            if(value['progress_done']<100){
-                                to_temps.push(value);
-                            }else{
-                                to_outputs.push(value);
-                            }
-                        });
-
-                        self.$modal.modal('hide');
-                        self.$elem = $(QWeb.render("wave_done", {
-                            to_outputs: to_outputs,
-                            to_temps: to_temps,
-                        }));
-                        $('#content').html(self.$elem);
-                        self.add_listener_on_endbox();
-                    }, 3000);
+                    var modal = new instance.stock_irm.modal.end_wave_modal();
+                    modal.start();
                 }
             });
         },
@@ -424,11 +388,8 @@
                     return a.picking_id == picking_id;
                 });
 
-                var $result = $(QWeb.render('picking_info',{
-                        'products': current_picking,
-                    }));
-
-                self.show_modal(current_picking[0].picking_name, $result, "", false);
+                var modal = new instance.stock_irm.modal.picking_modal(current_picking[0].picking_name);
+                modal.start(current_picking);
             })
         },
 	    add_listener_on_endbox: function(){
