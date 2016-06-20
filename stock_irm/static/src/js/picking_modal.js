@@ -236,7 +236,7 @@
             var self = this;
             self.$modal.find('#close').click(function(event){
                 self.$modal.modal('hide');
-                window.location.href = "/inbound_screen";
+                window.location.href = "/picking_waves";
             })
         },
         add_listener_on_continue_button: function(){

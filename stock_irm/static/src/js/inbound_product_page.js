@@ -240,25 +240,13 @@
         },
         add_listener_on_confirm_button: function(){
             var self = this;
+
             self.$nav.off('click.confirm');
-            self.$nav.on('click.confirm', '#confirm a', function (event) {
-                if(self.is_enough_label_printed()) {
+            self.$nav.on('click.confirm', '#confirm a', function(event){
+                if(self.is_enough_label_printed()){
                     var qty = self.$elem.find('#quantity input').get(0).value
                     self.parent.add_product(self.id, parseInt(qty));
-                    self.$nav.off('click.confirm');
-                    self.$nav.on('click.confirm', '#confirm a', function(event){
-                        self.session.rpc('/inbound_screen/search_supplier_purchase', {
-                            supplier: self.parent.supplier_id,
-                        }).then(function(data){
-                            if (data.status == 'ok'){
-                                var modal = new instance.stock_irm.modal.purchase_order_modal();
-                                modal.start(data.orders);
-                            } else {
-                                var modal = new instance.stock_irm.modal.exception_modal();
-                                modal.start(data.error, data.message);
-                            }
-                        });
-                    });
+                    self.parent.get_purchase_orders();
                 }
             });
         },

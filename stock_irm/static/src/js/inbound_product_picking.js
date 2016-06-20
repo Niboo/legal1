@@ -105,17 +105,30 @@
                 self.product_page.start();
             })
         },
+        get_purchase_orders: function() {
+            var self = this;
+
+            if (!_.isEmpty(self.received_products)) {
+                self.session.rpc('/inbound_screen/search_supplier_purchase', {
+                    supplier: self.supplier_id,
+                }).then(function (data) {
+                    if (data.status == 'ok') {
+                        var modal = new instance.stock_irm.modal.purchase_order_modal(self);
+                        modal.start(data.orders);
+                    } else {
+                        var modal = new instance.stock_irm.modal.exception_modal();
+                        modal.start(data.error, data.message);
+                    }
+                });
+            }
+        },
         add_listener_on_confirm_button: function(){
             var self = this;
 
-            if (_.isEmpty(self.received_products)) {
-
-            } else {
-                self.$nav.off('click.confirm');
-                self.$nav.on('click.confirm', '#confirm a', function(event){
-                    self.confirm();
-                })
-            }
+            self.$nav.off('click.confirm');
+            self.$nav.on('click.confirm', '#confirm a', function(event){
+                self.get_purchase_orders();
+            });
         },
         add_listener_on_back_button: function(){
             var self = this;
@@ -124,12 +137,6 @@
             self.$nav.on('click.back', '#back a', function(event){
                 var modal = new instance.stock_irm.modal.back_modal();
                 modal.start();
-            })
-        },
-        add_listener_on_ask_close: function(){
-            var self = this;
-            self.$elem.find("div[data-target='#closeBoxModal']").click(function(){
-                self.propose_close();
             })
         },
         get_products: function(){
@@ -238,10 +245,28 @@
 
             self.current_cart = cart;
         },
-        confirm: function(purchase_orders) {
+        confirm: function(purchase_orders, note) {
             var self = this;
-            var modal = instance.stock_irm.modal.confirm_modal();
-            modal.start(purchase_orders);
+            self.session.rpc('/inbound_screen/process_picking', {
+                supplier_id: self.supplier_id,
+                results: self.received_products,
+                note: note,
+                purchase_orders: purchase_orders,
+            }).then(function(data){
+                if (data.status == 'ok'){
+                    var modal = new instance.stock_irm.modal.confirmed_modal();
+                    modal.start();
+                    window.setTimeout(function(){
+                        window.location.href = "/inbound_screen";
+                    }, 3000);
+                } else {
+                    var modal = new instance.stock_irm.modal.exception_modal();
+                    modal.start(data.error, data.message);
+                }
+            }).fail(function(data){
+                var modal = new instance.stock_irm.modal.exception_modal();
+                modal.start(data.data.arguments[0], data.data.arguments[1]);
+            });
         },
         process_barcode: function(barcode) {
             var self = this;
