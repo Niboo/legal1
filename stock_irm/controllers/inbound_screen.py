@@ -270,11 +270,7 @@ product id: %s, supplier id: %s
 
         picking_type_id = self.get_receipt_picking_type()
 
-        if not picking:
-            picking = env['stock.picking'].create({
-                'partner_id': supplier.id,
-                'picking_type_id': picking_type_id.id,
-            })
+
 
         picking.write({
             'move_lines': [(0, 0, {
@@ -290,22 +286,6 @@ product id: %s, supplier id: %s
         })
 
         return picking
-    #
-    # def create_pack_operation(self, picking):
-    #     env = http.request.env
-    #
-    #     for line in picking.move_lines:
-    #         pack_datas = {
-    #             'product_id': line.product_id.id,
-    #             'product_uom_id': line.product_id.uom_id.id,
-    #             'product_qty': line.product_uom_qty,
-    #             'location_id': line.location_id.id,
-    #             'location_dest_id': line.location_dest_id.id,
-    #             'date': datetime.now(),
-    #             'picking_id': picking.id,
-    #         }
-    #
-    #         env['stock.pack.operation'].create(pack_datas)
 
     @http.route('/inbound_screen/search_supplier_purchase', type='json',
                 auth='user')
@@ -356,11 +336,8 @@ product id: %s, supplier id: %s
     def create_whole_new_picking(self, supplier, inbound_list, packing_order):
         env = http.request.env
 
+        picking = False
         picking_type_id = self.get_receipt_picking_type()
-        picking = env['stock.picking'].create({
-            'partner_id': supplier.id,
-            'picking_type_id': picking_type_id.id,
-        })
 
         for product_id, cart_dict in inbound_list.iteritems():
             product = env['product.product'].browse(int(product_id))
@@ -375,9 +352,19 @@ product id: %s, supplier id: %s
                 for box_id, quantity in location_dict.iteritems():
                     if not quantity:
                         self.no_quantity_error(product, cart)
+
+                    if not picking:
+                        picking = env['stock.picking'].create({
+                            'partner_id': supplier.id,
+                            'picking_type_id': picking_type_id.id,
+                        })
+
                     input_location = env.ref('stock.stock_location_company')
                     self.create_moves_for_leftover(picking, supplier, product,
                                                      quantity, input_location, packing_order)
+
+        if not picking:
+            return
 
         product_quantities = self.create_product_qty_dict(inbound_list)
 
