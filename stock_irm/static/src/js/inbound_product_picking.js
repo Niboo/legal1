@@ -122,10 +122,8 @@
             self.$nav.find('#back a').show();
             self.$nav.off('click.back');
             self.$nav.on('click.back', '#back a', function(event){
-                var $result = $(QWeb.render('go_back'));
-                self.show_modal('Are you sure you want to go back?', 'All your change will be canceled', $result, false);
-                self.add_listener_on_goback_button();
-                self.add_listener_on_continue_button();
+                var modal = new instance.stock_irm.modal.back_modal();
+                modal.start();
             })
         },
         add_listener_on_ask_close: function(){
@@ -134,20 +132,6 @@
                 self.propose_close();
             })
         },
-        add_listener_on_goback_button: function(){
-            var self = this;
-            self.$modal.find('#close').click(function(event){
-                self.$modal.modal('hide');
-                window.location.href = "/inbound_screen";
-            })
-        },
-        add_listener_on_continue_button: function(){
-            var self = this;
-            self.$modal.find('#continue_picking').click(function(event){
-                self.$modal.modal('hide');
-            })
-        },
-
         get_products: function(){
             var self = this;
             self.session.rpc('/inbound_screen/get_products', {
@@ -224,14 +208,20 @@
                 var product = self.received_products[product_id];
                 if (_.has(product, self.current_cart.id)) {
                     var cart = product[self.current_cart.id]
+                    self.$modal.modal('hide');
                     return cart['index'];
                 }
             }
+
+            var modal = new instance.stock_irm.modal.box_barcode_modal();
+            modal.start();
+
             if(!cart_selection){
                 self.current_cart.box_index += 1;
             }
             return self.current_cart.box_index;
         },
+        
         select_cart: function(cart_id, cart_name){
             var self = this;
             var cart = {
@@ -250,49 +240,8 @@
         },
         confirm: function(purchase_orders) {
             var self = this;
-            var $result = $(QWeb.render('confirm_inbound_modal'));
-            var $footer = $(QWeb.render('confirm_note'));
-            self.show_modal('Confirm this picking', $result, $footer, true);
-            self.add_listener_on_close_button();
-            self.add_listener_on_confirm_note_button(purchase_orders);
-        },
-        add_listener_on_close_button: function(){
-            var self = this;
-            $('#close').off('click.back');
-            $('#close').on('click.back', function(event){
-                self.$modal.modal('hide');
-            })
-        },
-        add_listener_on_confirm_note_button: function(purchase_orders){
-            var self = this;
-            $('#confirm_note').off('click.confirm');
-            $('#confirm_note').on('click.confirm', function (event) {
-                self.session.rpc('/inbound_screen/process_picking', {
-                    supplier_id: self.supplier_id,
-                    results: self.received_products,
-                    note: $('#packing_note').val(),
-                    purchase_orders: purchase_orders,
-                }).then(function(data){
-                    if (data.status == 'ok'){
-                        self.show_modal('Picking Confirmed!', "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>");
-                        window.setTimeout(function(){
-                            window.location.href = "/inbound_screen";
-                        }, 3000);
-                    } else {
-                        var $result = $(QWeb.render('exception_modal',{
-                            'error': data.error,
-                            'message': data.message,
-                        }));
-                        self.show_modal('Print Error', $result, "", false);
-                    }
-                }).fail(function(data){
-                    var $result = $(QWeb.render('exception_modal',{
-                        'error': data.data.arguments[0],
-                        'message': data.data.arguments[1],
-                    }));
-                    self.show_modal(data.message, $result, "", false);
-                });
-            })
+            var modal = instance.stock_irm.modal.confirm_modal();
+            modal.start(purchase_orders);
         },
         process_barcode: function(barcode) {
             var self = this;

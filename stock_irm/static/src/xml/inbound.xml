@@ -313,7 +313,7 @@
         <a href="#" id="confirm_note" class="btn btn-success continue"> Confirm  </a>
     </t>
 
-  <t t-name="supplier_purchase_orders">
+    <t t-name="supplier_purchase_orders">
         <div class="row">
             <t t-foreach="purchase_orders" t-as="purchase">
                 <a href="#" class="btn btn-lg btn-success purchase-btn col-md-3" t-att-purchase-id="purchase.id" t-att-purchase-name="purchase.name">
@@ -325,8 +325,16 @@
 
     <t t-name="confirm_purchase_orders">
         <a href="#" id="cancel" class="btn btn-danger pull-left"> Cancel </a>
-        <a href="#" id="select_purchases" class="btn btn-success" style="display:none"> Bound to Selected Purchases </a>
-        <a href="#" id="no_purchases" class="btn btn-success">Continue Without Purchases </a>
+        <a href="#" id="select_purchases" class="btn btn-success" style="display:none">Bound to Selected Purchases</a>
+        <a href="#" id="no_purchases" class="btn btn-success">Continue Without Purchases</a>
+    </t>
+
+    <t t-name="box_barcode_modal">
+        <input type="text" id="box_barcode"></input>
+    </t>
+
+    <t t-name="box_barcode_footer_modal">
+        <a href="#" id="confirm_box_barcode" class="btn btn-success" >Confirm</a>
     </t>
 
 

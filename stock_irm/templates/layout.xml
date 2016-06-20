@@ -23,7 +23,6 @@
             <link href="/stock_irm/static/src/css/template.css" rel="stylesheet"/>
             <script type="text/javascript" src="/stock_irm/static/src/js/stock_irm_widget.js"></script>
 
-            <!--PICKING-->
         </template>
 
         <template id="stock_irm.assets_picking" name="Stock IRM assets for Picking">
@@ -34,6 +33,7 @@
 
         <template id="stock_irm.assets_inbound" name="Stock IRM assets for Inbound">
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_supplier_selector.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_modal.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_picking.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_page.js"></script>
             <link href="/stock_irm/static/src/css/inbound.css" rel="stylesheet"/>

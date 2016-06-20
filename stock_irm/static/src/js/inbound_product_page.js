@@ -100,46 +100,30 @@
         add_listener_on_print_button: function(){
             var self = this;
             self.$elem.find('#label-printed button').click(function(event){
-
                 if ($(event.currentTarget).attr('data-dir') == 'print'){
-
                     if (self.quantity_to_print > 0 ){
-                        self.parent.print_label(self.product.name, self.barcodes[0], self.quantity_to_print);
-                        self.nb_already_printed += self.quantity_to_print;
-
-                        $('#already_printed_quantity').val(self.nb_already_printed);
-                        $('#quantity_to_print').val(0);
-                        self.quantity_to_print = 0;
-
-                        self.color_printed_labels(self.quantity_to_print);
+                        self.print_missing_labels();
                     }
                 }
                 $(':focus').blur()
             });
+        },
+        print_missing_labels: function(){
+            var self = this;
+            self.parent.print_label(self.product.name, self.barcodes[0], self.quantity_to_print);
+            self.nb_already_printed += self.quantity_to_print;
+
+            $('#already_printed_quantity').val(self.nb_already_printed);
+            $('#quantity_to_print').val(0);
+            self.quantity_to_print = 0;
+
+            self.color_printed_labels(self.quantity_to_print);
         },
         add_listener_on_cart_button: function(){
             var self = this;
 
             self.$elem.find("div[data-target='#cartSelectionModal']").click(function(){
                 self.get_carts();
-            })
-        },
-        add_listener_on_modal_print_button: function(){
-            var self = this;
-
-            self.$modal.find('#modal_print_button').click(function(event){
-                event.preventDefault();
-
-                self.parent.print_label(self.product.name, self.barcodes[0], self.quantity_to_print);
-                self.$modal.modal('hide');
-                self.nb_already_printed = self.nb_already_printed + self.quantity_to_print
-
-                $('#already_printed_quantity').val(self.nb_already_printed);
-                $('#quantity_to_print').val(0);
-                self.quantity_to_print = 0;
-
-                self.color_printed_labels(self.quantity_to_print);
-                self.add_listener_for_barcode();
             })
         },
         color_printed_labels: function(missing_labels){
@@ -212,39 +196,15 @@
             }).then(function(data){
                 self.carts = data.carts;
                 if(self.carts.length == 0){
-                    var $result = $(QWeb.render('no_cart_message', {}));
-                    self.show_modal('Cart Error', $result, '', true);
-                }else{
-
-                    var $result = $(QWeb.render('cart_result', {
-                        carts: self.carts,
-                    }));
+                    var modal = new instance.stock_irm.no_cart_modal();
+                    modal.start();
+                } else {
                     var block_modal = true;
                     if(self.parent.current_cart){
                         block_modal = false;
                     }
-                    self.show_modal('Cart Selection', $result, '', block_modal);
-                    self.add_listener_on_carts();
-                }
-            });
-        },
-        add_listener_on_carts: function(){
-            var self = this;
-            self.$modal.find('.modal-body .cart').click(function(event){
-                event.preventDefault();
-                var cart_id = $(event.currentTarget).attr('cart-id');
-                var cart_name = $(event.currentTarget).attr('cart-name');
-                self.parent.select_cart(cart_id, cart_name)
-                self.$modal.modal('hide');
-                self.display_cart_info(true);
-                self.add_listener_for_barcode();
-            });
-            $("a[is-in-usage='true']").hide()
-            $('div.tags').find('input:checkbox').live('click', function () {
-                if($('#display-all-cart').is(':checked')){
-                    $("a[is-in-usage='true']").show()
-                }else{
-                    $("a[is-in-usage='true']").hide()
+                    var modal = new instance.stock_irm.modal.select_cart_modal(self, block_modal);
+                    modal.start(self.carts);
                 }
             });
         },
@@ -276,7 +236,7 @@
             self.$nav.on('click.back', '#back a', function(event){
                 self.destroy();
                 self.parent.refresh();
-            })
+            });
         },
         add_listener_on_confirm_button: function(){
             var self = this;
@@ -291,67 +251,16 @@
                             supplier: self.parent.supplier_id,
                         }).then(function(data){
                             if (data.status == 'ok'){
-                                var $body = $(QWeb.render('supplier_purchase_orders',{
-                                    'purchase_orders': data.orders,
-                                }));
-                                var $footer = $(QWeb.render('confirm_purchase_orders'));
-
-                                self.show_modal("Select the impacted purchases orders",$body,$footer,true);
-                                self.add_listener_on_purchase();
-                                self.add_listener_on_purchase_footer();
-
+                                var modal = new instance.stock_irm.modal.purchase_order_modal();
+                                modal.start(data.orders);
                             } else {
-                                var $result = $(QWeb.render('exception_modal',{
-                                    'error': data.error,
-                                    'message': data.message,
-                                }));
-                                self.show_modal('Print Error', $result, "", false);
+                                var modal = new instance.stock_irm.modal.exception_modal();
+                                modal.start(data.error, data.message);
                             }
-                        })
-
-                    })
-                }
-            })
-        },
-        add_listener_on_purchase: function(){
-            var self = this;
-            $('.purchase-btn').click(function(event){
-                var purchase_id = parseInt($(event.currentTarget).attr('purchase-id'));
-                var index = self.selected_purchases.indexOf(purchase_id);
-
-                if(index != -1){
-                    self.selected_purchases.splice(index, 1);
-                    $(event.currentTarget).removeClass('selected-purchase-btn');
-
-                }else{
-                    self.selected_purchases.push(purchase_id);
-                    $(event.currentTarget).addClass('selected-purchase-btn');
-                }
-                if(self.selected_purchases.length>0){
-                    $('#no_purchases').hide();
-                    $('#select_purchases').show();
-                }else{
-                    $('#select_purchases').hide();
-                    $('#no_purchases').show();
+                        });
+                    });
                 }
             });
-             $(':focus').blur()
-        },
-        add_listener_on_purchase_footer: function(){
-            var self = this;
-            $('#cancel').off('click.cancel');
-            $('#cancel').on('click.cancel', function (event) {
-                self.$modal.modal('hide');
-            })
-            $('#select_purchases').off('click.select_purchases');
-            $('#select_purchases').on('click.select_purchases', function (event) {
-
-                self.parent.confirm(self.selected_purchases);
-            })
-            $('#no_purchases').off('click.no_purchases');
-            $('#no_purchases').on('click.no_purchases', function (event) {
-                self.parent.confirm(false);
-            })
         },
         destroy: function(){
             this._super();
@@ -368,7 +277,7 @@
                     self.parent.process_barcode(barcode);
                     self.destroy();
                 }
-            }else{
+            } else {
                 //if we scanned the same product, simply update the quantity and print the label
                 qty++;
                 self.$elem.find('#quantity input').get(0).value = qty;
@@ -383,11 +292,10 @@
         is_enough_label_printed: function(){
             var self = this;
             if(self.quantity_to_print>0){
-                var $result = $(QWeb.render('print_error_message', {}));
-                self.show_modal('Not enough label printed', $result, '', false);
-                self.add_listener_on_modal_print_button();
+                var modal = new instance.stock_irm.modal.not_enough_label_modal(self)
+                modal.start();
                 return false;
-            }else{
+            } else {
                 return true;
             }
         },
