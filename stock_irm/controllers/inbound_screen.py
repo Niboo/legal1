@@ -611,7 +611,7 @@ product id: %s, supplier id: %s
     def book_cart(self, cart_id, **kw):
         env = http.request.env
 
-        env['stock.location'].browse(int(cart_id)).is_in_usage = True
+        env['stock.location'].browse(int(cart_id)).sudo().is_in_usage = True
 
     def create_packing_order(self, note):
         env = http.request.env

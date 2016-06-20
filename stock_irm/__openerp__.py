@@ -49,6 +49,7 @@ Module
         'views/stock_index_view.xml',
         'views/packing_order.xml',
         'data/sequence_packing.xml',
+        'security/ir.model.access.csv',
     ],
     'qweb': [
     ],
