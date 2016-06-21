@@ -247,7 +247,7 @@ product id: %s, supplier id: %s
 
         return dest_box
 
-    def search_dest_package(self, package_barcode, location_id):
+    def search_dest_package(self, package_barcode):
         env = http.request.env
 
         dest_package = env['stock.quant.package'].search([

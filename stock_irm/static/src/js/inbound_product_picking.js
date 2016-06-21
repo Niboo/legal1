@@ -232,7 +232,7 @@
         set_box_barcode: function(barcode){
             var self = this;
             self.current_package_barcode = barcode;
-
+            self.add_listener_for_barcode();
         },
         select_cart: function(cart_id, cart_name){
             var self = this;

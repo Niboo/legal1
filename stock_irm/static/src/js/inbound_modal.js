@@ -65,7 +65,6 @@
                 var cart_name = $(event.currentTarget).attr('cart-name');
                 self.caller.parent.select_cart(cart_id, cart_name);
                 self.caller.display_cart_info(true);
-                self.caller.add_listener_for_barcode();
             });
             self.$modal.find("a[is-in-usage='true']").hide()
             self.$modal.find('input:checkbox').live('click', function () {
@@ -163,7 +162,7 @@
                 event.preventDefault();
                 self.caller.print_missing_labels();
                 self.$modal.modal('hide');
-                self.caller.add_listener_for_barcode();
+
             })
         },
     });
@@ -185,6 +184,7 @@
             self.$footer = $(QWeb.render(self.footer_template));
             this._super();
             self.add_listener_on_barcode_modal_confirm();
+            self.$modal.find('#box_barcode').focus();
         },
         add_listener_on_barcode_modal_confirm: function(){
             var self = this;

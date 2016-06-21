@@ -45,6 +45,7 @@
         },
         show_modal: function(){
             var self = this;
+
             if (typeof(footer)==='undefined') footer = '';
             if (typeof(self.block_modal)==='undefined') self.block_modal = false;
 
