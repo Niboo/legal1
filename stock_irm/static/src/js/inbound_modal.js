@@ -109,7 +109,6 @@
                 if(index != -1){
                     self.selected_purchases.splice(index, 1);
                     $(event.currentTarget).removeClass('selected-purchase-btn');
-
                 }else{
                     self.selected_purchases.push(purchase_id);
                     $(event.currentTarget).addClass('selected-purchase-btn');
@@ -122,7 +121,6 @@
                     self.$modal.find('#no_purchases').show();
                 }
             });
-             $(':focus').blur()
         },
         add_listener_on_purchase_footer: function(){
             var self = this;
