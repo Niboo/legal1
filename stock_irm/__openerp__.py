@@ -50,6 +50,7 @@ Module
         'views/packing_order.xml',
         'data/sequence_packing.xml',
         'security/ir.model.access.csv',
+        'views/stock_quant_package.xml',
     ],
     'qweb': [
     ],

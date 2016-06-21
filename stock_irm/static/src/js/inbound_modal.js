@@ -171,9 +171,9 @@
     instance.stock_irm.modal.not_enough_label_modal = not_enough_label_modal;
 
     var box_barcode_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller) {
             var self = this;
-            this._super();
+            this._super(caller);
             self.body_template = 'box_barcode_modal';
             self.footer_template = 'box_barcode_footer_modal';
             self.title = 'Scan the box barcode';
@@ -193,6 +193,7 @@
                 var barcode = self.$modal.find('#box_barcode').val();
                 if(barcode){
                     self.$modal.modal('hide');
+                    self.caller.set_box_barcode(barcode) ;
                 }
             });
         },

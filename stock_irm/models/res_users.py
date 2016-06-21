@@ -39,4 +39,3 @@ class ResUsers(models.Model):
          'UNIQUE(login_barcode)',
          'The login barcode should be unique'),
     ]
-

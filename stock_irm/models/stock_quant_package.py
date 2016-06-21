@@ -19,12 +19,18 @@
 #
 ##############################################################################
 
-from . import res_partner
-from . import res_users
-from . import printing_printer
-from . import work_location
-from . import stock_location
-from . import picking_waves
-from . import stock_picking_type
-from . import packing_order
-from . import stock_quant_package
+from openerp import models, api, fields
+from openerp.exceptions import Warning
+
+
+class StockQuantPackage(models.Model):
+
+    _inherit = "stock.quant.package"
+
+    barcode = fields.Char("Barcode")
+
+    _sql_constraints = [
+        ('package_barcode_unique',
+         'UNIQUE(barcode)',
+         'The package barcode should be unique'),
+    ]

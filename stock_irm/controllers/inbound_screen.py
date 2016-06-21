@@ -247,6 +247,21 @@ product id: %s, supplier id: %s
 
         return dest_box
 
+    def search_dest_package(self, package_barcode, location_id):
+        env = http.request.env
+
+        dest_package = env['stock.quant.package'].search([
+            ('barcode', '=', str(package_barcode))
+        ])
+
+        if not dest_package:
+            dest_package = env['stock.quant.package'].create({
+                'name': str(package_barcode),
+                'barcode': str(package_barcode),
+            })
+
+        return dest_package
+
     def no_quantity_error(self, product, cart):
         env = http.request.env
 
@@ -269,8 +284,6 @@ product id: %s, supplier id: %s
         env = http.request.env
 
         picking_type_id = self.get_receipt_picking_type()
-
-
 
         picking.write({
             'move_lines': [(0, 0, {
@@ -310,6 +323,7 @@ product id: %s, supplier id: %s
     @http.route('/inbound_screen/process_picking', type='json', auth="user")
     def process_picking(self, supplier_id, results, purchase_orders, note,  **kw):
         env = http.request.env
+
         try:
             supplier = env['res.partner'].browse(int(supplier_id))
             packing_order = self.create_packing_order(note)
@@ -349,18 +363,19 @@ product id: %s, supplier id: %s
                 cart = env['stock.location'].browse(int(cart_id))
 
                 for box_id, quantity in location_dict.iteritems():
-                    if not quantity:
-                        self.no_quantity_error(product, cart)
+                    if box_id != "package_barcode":
+                        if not quantity:
+                            self.no_quantity_error(product, cart)
 
-                    if not picking:
-                        picking = env['stock.picking'].create({
-                            'partner_id': supplier.id,
-                            'picking_type_id': picking_type_id.id,
-                        })
+                        if not picking:
+                            picking = env['stock.picking'].create({
+                                'partner_id': supplier.id,
+                                'picking_type_id': picking_type_id.id,
+                            })
 
-                    input_location = env.ref('stock.stock_location_company')
-                    self.create_moves_for_leftover(picking, supplier, product,
-                                                     quantity, input_location, packing_order)
+                        input_location = env.ref('stock.stock_location_company')
+                        self.create_moves_for_leftover(picking, supplier, product,
+                                                         quantity, input_location, packing_order)
 
         if not picking:
             return
@@ -423,12 +438,13 @@ product id: %s, supplier id: %s
 
                 cart = env['stock.location'].browse(int(cart_id))
                 for box_id, quantity in location_dict.iteritems():
-                    if not quantity:
-                        self.no_quantity_error(product, cart)
-                    if product.id in product_quantities.keys():
-                        product_quantities[product.id] += quantity
-                    else:
-                        product_quantities[product.id] = quantity
+                    if box_id != "package_barcode":
+                        if not quantity:
+                            self.no_quantity_error(product, cart)
+                        if product.id in product_quantities.keys():
+                            product_quantities[product.id] += quantity
+                        else:
+                            product_quantities[product.id] = quantity
 
         return product_quantities
 
@@ -477,26 +493,33 @@ product id: %s, supplier id: %s
                 dest_box = self.search_dest_box(box_id, cart, product)
 
                 # Treat results dict
-                location_dict[box_id] -= wizard_line.quantity
-                if location_dict[box_id] <= 0:
-                    item_to_delete.append(box_id)
+                if box_id != "package_barcode":
+                    location_dict[box_id] -= wizard_line.quantity
+                    if location_dict[box_id] <= 0:
+                        item_to_delete.append(box_id)
 
-                # Treat wizard
-                wizard_line.destinationloc_id = dest_box.id
-                wizard_line_to_treat = False
+                    # Treat wizard
+                    wizard_line.destinationloc_id = dest_box.id
+                    wizard_line_to_treat = False
 
-                if box_quantity < wizard_line.quantity:
-                    wizard_line_dict = {
-                        'product_id': product.id,
-                        'quantity': wizard_line.quantity - box_quantity,
-                        'sourceloc_id': wizard_line.sourceloc_id.id,
-                        'destinationloc_id': wizard_line.destinationloc_id.id,
-                        'transfer_id': wizard_line.transfer_id.id,
-                        'product_uom_id': wizard_line.product_uom_id.id,
-                    }
+                    dest_package = self.search_dest_package(
+                        cart_dict[cart_id]['package_barcode']
+                    )
+                    wizard_line.result_package_id = dest_package.id
 
-                    wizard_line.quantity = box_quantity
-                    wizard_line_to_treat = wizard_line.create(wizard_line_dict)
+                    if box_quantity < wizard_line.quantity:
+                        wizard_line_dict = {
+                            'product_id': product.id,
+                            'quantity': wizard_line.quantity - box_quantity,
+                            'sourceloc_id': wizard_line.sourceloc_id.id,
+                            'destinationloc_id': wizard_line.destinationloc_id.id,
+                            'transfer_id': wizard_line.transfer_id.id,
+                            'product_uom_id': wizard_line.product_uom_id.id,
+                            'result_package_id': dest_package.id
+                        }
+
+                        wizard_line.quantity = box_quantity
+                        wizard_line_to_treat = wizard_line.create(wizard_line_dict)
 
             for item in item_to_delete:
                 del(location_dict[item])

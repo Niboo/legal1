@@ -204,6 +204,7 @@
             } else {
                 index = self.current_cart.box_index;
                 cart_box_list['index'] = index;
+                cart_box_list['package_barcode'] = self.current_package_barcode;
             }
 
             quantity += qty;
@@ -220,7 +221,7 @@
                 }
             }
 
-            var modal = new instance.stock_irm.modal.box_barcode_modal();
+            var modal = new instance.stock_irm.modal.box_barcode_modal(self);
             modal.start();
 
             if(!cart_selection){
@@ -228,13 +229,17 @@
             }
             return self.current_cart.box_index;
         },
-        
+        set_box_barcode: function(barcode){
+            var self = this;
+            self.current_package_barcode = barcode;
+
+        },
         select_cart: function(cart_id, cart_name){
             var self = this;
             var cart = {
                 name: cart_name,
                 id: cart_id,
-                box_index: 1,
+                box_index: 1
             }
 
             if (_.has(self.carts, cart_id)) {
