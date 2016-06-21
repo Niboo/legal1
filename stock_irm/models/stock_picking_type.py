@@ -29,7 +29,7 @@ class StockPickingType(models.Model):
 
     is_for_picking_wave = fields.Boolean("Is in picking waves")
 
-    is_receipts = fields.Boolean("Is Receipts")
+    is_receipts = fields.Boolean("Is in inbound")
 
     @api.multi
     @api.constrains('is_receipts')

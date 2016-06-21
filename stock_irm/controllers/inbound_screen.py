@@ -328,10 +328,9 @@ product id: %s, supplier id: %s
             }
 
         except Exception as e:
-            print e
             return {'status': 'error',
                     'error': type(e).__name__,
-                    'message': str(e)}
+                    'message': e.value}
 
     def create_whole_new_picking(self, supplier, inbound_list, packing_order):
         env = http.request.env
@@ -383,9 +382,11 @@ product id: %s, supplier id: %s
         picking_type_id = env['stock.picking.type'].search([
             ('is_receipts', '=', True)
         ])
+
         if not picking_type_id:
-            raise Exception('Please, set a picking type to be used for'
-                            'receipt')
+            raise exceptions.ValidationError(
+                'Please, set a picking type to be used for receipt')
+
 
         return picking_type_id
 
