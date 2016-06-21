@@ -193,7 +193,9 @@
             var self = this;
             self.session = new instance.Session();
             self.$nav = $('nav');
-
+        },
+        start: function(){
+            var self = this;
             self.add_listeners();
         },
         add_listener_on_search_button: function(){

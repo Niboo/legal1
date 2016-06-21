@@ -193,7 +193,8 @@
                 var barcode = self.$modal.find('#box_barcode').val();
                 if(barcode){
                     self.$modal.modal('hide');
-                    self.caller.set_box_barcode(barcode) ;
+                    self.caller.parent.set_box_barcode(barcode);
+                    self.caller.add_listener_for_barcode();
                 }
             });
         },

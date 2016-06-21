@@ -275,7 +275,7 @@ product id: %s, supplier id: %s
         }
 
     def create_moves_for_leftover(self, picking, supplier, product, qty,
-                                  dest_box, packing_order):
+                                  dest_box):
         """we have to create a picking and a stock move
         :param picking:
         :param supplier:
@@ -294,7 +294,6 @@ product id: %s, supplier id: %s
                 'location_id': env.ref('stock.stock_location_suppliers').id,
                 'product_uom': product.uom_id.id,
                 'name': 'automated picking - %s' % product.name,
-                'packing_order_id': packing_order.id
             })]
         })
 
@@ -375,7 +374,7 @@ product id: %s, supplier id: %s
 
                         input_location = env.ref('stock.stock_location_company')
                         self.create_moves_for_leftover(picking, supplier, product,
-                                                         quantity, input_location, packing_order)
+                                                         quantity, input_location)
 
         if not picking:
             return
@@ -460,7 +459,6 @@ product id: %s, supplier id: %s
             do_validate_picking = False
 
             for wizard_line in my_wizard.item_ids:
-                wizard_line.packing_order_id = packing_order.id
                 product = wizard_line.product_id
                 line_quantity = wizard_line.quantity
                 available_quantity = product_quantity_dict.get(product.id, 0)
@@ -476,6 +474,8 @@ product id: %s, supplier id: %s
 
             if do_validate_picking:
                 my_wizard.do_detailed_transfer()
+                for line in picking.move_lines:
+                    line.packing_order_id = packing_order.id
 
     def treat_picking_line(self, wizard_line_to_treat, product, results):
         env = http.request.env

@@ -40,6 +40,7 @@
             
         },
         start: function(){
+            this._super();
             var self = this;
             self.get_product();
             if (! self.parent.current_cart) {
@@ -212,9 +213,24 @@
             if (typeof(cart_selection)==='undefined') cart_selection = false;
             var self = this;
             var cart = self.parent.current_cart;
-            var box = self.parent.select_box(self.id, cart_selection);
+            var box = self.select_box(self.id, cart_selection);
 
             self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' / ' + box + '</span>');
+        },
+        select_box: function(product_id, cart_selection){
+            var self = this;
+            var product_box = self.parent.get_already_used_box(product_id);
+            if(product_box){
+                return product_box;
+            }else{
+                var modal = new instance.stock_irm.modal.box_barcode_modal(self);
+                modal.start();
+
+                if(!cart_selection){
+                    self.parent.current_cart.box_index += 1;
+                }
+                return self.parent.current_cart.box_index;
+            }
         },
         add_listener_on_search_button: function(){
             var self = this;
@@ -222,6 +238,7 @@
             self.$nav.off('click.search');
             self.$nav.on('click.search', '#search a', function (event) {
                 if(self.is_enough_label_printed()) {
+                    $(':focus').blur()
                     var qty = self.$elem.find('#quantity input').get(0).value
                     self.parent.add_product(self.id, parseInt(qty));
                     self.destroy();

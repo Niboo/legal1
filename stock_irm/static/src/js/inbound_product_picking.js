@@ -36,12 +36,12 @@
             self.received_products = {};
         },
         start: function(){
+            this._super();
             var self = this;
             self.$elem = $(QWeb.render(this.template));
             $('#content').html(self.$elem);
             self.search = '';
             self.add_listener_on_search();
-            self.add_listeners();
             self.get_printer_ip();
         },
         get_printer_ip: function(){
@@ -56,7 +56,6 @@
         refresh: function(){
             var self = this;
             $('#content').html(self.$elem);
-            self.add_listeners();
             self.add_listener_on_search();
             self.add_listener_on_product();
             self.add_listener_on_more();
@@ -210,29 +209,21 @@
             quantity += qty;
             cart_box_list[index] = quantity;
         },
-        select_box: function(product_id, cart_selection){
+        get_already_used_box: function(product_id){
             var self = this;
             if (_.has(self.received_products, product_id)) {
                 var product = self.received_products[product_id];
                 if (_.has(product, self.current_cart.id)) {
                     var cart = product[self.current_cart.id]
-                    self.$modal.modal('hide');
                     return cart['index'];
                 }
+            }else{
+                return false;
             }
-
-            var modal = new instance.stock_irm.modal.box_barcode_modal(self);
-            modal.start();
-
-            if(!cart_selection){
-                self.current_cart.box_index += 1;
-            }
-            return self.current_cart.box_index;
         },
         set_box_barcode: function(barcode){
             var self = this;
             self.current_package_barcode = barcode;
-            self.add_listener_for_barcode();
         },
         select_cart: function(cart_id, cart_name){
             var self = this;
@@ -241,7 +232,6 @@
                 id: cart_id,
                 box_index: 1
             }
-
             if (_.has(self.carts, cart_id)) {
                 cart = self.carts[cart_id];
             } else {
