@@ -227,7 +227,7 @@
         },
         start: function () {
             var self = this;
-            self.$body = 'All your change will be canceled';
+            self.$body = 'All your changes will be cancelled.';
             self.$footer = $(QWeb.render(self.footer_template));
             this._super();
             self.add_listener_on_goback_button();

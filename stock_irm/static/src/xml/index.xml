@@ -21,8 +21,8 @@
                             <a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button index-button">My Inventories<br/>
                                 <i class="fa fa-cubes big-icon" aria-hidden="true"></i>
                             </a>
-                            <br/>
                             <!-- Keep it just in case :)-->
+                            <!-- <br/> -->
                             <!--<t t-if="is_wh_manager">-->
                                 <!--<a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Create Inventory Screen</a><br/>-->
                                 <!--<a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Validate Inventory Screen</a><br/>-->

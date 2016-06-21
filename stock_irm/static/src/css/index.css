@@ -5,27 +5,34 @@
     margin-top:15px;
     font-size:1.5em;
 }
-
 .button-color-inbound{
     background-color: rgba(84, 128, 202, 0.80);
-    border-color: #427899
 }
 .button-color-inbound:hover{
     background-color: rgba(84, 128, 202, 1);
+    color: #fff;
 }
-
 .button-color-picking{
     background-color: rgba(217, 83, 79, 0.8);
-    border-color: #992020
 }
 .button-color-picking:hover{
     background-color: rgba(217, 83, 79, 1);
+    color: #fff;
 }
-
-.index-button{
-    height: 40%;
+.button-color-inventory{
+    background-color: rgba(92, 184, 92, 0.8);
 }
-
+.button-color-inventory:hover{
+    background-color: rgba(92, 184, 92, 1);
+    color: #fff;
+}
+.index-button {
+    width: 300px;
+    height: 300px;
+    border-radius: 5px;
+    border: 0px;
+    color: #fff;
+}
 .big-icon {
-  font-size: 10em !important;
+    font-size: 8em !important;
 }

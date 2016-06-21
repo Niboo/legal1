@@ -75,12 +75,12 @@
                 <h2>You didn't scan the right <t t-esc="type"/></h2>
                 <t t-if="type == 'product'">
                     <p class="error-message">
-                        You should scan the following product:
-                        <a href="#">
-                        <img t-att-src="image" class="center-block img-responsive img-300" />
-                        </a>
-                        Found in location <b><t t-esc="location"/></b>.
+                        You should scan the following product, found in location <b><t t-esc="location"/></b>:
                     </p>
+                    <br/>
+                    <a href="#">
+                        <img t-att-src="image" class="img-responsive img-300" />
+                    </a>
                 </t>
                 <t t-if="type== 'location'">
                     <p class="error-message">
@@ -305,10 +305,10 @@
 
         <div class="row text-center" id="current-product-quantity-row">
             <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-                        <div id="expected_qty" class="form-control form-control-picking center-block text-center">
-                            <div t-esc="product.product_quantity"/>
-                        </div>
-                    </div>
+                <div id="expected_qty" class="form-control form-control-picking pull-left text-center">
+                    <div t-esc="product.product_quantity"/>
+                </div>
+            </div>
             <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
                 <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
             </div>
@@ -329,7 +329,7 @@
                 <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-                <div id="qty_in_box" class="form-control form-control-picking center-block text-center">0</div>
+                <div id="qty_in_box" class="form-control form-control-picking pull-right text-center">0</div>
             </div>
         </div>
         <div class="row">
@@ -383,7 +383,7 @@
     </t>
 
     <t t-name="info_first_barcode">
-        <div class="alert alert-warning fade in" style="text-align:center">
+        <div class="alert alert-warning fade in info-prompt">
             <b>Scan the product or enter the barcode manually by clicking on </b>
             <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
                 <i class="fa fa-barcode" aria-hidden="true"></i>
@@ -392,7 +392,7 @@
     </t>
 
     <t t-name="info_more_barcode">
-        <div class="alert alert-info fade in" style="text-align:center">
+        <div class="alert alert-info fade in info-prompt">
             <b>Scan more products or enter the barcode manually by clicking on</b>
             <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
                 <i class="fa fa-barcode" aria-hidden="true"></i>
@@ -401,7 +401,7 @@
     </t>
 
     <t t-name="info_location_barcode">
-        <div class="alert alert-success fade in" style="text-align:center">
+        <div class="alert alert-success fade in info-prompt">
             <b>Please scan the location or enter its location manually by clicking on</b>
             <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
                 <i class="fa fa-barcode" aria-hidden="true"></i>
@@ -410,7 +410,7 @@
     </t>
 
     <t t-name="info_too_much_barcode">
-        <div class="alert alert-danger fade in" style="text-align:center">
+        <div class="alert alert-danger fade in info-prompt">
             <b>You have selected too many products!</b>
         </div>
     </t>
