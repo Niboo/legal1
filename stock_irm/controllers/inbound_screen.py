@@ -308,7 +308,8 @@ product id: %s, supplier id: %s
         purchase_orders = env['purchase.order'].search([
             ('partner_id.commercial_partner_id', '=',
              supplier.commercial_partner_id.id),
-            ('state', '=', 'approved')
+            ('state', '=', 'approved'),
+            ('shipped', '=', False),
         ])
 
         orders = []
