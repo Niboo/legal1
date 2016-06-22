@@ -113,7 +113,7 @@
                     setTimeout(function(){
                         if (chars.length >= 6) {
                             self.session.rpc('/inbound_screen/get_user', {
-                                'barcode': chars.join("").replace(/[\n\r]+/g, '')
+                                'barcode': chars.join("").replace(/[\s]*/g, '')
                             }).then(function(data){
                                 if(data.status == "ok"){
                                     self.$modal.find('#login').val(data.login);

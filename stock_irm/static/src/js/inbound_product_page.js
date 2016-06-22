@@ -274,7 +274,7 @@
             var self = this;
             var qty = self.$elem.find('#quantity input').get(0).value;
 
-            if(!_.contains(self.barcodes, barcode.replace(/[\n\r]+/g, ''))){
+            if(!_.contains(self.barcodes, barcode.replace(/[\s]*/g, ''))){
                 if(self.is_enough_label_printed()){
                    //if we scanned another product, then add the previous product before processing the barcode
                     self.parent.start();

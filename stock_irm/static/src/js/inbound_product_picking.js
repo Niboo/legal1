@@ -265,7 +265,7 @@
         },
         process_barcode: function(barcode) {
             var self = this;
-            self.search = barcode.replace(/[\n\r]+/g, '');
+            self.search = barcode.replace(/[\s]*/g, '');
             self.page = 1;
             self.$elem.find('#results').empty();
             self.get_products();

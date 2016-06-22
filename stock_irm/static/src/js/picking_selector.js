@@ -222,8 +222,8 @@
             var self = this;
 
             // check if the barcode scanned is the barcode we needed
-            var is_product_barcode = barcode.replace(/[\n\r]+/g, '') == self.current_product_barcode;
-            var is_destination_barcode = barcode.replace(/[\n\r]+/g, '') == self.current_destination_barcode;
+            var is_product_barcode = barcode.replace(/[\s]*/g, '') == self.current_product_barcode;
+            var is_destination_barcode = barcode.replace(/[\s]*/g, '') == self.current_destination_barcode;
             console.log(self.current_destination_barcode)
 
             var qty = parseInt($('#quantity_wave input').val());
