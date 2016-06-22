@@ -61,7 +61,18 @@
     background-size:contain; /* you change this to "contain" if you don't want the images to be cropped */
 }
 
-/* ########## NUMPAD */
+/* TOUCH PAD BUTTONS */
+.button-touch {
+    vertical-align: middle;
+    height: 80px;
+    min-width: 150px;
+    margin-bottom: 15px;
+}
+.button-touch-icon {
+    font-size: 5em;
+}
+
+/* NUMPAD */
 
 #manual-barcode-input:focus ~ .num-pad, .num-pad:hover{
     display: block;

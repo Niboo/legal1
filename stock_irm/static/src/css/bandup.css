@@ -7,22 +7,13 @@
 }
 .btn-to-wave{
     font-size: 2em;
-    height: 55px;
+    line-height: 2.2;
 }
-
-.buttons-product {
-    font-size: 3em;
-    width: 100px;
-    height: 55px;
-    /*margin-bottom: 15px;*/
-}
-
 .quantity-info{
     color: red;
     font-weight: bolder;
     font-size: 1em;
 }
-
 .barcode-info{
     color: blue;
     font-size: 2em;

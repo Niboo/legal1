@@ -18,13 +18,13 @@
         <div id="bottom-div">
             <div class="row">
                 <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pull-right">
-                    <a id="goto_wave" type="button" href="#" class="btn btn-success btn-to-wave">
+                    <a id="goto_wave" type="button" href="#" class="btn btn-success btn-to-wave button-touch">
                         Go to Wave
                     </a>
                 </div>
                 <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pull-right text-right">
-                    <button id="manual-barcode-input" type="button" class="btn btn-info btn-large buttons-product">
-                    <i class="fa fa-barcode" aria-hidden="true"></i>
+                    <button id="manual-barcode-input" type="button" class="btn btn-info button-touch">
+                    <i class="fa fa-barcode button-touch-icon" aria-hidden="true"></i>
                     </button>
                     <div class="num-pad">
                         <input id="manual-barcode" type="text" class="form-control text-center numpad-control-picking"/>

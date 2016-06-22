@@ -34,7 +34,7 @@
             <div id="current-product-img" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
                 <h3><span t-esc="location_name"/></h3>
                 <a href="#">
-                    <img src="#" class="center-block img-responsive"/><!-- <img t-att-src="product.product_image" class="center-block img-responsive"/> -->
+                    product_image<!-- <img t-att-src="product.product_image" class="center-block img-responsive"/> -->
                 </a>
             </div>
             <div id="current-product-description" class="col-xs-10 col-sm-10 col-md-5 col-lg-5">
@@ -42,8 +42,8 @@
                 product_description<!--<span t-esc="product.product_description"/>-->
             </div>
             <div id="current-product-buttons" class="col-xs-2 col-sm-2 col-md-3 col-lg-3 text-right">
-                <button id="manual-barcode-input" type="button" class="btn btn-info btn-large buttons-product">
-                    <i class="fa fa-barcode" aria-hidden="true"></i>
+                <button id="manual-barcode-input" type="button" class="btn btn-info button-touch">
+                    <i class="fa fa-barcode button-touch-icon" aria-hidden="true"></i>
                 </button>
                 <div class="num-pad">
                     <input id="manual-barcode" type="text" class="form-control text-center numpad-control-picking"/>
@@ -133,16 +133,13 @@
                         </div>
                     </div>
                 </div>
-                <button id="skip-picking-line" type="button" class="btn btn-danger btn-large buttons-product">
-                    <i class="fa fa-minus-circle" aria-hidden="true"></i>
-                </button>
             </div>
         </div>
-
+<!--
         <div class="row text-center" id="current-product-quantity-row">
             <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
                 <div id="expected_qty" class="form-control form-control-picking pull-left text-center">
-                    product_quantity<!--<div t-esc="product.product_quantity"/>-->
+                    div t-esc="product.product_quantity"/>
                 </div>
             </div>
             <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
@@ -173,16 +170,16 @@
                 <h4><span t-esc="location_name"/></h4>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right">
-                <h4>picking_name<!--<span t-esc="product.picking_name"/>--></h4>
+                <h4><span t-esc="product.picking_name"/></h4>
             </div>
-        </div>
+        </div> -->
     </t>
 
     <t t-name="next_products">
         <table class="table" id="next-products-table">
             <!--<t t-foreach="moves" t-as="move">-->
                 <tr>
-                    <td id="next-product-img"><a href="#"><img src="#" class="center-block img-responsive"/><!--<img t-att-src="product.product_image" class="center-block img-responsive"/>--></a></td>
+                    <td id="next-product-img"><a href="#"><img src="/stock_irm/static/img/product1.jpg" class="center-block img-responsive"/><!--<img t-att-src="product.product_image" class="center-block img-responsive"/>--></a></td>
                     <td>product_name<!--<span t-esc="move.product.product_name"/>--></td>
                     <td><div class="form-control text-center">location_name<!--<span t-esc="move.product.location_name"/>--></div></td>
                     <td>product_quantity<!--<span t-esc="move.product.product_quantity"/>--></td>

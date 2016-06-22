@@ -96,11 +96,11 @@ html, body {
     max-width: 150px;
     line-height: 1.8;
 }
-.buttons-product {
-    font-size: 5em;
-    width: 150px;
-    margin-bottom: 15px;
-}
+/*.buttons-product {*/
+    /*font-size: 5em;*/
+    /*width: 150px;*/
+    /*margin-bottom: 15px;*/
+/*}*/
 .current-product-buttons {
     padding-top: 15px;
 }

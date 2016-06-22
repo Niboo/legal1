@@ -1,1 +1,19 @@
 /* INBOUND WAVE CSS */
+html, body {
+    background-color: #f1f1f1;
+    width: 100%;
+    height: 100%;
+}
+.num-pad{
+    left: 0px;
+    bottom: 0px;
+}
+#current_product {
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+#next-product-img, #picking-product-img {
+    max-width: 100px;
+}
