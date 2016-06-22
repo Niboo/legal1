@@ -94,6 +94,7 @@
         <a href="#" id="continue_wave" class="btn btn-success continue"> Continue this wave </a>
     </t>
 
+<!-- inbound waves-->
 
     <t t-name="inbound_wave_layout">
         <div id="inbound-wave-layout">
@@ -183,7 +184,7 @@
 
     <t t-name="next_products">
         <table class="table" id="next-products-table">
-            <!--<t t-foreach="moves" t-as="move">-->
+            <t t-foreach="moves" t-as="move">
                 <tr>
                     <td id="next-product-img"><a href="#"><img src="/stock_irm/static/img/product1.jpg" class="center-block img-responsive"/><!--<img t-att-src="product.product_image" class="center-block img-responsive"/>--></a></td>
                     <td>product_name<!--<span t-esc="move.product.product_name"/>--></td>
@@ -192,7 +193,7 @@
                     <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
                     <td>picking_name<!--<span t-esc="move.picking_name"/>--></td>
                 </tr>
-            <!--</t>-->
+            </t>
         </table>
     </t>
 

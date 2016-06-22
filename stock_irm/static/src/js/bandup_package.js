@@ -83,8 +83,18 @@
                 self.session.rpc('/bandup/transfert_package_batch', {
                     package_ids: self.scanned_package_ids,
                 }).then(function(data){
+                    console.log(data)
                     if(data.status == 'ok'){
-                        
+                        self.current_package_index = 0;
+                        self.package_list = data.package_list;
+                        var $package_list = $(QWeb.render("inbound_wave_layout", {
+                            'product': self.package_list[self.current_package_index],
+                            'moves': self.package_list.slice(
+                            self.current_package_index + 1,
+                            self.current_package_index + 6)
+                        }));
+
+                        $('#content').html($package_list);
                     } else {
                         console.log('error')
                     }

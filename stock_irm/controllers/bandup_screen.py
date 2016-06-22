@@ -46,7 +46,8 @@ class BandupController(http.Controller):
         # retrieve package information (product, quantity,...)
         scanned_package = env['stock.quant.package'].search(
             [('barcode', '=', str(barcode)),
-             ('location_id', '=', input_location._get_sublocations())]
+             # ('location_id', 'in', input_location._get_sublocations())
+             ]
         )
 
         if not scanned_package:
@@ -101,13 +102,29 @@ class BandupController(http.Controller):
     def transfert_package_batch(self, package_ids, **kw):
         env = http.request.env
 
+        package_list = []
+
         # for each package
         for package_id in package_ids:
             package = env['stock.quant.package'].browse(package_id)
             self.transfer_package(package)
 
+            total_qty = 0
+            for quant in package.quant_ids:
+                total_qty += quant.qty
+
+            package_list.append({
+                'product_name': package.quant_ids[0].product_id.name,
+                'product_description': package.quant_ids[0].product_id.description,
+                'product_quantity': total_qty,
+                 'product_image':
+                     "/web/binary/image?model=product.product&id=%s&field=image"
+                     % package.quant_ids[0].product_id.id,
+            })
+
         return{
             'status': 'ok',
+            'package_list': package_list,
         }
 
     def transfer_package(self, package):
