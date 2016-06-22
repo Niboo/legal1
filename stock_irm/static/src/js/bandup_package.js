@@ -84,10 +84,7 @@
                     package_ids: self.scanned_package_ids,
                 }).then(function(data){
                     if(data.status == 'ok'){
-                        QWeb.add_template('/stock_irm/static/src/xml/inbound_wave.xml', function(){
-                            self.start();
-                        });
-                        self.template = 'inbound_wave_layout';
+                        
                     } else {
                         console.log('error')
                     }
