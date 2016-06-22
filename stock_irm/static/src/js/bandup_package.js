@@ -87,9 +87,11 @@
                     if(data.status == 'ok'){
                         self.current_package_index = 0;
                         self.package_list = data.package_list;
+                        console.log(self.package_list[0]);
+
                         var $package_list = $(QWeb.render("inbound_wave_layout", {
                             'product': self.package_list[self.current_package_index],
-                            'moves': self.package_list.slice(
+                            'packages': self.package_list.slice(
                             self.current_package_index + 1,
                             self.current_package_index + 6)
                         }));

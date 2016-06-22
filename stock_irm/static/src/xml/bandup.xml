@@ -127,14 +127,14 @@
     <t t-name="current_product">
         <div id="current-product-name-row" class="row">
             <div id="current-product-img" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-                <h3><span t-esc="location_name"/></h3>
+                <h3><span t-esc="product.location_name"/></h3>
                 <a href="#">
-                    product_image<!-- <img t-att-src="product.product_image" class="center-block img-responsive"/> -->
+                    <img t-att-src="product.product_image" class="center-block img-responsive"/>
                 </a>
             </div>
             <div id="current-product-description" class="col-xs-10 col-sm-10 col-md-5 col-lg-5">
-                <h3>product_name<!--<span t-esc="product.product_name"/>--></h3>
-                product_description<!--<span t-esc="product.product_description"/>-->
+                <h3><span t-esc="product.product_name"/></h3>
+                <span t-esc="product.product_description"/>
             </div>
             <div id="current-product-buttons" class="col-xs-2 col-sm-2 col-md-3 col-lg-3 text-right">
                 <t t-call="numpad">
@@ -184,14 +184,13 @@
 
     <t t-name="next_products">
         <table class="table" id="next-products-table">
-            <t t-foreach="moves" t-as="move">
+            <t t-foreach="packages" t-as="package">
                 <tr>
-                    <td id="next-product-img"><a href="#"><img src="/stock_irm/static/img/product1.jpg" class="center-block img-responsive"/><!--<img t-att-src="product.product_image" class="center-block img-responsive"/>--></a></td>
-                    <td>product_name<!--<span t-esc="move.product.product_name"/>--></td>
-                    <td><div class="form-control text-center">location_name<!--<span t-esc="move.product.location_name"/>--></div></td>
-                    <td>product_quantity<!--<span t-esc="move.product.product_quantity"/>--></td>
+                    <td id="next-product-img"><a href="#"><img t-att-src="package.product_image" class="center-block img-responsive"/></a></td>
+                    <td><span t-esc="package.product_name"/></td>
+                    <td><div class="form-control text-center"><span t-esc="package.location_name"/></div></td>
+                    <td><span t-esc="package.product_quantity"/></td>
                     <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
-                    <td>picking_name<!--<span t-esc="move.picking_name"/>--></td>
                 </tr>
             </t>
         </table>
