@@ -41,9 +41,12 @@ class BandupController(http.Controller):
     def get_package(self, barcode, **kw):
         env = http.request.env
 
+        input_location = env.ref('stock.stock_location_company')
+
         # retrieve package information (product, quantity,...)
         scanned_package = env['stock.quant.package'].search(
-            [('barcode', '=', str(barcode))]
+            [('barcode', '=', str(barcode)),
+             ('location_id', '=', input_location._get_sublocations())]
         )
 
         if not scanned_package:
@@ -97,8 +100,6 @@ class BandupController(http.Controller):
     @http.route('/bandup/transfert_package_batch', type='json', auth="user")
     def transfert_package_batch(self, package_ids, **kw):
         env = http.request.env
-
-        print package_ids
 
         # for each package
         for package_id in package_ids:

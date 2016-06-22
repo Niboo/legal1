@@ -68,6 +68,9 @@
                             product_quantity: data.product.quantity,
                         }));
                         $('#package_list').append($new_box);
+                    }else{
+                        var modal = new instance.stock_irm.no_package_found_modal();
+                        modal.start();
                     }
                 });
             }
