@@ -36,6 +36,7 @@
             });
             self.template = 'bandup_screen_layout';
             self.scanned_package_barcodes = [];
+            self.scanned_package_ids = [];
         },
         start: function(){
             var self = this;
@@ -57,6 +58,7 @@
                     console.log(data);
                     if(data.status == "ok"){
                         self.scanned_package_barcodes.push(true_barcode);
+                        self.scanned_package_ids.push(data.scanned_package.id);
                         var $new_box = $(QWeb.render("package_result", {
                             product_name: data.product.name,
                             quantity: data.product.quantity,
@@ -72,16 +74,11 @@
         },
         add_listener_on_goto_wave: function(){
             var self = this;
-            self.$nav.find('#search a').show();
-            self.$nav.off('click.search');
-            self.$nav.on('click.search', '#search a', function (event) {
-                if(self.is_enough_label_printed()) {
-                    $(':focus').blur()
-                    var qty = self.$elem.find('#quantity input').get(0).value
-                    self.parent.add_product(self.id, parseInt(qty));
-                    self.destroy();
-                    self.parent.start();
-                }
+            $('#content').off('click.gotowave');
+            $('#content').on('click.gotowave', '#goto_wave', function (event) {
+                self.session.rpc('/bandup/transfert_package_batch', {
+                    package_ids: self.scanned_package_ids,
+                })
             })
         },
     });

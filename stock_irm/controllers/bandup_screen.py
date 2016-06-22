@@ -94,20 +94,28 @@ class BandupController(http.Controller):
             'location_name': location.name,
         }
 
-    @http.route('/bandup/transfer_package', type='json', auth="user")
-    def transfer_package(self, package_id, new_location_id, **kw):
-        # transfer the package
+    @http.route('/bandup/transfert_package_batch', type='json', auth="user")
+    def transfert_package_batch(self, package_ids, **kw):
         env = http.request.env
 
-        scanned_package = env['stock.quant.package'].browse(package_id)
-        new_location = env['stock.location'].browse(new_location_id)
+        print package_ids
 
-        # change the location of the package and of the moves
-        scanned_package.location_id = new_location
-
-        for quant in scanned_package.quant_ids:
-            quant.location_id = new_location
+        # for each package
+        for package_id in package_ids:
+            package = env['stock.quant.package'].browse(package_id)
+            self.transfer_package(package)
 
         return{
-            'status': 'ok'
+            'status': 'ok',
         }
+
+    def transfer_package(self, package):
+        env = http.request.env
+
+        for move in package.quant_ids:
+            picking = move.reservation_id.picking_id
+
+            result = picking.do_enter_transfer_details()
+            wizard_id = result['res_id']
+            my_wizard = env['stock.transfer_details'].browse(wizard_id)
+            my_wizard.do_detailed_transfer()
