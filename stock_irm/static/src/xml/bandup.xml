@@ -127,14 +127,29 @@
     <t t-name="current_product">
         <div id="current-product-name-row" class="row">
             <div id="current-product-img" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-                <h3><span t-esc="product.location_name"/></h3>
+
                 <a href="#">
                     <img t-att-src="product.product_image" class="center-block img-responsive"/>
                 </a>
             </div>
             <div id="current-product-description" class="col-xs-10 col-sm-10 col-md-5 col-lg-5">
-                <h3><span t-esc="product.product_name"/></h3>
-                <span t-esc="product.product_description"/>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="height:150px;">
+                        <h3><span t-esc="product.product_name"/></h3>
+                        <span t-esc="product.product_description"/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 text-center" style="vertical-align:middle;">
+                        <h3><div class="form-control text-center form-control-picking"><span t-esc="product.product_quantity"/></div></h3>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 text-center" style="vertical-align:middle;">
+                        <h3><i class="fa fa-arrow-right" aria-hidden="true"></i></h3>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 text-center" style="vertical-align:middle;">
+                        <h3><span t-esc="product.location_name"/></h3>
+                    </div>
+                </div>
             </div>
             <div id="current-product-buttons" class="col-xs-2 col-sm-2 col-md-3 col-lg-3 text-right">
                 <t t-call="numpad">
@@ -142,44 +157,6 @@
                 </t>
             </div>
         </div>
-<!--
-        <div class="row text-center" id="current-product-quantity-row">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-                <div id="expected_qty" class="form-control form-control-picking pull-left text-center">
-                    div t-esc="product.product_quantity"/>
-                </div>
-            </div>
-            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
-                <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
-            </div>
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                <div class="input-group input-picking text-center">
-                    <div id="quantity_wave" class="input-group input-picking text-center">
-                         <span class="input-group-btn">
-                             <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-                         </span>
-                         <input id="quantity-input-value" type="text" class="form-control text-center form-control-picking" value="0"/>
-                         <span class="input-group-btn">
-                            <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-                         </span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
-                <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
-            </div>
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-                <div id="qty_in_box" class="form-control form-control-picking pull-right text-center">0</div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-left">
-                <h4><span t-esc="location_name"/></h4>
-            </div>
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right">
-                <h4><span t-esc="product.picking_name"/></h4>
-            </div>
-        </div> -->
     </t>
 
     <t t-name="next_products">
@@ -188,9 +165,9 @@
                 <tr>
                     <td id="next-product-img"><a href="#"><img t-att-src="package.product_image" class="center-block img-responsive"/></a></td>
                     <td><span t-esc="package.product_name"/></td>
-                    <td><div class="form-control text-center"><span t-esc="package.location_name"/></div></td>
-                    <td><span t-esc="package.product_quantity"/></td>
+                    <td><div class="form-control text-center"><span t-esc="package.product_quantity"/></div></td>
                     <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
+                    <td><span t-esc="package.location_name"/></td>
                 </tr>
             </t>
         </table>
