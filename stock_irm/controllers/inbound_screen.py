@@ -240,7 +240,7 @@ product id: %s, supplier id: %s
             }
 
         if not dest_box:
-            dest_box = env['stock.location'].create({
+            dest_box = env['stock.location'].sudo().create({
                 'location_id': cart.id,
                 'name': str(box_name),
             })

@@ -120,3 +120,8 @@ class BandupController(http.Controller):
             wizard_id = result['res_id']
             my_wizard = env['stock.transfer_details'].browse(wizard_id)
             my_wizard.do_detailed_transfer()
+
+    # @http.route('/bandup/get_inbound_wave', type='http', auth="user")
+    # def get_inbound_wave(self, package_ids, **kw):
+    #
+

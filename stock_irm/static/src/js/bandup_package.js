@@ -45,6 +45,7 @@
             $('#content').html($result);
             this._super();
             self.add_listener_on_goto_wave();
+            self.add_listener_on_numpad();
         },
         process_barcode: function(barcode){
             var self = this;
@@ -92,6 +93,25 @@
                     }
                 });
             })
+        },
+        add_listener_on_numpad: function(){
+            var self = this;
+            $('.num-pad .circle').off('click.numpad');
+            $('.num-pad .circle').on('click.numpad', function (event) {
+                var $target = $(event.currentTarget);
+                value = $target.find("span").text();
+                if(value=="C"){
+                   $('#manual-barcode').val("");
+                }else if(value=="Enter"){
+                    self.process_barcode($('#manual-barcode').val());
+                    $('#manual-barcode').val("");
+
+                }else{
+                    $('#manual-barcode').val($('#manual-barcode').val()+value);
+                }
+                $(':focus').blur()
+
+            });
         },
     });
     instance.index.picking_selector = new index_selector();
