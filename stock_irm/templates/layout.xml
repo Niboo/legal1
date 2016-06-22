@@ -133,7 +133,7 @@
             </t>
         </template>
 
-        <template id="stock_irm.picking_waves" name="Inbound Screen">
+        <template id="stock_irm.picking_waves" name="Picking Waves">
             <t t-call="stock_irm.layout">
             </t>
         </template>

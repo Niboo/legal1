@@ -41,21 +41,6 @@
     margin-bottom: 0px;
 }
 
-.square-label{
-    text-align: center;
-    word-wrap: break-word;
-    height: 3em;
-    overflow: hidden;
-}
-
-.square{
-    width: 100%;
-    padding-bottom : 100%;
-    background-position:center center;
-    background-repeat:no-repeat;
-    background-size:contain; /* you change this to "contain" if you don't want the images to be cropped */
-}
-
 .scan-row img{
     width: 50%;
 }

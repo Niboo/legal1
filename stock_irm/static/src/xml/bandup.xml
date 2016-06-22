@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <!-- Bandup template -->
+    <t t-name="bandup_screen">
+        <div class="container">
+            <div id="results" class="scan-row">
+                <t t-if="is_wh_user">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                            <h1>Scan boxes</h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                            <t t-call="box_result" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+                            <a id="goto_rma" type="button" href="#" class="btn btn-success">
+                                Go to Wave
+                            </a>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="box_result">
+        <t t-foreach="boxes" t-as="box">
+            <div class="col-xs-2 col-md-2">
+                <div id="box">
+                    <a href="#" class="thumbnail" t-att-data-id="box.id">
+                        <div class="square" t-att-style="'background-image:url(\'' + box.image + '\');'"></div>
+                    </a>
+                    <div class="square-label">
+                        <span t-esc="box.name"/>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="change_user">
+        <!-- cart selection modal -->
+        <div class="row">
+            <div class="col-md-3" />
+            <div class="col-md-6" >
+                <form class="oe_login_form" role="form" method="post" _lpchecked="1">
+                    <div id="login-image" style="display:none"></div>
+                    <div class="form-group">
+                        <label for="login" class="control-label">Email</label>
+                        <input id="login" type="text" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control-label">Password</label>
+                        <input id="password" type="password" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" />
+        </div>
+    </t>
+
+    <t t-name="change_user_footer">
+        <a id="modal_changer_user_button" href="#" class="btn btn-success">
+            Change User
+        </a>
+    </t>
+
+    <t t-name="go_back">
+        <a href="#" id="close_wave" class="btn btn-danger pull-left goback"> Go Back </a>
+        <a href="#" id="continue_wave" class="btn btn-success continue"> Continue this wave </a>
+    </t>
+
+</templates>
+
