@@ -107,7 +107,7 @@ class BandupController(http.Controller):
         # for each package
         for package_id in package_ids:
             package = env['stock.quant.package'].browse(package_id)
-            self.transfer_package(package)
+            # self.transfer_package(package)
 
             total_qty = 0
             for quant in package.quant_ids:
@@ -118,6 +118,8 @@ class BandupController(http.Controller):
                 'product_description': package.quant_ids[0].product_id.description,
                 'product_quantity': total_qty,
                 'location_name':"dummy for the moment",
+                'package_barcode': "5410041014600", #todo: this is an cent wafes barcode for the moment
+                'location_dest_barcode': "3068320040103", #todo: this is evian barcode for the moment...
                 'product_image':
                      "/web/binary/image?model=product.product&id=%s&field=image"
                      % package.quant_ids[0].product_id.id,
