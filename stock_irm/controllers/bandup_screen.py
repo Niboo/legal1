@@ -107,7 +107,7 @@ class BandupController(http.Controller):
         # for each package
         for package_id in package_ids:
             package = env['stock.quant.package'].browse(package_id)
-            # self.transfer_package(package)
+            self.transfer_package(package)
 
             total_qty = 0
             for quant in package.quant_ids:
