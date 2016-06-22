@@ -2,45 +2,39 @@
 <templates>
 
     <!-- Bandup template -->
-    <t t-name="bandup_screen">
+    <t t-name="bandup_screen_layout">
         <div class="container">
             <div id="results" class="scan-row">
-                <t t-if="is_wh_user">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                            <h1>Scan boxes</h1>
-                        </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                        <h1>Scan boxes</h1>
                     </div>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                            <t t-call="box_result" />
-                        </div>
+                </div>
+                <div class="row">
+
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
+                        <a id="goto_wave" type="button" href="#" class="btn btn-success btn-to-wave">
+                            Go to Wave
+                        </a>
                     </div>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-right">
-                            <a id="goto_rma" type="button" href="#" class="btn btn-success">
-                                Go to Wave
-                            </a>
-                        </div>
-                    </div>
-                </t>
+                </div>
             </div>
         </div>
     </t>
 
-    <t t-name="box_result">
-        <t t-foreach="boxes" t-as="box">
-            <div class="col-xs-2 col-md-2">
-                <div id="box">
-                    <a href="#" class="thumbnail" t-att-data-id="box.id">
-                        <div class="square" t-att-style="'background-image:url(\'' + box.image + '\');'"></div>
-                    </a>
-                    <div class="square-label">
-                        <span t-esc="box.name"/>
-                    </div>
+    <t t-name="package_result">
+        <div class="col-xs-2 col-md-2">
+            <div id="box">
+                <a href="#" class="thumbnail" t-att-data-id="box.id">
+                    <div class="square" t-att-style="'background-image:url(\'' + box.image + '\');'"></div>
+                </a>
+                <div class="square-label">
+                    <span t-esc="box.name"/>
                 </div>
             </div>
-        </t>
+        </div>
     </t>
 
     <t t-name="change_user">

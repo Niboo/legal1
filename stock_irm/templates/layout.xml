@@ -46,6 +46,12 @@
             <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css"/>
         </template>
 
+        <template id="stock_irm.assets_bandup" name="Stock IRM assets for bandup">
+            <link href="/stock_irm/static/src/css/bandup.css" rel="stylesheet"/>
+            <script type="text/javascript" src="/stock_irm/static/src/js/bandup_package.js"></script>
+        </template>
+
+
         <template id="stock_irm.layout" name="Stock IRM Header">
             <html lang="en">
                 <head>
@@ -60,6 +66,9 @@
                     </t>
                     <t t-if="title == 'Index'">
                         <t t-call-assets="stock_irm.assets_index" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Bandup'">
+                        <t t-call-assets="stock_irm.assets_bandup" t-js="false"/>
                     </t>
                 </head>
                 <body>
@@ -121,6 +130,9 @@
                     <t t-if="title == 'Index'">
                         <t t-call-assets="stock_irm.assets_index" t-css="false"/>
                     </t>
+                    <t t-if="title == 'Bandup'">
+                        <t t-call-assets="stock_irm.assets_bandup" t-css="false"/>
+                    </t>
                 </body>
             </html>
 
@@ -134,6 +146,11 @@
         </template>
 
         <template id="stock_irm.picking_waves" name="Picking Waves">
+            <t t-call="stock_irm.layout">
+            </t>
+        </template>
+
+        <template id="stock_irm.bandup_screen" name="Bandup Screen">
             <t t-call="stock_irm.layout">
             </t>
         </template>

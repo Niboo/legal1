@@ -34,6 +34,7 @@ class BandupController(http.Controller):
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
             'worklocation_id': current_user.work_location_id.id or 0,
+            'title': 'Bandup',
         })
 
     @http.route('/bandup/get_package', type='json', auth="user")
@@ -42,8 +43,17 @@ class BandupController(http.Controller):
 
         # retrieve package information (product, quantity,...)
         scanned_package = env['stock.quant.package'].search(
-            [('barcode', '=', barcode)]
+            [('barcode', '=', str(barcode))]
         )
+
+
+        print barcode
+
+        if not scanned_package:
+            return{
+                "result": "error",
+                "message": "Package couldnt be found",
+            }
 
         product = env['product.product'].browse(
             scanned_package.quant_ids[0]
