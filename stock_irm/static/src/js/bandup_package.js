@@ -35,22 +35,54 @@
                 self.start();
             });
             self.template = 'bandup_screen_layout';
-
+            self.scanned_package_barcodes = [];
         },
         start: function(){
             var self = this;
-            $result = $(QWeb.render(self.template));
+            var $result = $(QWeb.render(self.template));
 
             $('#content').html($result);
             this._super();
+            self.add_listener_on_goto_wave();
         },
         process_barcode: function(barcode){
             var self = this;
-            self.session.rpc('/bandup/get_package', {
-                barcode: barcode.replace(/[\n\r]+/g, ''),
-            }).then(function(data){
-                console.log(data);
-            });
+            var true_barcode = barcode.replace(/[\n\r]+/g, '');
+
+            // check if we didnt already scanned the package to avoid adding the same package twice
+            if($.inArray(true_barcode, self.scanned_package_barcodes) == -1){
+                self.session.rpc('/bandup/get_package', {
+                    barcode: true_barcode,
+                }).then(function(data){
+                    console.log(data);
+                    if(data.status == "ok"){
+                        self.scanned_package_barcodes.push(true_barcode);
+                        var $new_box = $(QWeb.render("package_result", {
+                            product_name: data.product.name,
+                            quantity: data.product.quantity,
+                            package_id: data.scanned_package.id,
+                            package_barcode: data.scanned_package.barcode,
+                            product_image: data.product.image,
+                            product_quantity: data.product.quantity,
+                        }));
+                        $('#package_list').append($new_box);
+                    }
+                });
+            }
+        },
+        add_listener_on_goto_wave: function(){
+            var self = this;
+            self.$nav.find('#search a').show();
+            self.$nav.off('click.search');
+            self.$nav.on('click.search', '#search a', function (event) {
+                if(self.is_enough_label_printed()) {
+                    $(':focus').blur()
+                    var qty = self.$elem.find('#quantity input').get(0).value
+                    self.parent.add_product(self.id, parseInt(qty));
+                    self.destroy();
+                    self.parent.start();
+                }
+            })
         },
     });
     instance.index.picking_selector = new index_selector();

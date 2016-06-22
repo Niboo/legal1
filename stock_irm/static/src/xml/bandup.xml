@@ -10,7 +10,7 @@
                         <h1>Scan boxes</h1>
                     </div>
                 </div>
-                <div class="row">
+                <div id="package_list" class="row">
 
                 </div>
                 <div class="row">
@@ -27,11 +27,17 @@
     <t t-name="package_result">
         <div class="col-xs-2 col-md-2">
             <div id="box">
-                <a href="#" class="thumbnail" t-att-data-id="box.id">
-                    <div class="square" t-att-style="'background-image:url(\'' + box.image + '\');'"></div>
+                <div class="square-label">
+                    <span class="barcode-info"><span t-esc="package_barcode"/></span>
+                </div>
+                <a href="#" class="thumbnail" t-att-data-package-id="package_id" t-att-data-package-barcode="package_barcode">
+                    <div class="square" t-att-style="'background-image:url(\'' + product_image + '\');'"></div>
                 </a>
                 <div class="square-label">
-                    <span t-esc="box.name"/>
+                    <span t-esc="product_name"/>
+                </div>
+                <div class="square-label">
+                    <span class="quantity-info">Quantity: <span t-esc="product_quantity"/></span>
                 </div>
             </div>
         </div>

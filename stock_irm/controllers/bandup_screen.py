@@ -46,18 +46,13 @@ class BandupController(http.Controller):
             [('barcode', '=', str(barcode))]
         )
 
-
-        print barcode
-
         if not scanned_package:
             return{
                 "result": "error",
                 "message": "Package couldnt be found",
             }
 
-        product = env['product.product'].browse(
-            scanned_package.quant_ids[0]
-        )
+        product = scanned_package.quant_ids[0].product_id
 
         total_qty = 0
         for quant in scanned_package.quant_ids:

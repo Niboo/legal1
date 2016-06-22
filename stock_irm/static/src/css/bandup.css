@@ -1,3 +1,14 @@
 .btn-to-wave{
     font-size: 4em ;
 }
+
+.quantity-info{
+    color: red;
+    font-weight: bolder;
+    font-size: 1em;
+}
+
+.barcode-info{
+    color: blue;
+    font-size: 2em;
+}
