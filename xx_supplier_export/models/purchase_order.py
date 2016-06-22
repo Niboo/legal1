@@ -27,7 +27,7 @@ import codecs
 from base64 import b64encode
 from openerp import models, api
 from openerp.tools.safe_eval import safe_eval
-
+import unicodedata
 
 class UnicodeWriter:
     """
@@ -92,10 +92,10 @@ class PurchaseOrder(models.Model):
                 })
 
             for element in data:
-                csv_data += (element and str(element) or " ") + ","
+                element = unicodedata.normalize('NFKD', unicode(element)).encode('ascii','ignore')
+                csv_data += (element or " ") + ","
             csv_data += "\n"
             
-        
         res_id = display_csv_obj.create({'csv_data':csv_data}).id
         return {
             'name': "CSV Data",
