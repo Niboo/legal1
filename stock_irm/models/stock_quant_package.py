@@ -31,6 +31,6 @@ class StockQuantPackage(models.Model):
 
     _sql_constraints = [
         ('package_barcode_unique',
-         'UNIQUE(barcode)',
+         'UNIQUE(barcode, location_id)',
          'The package barcode should be unique'),
     ]

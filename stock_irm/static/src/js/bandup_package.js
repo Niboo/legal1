@@ -26,7 +26,7 @@
     var QWeb = instance.qweb;
     instance.index = {}
 
-    var index_selector = instance.stock_irm.widget.extend({
+    var bandup_selector = instance.stock_irm.widget.extend({
         init: function () {
             this._super();
             var self = this;
@@ -51,48 +51,30 @@
         process_barcode: function(barcode){
             var self = this;
             var true_barcode = barcode.replace(/[\s]*/g, '');
-            console.log(self.step);
 
-            //TODO: manage scanning and display next page
-            if(self.step == "inbound_wave"){
-                console.log(barcode)
-                console.log(self.current_package_barcode)
-                console.log(self.current_location_dest_barcode)
-                if(true_barcode == self.current_package_barcode){
-                    console.log("current package barcode");
-                    //TODO: manager go to step "wait for location barcode"
-                }
-                if(true_barcode == self.current_location_dest_barcode){
-                    console.log("current location barcode");
-                    self.current_package_index++;
-                    self.display();
-                    //TODO: manage package transfer and wait for package barcode
-                }
-            }else{
-                // check if we didnt already scanned the package to avoid adding the same package twice
-                if($.inArray(true_barcode, self.scanned_package_barcodes) == -1){
-                    self.session.rpc('/bandup/get_package', {
-                        barcode: true_barcode,
-                    }).then(function(data){
-                        console.log(data);
-                        if(data.status == "ok"){
-                            self.scanned_package_barcodes.push(true_barcode);
-                            self.scanned_package_ids.push(data.scanned_package.id);
-                            var $new_box = $(QWeb.render("package_result", {
-                                product_name: data.product.name,
-                                quantity: data.product.quantity,
-                                package_id: data.scanned_package.id,
-                                package_barcode: data.scanned_package.barcode,
-                                product_image: data.product.image,
-                                product_quantity: data.product.quantity,
-                            }));
-                            $('#package_list').append($new_box);
-                        }else{
-                            var modal = new instance.stock_irm.no_package_found_modal();
-                            modal.start();
-                        }
-                    });
-                }
+            // check if we didnt already scanned the package to avoid adding the same package twice
+            if($.inArray(true_barcode, self.scanned_package_barcodes) == -1){
+                self.session.rpc('/bandup/get_package', {
+                    barcode: true_barcode,
+                }).then(function(data){
+                    console.log(data);
+                    if(data.status == "ok"){
+                        self.scanned_package_barcodes.push(true_barcode);
+                        self.scanned_package_ids.push(data.scanned_package.id);
+                        var $new_box = $(QWeb.render("package_result", {
+                            product_name: data.product.name,
+                            quantity: data.product.quantity,
+                            package_id: data.scanned_package.id,
+                            package_barcode: data.scanned_package.barcode,
+                            product_image: data.product.image,
+                            product_quantity: data.product.quantity,
+                        }));
+                        $('#package_list').append($new_box);
+                    }else{
+                        var modal = new instance.stock_irm.no_package_found_modal();
+                        modal.start();
+                    }
+                });
             }
         },
         add_listener_on_goto_wave: function(){
@@ -104,39 +86,13 @@
                 }).then(function(data){
                     console.log(data)
                     if(data.status == 'ok'){
-                        self.current_package_index = 0;
-                        self.package_list = data.package_list;
-                        self.current_package_barcode = self.package_list[self.current_package_index].package_barcode;
-                        self.current_location_dest_barcode = self.package_list[self.current_package_index].location_dest_barcode;
-
-                        self.display();
-                        //var $package_list = $(QWeb.render("inbound_wave_layout", {
-                        //    'product': self.package_list[self.current_package_index],
-                        //    'packages': self.package_list.slice(
-                        //    self.current_package_index + 1,
-                        //    self.current_package_index + 6)
-                        //}));
-                        //
-                        //$('#content').html($package_list);
-
-                        self.step = "inbound_wave";
-
+                        var bandup_wave_widget = new instance.stock_irm.bandup_waves(data.package_list)
+                        bandup_wave_widget.start();
                     } else {
                         console.log('error')
                     }
                 });
             })
-        },
-        display: function(){
-            var self = this;
-            var $package_list = $(QWeb.render("inbound_wave_layout", {
-                'product': self.package_list[self.current_package_index],
-                'packages': self.package_list.slice(
-                self.current_package_index + 1,
-                self.current_package_index + 6)
-            }));
-
-            $('#content').html($package_list);
         },
         add_listener_on_numpad: function(){
             var self = this;
@@ -158,5 +114,6 @@
             });
         },
     });
-    instance.index.picking_selector = new index_selector();
+
+    instance.stock_irm.bandup_selector = new bandup_selector();
 })();

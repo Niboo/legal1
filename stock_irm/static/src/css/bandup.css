@@ -18,7 +18,7 @@
     color: blue;
     font-size: 2em;
 }
-.num-pad{
+.numpad-above .num-pad{
     left: 25%;
     bottom: 80px;
 }

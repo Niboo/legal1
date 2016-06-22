@@ -98,6 +98,18 @@ class BandupController(http.Controller):
             'location_name': location.name,
         }
 
+    @http.route('/bandup/move_package', type='json', auth='user')
+    def move_package(self, package_id, **kw):
+        env = http.request.env
+
+        package = env['stock.quant.package'].browse(package_id)
+        self.transfer_package(package, False)
+
+        return {
+            'status': 'ok',
+        }
+
+
     @http.route('/bandup/transfert_package_batch', type='json', auth="user")
     def transfert_package_batch(self, package_ids, **kw):
         env = http.request.env
@@ -107,7 +119,7 @@ class BandupController(http.Controller):
         # for each package
         for package_id in package_ids:
             package = env['stock.quant.package'].browse(package_id)
-            # self.transfer_package(package)
+            package = self.transfer_package(package)
 
             total_qty = 0
             for quant in package.quant_ids:
@@ -118,8 +130,9 @@ class BandupController(http.Controller):
                 'product_description': package.quant_ids[0].product_id.description,
                 'product_quantity': total_qty,
                 'location_name':"dummy for the moment",
-                'package_barcode': "5410041014600", #todo: this is an cent wafes barcode for the moment
-                'location_dest_barcode': "3068320040103", #todo: this is evian barcode for the moment...
+                'package_barcode': package.barcode,
+                'package_id': package.id,
+                'location_dest_barcode': 'test',
                 'product_image':
                      "/web/binary/image?model=product.product&id=%s&field=image"
                      % package.quant_ids[0].product_id.id,
@@ -130,13 +143,66 @@ class BandupController(http.Controller):
             'package_list': package_list,
         }
 
-    def transfer_package(self, package):
+    def transfer_package(self, package, is_end_package_needed=True):
         env = http.request.env
 
-        for move in package.quant_ids:
-            picking = move.reservation_id.picking_id
+        destination = False
+        end_package = False
+
+        for quant in package.quant_ids:
+            picking = quant.reservation_id.picking_id
 
             result = picking.do_enter_transfer_details()
             wizard_id = result['res_id']
             my_wizard = env['stock.transfer_details'].browse(wizard_id)
+
+            if not destination:
+                item = my_wizard.item_ids.filtered(lambda r: r.package_id == package)
+                packop = my_wizard.packop_ids.filtered(lambda r: r.package_id == package)
+
+                destination = item and item.destinationloc_id or packop.destinationloc_id
+
+                if is_end_package_needed:
+                    end_package = self.search_dest_package(package.barcode, destination)
+
+            my_wizard.write({
+                'item_ids': [(5, False, False)],
+                'packop_ids': [(5, False, False)]
+            })
+
+            wizard_values = {
+                    'package_id': package.id,
+                    'product_id': quant.product_id.id,
+                    'quantity': quant.qty,
+                    'sourceloc_id': quant.location_id.id,
+                    'destinationloc_id': destination.id,
+                    'product_uom_id': quant.product_id.uom_id.id
+                }
+
+            if is_end_package_needed:
+                wizard_values['result_package_id'] = end_package.id,
+
+            my_wizard.write({
+                'item_ids': [(0, False, wizard_values)]
+            })
+
             my_wizard.do_detailed_transfer()
+        package.unlink()
+        return end_package
+
+    def search_dest_package(self, package_barcode, location):
+        env = http.request.env
+
+        dest_package = env['stock.quant.package'].search([
+            ('barcode', '=', str(package_barcode)),
+            ('location_id', '=', location.id)
+        ])
+
+        if not dest_package:
+            dest_package = env['stock.quant.package'].create({
+                'name': str(package_barcode),
+                'barcode': str(package_barcode),
+                'location_id': location.id,
+            })
+
+        return dest_package

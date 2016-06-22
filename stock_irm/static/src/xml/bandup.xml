@@ -22,7 +22,7 @@
                         Go to Wave
                     </a>
                 </div>
-                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pull-right text-right">
+                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pull-right text-right numpad-above">
                     <t t-call="numpad">
 
                     </t>

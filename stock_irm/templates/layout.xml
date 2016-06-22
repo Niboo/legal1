@@ -48,8 +48,10 @@
 
         <template id="stock_irm.assets_bandup" name="Stock IRM assets for bandup">
             <script type="text/javascript" src="/stock_irm/static/src/js/bandup_modal.js"></script>
-            <link href="/stock_irm/static/src/css/bandup.css" rel="stylesheet"/>
             <script type="text/javascript" src="/stock_irm/static/src/js/bandup_package.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/bandup_waves.js"></script>
+            <link href="/stock_irm/static/src/css/bandup.css" rel="stylesheet"/>
+
         </template>
 
 
