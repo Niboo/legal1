@@ -1,5 +1,20 @@
+#bottom-div {
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+    padding: 30px;
+    background-color: white;
+}
 .btn-to-wave{
-    font-size: 4em ;
+    font-size: 2em;
+    height: 55px;
+}
+
+.buttons-product {
+    font-size: 3em;
+    width: 100px;
+    height: 55px;
+    /*margin-bottom: 15px;*/
 }
 
 .quantity-info{
@@ -12,7 +27,10 @@
     color: blue;
     font-size: 2em;
 }
-
+.num-pad{
+    left: 25%;
+    bottom: 80px;
+}
 .fa-10x {
   font-size: 10em;
 }
