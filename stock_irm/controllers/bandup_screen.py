@@ -56,6 +56,12 @@ class BandupController(http.Controller):
                 "message": "Package couldnt be found",
             }
 
+        if not scanned_package.quant_ids:
+            return{
+                "result": "error",
+                "message": "Package has no move",
+            }
+
         product = scanned_package.quant_ids[0].product_id
 
         total_qty = 0
@@ -125,14 +131,24 @@ class BandupController(http.Controller):
             for quant in package.quant_ids:
                 total_qty += quant.qty
 
+            result = package.quant_ids[0].reservation_id.picking_id.do_enter_transfer_details()
+            wizard_id = result['res_id']
+            my_wizard = env['stock.transfer_details'].browse(wizard_id)
+            item = my_wizard.packop_ids.filtered(lambda r: r.package_id == package)
+
+            dest_location = item.destinationloc_id
+
             package_list.append({
                 'product_name': package.quant_ids[0].product_id.name,
                 'product_description': package.quant_ids[0].product_id.description,
                 'product_quantity': total_qty,
-                'location_name':"dummy for the moment",
+                'location_name': dest_location.name,
+                'location_position': str(dest_location.posx) + " / " +
+                                     str(dest_location.posy) + " / " +
+                                     str(dest_location.posz),
                 'package_barcode': package.barcode,
                 'package_id': package.id,
-                'location_dest_barcode': 'test',
+                'location_dest_barcode': dest_location.loc_barcode,
                 'product_image':
                      "/web/binary/image?model=product.product&id=%s&field=image"
                      % package.quant_ids[0].product_id.id,

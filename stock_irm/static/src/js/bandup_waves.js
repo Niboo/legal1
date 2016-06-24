@@ -93,6 +93,7 @@
             self.session.rpc('/bandup/move_package', {
                 package_id: self.package_list[0].package_id
             }).then(function(data){
+                console.log("bandup wave data");
                 if(data.status == "ok"){
                     self.package_list.shift();
                     if(self.package_list.length > 0){
@@ -102,7 +103,11 @@
                         self.step = 'package';
                         self.display();
                     } else {
-                        console.log('FINISH');
+                        var modal = new instance.stock_irm.modal.confirm_bandup_wave_modal();
+                        modal.start();
+                        window.setTimeout(function(){
+                            window.location.href = "/bandup";
+                        }, 3000);
                     }
 
                 }else{

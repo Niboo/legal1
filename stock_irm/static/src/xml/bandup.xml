@@ -148,6 +148,7 @@
                     </div>
                     <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 text-center" style="vertical-align:middle;">
                         <h3><span t-esc="product.location_name"/></h3>
+                        <h3>Position: <span t-esc="product.location_position"/></h3>
                     </div>
                 </div>
             </div>
