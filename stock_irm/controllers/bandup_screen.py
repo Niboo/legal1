@@ -249,7 +249,7 @@ class BandupController(http.Controller):
 
         waves = env['stock.inbound.wave'].search([
             ('user_id', '=', http.request.uid),
-            ('state', '=', 'in_progress'),
+            ('state', '!=', 'done'),
         ])
 
         for wave in waves:
@@ -263,7 +263,6 @@ class BandupController(http.Controller):
                    }
         return results
 
-
     @http.route('/bandup/get_wave', type='json', auth="user")
     def get_wave(self, wave_id, **kw):
         env = http.request.env
@@ -271,8 +270,11 @@ class BandupController(http.Controller):
         inbound_wave = env['stock.inbound.wave'].browse(int(wave_id))
         package_list = []
 
-        # TODO: retrieve only the package that are still in input
-        for package in inbound_wave.package_ids:
+        stock_location = env.ref('stock.stock_location_stock')
+        stock_subloc = stock_location._get_sublocations()
+
+        for package in inbound_wave.package_ids.filtered(
+                lambda r: r.location_id.id not in stock_subloc):
             package.inbound_wave_id = inbound_wave
 
             total_qty = 0

@@ -30,7 +30,7 @@ class InboundWave(models.Model):
     user_id = fields.Many2one('res.users', 'User')
     state = fields.Selection([('new', 'New'),
                               ('in_progress', 'In Progress'),
-                              ('done', 'Done')],
+                              ('done', 'Done')], compute="_compute_state",
                              default='new', store=True)
 
     @api.multi
