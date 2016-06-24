@@ -247,6 +247,26 @@ product id: %s, supplier id: %s
 
         return dest_box
 
+    @http.route('/inbound_screen/check_package_empty', type='json',
+                auth='user')
+    def check_package_empty(self, package_barcode):
+        env = http.request.env
+
+        dest_package = env['stock.quant.package'].search([
+            ('barcode', '=', str(package_barcode))
+        ])
+
+        if dest_package and (dest_package.quant_ids or
+                                 dest_package.children_ids):
+            return{
+                'status': 'error'
+            }
+
+        return {
+            "status": "ok"
+        }
+
+
     def search_dest_package(self, package_barcode):
         env = http.request.env
 
