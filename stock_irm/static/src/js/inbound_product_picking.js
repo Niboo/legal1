@@ -34,6 +34,7 @@
             self.template = 'product_selector';
             self.supplier_id = supplier_id;
             self.received_products = {};
+            self.product_in_package= {};
         },
         start: function(){
             this._super();
@@ -204,6 +205,7 @@
                 index = self.current_cart.box_index;
                 cart_box_list['index'] = index;
                 cart_box_list['package_barcode'] = self.current_package_barcode;
+                self.product_in_package[self.current_package_barcode] = product_id;
             }
 
             quantity += qty;

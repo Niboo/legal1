@@ -192,15 +192,47 @@
             self.$modal.find('#confirm_box_barcode').on('click.box.barcode', function(event){
                 var barcode = self.$modal.find('#box_barcode').val();
                 if(barcode){
-                    self.$modal.modal('hide');
-                    self.caller.parent.set_box_barcode(barcode);
-                    self.caller.add_listener_for_barcode();
+                    if (!self.caller.parent.product_in_package[barcode] || self.caller.parent.product_in_package[barcode]==self.caller.id){
+                        self.$modal.modal('hide');
+                        self.caller.parent.set_box_barcode(barcode);
+                        self.caller.add_listener_for_barcode();
+                    }else{
+                        var error_modal = new instance.stock_irm.modal.box_already_used(self.caller);
+                        error_modal.start();
+                    }
                 }
             });
         },
     });
 
     instance.stock_irm.modal.box_barcode_modal = box_barcode_modal;
+
+    var box_already_used = instance.stock_irm.modal.widget.extend({
+        init: function (caller) {
+            var self = this;
+            this._super(caller);
+            self.title = 'Box already used';
+            self.block_modal = true;
+            self.footer_template = 'select_another_box_footer_modal';
+        },
+        start: function () {
+            var self = this;
+            self.$footer = $(QWeb.render(self.footer_template));
+            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>This box is already filled with another product</b>";
+            this._super();
+            self.add_listener_on_select_another();
+        },
+        add_listener_on_select_another: function(){
+            var self = this;
+            self.$modal.find('#select_another').off('click.another');
+            self.$modal.find('#select_another').on('click.another', function(event){
+                var modal = new instance.stock_irm.modal.box_barcode_modal(self.caller);
+                modal.start();
+            });
+        },
+    });
+
+    instance.stock_irm.modal.box_already_used = box_already_used;
 
     var confirmed_modal = instance.stock_irm.modal.widget.extend({
         init: function () {

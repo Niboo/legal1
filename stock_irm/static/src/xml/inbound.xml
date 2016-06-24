@@ -351,6 +351,10 @@
         <a href="#" id="confirm_box_barcode" class="btn btn-success" >Confirm</a>
     </t>
 
+    <t t-name="select_another_box_footer_modal">
+        <a href="#" id="select_another" class="btn btn-success" >Select another box</a>
+    </t>
+
     <t t-name="going_back_modal">
         <div class="row">
             <span class='fa fa-question-circle fa-5x space-10' style='color:orange'></span><b style='font-size: 2em'>If you continue, the following won't be added:</b>

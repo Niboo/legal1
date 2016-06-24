@@ -37,7 +37,7 @@
             self.barcodes = [];
             self.nb_already_printed = 0;
             self.quantity_to_print = 0;
-            
+
         },
         start: function(){
             this._super();
