@@ -51,6 +51,7 @@ Module
         'data/sequence_packing.xml',
         'security/ir.model.access.csv',
         'views/stock_quant_package.xml',
+        'views/inbound_wave.xml',
     ],
     'qweb': [
     ],

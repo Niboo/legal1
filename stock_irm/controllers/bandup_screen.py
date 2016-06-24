@@ -62,6 +62,12 @@ class BandupController(http.Controller):
                 "message": "Package has no move",
             }
 
+        if scanned_package.inbound_wave_id:
+            return{
+                "result": "error",
+                "message": "Package is already assigned to an inbound wave",
+            }
+
         product = scanned_package.quant_ids[0].product_id
 
         total_qty = 0
@@ -115,16 +121,20 @@ class BandupController(http.Controller):
             'status': 'ok',
         }
 
-
     @http.route('/bandup/transfert_package_batch', type='json', auth="user")
     def transfert_package_batch(self, package_ids, **kw):
         env = http.request.env
 
+        inbound_wave = env['stock.inbound.wave'].create({
+            'user_id': http.request.uid,
+            'package_ids': [(6, False, package_ids)],
+            'state': "in_progress"
+        })
+
         package_list = []
 
-        # for each package
         for package_id in package_ids:
-            package = env['stock.quant.package'].browse(package_id)
+            package = env['stock.quant.package'].browse(int(package_id))
             package = self.transfer_package(package)
 
             total_qty = 0
@@ -181,7 +191,10 @@ class BandupController(http.Controller):
             wizard = env['stock.transfer_details'].browse(wizard_id)
 
             if not destination:
-                destination = self.get_destination_location(wizard, package)
+                item = my_wizard.item_ids.filtered(lambda r: r.package_id == package)
+                packop = my_wizard.packop_ids.filtered(lambda r: r.package_id == package)
+
+                destination = item and item.destinationloc_id or packop.destinationloc_id
 
             if is_end_package_needed:
                 end_package = self.search_dest_package(package.barcode, destination)
@@ -227,3 +240,59 @@ class BandupController(http.Controller):
             })
 
         return dest_package
+
+    @http.route('/bandup/get_inbound_wave', type='json', auth="user")
+    def get_inbound_wave(self, **kw):
+        env = http.request.env
+
+        wave_list = []
+
+        waves = env['stock.inbound.wave'].search([
+            ('user_id', '=', http.request.uid),
+            ('state', '=', 'in_progress'),
+        ])
+
+        for wave in waves:
+                wave_list.append({
+                    'name': wave.id,
+                    'id': wave.id,
+                })
+
+        results = {'status': 'ok',
+                   'waves': wave_list,
+                   }
+        return results
+
+
+    @http.route('/bandup/get_wave', type='json', auth="user")
+    def get_wave(self, wave_id, **kw):
+        env = http.request.env
+
+        inbound_wave = env['stock.inbound.wave'].browse(int(wave_id))
+        package_list = []
+
+        # TODO: retrieve only the package that are still in input
+        for package in inbound_wave.package_ids:
+            package.inbound_wave_id = inbound_wave
+
+            total_qty = 0
+            for quant in package.quant_ids:
+                total_qty += quant.qty
+
+            package_list.append({
+                'product_name': package.quant_ids[0].product_id.name,
+                'product_description': package.quant_ids[0].product_id.description,
+                'product_quantity': total_qty,
+                'location_name':"dummy for the moment",
+                'package_barcode': package.barcode,
+                'package_id': package.id,
+                'location_dest_barcode': 'test',
+                'product_image':
+                     "/web/binary/image?model=product.product&id=%s&field=image"
+                     % package.quant_ids[0].product_id.id,
+            })
+
+        return{
+            'status': 'ok',
+            'package_list': package_list,
+        }

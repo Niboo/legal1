@@ -3,11 +3,25 @@
 
     <!-- Bandup template -->
     <t t-name="bandup_screen_layout">
+        <t t-if="waves">
+            <div id="existing_waves_div" class="row ">
+                <br/>
+                <h1 class="text-center">Pick an existing wave</h1>
+                <br/>
+                <t t-foreach="waves" t-as="wave">
+                    <div class="col-md-2 wave-div">
+                        <a href="#" class="btn btn-lg btn-success wave " t-att-wave-id="wave.id" t-att-wave-name="wave.name">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> <t t-esc="wave.name" />
+                        </a>
+                    </div>
+                </t>
+            </div>
+        </t>
         <div class="container">
             <div id="results" class="scan-row">
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                        <h1>Scan boxes</h1>
+                        <div id="message_box"><h1><t t-if="waves">Or </t>Scan boxes</h1></div>
                         <div id="package_list" class="row">
 
                         </div>

@@ -28,3 +28,4 @@ from . import picking_waves
 from . import stock_picking_type
 from . import packing_order
 from . import stock_quant_package
+from . import inbound_wave

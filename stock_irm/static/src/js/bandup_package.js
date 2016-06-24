@@ -40,13 +40,22 @@
         },
         start: function(){
             var self = this;
-            var $result = $(QWeb.render(self.template));
-            self.step = "bandup";
+            self._super();
+            self.session.rpc('/bandup/get_inbound_wave', {}).then(function(data){
+                if(data.status=="ok"){
+                    console.log(data.waves)
+                    var $result = $(QWeb.render(self.template, {
+                        'waves': data.waves,
+                    }));
+                    self.step = "bandup";
 
-            $('#content').html($result);
-            this._super();
-            self.add_listener_on_goto_wave();
-            self.add_listener_on_numpad();
+                    $('#content').html($result);
+                    self.add_listener_on_existing_waves();
+                    self.add_listener_on_goto_wave();
+                    self.add_listener_on_numpad();
+                }
+            });
+
         },
         process_barcode: function(barcode){
             var self = this;
@@ -59,6 +68,9 @@
                 }).then(function(data){
                     if(data.status == "ok"){
                         self.scanned_package_barcodes.push(true_barcode);
+                        $("#existing_waves_div").hide();
+                        $("#goto_wave").show();
+                        $('#message_box').hide();
                         self.scanned_package_ids.push(data.scanned_package.id);
                         var $new_box = $(QWeb.render("package_result", {
                             product_name: data.product.name,
@@ -112,6 +124,21 @@
 
             });
         },
+        add_listener_on_existing_waves: function(){
+            var self = this;
+
+            $('.wave-div a').off('click.existing_wave');
+            $('.wave-div a').on('click.existing_wave', function (event) {
+                var wave_id = $(event.currentTarget).attr('wave-id');
+                self.session.rpc('/bandup/get_wave', {
+                    'wave_id': wave_id,
+                }).then(function(data){
+                    if(data.status=="ok"){
+                        var bandup_wave_widget = new instance.stock_irm.bandup_waves(data.package_list)
+                        bandup_wave_widget.start();
+                    }
+                })
+        })},
     });
 
     instance.stock_irm.bandup_selector = new bandup_selector();
