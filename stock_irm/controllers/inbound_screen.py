@@ -310,7 +310,7 @@ product id: %s, supplier id: %s
              supplier.commercial_partner_id.id),
             ('state', '=', 'approved'),
             ('shipped', '=', False),
-        ])
+        ], order="date_order ASC")
 
         orders = []
         for order in purchase_orders:
