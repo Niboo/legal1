@@ -131,12 +131,13 @@ class BandupController(http.Controller):
             for quant in package.quant_ids:
                 total_qty += quant.qty
 
-            result = package.quant_ids[0].reservation_id.picking_id.do_enter_transfer_details()
+            one_quant = package.quant_ids[0]
+            picking = one_quant.reservation_id.picking_id
+            result = picking.do_enter_transfer_details()
             wizard_id = result['res_id']
-            my_wizard = env['stock.transfer_details'].browse(wizard_id)
-            item = my_wizard.packop_ids.filtered(lambda r: r.package_id == package)
+            wizard = env['stock.transfer_details'].browse(wizard_id)
 
-            dest_location = item.destinationloc_id
+            dest_location = self.get_destination_location(wizard, package)
 
             package_list.append({
                 'product_name': package.quant_ids[0].product_id.name,
@@ -159,6 +160,13 @@ class BandupController(http.Controller):
             'package_list': package_list,
         }
 
+    def get_destination_location(self, wizard, package):
+        item = wizard.item_ids.filtered(lambda r: r.package_id == package)
+        packop = wizard.packop_ids.filtered(
+            lambda r: r.package_id == package)
+
+        return item and item.destinationloc_id or packop.destinationloc_id
+
     def transfer_package(self, package, is_end_package_needed=True):
         env = http.request.env
 
@@ -170,18 +178,15 @@ class BandupController(http.Controller):
 
             result = picking.do_enter_transfer_details()
             wizard_id = result['res_id']
-            my_wizard = env['stock.transfer_details'].browse(wizard_id)
+            wizard = env['stock.transfer_details'].browse(wizard_id)
 
             if not destination:
-                item = my_wizard.item_ids.filtered(lambda r: r.package_id == package)
-                packop = my_wizard.packop_ids.filtered(lambda r: r.package_id == package)
+                destination = self.get_destination_location(wizard, package)
 
-                destination = item and item.destinationloc_id or packop.destinationloc_id
+            if is_end_package_needed:
+                end_package = self.search_dest_package(package.barcode, destination)
 
-                if is_end_package_needed:
-                    end_package = self.search_dest_package(package.barcode, destination)
-
-            my_wizard.write({
+                wizard.write({
                 'item_ids': [(5, False, False)],
                 'packop_ids': [(5, False, False)]
             })
@@ -198,11 +203,11 @@ class BandupController(http.Controller):
             if is_end_package_needed:
                 wizard_values['result_package_id'] = end_package.id,
 
-            my_wizard.write({
+            wizard.write({
                 'item_ids': [(0, False, wizard_values)]
             })
 
-            my_wizard.do_detailed_transfer()
+            wizard.do_detailed_transfer()
         package.unlink()
         return end_package
 
