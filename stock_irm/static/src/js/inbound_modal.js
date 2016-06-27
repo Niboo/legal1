@@ -205,7 +205,6 @@
                                 error_modal.start();
                             }
                         }else{
-                            console.log("fail")
                             var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used elsewhere");
                             error_modal.start();
                         }

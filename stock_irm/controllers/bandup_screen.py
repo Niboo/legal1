@@ -46,7 +46,7 @@ class BandupController(http.Controller):
         # retrieve package information (product, quantity,...)
         scanned_package = env['stock.quant.package'].search(
             [('barcode', '=', str(barcode)),
-             # ('location_id', 'in', input_location._get_sublocations())
+             ('location_id', 'in', input_location._get_sublocations())
              ]
         )
 
@@ -112,6 +112,7 @@ class BandupController(http.Controller):
 
     @http.route('/bandup/move_package', type='json', auth='user')
     def move_package(self, package_id, **kw):
+        # method called after scanning the final location in the stock
         env = http.request.env
 
         package = env['stock.quant.package'].browse(package_id)
@@ -123,6 +124,9 @@ class BandupController(http.Controller):
 
     @http.route('/bandup/transfert_package_batch', type='json', auth="user")
     def transfert_package_batch(self, package_ids, **kw):
+        # method called when clicking on "go to wave". It moves all scanned
+        # packages from input to "bandup" location, and create the package list
+        # that will be used in the inbound wave
         env = http.request.env
 
         inbound_wave = env['stock.inbound.wave'].create({
@@ -200,10 +204,14 @@ class BandupController(http.Controller):
                     end_package = self.search_dest_package(package.barcode, destination)
                     end_package.inbound_wave_id = package.inbound_wave_id
 
-                wizard.write({
+            # remove everything from the wizard
+
+            wizard.write({
                 'item_ids': [(5, False, False)],
                 'packop_ids': [(5, False, False)]
             })
+
+            # then create a new wizard item
 
             wizard_values = {
                     'package_id': package.id,
@@ -215,6 +223,7 @@ class BandupController(http.Controller):
                 }
 
             if is_end_package_needed:
+                # we shouldnt delete the end package in the last operation
                 wizard_values['result_package_id'] = end_package.id,
 
             wizard.write({
