@@ -264,9 +264,9 @@
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
                 if(self.is_enough_label_printed()){
-                    var qty = self.$elem.find('#quantity input').get(0).value
-                    self.parent.add_product(self.id, parseInt(qty));
-                    self.parent.get_purchase_orders();
+                    var product_id = self.id
+                    var qty = self.$elem.find('#quantity input').get(0).value;
+                    self.parent.get_purchase_orders(product_id, qty);
                 }
             });
         },

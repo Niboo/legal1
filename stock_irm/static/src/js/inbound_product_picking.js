@@ -105,22 +105,19 @@
                 self.product_page.start();
             })
         },
-        get_purchase_orders: function() {
+        get_purchase_orders: function(product_id, qty) {
             var self = this;
-
-            if (!_.isEmpty(self.received_products)) {
-                self.session.rpc('/inbound_screen/search_supplier_purchase', {
-                    supplier: self.supplier_id,
-                }).then(function (data) {
-                    if (data.status == 'ok') {
-                        var modal = new instance.stock_irm.modal.purchase_order_modal(self);
-                        modal.start(data.orders);
-                    } else {
-                        var modal = new instance.stock_irm.modal.exception_modal();
-                        modal.start(data.error, data.message);
-                    }
-                });
-            }
+            self.session.rpc('/inbound_screen/search_supplier_purchase', {
+                supplier: self.supplier_id,
+            }).then(function (data) {
+                if (data.status == 'ok') {
+                    var modal = new instance.stock_irm.modal.purchase_order_modal(self);
+                    modal.start(data.orders, product_id, qty);
+                } else {
+                    var modal = new instance.stock_irm.modal.exception_modal();
+                    modal.start(data.error, data.message);
+                }
+            });
         },
         add_listener_on_confirm_button: function(){
             var self = this;

@@ -89,7 +89,7 @@
             self.title = 'Select the impacted purchases orders';
             self.selected_purchases = [];
         },
-        start: function (orders) {
+        start: function (orders, product_id, qty) {
             var self = this;
             self.$body = $(QWeb.render(self.body_template, {
                 purchase_orders: orders,
@@ -97,7 +97,7 @@
             self.$footer = $(QWeb.render(self.footer_template));
             this._super();
             self.add_listener_on_purchase();
-            self.add_listener_on_purchase_footer();
+            self.add_listener_on_purchase_footer(product_id, qty);
         },
         add_listener_on_purchase: function(){
             var self = this;
@@ -121,7 +121,7 @@
                 }
             });
         },
-        add_listener_on_purchase_footer: function(){
+        add_listener_on_purchase_footer: function(product_id, qty){
             var self = this;
             self.$modal.find('#cancel').off('click.cancel');
             self.$modal.find('#cancel').on('click.cancel', function (event) {
@@ -130,11 +130,13 @@
             self.$modal.find('#select_purchases').off('click.select_purchases');
             self.$modal.find('#select_purchases').on('click.select_purchases', function (event) {
                 var note = self.$modal.find('#packing_note').val();
+                self.caller.add_product(product_id, parseInt(qty));
                 self.caller.confirm(self.selected_purchases, note);
             });
             self.$modal.find('#no_purchases').off('click.no_purchases');
             self.$modal.find('#no_purchases').on('click.no_purchases', function (event) {
                 var note = self.$modal.find('#packing_note').val();
+                self.caller.add_product(product_id, parseInt(qty));
                 self.caller.confirm(false, note);
             });
         },
