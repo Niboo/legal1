@@ -134,6 +134,11 @@
             </div>
             <div id="current-product-description" class="col-xs-10 col-sm-10 col-md-5 col-lg-5">
                 <div class="row">
+                    <div class="alert alert-success fade in info-prompt">
+                        <h3 id="pack_barcode">Scan package with barcode: <span t-esc="product.package_barcode"/></h3>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="height:150px;">
                         <h3><span t-esc="product.product_name"/></h3>
                         <span t-esc="product.product_description"/>

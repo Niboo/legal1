@@ -65,10 +65,9 @@
             var self = this;
 
             var display_package_list = self.package_list.slice(1, 6);
-
             var $elem = $(QWeb.render(self.template, {
                 'product': self.package_list[0],
-                'packages': display_package_list
+                'packages': display_package_list,
             }));
 
             $('#content').html($elem);
@@ -81,6 +80,7 @@
 
             if(self.step == 'package'){
                 if(barcode == self.current_package_barcode){
+                    $('#pack_barcode').hide();
                     self.step = 'location';
                     var $message = $(QWeb.render('info_location_barcode'));
                     $('#info_message').html($message)
