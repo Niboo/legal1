@@ -168,7 +168,7 @@ product id: %s, supplier id: %s
             'product': {
                 'id': product.id,
                 'name': product.name,
-                'description': product.description,
+                'description': product.description or "No description",
                 'default_code': product.default_code,
                 'supplier_code': supplier_info.product_code or 'N/A',
                 'barcodes': barcodes,

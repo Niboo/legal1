@@ -78,7 +78,7 @@ class BandupController(http.Controller):
             'product': {
                 'id': product.id,
                 'name': product.name,
-                'description': product.description,
+                'description': product.description or "No description",
                 'quantity': total_qty,
                 'image': "/web/binary/image?model=product.product&id=%s&field=image" % product.id,
             }
@@ -141,7 +141,7 @@ class BandupController(http.Controller):
 
             package_list.append({
                 'product_name': package.quant_ids[0].product_id.name,
-                'product_description': package.quant_ids[0].product_id.description,
+                'product_description': package.quant_ids[0].product_id.description or "No description",
                 'product_quantity': total_qty,
                 'location_name': dest_location.name,
                 'location_position': str(dest_location.posx) + " / " +
