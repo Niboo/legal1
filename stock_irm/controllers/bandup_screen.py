@@ -191,8 +191,8 @@ class BandupController(http.Controller):
             wizard = env['stock.transfer_details'].browse(wizard_id)
 
             if not destination:
-                item = my_wizard.item_ids.filtered(lambda r: r.package_id == package)
-                packop = my_wizard.packop_ids.filtered(lambda r: r.package_id == package)
+                item = wizard.item_ids.filtered(lambda r: r.package_id == package)
+                packop = wizard.packop_ids.filtered(lambda r: r.package_id == package)
 
                 destination = item and item.destinationloc_id or packop.destinationloc_id
 
