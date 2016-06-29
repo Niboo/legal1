@@ -50,6 +50,8 @@
             <script type="text/javascript" src="/stock_irm/static/src/js/bandup_modal.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/bandup_package.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/bandup_waves.js"></script>
+            <script type="text/javascript" src="/web/static/lib/jquery.ui//js/jquery-ui-1.9.1.custom.js"></script>
+
             <link href="/stock_irm/static/src/css/bandup.css" rel="stylesheet"/>
 
         </template>

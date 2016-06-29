@@ -58,4 +58,20 @@
 
     instance.stock_irm.modal.confirm_bandup_wave_modal = confirm_bandup_wave_modal;
 
+    var barcode_error_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Barcode Error';
+            self.block_modal = false;
+        },
+        start: function (barcode_type, barcode) {
+            var self = this;
+            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>Please scan the "+barcode_type+" with barcode "+barcode+".</b>";
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.barcode_error_modal = barcode_error_modal;
+
 })();

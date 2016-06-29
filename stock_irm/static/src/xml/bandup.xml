@@ -18,7 +18,7 @@
         <div id="bottom-div">
             <div class="row">
                 <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pull-right">
-                    <a id="goto_wave" type="button" href="#" class="btn btn-success btn-to-wave button-touch">
+                    <a id="goto_wave" style="display:none" type="button" href="#" class="btn btn-success btn-to-wave button-touch">
                         Go to Wave
                     </a>
                 </div>
@@ -265,6 +265,24 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </t>
+
+    <t t-name="info_package_barcode">
+        <div class="alert alert-warning fade in info-prompt">
+            <b>Scan the package or enter its barcode manually by clicking on </b>
+            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="info_location_barcode">
+        <div class="alert alert-success fade in info-prompt">
+            <b>Please scan the location or enter its location manually by clicking on</b>
+            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
         </div>
     </t>
 

@@ -11,11 +11,7 @@ html, body {
     width: 100%;
     z-index: 500;
 }
-.info-prompt {
-    text-align: center;
-    border: 0px;
-    border-radius: 5px;
-}
+
 
 /* Pull nav-bar button left */
 #wave-id-li {

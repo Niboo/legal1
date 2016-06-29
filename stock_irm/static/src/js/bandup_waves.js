@@ -40,10 +40,8 @@
         },
         start: function() {
             var self = this;
-
             self.display();
             self.step = 'package';
-
         },
         add_listener_on_numpad: function(){
             var self = this;
@@ -61,7 +59,6 @@
                     $('#manual-barcode').val($('#manual-barcode').val()+value);
                 }
                 $(':focus').blur()
-
             });
         },
         display: function(){
@@ -76,15 +73,33 @@
 
             $('#content').html($elem);
             self.add_listener_on_numpad();
+            var $message = $(QWeb.render('info_package_barcode'));
+            $('#info_message').html($message)
         },
         process_barcode: function(barcode){
             var self = this;
 
-            if(self.step == 'package' && barcode == self.current_package_barcode){
-                self.step = 'location'
-            }
-            if(self.step == 'location' && barcode == self.current_location_dest_barcode){
-                self.move_package();
+            if(self.step == 'package'){
+                if(barcode == self.current_package_barcode){
+                    self.step = 'location';
+                    var $message = $(QWeb.render('info_location_barcode'));
+                    $('#info_message').html($message)
+                    $("#current_product").animate({backgroundColor: "#dff0d8"}, 200);
+                }else{
+                    var modal = new instance.stock_irm.modal.barcode_error_modal();
+                    modal.start("Package", self.current_package_barcode);
+                }
+            }else{
+                if(barcode == self.current_location_dest_barcode){
+                    $('#current_product').hide("slide",{direction:'left', backgroundColor: "green"}, 400, function(){
+                        self.move_package();
+                        var $message = $(QWeb.render('info_package_barcode'));
+                        $('#info_message').html($message)
+                    });
+                }else{
+                    var modal = new instance.stock_irm.modal.barcode_error_modal();
+                    modal.start("Location", self.current_location_dest_barcode);
+                }
             }
         },
         move_package: function(){
@@ -93,7 +108,6 @@
             self.session.rpc('/bandup/move_package', {
                 package_id: self.package_list[0].package_id
             }).then(function(data){
-                console.log("bandup wave data");
                 if(data.status == "ok"){
                     self.package_list.shift();
                     if(self.package_list.length > 0){

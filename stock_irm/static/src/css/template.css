@@ -147,3 +147,9 @@ img {
     font-size: 2em;
     height: 50px;
 }
+
+.info-prompt {
+    text-align: center;
+    border: 0px;
+    border-radius: 5px;
+}

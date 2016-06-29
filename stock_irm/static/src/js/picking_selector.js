@@ -224,7 +224,6 @@
             // check if the barcode scanned is the barcode we needed
             var is_product_barcode = barcode.replace(/[\s]*/g, '') == self.current_product_barcode;
             var is_destination_barcode = barcode.replace(/[\s]*/g, '') == self.current_destination_barcode;
-            console.log(self.current_destination_barcode)
 
             var qty = parseInt($('#quantity_wave input').val());
             var current_move = self.move_list[self.current_move_index]

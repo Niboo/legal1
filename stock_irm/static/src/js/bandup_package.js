@@ -57,7 +57,6 @@
                 self.session.rpc('/bandup/get_package', {
                     barcode: true_barcode,
                 }).then(function(data){
-                    console.log(data);
                     if(data.status == "ok"){
                         self.scanned_package_barcodes.push(true_barcode);
                         self.scanned_package_ids.push(data.scanned_package.id);
@@ -69,6 +68,7 @@
                             product_image: data.product.image,
                             product_quantity: data.product.quantity,
                         }));
+                        $('#goto_wave').show();
                         $('#package_list').append($new_box);
                     }else{
                         var modal = new instance.stock_irm.no_package_found_modal();
@@ -84,7 +84,6 @@
                 self.session.rpc('/bandup/transfert_package_batch', {
                     package_ids: self.scanned_package_ids,
                 }).then(function(data){
-                    console.log(data)
                     if(data.status == 'ok'){
                         var bandup_wave_widget = new instance.stock_irm.bandup_waves(data.package_list)
                         bandup_wave_widget.start();
