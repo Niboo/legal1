@@ -290,7 +290,7 @@
                             <span class="input-group-btn">
                                 <button class="btn btn-default" text="255" id="print_button" data-dir="print"><span class="glyphicon glyphicon-print"></span></button>
                             </span>
-                            <input id="already_printed_quantity" type="text" class="form-control text-center" value="1"/>
+                            <input id="already_printed_quantity" type="text" class="form-control text-center" value="1" readonly="1"/>
                         </div>
                     </div>
                 </div>
