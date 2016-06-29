@@ -14,6 +14,11 @@
                             </a>
                         </div>
                         <div class="col-md-2">
+                            <a id="goto_bandup" type="button" href="/bandup" class="btn btn-success goto-button bandup">Band Up<br/>
+                                <i class="fa fa-road big-icon" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-2">
                             <a id="goto_picking_waves" type="button" href="/picking_waves" class="btn goto-button picking">
                                 Picking Waves<br/>
                                 <i class="fa fa-cart-arrow-down big-icon" aria-hidden="true"></i>
@@ -34,11 +39,6 @@
                         <div class="col-md-2">
                             <a id="goto_rma" type="button" href="#" class="btn goto-button rma">
                                 RMA<br/>
-                                <i class="fa fa-share-square big-icon" aria-hidden="true"></i>
-                            </a>
-                        </div>
-                        <div class="col-md-2">
-                            <a id="goto_bandup" type="button" href="/bandup" class="btn btn-success goto-button button-color-picking index-button">Band Up<br/>
                                 <i class="fa fa-share-square big-icon" aria-hidden="true"></i>
                             </a>
                         </div>

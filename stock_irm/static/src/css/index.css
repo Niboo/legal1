@@ -37,6 +37,12 @@
 .goto-button.rma:hover {
     background-color: rgba(240, 173, 78, 1);
 }
+.goto-button.bandup {
+    background-color: rgba(76, 111, 93, 0.8);
+}
+.goto-button.bandup:hover {
+    background-color: rgba(76, 111, 93, 1);
+}
 .big-icon {
     font-size: 8em !important;
 }
