@@ -191,6 +191,13 @@
         add_listener_on_barcode_modal_confirm: function(){
             var self = this;
             self.$modal.find('#confirm_box_barcode').off('click.box.barcode');
+            $('#box_barcode').keyup(function(event){
+                if(event.keyCode==13){
+                    var barcode = self.$modal.find('#box_barcode').val();
+                    self.caller.parent.set_box_barcode(barcode);
+                    self.$modal.modal('hide');
+                }
+            });
             self.$modal.find('#confirm_box_barcode').on('click.box.barcode', function(event){
                 var barcode = self.$modal.find('#box_barcode').val();
                 if(barcode){
