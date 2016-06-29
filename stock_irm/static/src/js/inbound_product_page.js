@@ -152,7 +152,7 @@
                 if(self.parent.received_products[self.id]){
                     $.each( self.parent.received_products[self.id], function( key, value ) {
                         $.each(value, function(key, value){
-                            if(key!="index"){
+                            if(key!="index" && key!="package_barcode"){
                                 box_id = key;
                                 quantity = value;
                             }
