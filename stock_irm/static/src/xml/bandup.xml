@@ -3,7 +3,7 @@
 
     <!-- Bandup template -->
     <t t-name="bandup_screen_layout">
-        <t t-if="waves">
+        <t t-if="waves.length">
             <div id="existing_waves_div" class="row ">
                 <br/>
                 <h1 class="text-center">Pick an existing wave</h1>
@@ -21,7 +21,7 @@
             <div id="results" class="scan-row">
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
-                        <div id="message_box"><h1><t t-if="waves">Or </t>Scan boxes</h1></div>
+                        <div id="message_box"><h1><t t-if="waves.length">Or </t>Scan boxes</h1></div>
                         <div id="package_list" class="row">
 
                         </div>

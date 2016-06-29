@@ -196,8 +196,9 @@ class BandupController(http.Controller):
 
                 destination = item and item.destinationloc_id or packop.destinationloc_id
 
-            if is_end_package_needed:
-                end_package = self.search_dest_package(package.barcode, destination)
+                if is_end_package_needed:
+                    end_package = self.search_dest_package(package.barcode, destination)
+                    end_package.inbound_wave_id = package.inbound_wave_id
 
                 wizard.write({
                 'item_ids': [(5, False, False)],
@@ -222,6 +223,7 @@ class BandupController(http.Controller):
 
             wizard.do_detailed_transfer()
         package.unlink()
+
         return end_package
 
     def search_dest_package(self, package_barcode, location):
@@ -270,12 +272,12 @@ class BandupController(http.Controller):
         inbound_wave = env['stock.inbound.wave'].browse(int(wave_id))
         package_list = []
 
-        stock_location = env.ref('stock.stock_location_stock')
-        stock_subloc = stock_location._get_sublocations()
+        bandup_locations = env['stock.location'].search([
+            ('is_bandup_location', '=', True)
+        ])
 
         for package in inbound_wave.package_ids.filtered(
-                lambda r: r.location_id.id not in stock_subloc):
-            package.inbound_wave_id = inbound_wave
+                lambda r: r.location_id.id in bandup_locations.ids):
 
             total_qty = 0
             for quant in package.quant_ids:

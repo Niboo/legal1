@@ -29,3 +29,4 @@ class StockLocation(models.Model):
     is_in_usage = fields.Boolean("Currently in usage", default=False)
 
     is_inbound_cart = fields.Boolean("Is an inbound cart", default=False)
+    is_bandup_location = fields.Boolean("Is a Bandup Location", default=False)

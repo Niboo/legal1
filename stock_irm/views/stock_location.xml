@@ -9,6 +9,7 @@
                 <xpath expr="//field[@name='active']" position="after">
                     <field name="is_in_usage" />
                     <field name="is_inbound_cart" />
+                    <field name="is_bandup_location" />
                 </xpath>
             </field>
         </record>

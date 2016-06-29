@@ -36,16 +36,17 @@ class InboundWave(models.Model):
     @api.multi
     @api.depends('package_ids.location_id')
     def _compute_state(self):
-        input_location = self.env.ref('stock.stock_location_company')
-        input_subloc = input_location._get_sublocations()
+        bandup_locations = self.env['stock.location'].search([
+            ('is_bandup_location', '=', True)
+        ])
 
         for wave in self:
-            if any(package.location_id.id not in
-                           input_subloc for package in wave.package_ids):
-                if any(package.location_id.id in
-                               input_subloc for package in wave.package_ids):
+            if any(package.location_id.id in
+                           bandup_locations.ids for package in wave.package_ids):
+                if any(package.location_id and package.location_id.id not in
+                               bandup_locations.ids for package in wave.package_ids):
                     wave.state = 'in_progress'
                 else:
-                    wave.state = 'done'
+                    wave.state = 'new'
             else:
-                wave.state = "new"
+                wave.state = "done"
