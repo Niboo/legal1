@@ -97,6 +97,15 @@
                 $('#quantity_to_print').val(self.quantity_to_print);
                 $(':focus').blur()
             });
+            self.$elem.off("keyup.quantity");
+            self.$elem.on('keyup.quantity', '#input_quantity', function (event) {
+                self.quantity_to_print = parseInt($('#input_quantity').val()) - self.nb_already_printed;
+                if(self.quantity_to_print>0){
+                    $('#quantity_to_print').val(self.quantity_to_print);
+                }
+                self.color_printed_labels(self.quantity_to_print);
+            })
+
         },
         add_listener_on_print_button: function(){
             var self = this;
