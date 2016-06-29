@@ -188,3 +188,9 @@ a[is-in-usage='true'] {
 .purchase-btn:hover, .purchase-btn:focus{
     color: white;
 }
+
+.space-10{
+    margin-right: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}

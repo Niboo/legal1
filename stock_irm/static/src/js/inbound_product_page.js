@@ -251,9 +251,14 @@
             self.$nav.find('#back a').show();
             self.$nav.off('click.back');
             self.$nav.on('click.back', '#back a', function(event){
-                self.destroy();
-                self.parent.refresh();
-            });
+                qty = parseInt($('#quantity input').val());
+                product_image = $('#product_image').attr('src');
+
+                console.log(qty);
+                console.log(product_image);
+                var modal = new instance.stock_irm.modal.going_back_modal();
+                modal.start(self, qty, product_image);
+            })
         },
         add_listener_on_confirm_button: function(){
             var self = this;

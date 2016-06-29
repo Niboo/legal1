@@ -249,4 +249,44 @@
     });
 
     instance.stock_irm.modal.back_modal = back_modal;
+
+    var going_back_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Confirm Going Back?';
+            self.block_modal = true;
+            self.template = 'going_back_modal';
+            self.footer_template = 'going_back_modal_footer';
+        },
+        start: function (caller, qty, product_image) {
+            var self = this;
+            self.$body = $(QWeb.render(self.template, {
+                image: product_image,
+                quantity: qty,
+            }));
+            self.$footer = $(QWeb.render(self.footer_template));
+            self.caller = caller;
+
+            self._super();
+            self.add_listener_on_cancel_button();
+            self.add_listener_on_confirm_going_back_button();
+        },
+        add_listener_on_cancel_button: function(){
+            var self = this;
+            self.$modal.find('#continue').click(function(event){
+                self.$modal.modal('hide');
+            })
+        },
+        add_listener_on_confirm_going_back_button: function(){
+            var self = this;
+            self.$modal.find('#go_back').click(function(event){
+                self.$modal.modal('hide');
+                self.caller.destroy();
+                self.caller.parent.refresh();
+            })
+        },
+    });
+
+    instance.stock_irm.modal.going_back_modal = going_back_modal;
 })();

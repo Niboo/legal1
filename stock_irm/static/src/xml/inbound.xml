@@ -160,7 +160,7 @@
             <div id='product_row'>
                 <div class="row">
                     <div class="col-md-4">
-                        <img t-att-src="product.image" class="center-block img-responsive"/>
+                        <img id="product_image" t-att-src="product.image" class="center-block img-responsive"/>
                     </div>
                     <div class="col-md-8">
                         <div class="row">
@@ -169,7 +169,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-12" id="product_description">
                                 <h3><t t-esc="product.description"/></h3>
                             </div>
                         </div>
@@ -349,6 +349,28 @@
 
     <t t-name="box_barcode_footer_modal">
         <a href="#" id="confirm_box_barcode" class="btn btn-success" >Confirm</a>
+    </t>
+
+    <t t-name="going_back_modal">
+        <div class="row">
+            <span class='fa fa-question-circle fa-5x space-10' style='color:orange'></span><b style='font-size: 2em'>If you continue, the following won't be added:</b>
+        </div>
+        <div class="row">
+            <div class="col-xs-2 col-md-2">
+                <a href="#" class="thumbnail">
+                    <div class="square" t-att-style="'background-image:url(\'' + image + '\');'"></div>
+                </a>
+            </div>
+            <div class="col-xs-2 col-md-2">
+               <h3> Quantity: <span t-esc="quantity"/></h3>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="going_back_modal_footer">
+        <a href="#" id="continue" class="btn btn-success">Continue with this product</a>
+        <a href="#" id="go_back" class="btn btn-danger pull-left">Cancel this product</a>
+
     </t>
 
 
