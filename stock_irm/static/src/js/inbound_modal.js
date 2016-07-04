@@ -188,37 +188,38 @@
             self.add_listener_on_barcode_modal_confirm();
             self.$modal.find('#box_barcode').focus();
         },
+        confirm_box: function(){
+            var barcode = self.$modal.find('#box_barcode').val();
+            if(barcode){
+                self.session.rpc('/inbound_screen/check_package_empty', {
+                    package_barcode: barcode
+                }).then(function(data){
+                    if(data.status=="ok"){
+                        if (!self.caller.parent.product_in_package[barcode] || self.caller.parent.product_in_package[barcode]==self.caller.id){
+                            self.caller.parent.set_box_barcode(barcode);
+                            self.$modal.modal('hide');
+                            self.caller.add_listener_for_barcode();
+                        }else{
+                            var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already filled with another product");
+                            error_modal.start();
+                        }
+                    }else{
+                        var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used elsewhere");
+                        error_modal.start();
+                    }
+                })
+            }
+        },
         add_listener_on_barcode_modal_confirm: function(){
             var self = this;
             self.$modal.find('#confirm_box_barcode').off('click.box.barcode');
             $('#box_barcode').keyup(function(event){
                 if(event.keyCode==13){
-                    var barcode = self.$modal.find('#box_barcode').val();
-                    self.caller.parent.set_box_barcode(barcode);
-                    self.$modal.modal('hide');
+                    self.confirm_box();
                 }
             });
             self.$modal.find('#confirm_box_barcode').on('click.box.barcode', function(event){
-                var barcode = self.$modal.find('#box_barcode').val();
-                if(barcode){
-                    self.session.rpc('/inbound_screen/check_package_empty', {
-                        package_barcode: barcode
-                    }).then(function(data){
-                        if(data.status=="ok"){
-                            if (!self.caller.parent.product_in_package[barcode] || self.caller.parent.product_in_package[barcode]==self.caller.id){
-                                self.$modal.modal('hide');
-                                self.caller.parent.set_box_barcode(barcode);
-                                self.caller.add_listener_for_barcode();
-                            }else{
-                                var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already filled with another product");
-                                error_modal.start();
-                            }
-                        }else{
-                            var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used elsewhere");
-                            error_modal.start();
-                        }
-                    })
-                }
+                self.confirm_box();
             });
         },
     });
