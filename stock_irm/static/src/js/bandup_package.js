@@ -43,7 +43,6 @@
             self._super();
             self.session.rpc('/bandup/get_inbound_wave', {}).then(function(data){
                 if(data.status=="ok"){
-                    console.log(data.waves)
                     var $result = $(QWeb.render(self.template, {
                         'waves': data.waves,
                     }));
