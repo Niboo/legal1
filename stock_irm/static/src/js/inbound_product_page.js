@@ -254,8 +254,6 @@
                 qty = parseInt($('#quantity input').val());
                 product_image = $('#product_image').attr('src');
 
-                console.log(qty);
-                console.log(product_image);
                 var modal = new instance.stock_irm.modal.going_back_modal();
                 modal.start(self, qty, product_image);
             })
