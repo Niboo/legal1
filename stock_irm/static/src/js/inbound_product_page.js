@@ -102,6 +102,8 @@
                 self.quantity_to_print = parseInt($('#input_quantity').val()) - self.nb_already_printed;
                 if(self.quantity_to_print>0){
                     $('#quantity_to_print').val(self.quantity_to_print);
+                }else{
+                    $('#quantity_to_print').val(0);
                 }
                 self.color_printed_labels(self.quantity_to_print);
             })
