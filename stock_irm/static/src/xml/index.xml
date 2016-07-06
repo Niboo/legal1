@@ -7,24 +7,24 @@
             <div id="results" class="scan-row">
                 <t t-if="is_wh_user">
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <a id="goto_inbound_screen" type="button" href="/inbound_screen" class="btn goto-button inbound">
                                 Inbound<br/>
                                 <i class="fa fa-truck big-icon" aria-hidden="true"></i>
                             </a>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <a id="goto_bandup" type="button" href="/bandup" class="btn btn-success goto-button bandup">Band Up<br/>
                                 <i class="fa fa-road big-icon" aria-hidden="true"></i>
                             </a>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <a id="goto_picking_waves" type="button" href="/picking_waves" class="btn goto-button picking">
                                 Picking Waves<br/>
                                 <i class="fa fa-cart-arrow-down big-icon" aria-hidden="true"></i>
                             </a>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <a id="goto_create_inventory" type="button" href="#" class="btn goto-button inventory">
                                 My Inventories<br/>
                                 <i class="fa fa-cubes big-icon" aria-hidden="true"></i>
@@ -36,7 +36,7 @@
                                 <!--<a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Validate Inventory Screen</a><br/>-->
                             <!--</t>-->
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <a id="goto_rma" type="button" href="#" class="btn goto-button rma">
                                 RMA<br/>
                                 <i class="fa fa-share-square big-icon" aria-hidden="true"></i>

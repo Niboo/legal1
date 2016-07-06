@@ -1,6 +1,5 @@
 .goto-button {
-    width: 300px;
-    height: 300px;
+    width: 100%;
     border-radius: 5px;
     border: 0px;
     color: #ffffff;
@@ -14,35 +13,40 @@
   color: #ffffff;
 }
 .goto-button.inbound{
-    background-color: rgba(84, 128, 202, 0.80);
+    background-color: rgba(52,179,228,0.8);
 }
 .goto-button.inbound:hover{
-    background-color: rgba(84, 128, 202, 1);
+    background-color: rgba(52,179,228,1);
 }
+
 .goto-button.picking{
-    background-color: rgba(217, 83, 79, 0.8);
+    background-color: rgba(8, 121, 22, 0.8);
 }
 .goto-button.picking:hover{
-    background-color: rgba(217, 83, 79, 1);
+    background-color: rgba(8, 121, 22, 1);
 }
+
 .goto-button.inventory{
-    background-color: rgba(92, 184, 92, 0.8);
+    background-color: rgba(202, 84, 84, 0.8)
 }
 .goto-button.inventory:hover{
-    background-color: rgba(92, 184, 92, 1);
+    background-color: rgba(202, 84, 84, 1)
 }
+
 .goto-button.rma {
     background-color: rgba(240, 173, 78, 0.8);
 }
 .goto-button.rma:hover {
     background-color: rgba(240, 173, 78, 1);
 }
+
 .goto-button.bandup {
-    background-color: rgba(76, 111, 93, 0.8);
+    background-color: rgba(118, 138, 212, 0.8);
 }
 .goto-button.bandup:hover {
-    background-color: rgba(76, 111, 93, 1);
+    background-color: rgba(118, 138, 212, 1);
 }
+
 .big-icon {
     font-size: 8em !important;
 }
