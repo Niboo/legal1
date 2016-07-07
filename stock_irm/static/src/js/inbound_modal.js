@@ -189,6 +189,8 @@
             self.$modal.find('#box_barcode').focus();
         },
         confirm_box: function(){
+            var self = this;
+
             var barcode = self.$modal.find('#box_barcode').val();
             if(barcode){
                 self.session.rpc('/inbound_screen/check_package_empty', {
