@@ -11,6 +11,7 @@ class WorkLocation(models.Model):
     name = fields.Char(required=True)
     user_id = fields.Many2one('res.users', 'Current/Last User', compute='_compute_user_id')
     work_location_printer_ids = fields.One2many('work_location_printer', 'work_location_id', 'Printers', required=False)
+    location_ids =  fields.One2many('stock.location', 'location_id', 'Staging Location ', required=True)
 
     def _compute_user_id(self):
         for rec in self:
