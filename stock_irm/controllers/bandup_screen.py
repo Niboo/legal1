@@ -145,13 +145,12 @@ class BandupController(http.Controller):
             for quant in package.quant_ids:
                 total_qty += quant.qty
 
-            one_quant = package.quant_ids[0]
-            picking = one_quant.reservation_id.picking_id
-            result = picking.do_enter_transfer_details()
-            wizard_id = result['res_id']
-            wizard = env['stock.transfer_details'].browse(wizard_id)
-
-            dest_location = self.get_destination_location(wizard, package)
+            stock_location = env.ref('stock.stock_location_stock')
+            putaway_strategy = env['stock.product.putaway.strategy'].search([
+                ('product_product_id', '=', package.quant_ids[0].product_id.id),
+                ('fixed_location_id.id', 'in', stock_location._get_sublocations())
+                ])
+            dest_location = putaway_strategy.fixed_location_id
 
             package_list.append({
                 'product_name': package.quant_ids[0].product_id.name,
@@ -173,13 +172,6 @@ class BandupController(http.Controller):
             'status': 'ok',
             'package_list': package_list,
         }
-
-    def get_destination_location(self, wizard, package):
-        item = wizard.item_ids.filtered(lambda r: r.package_id == package)
-        packop = wizard.packop_ids.filtered(
-            lambda r: r.package_id == package)
-
-        return item and item.destinationloc_id or packop.destinationloc_id
 
     def transfer_package(self, package, is_end_package_needed=True):
         env = http.request.env

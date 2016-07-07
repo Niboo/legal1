@@ -37,6 +37,7 @@ Module
         'stock',
         'procurement',
         'stock_weight_reservation',
+        'stock_putaway_product',
     ],
     'data': [
         'views/res_partner.xml',
