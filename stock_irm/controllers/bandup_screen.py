@@ -145,7 +145,9 @@ class BandupController(http.Controller):
             for quant in package.quant_ids:
                 total_qty += quant.qty
 
-            stock_location = env.ref('stock.stock_location_stock')
+            one_quant = package.quant_ids[0]
+            picking = one_quant.reservation_id.picking_id
+            stock_location = picking.location_dest_id
             putaway_strategy = env['stock.product.putaway.strategy'].search([
                 ('product_product_id', '=', package.quant_ids[0].product_id.id),
                 ('fixed_location_id.id', 'in', stock_location._get_sublocations())
