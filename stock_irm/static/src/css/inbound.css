@@ -198,3 +198,37 @@ a[is-in-usage='true'] {
     margin-left: 10px;
     margin-bottom: 10px;
 }
+
+/* Picking Waves Progress Bar*/
+/* Overwrite template.css */
+.picking_progress {
+    background-color: rgba(255,148,148,1.0);
+    font-size: 1em;
+    height: 40px;
+}
+.list-group-item {
+    background-color: #f1f1f1;
+    padding: 5px;
+}
+.progress {
+    margin: 0px;
+}
+.progress-bar {
+    -webkit-box-shadow: inset 0 0px 0 rgba(0, 0, 0, 0);
+    box-shadow: inset 0 0px 0 rgba(0, 0, 0, 0);
+}
+/* Overwrite template.css */
+.picking_done {
+    background-color: rgba(159,204,135,1.0);
+}
+#picking-name {
+    padding: 5px;
+    padding-top: 7px;
+    position: absolute;
+    color: #fff;
+    font-size: 18px;
+}
+
+.list-boxes{
+    width:100%;
+}

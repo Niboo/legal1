@@ -26,7 +26,7 @@
     var QWeb = instance.qweb;
 
     var inbound_product_picking = instance.stock_irm.widget.extend({
-    	init: function (supplier_id) {
+    	init: function (supplier_id, purchase_orders, purchase_order_lines) {
             this._super();
             var self = this;
             self.carts = {};
@@ -35,20 +35,17 @@
             self.supplier_id = supplier_id;
             self.received_products = {};
             self.product_in_package= {};
-            self.session.rpc('/inbound_screen/create_packing_order').then(function(data){
-                if(data.status == 'ok'){
-                    self.packing_reference = data.packing_reference;
-                    self.packing_id = data.packing_id;
-                    var $elem = self.$nav.find('#packing-order-li')
-                    $elem.find('span').html(data.packing_reference);
-                    $elem.show();
-                }
-            });
+            self.purchase_orders = purchase_orders;
+            self.purchase_order_lines = purchase_order_lines;
         },
         start: function(){
             this._super();
             var self = this;
-            self.$elem = $(QWeb.render(this.template));
+
+            self.$elem = $(QWeb.render(self.template,{
+                'po_lines': self.purchase_order_lines,
+            }));
+
             $('#content').html(self.$elem);
             self.search = '';
             self.add_listener_on_search();
@@ -108,10 +105,7 @@
                 $result = self.$elem.find('#results');
             }
             $result.find('a').click(function(event){
-                var product_id = $(event.currentTarget).attr('data-id');
-                var ProductPage = instance.stock_irm.inbound_product_page;
-                self.product_page = new ProductPage(self, product_id, self.packing_reference, self.packing_id);
-                self.product_page.start();
+                self.go_to_product();
             })
         },
         get_purchase_orders: function(product_id, qty) {
@@ -155,10 +149,7 @@
                 self.products = data.products;
 
                 if (self.products.length == 1){
-                    var product_id = self.products[0].id;
-                    var ProductPage = instance.stock_irm.inbound_product_page;
-                    self.product_page = new ProductPage(self, product_id);
-                    self.product_page.start();
+                    self.go_to_product();
                     return;
                 }
 
@@ -216,6 +207,17 @@
 
             quantity += qty;
             cart_box_list[index] = quantity;
+
+
+            var po_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.progress_done != 100.0; })[0];
+
+            if(po_line){
+                // we found a line we are able to fill!
+                po_line.quantity_already_scanned += qty;
+                po_line.progress_done = 100.0/po_line.quantity*po_line.quantity_already_scanned;
+            }
+
+
         },
         get_already_used_box: function(product_id){
             var self = this;
@@ -248,13 +250,14 @@
 
             self.current_cart = cart;
         },
-        confirm: function(purchase_orders, note) {
+        confirm: function(note) {
             var self = this;
+
             self.session.rpc('/inbound_screen/process_picking', {
                 supplier_id: self.supplier_id,
                 results: self.received_products,
                 note: note,
-                purchase_orders: purchase_orders,
+                purchase_orders: self.purchase_orders,
                 packing_id: self.packing_id,
             }).then(function(data){
                 if (data.status == 'ok'){
@@ -304,7 +307,35 @@
             }else{
                 console.log("No printer could be found");
             }
-        }
+        },
+        update_po_lines: function(){
+            var self = this;
+            $result = $(QWeb.render("inbound_line_list",{
+                'po_lines': self.purchase_order_lines
+            }));
+
+            $('#po-lines-list').html($result);
+        },
+        go_to_product: function(){
+            var self = this;
+
+            var product_id = self.products[0].id;
+            var ProductPage = instance.stock_irm.inbound_product_page;
+
+            self.$elem = $(QWeb.render(self.template,{
+                'po_lines': self.purchase_order_lines,
+            }));
+
+            self.product_page = new ProductPage(self, product_id);
+            self.product_page.start();
+
+            // reorder the boxes so the one with the current product are at the top
+            var po_line_with_current_product = $.grep(self.purchase_order_lines, function(a){ return a.product_id == product_id});
+            var po_line_without_current_product = $.grep(self.purchase_order_lines, function(e){ return e.product_id != product_id});
+
+            self.purchase_order_lines = po_line_with_current_product.concat(po_line_without_current_product);
+        },
+
     });
 
     instance.stock_irm.inbound_product_picking = inbound_product_picking;

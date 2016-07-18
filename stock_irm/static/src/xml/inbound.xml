@@ -155,10 +155,45 @@
         </div>
     </t>
 
+    <t t-name="inbound_line_list">
+        <ul class="list-group">
+            <t t-if="po_lines and po_lines.length">
+                <t t-foreach="po_lines" t-as="po_line">
+                    <li class="list-group-item">
+                        <a href="#" t-att-data-id="po_line.id">
+                            <div class="progress picking_progress" id="picking-progress-bar">
+                            <div t-att-id="po_line.id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+po_line.progress_done+'%;'"/>
+                                <div id="picking-name">
+                                    <span t-esc="po_line.product_name"/>
+                                </div>
+                            </div>
+                            <t t-if="po_line_first">
+                                <t t-if="first_item_boxes.length">
+                                    <ul class="list-group">
+                                        <t t-foreach="first_item_boxes" t-as="first_item_box">
+                                            <li class='list-group-item fa fa-2x fa-dropbox list-boxes'>
+                                                <span t-esc="first_item_box"/>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+                            </t>
+                        </a>
+                    </li>
+                </t>
+            </t>
+        </ul>
+    </t>
+
     <t t-name="product_page">
         <div class="container page">
             <div id='product_row'>
                 <div class="row">
+                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                        <div id="po-lines-list">
+                            <t t-call="inbound_line_list" />
+                        </div>
+                    </div>
                     <div class="col-md-4">
                         <div class="row">
                             <div class="col-md-12">
@@ -184,7 +219,7 @@
                             </div>
                         </t>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-6">
                         <div class="row">
                             <div class="col-md-12">
                                 <h1 id="product-name"><t t-esc="product.name"/></h1>
@@ -352,15 +387,22 @@
                     <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> <t t-esc="purchase.name" />
                 </a>
             </t>
+
+        </div>
+    </t>
+
+    <t t-name="packing_order_note">
+        <div class="row">
             <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 formfield">
                 <label for="packing_note">note : </label>
                 <textarea class="pull-right" id="packing_note" name="Note" rows="10"/>
             </div>
         </div>
+        <a href="#" id="confirm_note" class="btn btn-success">Confirm</a>
+        <a href="#" id="cancel_note" class="btn btn-danger pull-left">Cancel</a>
     </t>
 
     <t t-name="confirm_purchase_orders">
-        <a href="#" id="cancel" class="btn btn-danger pull-left"> Cancel </a>
         <a href="#" id="select_purchases" class="btn btn-success" style="display:none">Bound to Selected Purchases</a>
         <a href="#" id="no_purchases" class="btn btn-success">Continue Without Purchases</a>
     </t>

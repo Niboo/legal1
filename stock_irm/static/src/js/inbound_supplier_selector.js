@@ -42,7 +42,7 @@
 
             self.$elem.find('#search_bar').keyup(function(event){
                 self.get_suppliers(event.currentTarget.value)
-            })
+            });
             self.get_suppliers();
         },
         add_listener_on_supplier: function(){
@@ -50,17 +50,44 @@
             self.$elem.find('#results a').click(function(event){
                 if($('#change-worklocation').attr('data-id')){
                     var supplier_id = $(event.currentTarget).attr('data-id');
-                    var ProductPicking = instance.stock_irm.inbound_product_picking;
-                    self.product_picking = new ProductPicking(supplier_id);
-                    self.product_picking.start();
-                    self.$nav.find('#back').show();
-                    self.$nav.find('#search').show();
-                    self.$nav.find('#confirm').show();
+                    self.supplier_id = supplier_id
+
+                    self.session.rpc('/inbound_screen/search_supplier_purchase', {
+                        supplier: supplier_id
+                    }).then(function (data) {
+                        if (data.status == 'ok') {
+                            var modal = new instance.stock_irm.modal.purchase_order_modal(self);
+                            modal.start(data.orders);
+                        } else {
+                            var modal = new instance.stock_irm.modal.exception_modal();
+                            modal.start(data.error, data.message);
+                        }
+                    });
+
                 }else{
                     self.get_worklocations("You must select a worklocation first!", true);
                 }
 
             })
+        },
+        set_purchase_order_lines: function(purchase_orders){
+            var self = this;
+
+            self.purchase_orders = purchase_orders;
+            if(self.purchase_orders){
+                self.session.rpc('/inbound_screen/get_purchase_lines', {
+                    purchase_order_ids: self.purchase_orders
+                }).then(function (data) {
+                    console.log(data)
+                    self.po_lines = data.po_lines;
+                    var ProductPicking = instance.stock_irm.inbound_product_picking;
+                    self.product_picking = new ProductPicking(self.supplier_id, self.purchase_orders, self.po_lines);
+                    self.product_picking.start();
+                    self.$nav.find('#back').show();
+                    self.$nav.find('#search').show();
+                    self.$nav.find('#confirm').show();
+                });
+            }
         },
         get_suppliers: function(search){
             var self = this;

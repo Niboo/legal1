@@ -176,7 +176,11 @@
                 }
 
                 self.product = data.product;
+                var product_box_list = self.create_box_with_product_info();
+
+
                 self.$elem = $(QWeb.render(self.template, {
+                    po_lines: self.parent.purchase_order_lines,
                     product: self.product,
                     quantity: self.quantity,
                     barcodes: data.product.barcodes,
@@ -273,13 +277,14 @@
         },
         add_listener_on_confirm_button: function(){
             var self = this;
-
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
                 if(self.is_enough_label_printed()){
-                    var product_id = self.id
+                    var product_id = self.id;
                     var qty = self.$elem.find('#quantity input').get(0).value;
-                    self.parent.get_purchase_orders(product_id, qty);
+
+                    var modal = new instance.stock_irm.modal.confirm_note_modal();
+                    modal.start(self, self.id, parseInt(qty));
                 }
             });
         },
@@ -307,7 +312,6 @@
                 self.parent.print_label(self.product.name, self.product.barcodes[0], 1)
                 self.nb_already_printed += 1;
                 $('#already_printed_quantity').val(self.nb_already_printed);
-
             }
         },
         is_enough_label_printed: function(){
@@ -320,6 +324,28 @@
                 return true;
             }
         },
+
+        add_product: function(product_id, qty){
+            var self = this;
+            self.parent.add_product(self.id, parseInt(qty));
+        },
+        create_box_with_product_info: function(){
+            var self = this;
+            var cart_with_product = new Array();
+
+            var boxes = $.grep(self.parent.received_products, function(value, key){return value.product_id == product_id && key==self.parent.received_products[self.parent.purchase_order_lines[0].product_id]});
+
+
+            if(self.parent.received_products && self.parent.received_products[self.parent.purchase_order_lines[0].product_id] ){
+                $.each(self.parent.received_products[self.parent.purchase_order_lines[0].product_id], function( key, value ) {
+                     cart_with_product.push(
+                        value["package_barcode"].substring(0, 10)
+                     );
+                });
+            }
+            return cart_with_product;
+
+        }
     });
 
     instance.stock_irm.inbound_product_page = inbound_product_page;

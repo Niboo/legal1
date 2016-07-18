@@ -348,6 +348,28 @@ product id: %s, supplier id: %s
         return {'status': 'ok',
                    'orders': orders}
 
+    @http.route('/inbound_screen/get_purchase_lines', type='json',
+                auth='user')
+    def get_purchase_lines(self, purchase_order_ids=False):
+        env = http.request.env
+        po_lines = env['purchase.order.line'].search([
+            ('order_id', 'in', purchase_order_ids)
+        ])
+
+        lines = []
+        for po_line in po_lines:
+            lines.append({
+                'product_id': po_line.product_id.id,
+                'quantity': po_line.product_qty,
+                'id': po_line.id,
+                'product_name': po_line.product_id.name[0:22],
+                'progress_done': 0,
+                'quantity_already_scanned': 0,
+            })
+
+        return {'status': 'ok',
+                   'po_lines': lines}
+
     @http.route('/inbound_screen/process_picking', type='json', auth="user")
     def process_picking(self, supplier_id, results, purchase_orders, note,
                         packing_id,  **kw):

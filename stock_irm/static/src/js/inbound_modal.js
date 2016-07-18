@@ -89,15 +89,15 @@
             self.title = 'Select the impacted purchases orders';
             self.selected_purchases = [];
         },
-        start: function (orders, product_id, qty) {
+        start: function (orders) {
             var self = this;
             self.$body = $(QWeb.render(self.body_template, {
-                purchase_orders: orders,
+                purchase_orders: orders
             }));
             self.$footer = $(QWeb.render(self.footer_template));
             this._super();
             self.add_listener_on_purchase();
-            self.add_listener_on_purchase_footer(product_id, qty);
+            self.add_listener_on_purchase_footer();
         },
         add_listener_on_purchase: function(){
             var self = this;
@@ -121,23 +121,18 @@
                 }
             });
         },
-        add_listener_on_purchase_footer: function(product_id, qty){
+        add_listener_on_purchase_footer: function(){
             var self = this;
-            self.$modal.find('#cancel').off('click.cancel');
-            self.$modal.find('#cancel').on('click.cancel', function (event) {
-                self.$modal.modal('hide');
-            });
+
             self.$modal.find('#select_purchases').off('click.select_purchases');
             self.$modal.find('#select_purchases').on('click.select_purchases', function (event) {
-                var note = self.$modal.find('#packing_note').val();
-                self.caller.add_product(product_id, parseInt(qty));
-                self.caller.confirm(self.selected_purchases, note);
+                self.caller.set_purchase_order_lines(self.selected_purchases);
+                self.$modal.modal('hide');
             });
             self.$modal.find('#no_purchases').off('click.no_purchases');
             self.$modal.find('#no_purchases').on('click.no_purchases', function (event) {
-                var note = self.$modal.find('#packing_note').val();
-                self.caller.add_product(product_id, parseInt(qty));
-                self.caller.confirm(false, note);
+                self.caller.set_purchase_order_lines(false);
+                self.$modal.modal('hide');
             });
         },
     });
@@ -199,8 +194,8 @@
                     if(data.status=="ok"){
                         if (!self.caller.parent.product_in_package[barcode] || self.caller.parent.product_in_package[barcode]==self.caller.id){
                             self.caller.parent.set_box_barcode(barcode);
-                            self.$modal.modal('hide');
                             self.caller.add_listener_for_barcode();
+                            self.$modal.modal('hide');
                         }else{
                             var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already filled with another product");
                             error_modal.start();
@@ -343,4 +338,46 @@
     });
 
     instance.stock_irm.modal.going_back_modal = going_back_modal;
+
+        var confirm_note_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Confirm Inbound Picking';
+            self.block_modal = true;
+            self.template = 'packing_order_note';
+        },
+        start: function (caller, product_id, qty) {
+            var self = this;
+            self.$body = $(QWeb.render(self.template));
+            self.caller = caller;
+            self.product_id = product_id;
+            self.qty = qty;
+
+            self._super();
+            self.add_listener_on_cancel_note();
+            self.add_listener_on_confirm_note();
+        },
+        add_listener_on_cancel_note: function(){
+            var self = this;
+            self.$modal.find('#cancel_note').click(function(event){
+                self.$modal.modal('hide');
+            })
+        },
+        add_listener_on_confirm_note: function(){
+            var self = this;
+            self.$modal.find('#confirm_note').click(function(event){
+                var note = self.$modal.find('#packing_note').val();
+                self.caller.parent.add_product(self.product_id, self.qty);
+                self.caller.parent.confirm(note)
+                self.$modal.modal('hide');
+                self.caller.destroy();
+                self.caller.parent.refresh();
+            })
+        },
+    });
+
+    instance.stock_irm.modal.confirm_note_modal = confirm_note_modal;
+
+
 })();
