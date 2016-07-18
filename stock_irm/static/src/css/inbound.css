@@ -232,3 +232,16 @@ a[is-in-usage='true'] {
 .list-boxes{
     width:100%;
 }
+
+.current-package{
+    background-color: rgba(148, 181, 255,0.5);
+}
+
+.package-closed{
+    background-color: rgba(255,188,148,0.5);
+}
+
+.package-open{
+    background-color: rgba(148, 255, 196, 0.5);
+}
+

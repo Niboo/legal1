@@ -171,9 +171,21 @@
                                 <t t-if="first_item_boxes.length">
                                     <ul class="list-group">
                                         <t t-foreach="first_item_boxes" t-as="first_item_box">
-                                            <li class='list-group-item fa fa-2x fa-dropbox list-boxes'>
-                                                <span t-esc="first_item_box"/>
-                                            </li>
+                                            <t t-if="current_package_barcode==first_item_box.barcode">
+                                                <li class='list-group-item fa fa-2x fa-dropbox list-boxes current-package'>
+                                                    <span t-esc="first_item_box.barcode"/>
+                                                </li>
+                                            </t>
+                                            <t t-if="current_package_barcode!=first_item_box.barcode and first_item_box.is_closed==false">
+                                                <li class='list-group-item fa fa-2x fa-dropbox list-boxes package-open'>
+                                                    <span t-esc="first_item_box.barcode"/>
+                                                </li>
+                                            </t>
+                                            <t t-if="current_package_barcode!=first_item_box.barcode and first_item_box.is_closed==true">
+                                                <li class='list-group-item fa fa-2x fa-dropbox list-boxes package-closed'>
+                                                    <span t-esc="first_item_box.barcode"/>
+                                                </li>
+                                            </t>
                                         </t>
                                     </ul>
                                 </t>

@@ -87,6 +87,13 @@
                     self.$nav.find('#search').show();
                     self.$nav.find('#confirm').show();
                 });
+            }else{
+                var ProductPicking = instance.stock_irm.inbound_product_picking;
+                self.product_picking = new ProductPicking(self.supplier_id, self.purchase_orders, false);
+                self.product_picking.start();
+                self.$nav.find('#back').show();
+                self.$nav.find('#search').show();
+                self.$nav.find('#confirm').show();
             }
         },
         get_suppliers: function(search){

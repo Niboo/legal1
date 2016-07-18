@@ -184,8 +184,9 @@
                     product: self.product,
                     quantity: self.quantity,
                     barcodes: data.product.barcodes,
-                    packing_reference: self.packing_reference,
-                    list_cart_with_product: cart_with_product
+                    list_cart_with_product: cart_with_product,
+                    first_item_boxes: product_box_list,
+                    current_package_barcode: self.parent.current_package_barcode,
                 }));
                 self.barcodes = data.product.barcodes;
                 $('#content').html(self.$elem);
@@ -333,18 +334,21 @@
             var self = this;
             var cart_with_product = new Array();
 
-            var boxes = $.grep(self.parent.received_products, function(value, key){return value.product_id == product_id && key==self.parent.received_products[self.parent.purchase_order_lines[0].product_id]});
+            if(self.parent.purchase_order_lines && self.parent.purchase_order_lines.length>0){
 
+                var boxes = $.grep(self.parent.received_products, function(value, key){return value.product_id == product_id && key==self.parent.received_products[self.parent.purchase_order_lines[0].product_id]});
 
-            if(self.parent.received_products && self.parent.received_products[self.parent.purchase_order_lines[0].product_id] ){
-                $.each(self.parent.received_products[self.parent.purchase_order_lines[0].product_id], function( key, value ) {
-                     cart_with_product.push(
-                        value["package_barcode"].substring(0, 10)
-                     );
-                });
+                if(self.parent.received_products && self.parent.received_products[self.parent.purchase_order_lines[0].product_id] ){
+                    $.each(self.parent.received_products[self.parent.purchase_order_lines[0].product_id], function( key, value ) {
+                         cart_with_product.push({
+                             "barcode": value["package_barcode"].substring(0, 10),
+                             //todo: manage the closed boxes
+                             "is_closed": false,
+                         });
+                    });
+                }
             }
             return cart_with_product;
-
         }
     });
 
