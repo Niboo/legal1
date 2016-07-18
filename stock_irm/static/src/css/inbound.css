@@ -79,6 +79,10 @@ h2{
 
 /* ########## RACK */
 
+.label {
+    font-size: 2em;
+}
+
 #rack{
     font-size: 3em;
     background-color: #d9534f;
@@ -275,4 +279,9 @@ a[is-in-usage='true'] {
 
 .location_buttons{
     margin-top:2%
+}
+
+#mark_damaged_button {
+    font-size: 2em;
+    vertical-align: middle;
 }

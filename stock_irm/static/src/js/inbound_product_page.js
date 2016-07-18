@@ -249,6 +249,13 @@
                 modal.start(self, box_barcode);
             })
         },
+        add_listener_on_mark_damaged_button: function(){
+            var self = this;
+
+            self.$elem.find('#mark_damaged_button').click(function(){
+                // self.get_carts();
+            })
+        },
         destroy: function(){
             this._super();
         },

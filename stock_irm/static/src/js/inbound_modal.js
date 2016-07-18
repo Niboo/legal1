@@ -632,6 +632,39 @@
 
     instance.stock_irm.modal.select_next_destination_modal = select_next_destination_modal;
 
+  var damage_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            this._super();
+            var self = this;
+            self.body_template = 'damaged_product_modal';
+            self.footer_template = 'damaged_product_modal_footer';
+            self.title = 'Mark product as damaged';
+        },
+        start: function () {
+            var self = this;
+            self.$body = $(QWeb.render(self.body_template, {
+                // purchase_orders: orders,
+            }));
+            self.$footer = $(QWeb.render(self.footer_template));
+            this._super();
+            self.add_listener_on_cancel_button();
+            self.add_listener_on_mark_damaged_button();
+        },
+        add_listener_on_cancel_button: function(){
+            var self = this;
+            self.$modal.find('#continue_picking').click(function(event){
+                self.$modal.modal('hide');
+            })
+        },
+        add_listener_on_mark_damaged_button: function(){
+            var self = this;
+            self.$modal.find('#continue_picking').click(function(event){
+                self.$modal.modal('hide');
+            })
+        },
+    });
+
+    instance.stock_irm.modal.damage_modal = damage_modal;
 
     var select_cart_modal = instance.stock_irm.modal.widget.extend({
         template: 'cart_result_body',

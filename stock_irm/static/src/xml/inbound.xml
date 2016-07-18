@@ -307,26 +307,28 @@
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <hr/>
-                                    <h4>Barcodes</h4>
+                
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <hr/>
+                                <h4>Barcodes</h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div id="barcodes">
+                                <div class="col-md-2">
+                                    <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
+                                </div>
+                                <div class="col-md-10 tags">
+                                    <ul class="list-group">
+                                        <t t-foreach="barcodes" t-as="barcode">
+                                            <li class="list-group-item"><t t-esc="barcode"/></li>
+                                        </t>
+                                    </ul>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div id="barcodes">
-                                    <div class="col-md-2">
-                                        <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
-                                    </div>
-                                    <div class="col-md-10 tags">
-                                        <ul class="list-group">
-                                            <t t-foreach="barcodes" t-as="barcode">
-                                                <li class="list-group-item"><t t-esc="barcode"/></li>
-                                            </t>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
 
                         </div>
                     </div>
@@ -554,6 +556,7 @@
         </div>
     </t>
 
+
     <t t-name="propose_close_box_footer">
         <a href="#" id="close" class="btn btn-lg btn-success pull-right"> Close This Box </a>
         <a href="#" id="cancel" class="btn btn-lg btn-danger pull-left"> Cancel </a>
@@ -605,6 +608,25 @@
 
     <t t-name="cart_navbar_item">
         <a href="#"><span class="glyphicon glyphicon-inbox" aria-hidden="true"/> <t t-esc="cart.name"/></a>
+    </t>
+
+    <t t-name="damaged_product_modal">
+        <div class="row">
+            <t t-foreach="purchase_orders" t-as="purchase">
+                <a href="#" class="btn btn-lg purchase-btn col-md-3" t-att-purchase-id="purchase.id" t-att-purchase-name="purchase.name">
+                    <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> <t t-esc="purchase.name" />
+                </a>
+            </t>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 formfield">
+                <label for="packing_note">note : </label>
+                <textarea class="pull-right" id="packing_note" name="Note" rows="10"/>
+            </div>
+        </div>
+    </t>
+    
+    <t t-name="damaged_product_modal_footer">
+        <a href="#" id="continue" class="btn btn-success">Mark as damaged</a>
+        <a href="#" id="go_back" class="btn pull-left">Cancel</a>
     </t>
 
 </templates>
