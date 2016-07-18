@@ -19,7 +19,7 @@
             </field>
         </record>
 
-        <record id="view_packing_order_tree" model="ir.ui.view">
+        <record id="view_inbound_wave_tree" model="ir.ui.view">
             <field name="name">stock.inbound.wave.tree</field>
             <field name="model">stock.inbound.wave</field>
             <field name="arch" type="xml">

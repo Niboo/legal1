@@ -31,10 +31,8 @@
                 <tree string="Packing Orders">
                     <field name="reference" />
                     <field name="user_id" />
+                    <field name="supplier_reference" />
                     <field name="creation_time" />
-                    <field name="write_time" />
-                    <field name="note" />
-                    <field name="stock_move_ids"/>
                 </tree>
             </field>
         </record>

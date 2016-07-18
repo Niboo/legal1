@@ -47,10 +47,10 @@ class InboundController(http.Controller):
         env = http.request.env
         inbound_suppliers = list()
 
-        domain = [('is_in_inbound','=',True)]
+        domain = [('is_in_inbound', '=', True)]
 
         if search:
-            domain.append(('display_name','ilike',search))
+            domain.append(('display_name', 'ilike', search))
 
         suppliers = env['res.partner'].search(
             domain,
@@ -341,17 +341,22 @@ product id: %s, supplier id: %s
                    'orders': orders}
 
     @http.route('/inbound_screen/process_picking', type='json', auth="user")
-    def process_picking(self, supplier_id, results, purchase_orders, note,  **kw):
+    def process_picking(self, supplier_id, results, purchase_orders, note,
+                        packing_id,  **kw):
         env = http.request.env
 
         try:
             supplier = env['res.partner'].browse(int(supplier_id))
-            packing_order = self.create_packing_order(note)
+            packing_order = env['stock.packing.order'].browse(int(packing_id))
+            # TODO: retrieve packing order here!
 
             if purchase_orders:
-                picking_ids = self.retrieve_pickings_from_orders(purchase_orders)
+                picking_ids = \
+                    self.retrieve_pickings_from_orders(purchase_orders)
+
                 product_quantities = self.create_product_qty_dict(results)
-                self.treat_pickings(picking_ids, product_quantities, results, packing_order)
+                self.treat_pickings(picking_ids, product_quantities, results,
+                                    packing_order)
 
             self.create_whole_new_picking(supplier, results, packing_order)
 
@@ -645,8 +650,11 @@ product id: %s, supplier id: %s
 
         env['stock.location'].browse(int(cart_id)).sudo().is_in_usage = True
 
-    def create_packing_order(self, note):
+    @http.route('/inbound_screen/create_packing_order', type='json', auth="user")
+    def create_packing_order(self, **kw):
         env = http.request.env
-        return env['stock.packing.order'].create({
-            'note': note,
-        })
+        packing_order = env['stock.packing.order'].create({})
+        return {"status": 'ok',
+                'packing_reference':packing_order.reference,
+                'packing_id': packing_order.id
+                };

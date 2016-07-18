@@ -27,6 +27,7 @@ class PackingOrder(models.Model):
     _name = "stock.packing.order"
 
     reference = fields.Char("Reference")
+    supplier_reference = fields.Char("Supplier Reference")
     note = fields.Char("Note")
     stock_move_ids = fields.One2many('stock.move', 'packing_order_id',
                                      string="Related Stock Moves")
@@ -34,7 +35,6 @@ class PackingOrder(models.Model):
     user_id = fields.Many2one('res.users', string="User")
     creation_time = fields.Datetime("Created on")
     write_time = fields.Datetime("Last Written on")
-
 
     @api.multi
     def create(self, vals):

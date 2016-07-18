@@ -35,6 +35,12 @@
             self.supplier_id = supplier_id;
             self.received_products = {};
             self.product_in_package= {};
+            self.session.rpc('/inbound_screen/create_packing_order').then(function(data){
+                if(data.status == 'ok'){
+                    self.packing_reference = data.packing_reference;
+                    self.packing_id = data.packing_id;
+                }
+            });
         },
         start: function(){
             this._super();
@@ -44,6 +50,7 @@
             self.search = '';
             self.add_listener_on_search();
             self.get_printer_ip();
+
         },
         get_printer_ip: function(){
             var self = this;
@@ -101,7 +108,7 @@
             $result.find('a').click(function(event){
                 var product_id = $(event.currentTarget).attr('data-id');
                 var ProductPage = instance.stock_irm.inbound_product_page;
-                self.product_page = new ProductPage(self, product_id);
+                self.product_page = new ProductPage(self, product_id, self.packing_reference, self.packing_id);
                 self.product_page.start();
             })
         },
@@ -246,6 +253,7 @@
                 results: self.received_products,
                 note: note,
                 purchase_orders: purchase_orders,
+                packing_id: self.packing_id,
             }).then(function(data){
                 if (data.status == 'ok'){
                     var modal = new instance.stock_irm.modal.confirmed_modal();

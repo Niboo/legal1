@@ -26,7 +26,7 @@
     var QWeb = instance.qweb;
 
     var inbound_product_page = instance.stock_irm.widget.extend({
-    	init: function (parent, id, quantity) {
+    	init: function (parent, id, quantity, packing_reference, packing_id) {
             this._super();
             var self = this;
             self.id = id;
@@ -37,7 +37,8 @@
             self.barcodes = [];
             self.nb_already_printed = 0;
             self.quantity_to_print = 0;
-
+            self.packing_reference = packing_reference
+            self.packing_id = packing_id
         },
         start: function(){
             this._super();
@@ -179,6 +180,7 @@
                     product: self.product,
                     quantity: self.quantity,
                     barcodes: data.product.barcodes,
+                    packing_reference: self.packing_reference,
                     list_cart_with_product: cart_with_product
                 }));
                 self.barcodes = data.product.barcodes;
