@@ -28,4 +28,6 @@ class ResPartner(models.Model):
 
     sequence = fields.Integer("Sequence")
 
-    is_in_inbound = fields.Boolean("Appears In Inbound", defaul=False)
+    is_in_inbound = fields.Boolean("Appears In Inbound", default=False)
+    requires_unpack = fields.Boolean("Requires unpacking", default=False)
+    requires_relabel = fields.Boolean("Requires re-labelling", default=False)

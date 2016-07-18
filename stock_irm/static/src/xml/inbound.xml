@@ -160,7 +160,29 @@
             <div id='product_row'>
                 <div class="row">
                     <div class="col-md-4">
-                        <img id="product_image" t-att-src="product.image" class="center-block img-responsive"/>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <img id="product_image" t-att-src="product.image" class="center-block img-responsive"/>
+                            </div>
+                        </div>
+                        <t t-if="product.requires_unpack or product.requires_relabel">
+                            <div class="row">
+                                <t t-if="product.requires_unpack">
+                                    <div class="col-md-12">
+                                        <div class="alert alert-warning info-prompt">
+                                            <i class="fa fa-sign-out info-prompt-icon" aria-hidden="true"></i> Requires unpacking
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-if="product.requires_relabel">
+                                    <div class="col-md-12">
+                                        <div class="alert alert-warning info-prompt">
+                                            <i class="fa fa-tags info-prompt-icon" aria-hidden="true"></i> Requires re-labelling
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
                     </div>
                     <div class="col-md-8">
                         <div class="row">

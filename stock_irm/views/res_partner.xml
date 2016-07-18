@@ -12,6 +12,8 @@
                             <group>
                                 <field name="sequence"/>
                                 <field name="is_in_inbound"/>
+                                <field name="requires_unpack"/>
+                                <field name="requires_relabel"/>
                             </group>
                         </page>
                     </notebook>

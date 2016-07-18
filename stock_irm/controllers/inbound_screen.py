@@ -146,6 +146,9 @@ AND rp.commercial_partner_id = %s
         # retrieve the partner and its child to search for supplier info
         supplier_childs = env['res.partner'].browse(int(supplier_id)).child_ids
 
+        requires_unpack = env['res.partner'].browse(int(supplier_id)).requires_unpack
+        requires_relabel = env['res.partner'].browse(int(supplier_id)).requires_relabel
+
         supplier_info = product.seller_ids.filtered(
             lambda r: r.name.id == int(supplier_id) or
                       r.name.id in supplier_childs.ids)
@@ -171,6 +174,8 @@ product id: %s, supplier id: %s
                 'description': product.description or "No description",
                 'default_code': product.default_code,
                 'supplier_code': supplier_info.product_code or 'N/A',
+                'requires_unpack': requires_unpack,
+                'requires_relabel': requires_relabel,
                 'barcodes': barcodes,
                 'image': "/web/binary/image?model=product.product&id=%s&field=image" % product.id,
             }
