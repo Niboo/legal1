@@ -210,13 +210,13 @@
             <t t-if="first_item_box.is_new==true">
                 <li class='list-group-item fa fa-2x fa-dropbox list-boxes current-package extra-line'>
                     <span t-esc="first_item_box.barcode"/>
-                    <span class='fa fa-times close-box-icon' t-att-box-barcode="first_item_box.barcode"></span>
+                    <span class='fa fa-times close-box-icon pull-right' t-att-box-barcode="first_item_box.barcode"></span>
                 </li>
             </t>
             <t t-if="first_item_box.is_new==false">
                 <li class='list-group-item fa fa-2x fa-dropbox list-boxes current-package'>
                     <span t-esc="first_item_box.barcode"/>
-                    <span class='fa fa-times close-box-icon' t-att-box-barcode="first_item_box.barcode"></span>
+                    <span class='fa fa-times close-box-icon pull-right' t-att-box-barcode="first_item_box.barcode"></span>
                 </li>
             </t>
         </div>
@@ -226,13 +226,13 @@
         <t t-if="first_item_box.is_new==true">
             <li class='list-group-item fa fa-2x fa-dropbox list-boxes package-open extra-line'>
                 <span t-esc="first_item_box.barcode"/>
-                <span class='fa fa-times close-box-icon' t-att-box-barcode="first_item_box.barcode"></span>
+                <span class='fa fa-times close-box-icon pull-right' t-att-box-barcode="first_item_box.barcode"></span>
             </li>
         </t>
         <t t-if="first_item_box.is_new==false">
             <li class='list-group-item fa fa-2x fa-dropbox list-boxes package-open'>
                 <span t-esc="first_item_box.barcode"/>
-                <span class='fa fa-times close-box-icon' t-att-box-barcode="first_item_box.barcode"></span>
+                <span class='fa fa-times close-box-icon pull-right' t-att-box-barcode="first_item_box.barcode"></span>
             </li>
         </t>
     </t>
