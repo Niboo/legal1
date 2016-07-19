@@ -320,13 +320,20 @@
                                 <div class="col-md-2">
                                     <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
                                 </div>
-                                <div class="col-md-10 tags">
+                                <div class="col-md-5 tags">
                                     <ul class="list-group">
                                         <t t-foreach="barcodes" t-as="barcode">
                                             <li class="list-group-item"><t t-esc="barcode"/></li>
                                         </t>
                                     </ul>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pull-right">
+                                <button id="mark_damaged_button" type="button" class="btn btn-danger btn-large button-touch">
+                                    <i class="fa fa-chain-broken button-icon" aria-hidden="true"></i> Mark damaged
+                                </button>
                             </div>
                         </div>
 
@@ -612,21 +619,16 @@
 
     <t t-name="damaged_product_modal">
         <div class="row">
-            <t t-foreach="purchase_orders" t-as="purchase">
-                <a href="#" class="btn btn-lg purchase-btn col-md-3" t-att-purchase-id="purchase.id" t-att-purchase-name="purchase.name">
-                    <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> <t t-esc="purchase.name" />
-                </a>
-            </t>
-            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 formfield">
-                <label for="packing_note">note : </label>
-                <textarea class="pull-right" id="packing_note" name="Note" rows="10"/>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 formfield">
+                <label for="damage_reason">Reason</label>
+                <input type="text" class="form-control" id="damage_reason"/>
             </div>
         </div>
     </t>
     
     <t t-name="damaged_product_modal_footer">
-        <a href="#" id="continue" class="btn btn-success">Mark as damaged</a>
-        <a href="#" id="go_back" class="btn pull-left">Cancel</a>
+        <a href="#" id="move_to_damaged" class="btn btn-warning">Move to "Damaged"</a>
+        <a href="#" id="cancel" class="btn pull-left btn-default">Cancel</a>
     </t>
 
 </templates>

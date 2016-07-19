@@ -638,33 +638,55 @@
             var self = this;
             self.body_template = 'damaged_product_modal';
             self.footer_template = 'damaged_product_modal_footer';
-            self.title = 'Mark product as damaged';
+            self.title = 'Move product to Damaged Products Location';
         },
-        start: function () {
+        start: function (caller, product_id) {
             var self = this;
             self.$body = $(QWeb.render(self.body_template, {
                 // purchase_orders: orders,
             }));
+            self.caller = caller;
             self.$footer = $(QWeb.render(self.footer_template));
             this._super();
             self.add_listener_on_cancel_button();
-            self.add_listener_on_mark_damaged_button();
+            self.add_listener_on_move_to_damaged_button(product_id);
         },
         add_listener_on_cancel_button: function(){
             var self = this;
-            self.$modal.find('#continue_picking').click(function(event){
+            self.$modal.find('#cancel').click(function(event){
                 self.$modal.modal('hide');
             })
         },
-        add_listener_on_mark_damaged_button: function(){
+        add_listener_on_move_to_damaged_button: function(product_id){
             var self = this;
-            self.$modal.find('#continue_picking').click(function(event){
-                self.$modal.modal('hide');
+            self.$modal.find('#move_to_damaged').click(function(event){
+                var reason = self.$modal.find('#damage_reason').val();
+                if(reason) {
+                    self.caller.parent.move_to_damaged(product_id, reason);
+                } else {
+                    document.getElementById("damage_reason").style.backgroundColor = 'rgba(255,148,148,0.5)';
+                }
+
             })
         },
     });
 
     instance.stock_irm.modal.damage_modal = damage_modal;
+    var damage_confirmed_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Moved to Damaged Products Location!';
+            self.block_modal = true;
+        },
+        start: function () {
+            var self = this;
+            self.$body = "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>";
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.damage_confirmed_modal = damage_confirmed_modal;
 
     var select_cart_modal = instance.stock_irm.modal.widget.extend({
         template: 'cart_result_body',
@@ -704,5 +726,4 @@
     });
 
     instance.stock_irm.modal.select_cart_modal = select_cart_modal;
-
 })();

@@ -23,8 +23,8 @@ from openerp import fields
 from openerp import models
 from openerp import api
 
-class InboundDamage(models.Model):
+class InboundDamageReason(models.Model):
 
-    _name = "stock.inbound.damage"
+    _name = "stock.inbound.damage.reason"
 
-    damage_reason = fields.Char()
+    stock_inbound_damage_reason = fields.Char()

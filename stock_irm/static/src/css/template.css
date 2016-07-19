@@ -74,6 +74,7 @@ img {
 }
 .button-touch-icon {
     font-size: 5em;
+    vertical-align: middle;
 }
 
 /* NUMPAD */

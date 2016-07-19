@@ -249,11 +249,13 @@
                 modal.start(self, box_barcode);
             })
         },
-        add_listener_on_mark_damaged_button: function(){
+        add_listener_on_move_to_damaged_button: function(){
             var self = this;
-
-            self.$elem.find('#mark_damaged_button').click(function(){
-                // self.get_carts();
+            var product_id = self.id;
+            self.$elem.find('#move_to_damaged_button').click(function(){
+                var modal = new instance.stock_irm.modal.damage_modal();
+                // TODO send package instead of product
+                modal.start(self, product_id);
             })
         },
         destroy: function(){

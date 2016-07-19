@@ -284,4 +284,14 @@ a[is-in-usage='true'] {
 #mark_damaged_button {
     font-size: 2em;
     vertical-align: middle;
+    margin-right: 10px;
+}
+#move_to_damaged_button {
+    font-size: 2em;
+    padding: 15px;
+}
+.move_to_damaged_button_icon {
+    font-size: 2em;
+    vertical-align: middle;
+    margin-right: 10px;
 }

@@ -19,14 +19,31 @@
 #
 ##############################################################################
 
-from openerp import models, api, fields
+from openerp import models
+from openerp import api
+from openerp import fields
+from openerp import exceptions
+from openerp import http
 
 
 class StockLocation(models.Model):
-
     _inherit = "stock.location"
 
     is_in_usage = fields.Boolean("Currently in usage", default=False)
 
     is_inbound_cart = fields.Boolean("Is an inbound cart", default=False)
     is_bandup_location = fields.Boolean("Is a Bandup Location", default=False)
+    is_damaged_location = fields.Boolean("Is the Damaged Products Location", default=False)
+
+    @api.multi
+    @api.constrains('is_inbound_cart', 'is_bandup_location', 'is_damaged_location')
+    def check_damaged_location(self):
+        env = http.request.env
+        other_damaged_locations = env['stock.location'].search([('is_damaged_location', '=', True),
+                                                                ('id', '!=', self.id)])
+        for location in self:
+            if location.is_damaged_location and (location.is_inbound_cart or location.is_bandup_location):
+                raise exceptions.Warning("Damaged Location cannot be cart or Bandup location")
+            elif location.is_damaged_location and other_damaged_locations:
+                raise exceptions.Warning("There can only be one Damaged Products Location. Currently it is set to %s"
+                                         % ''.join([loc.name + ' ' for loc in other_damaged_locations]))

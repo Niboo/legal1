@@ -280,7 +280,7 @@
                 }
             }
         },
-        is_box_free: function(barcode, move_line){
+                is_box_free: function(barcode, move_line){
             var self = this;
             var same_box_lines = _.filter(self.po_move_lines, function (po_move_line) {
                 // Box already occupied by another product

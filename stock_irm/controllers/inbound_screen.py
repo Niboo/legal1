@@ -607,7 +607,7 @@ product id: %s, supplier id: %s
         packing_order = env['stock.packing.order'].create({})
         return {'status': 'ok',
                 'packing_reference':packing_order.name,
-                'packing_id': packing_order.id
+                'packing_id': packing_order.id,
                 }
 
     @http.route('/inbound_screen/save_packing_note', type='json', auth='user')
@@ -634,3 +634,33 @@ product id: %s, supplier id: %s
             'status': 'ok',
             'carts': carts,
         }
+    
+    @http.route('/inbound_screen/move_to_damaged', type='json', auth="user")
+    def move_to_damaged(self, package_barcode, reason):
+        env = http.request.env
+        package = env['stock.quant.package'].search([
+            ('barcode', '=', str(package_barcode))
+        ])
+        damaged_products_location = env['stock.location'].search([('is_damaged_location', '=', True)])
+        try:
+            if len(damaged_products_location) < 1:
+                raise Exception(
+                    "There is currently no Damaged Products Location set.")
+            elif len(damaged_products_location) > 1:
+                raise Exception(
+                    "There is currently more than one Damaged Products Location set.")
+
+            # TODO change package location to damaged_products_location
+            # product.location_id = damaged_products_location
+            # self.search_dest_package(package_barcode)
+
+            env['stock.inbound.damage.reason'].create({
+                'stock_inbound_damage_reason': reason,
+            })
+            return {
+                'status': 'ok'
+            }
+        except Exception as e:
+            return {'status': 'error',
+                    'error': type(e).__name__,
+                    'message': e.args[0]}
