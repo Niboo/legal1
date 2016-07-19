@@ -24,7 +24,7 @@
     'version': '8.0.1.0.0',
     'category': 'Tools',
     'author': 'Dynapps',
-    'depends': ['base_report_to_printer'],
+    'depends': ['base_report_to_printer','stock'],
     'data': [
         'views/res_users.xml',
         'views/work_location.xml',
