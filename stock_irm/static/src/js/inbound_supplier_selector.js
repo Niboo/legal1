@@ -78,7 +78,6 @@
                 self.session.rpc('/inbound_screen/get_purchase_lines', {
                     purchase_order_ids: self.purchase_orders
                 }).then(function (data) {
-                    console.log(data)
                     self.po_lines = data.po_lines;
                     var ProductPicking = instance.stock_irm.inbound_product_picking;
                     self.product_picking = new ProductPicking(self.supplier_id, self.purchase_orders, self.po_lines);

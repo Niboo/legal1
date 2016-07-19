@@ -196,6 +196,10 @@
                             self.caller.parent.set_box_barcode(barcode);
                             self.caller.add_listener_for_barcode();
                             self.$modal.modal('hide');
+
+                            // we should "predisplay" a box under the product before it is added to a box. Otherwise,
+                            // worker won't be able to close the first box for a determined product.
+                            self.caller.predisplay_box();
                         }else{
                             var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already filled with another product");
                             error_modal.start();
@@ -339,7 +343,7 @@
 
     instance.stock_irm.modal.going_back_modal = going_back_modal;
 
-        var confirm_note_modal = instance.stock_irm.modal.widget.extend({
+    var confirm_note_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
             var self = this;
             this._super();
@@ -379,5 +383,41 @@
 
     instance.stock_irm.modal.confirm_note_modal = confirm_note_modal;
 
+    var close_box_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Close Current Box';
+            self.block_modal = false;
+            self.template = 'propose_close_box';
+            self.footer_template = 'propose_close_box_footer';
+        },
+        start: function (caller, box_barcode) {
+            var self = this;
+            self.$body = $(QWeb.render(self.template));
+            self.$footer = $(QWeb.render(self.footer_template));
+            self.box_barcode = box_barcode;
+            self.caller = caller;
+
+            self._super();
+            self.add_listener_on_close_box();
+            self.add_listener_on_cancel();
+        },
+        add_listener_on_cancel: function(){
+            var self = this;
+            self.$modal.find('#cancel').click(function(event){
+                self.$modal.modal('hide');
+            })
+        },
+        add_listener_on_close_box: function(){
+            var self = this;
+            self.$modal.find('#close').click(function(event){
+                self.caller.close_box(self.box_barcode)
+                self.$modal.modal('hide');
+            })
+        },
+    });
+
+    instance.stock_irm.modal.close_box_modal = close_box_modal;
 
 })();

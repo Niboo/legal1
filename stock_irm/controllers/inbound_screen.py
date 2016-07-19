@@ -365,6 +365,7 @@ product id: %s, supplier id: %s
                 'product_name': po_line.product_id.name[0:22],
                 'progress_done': 0,
                 'quantity_already_scanned': 0,
+                'is_new': False,
             })
 
         return {'status': 'ok',
@@ -657,7 +658,7 @@ product id: %s, supplier id: %s
         domain = []
 
         if barcode:
-            domain.append(('login_barcode','=',barcode))
+            domain.append(('login_barcode', '=', barcode))
 
         user = env['res.users'].search(
             domain
@@ -665,12 +666,12 @@ product id: %s, supplier id: %s
 
         if user:
             return {'status': 'ok',
-                       'username': user.name,
-                       'user_id':user.id,
-                       'login':user.login,
-                       'image': "/web/binary/image?model=res.users&id=%s&field=image_medium" % user.id}
+                    'username': user.name,
+                    'user_id': user.id,
+                    'login': user.login,
+                    'image': "/web/binary/image?model=res.users&id=%s&field=image_medium" % user.id}
         else:
-            return {"status": 'error'};
+            return {"status": 'error'}
 
     @http.route('/inbound_screen/book_cart',
                 type='json',
@@ -688,3 +689,12 @@ product id: %s, supplier id: %s
                 'packing_reference':packing_order.name,
                 'packing_id': packing_order.id
                 };
+
+    @http.route('/inbound_screen/get_product_name',
+                type='json',
+                auth="user")
+    def get_product_name(self, product_id, **kw):
+        env = http.request.env
+        name = env['product.product'].browse(int(product_id)).name[0:22]
+        return {"status": 'ok', "product_name": name}
+

@@ -245,3 +245,30 @@ a[is-in-usage='true'] {
     background-color: rgba(148, 255, 196, 0.5);
 }
 
+#close-box-icon{
+    color: #e70001 !important;
+}
+
+#close-box{
+    background-color: #e7d72b;
+    color: #fff;
+}
+
+#close-box:hover{
+    background-color: #d98914;
+    color: #fff;
+    cursor: hand;
+}
+
+#close-box .glyphicon {
+    vertical-align: sub;
+}
+
+#close-box span{
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.extra-line{
+    color: yellow;
+}

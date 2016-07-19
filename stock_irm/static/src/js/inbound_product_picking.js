@@ -37,6 +37,7 @@
             self.product_in_package= {};
             self.purchase_orders = purchase_orders;
             self.purchase_order_lines = purchase_order_lines;
+            self.closed_boxes = [];
         },
         start: function(){
             this._super();
@@ -105,7 +106,8 @@
                 $result = self.$elem.find('#results');
             }
             $result.find('a').click(function(event){
-                self.go_to_product();
+                var product_id = $(event.currentTarget).attr('data-id');
+                self.go_to_product(product_id);
             })
         },
         get_purchase_orders: function(product_id, qty) {
@@ -149,7 +151,7 @@
                 self.products = data.products;
 
                 if (self.products.length == 1){
-                    self.go_to_product();
+                    self.go_to_product(self.products[0].id);
                     return;
                 }
 
@@ -169,7 +171,7 @@
                 }
             });
         },
-        add_product: function(product_id, qty, product_name, barcode){
+        add_product: function(product_id, qty){
             var self = this;
             var product = {};
             var cart_box_list = {};
@@ -208,16 +210,36 @@
             quantity += qty;
             cart_box_list[index] = quantity;
 
-
+            // search an existing PO line and fill it if possible. If not, create a new one or retrieve a newly created one.
             var po_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.progress_done != 100.0; })[0];
 
             if(po_line){
                 // we found a line we are able to fill!
                 po_line.quantity_already_scanned += qty;
                 po_line.progress_done = 100.0/po_line.quantity*po_line.quantity_already_scanned;
+            }else{
+                var created_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.is_new == true; })[0];
+
+                if(created_line){
+                    created_line.quantity+=qty;
+                }else{
+                    self.session.rpc('/inbound_screen/get_product_name', {
+                        product_id: product_id
+                    }).then(function(data){
+                        if(data.status == "ok"){
+                            self.purchase_order_lines.push({
+                                'product_id':product_id,
+                                'quantity': quantity,
+                                'id': 0,
+                                'product_name': data.product_name,
+                                'progress_done': 100,
+                                'quantity_already_scanned': quantity,
+                                'is_new': true,
+                            });
+                        }
+                    });
+                }
             }
-
-
         },
         get_already_used_box: function(product_id){
             var self = this;
@@ -316,10 +338,8 @@
 
             $('#po-lines-list').html($result);
         },
-        go_to_product: function(){
+        go_to_product: function(product_id){
             var self = this;
-
-            var product_id = self.products[0].id;
             var ProductPage = instance.stock_irm.inbound_product_page;
 
             self.$elem = $(QWeb.render(self.template,{
