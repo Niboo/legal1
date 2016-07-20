@@ -350,10 +350,12 @@
             self.title = 'Confirm Inbound Picking';
             self.block_modal = true;
             self.template = 'packing_order_note';
+            self.footer_template = 'packing_order_note_footer';
         },
         start: function (caller, product_id, qty) {
             var self = this;
             self.$body = $(QWeb.render(self.template));
+            self.$footer = $(QWeb.render(self.footer_template));
             self.caller = caller;
             self.product_id = product_id;
             self.qty = qty;

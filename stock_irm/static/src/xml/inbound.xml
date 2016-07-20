@@ -463,7 +463,10 @@
                 <textarea class="pull-right" id="packing_note" name="Note" rows="10"/>
             </div>
         </div>
-        <a href="#" id="confirm_note" class="btn btn-success">Confirm</a>
+    </t>
+
+    <t t-name="packing_order_note_footer">
+        <a href="#" id="confirm_note" class="btn btn-success pull-right">Confirm</a>
         <a href="#" id="cancel_note" class="btn btn-danger pull-left">Cancel</a>
     </t>
 

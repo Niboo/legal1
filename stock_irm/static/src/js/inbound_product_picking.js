@@ -173,10 +173,11 @@
         },
         add_product: function(product_id, qty){
             var self = this;
-            var product = {};
+            var list_cart_with_product = {};
             var cart_box_list = {};
             var quantity = 0;
             var index;
+
 
             // we book the cart only when adding a product (to avoid booking when missclicking)
             self.session.rpc('/inbound_screen/book_cart', {
@@ -186,24 +187,36 @@
             // check if we already have the product id in our received products
             // product is a list of the carts in which the product exists
             if (_.has(self.received_products, product_id)) {
-                product = self.received_products[product_id];
+                list_cart_with_product = self.received_products[product_id];
             } else {
-                self.received_products[product_id] = product;
+                self.received_products[product_id] = list_cart_with_product;
             }
 
-            if (_.has(product, self.current_cart.id)) {
-                cart_box_list = product[self.current_cart.id];
+            // check if the received product already exist in the current cart
+            if (_.has(list_cart_with_product, self.current_cart.id)) {
+                var current_cart = list_cart_with_product[self.current_cart.id]
+
+                if (_.has(current_cart, self.current_package_barcode)) {
+                    var current_package = current_cart[self.current_package_barcode]
+
+                    cart_box_list = current_package;
+                }else{
+                    list_cart_with_product[self.current_cart.id][self.current_package_barcode] = cart_box_list;
+                }
             } else {
-                product[self.current_cart.id] = cart_box_list;
+                list_cart_with_product[self.current_cart.id] = {};
+                list_cart_with_product[self.current_cart.id][self.current_package_barcode] = cart_box_list;
             }
 
             if (!_.isEmpty(cart_box_list)){
                 index = cart_box_list['index'];
                 quantity = cart_box_list[index];
             } else {
+                console.log("new box")
                 index = self.current_cart.box_index;
                 cart_box_list['index'] = index;
                 cart_box_list['package_barcode'] = self.current_package_barcode;
+                cart_box_list['product_in_box'] = product_id;
                 self.product_in_package[self.current_package_barcode] = product_id;
             }
 
@@ -243,15 +256,25 @@
         },
         get_already_used_box: function(product_id){
             var self = this;
+            var index = false;
+
             if (_.has(self.received_products, product_id)) {
                 var product = self.received_products[product_id];
-                if (_.has(product, self.current_cart.id)) {
-                    var cart = product[self.current_cart.id]
-                    return cart['index'];
+
+                if (_.has(product, self.current_cart.id)){
+
+                    var cart_box_list = product[self.current_cart.id]
+
+                    $.each(cart_box_list, function(key, value){
+                        if(value.product_in_box == product_id && $.inArray(self.closed_boxes, value.package_barcode)==-1) {
+                            index = value['index'];
+                            //save the current package barcode since we may "come back" from another package
+                            self.current_package_barcode=value['package_barcode']
+                        }
+                    });
                 }
-            }else{
-                return false;
             }
+            return index;
         },
         set_box_barcode: function(barcode){
             var self = this;

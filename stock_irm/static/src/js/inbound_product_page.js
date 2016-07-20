@@ -227,6 +227,7 @@
         select_box: function(product_id, cart_selection){
             var self = this;
             var product_box = self.parent.get_already_used_box(product_id);
+
             if(product_box){
                 return product_box;
             }else{
@@ -332,25 +333,27 @@
             var self = this;
             var cart_with_product = new Array();
 
+
             if(self.parent.purchase_order_lines && self.parent.purchase_order_lines.length>0){
+                $.each(self.parent.received_products, function(key, value){
+                    $.each(value, function(key2, value2){
+                        $.each(value2, function(key3, value3){
+                            if(self.id == value3['product_in_box']){
 
-                var boxes = $.grep(self.parent.received_products, function(value, key){return value.product_id == product_id && key==self.parent.received_products[self.parent.purchase_order_lines[0].product_id]});
+                                var is_closed = false;
+                                if ($.inArray(value3["package_barcode"], self.parent.closed_boxes) != -1) {
+                                    is_closed = true;
+                                }
 
-                if(self.parent.received_products && self.parent.received_products[self.parent.purchase_order_lines[0].product_id] ){
-                    $.each(self.parent.received_products[self.parent.purchase_order_lines[0].product_id], function( key, value ) {
-
-                        var is_closed = false;
-                        if($.inArray(value["package_barcode"],self.parent.closed_boxes) != -1){
-                            is_closed = true;
-                        }
-
-                        cart_with_product.push({
-                            "barcode": value["package_barcode"],
-                            "is_closed": is_closed,
-                            'is_new': self.parent.purchase_order_lines[0].is_new,
+                                cart_with_product.push({
+                                    "barcode": value3["package_barcode"],
+                                    "is_closed": is_closed,
+                                    'is_new': self.parent.purchase_order_lines[0].is_new,
+                                });
+                            }
                         });
                     });
-                }
+                });
             }
 
             return cart_with_product;
@@ -375,17 +378,23 @@
             // building the array with the needed information
             if(self.parent.received_products[self.id]){
                 $.each( self.parent.received_products[self.id], function( key, value ) {
-                    $.each(value, function(key, value){
-                        if(key!="index" && key!="package_barcode"){
-                            box_id = key;
-                            quantity = value;
-                        }
+                    $.each(value, function(key2, value2){
+                        $.each(value2, function(key3, value3){
+                            if(key3!="index" && key3!="package_barcode" && key3!="product_in_box"){
+                                box_id = key3;
+                                quantity = value3
+                            }
+                        });
+                        cart_with_product.push({
+                            "cart_name":self.parent.carts[key]["name"],
+                            "box": box_id,
+                            "quantity":quantity});
+
+
                     });
-                    cart_with_product.push({
-                        "cart_name":self.parent.carts[key]["name"],
-                        "box": box_id, "quantity":quantity});
                 });
             }
+
             self.$elem = $(QWeb.render(self.template, {
                 po_lines: self.parent.purchase_order_lines,
                 product: self.product,
