@@ -49,6 +49,7 @@ Module
         'views/stock_picking_type.xml',
         'views/stock_index_view.xml',
         'views/packing_order.xml',
+        'views/inbound_damage_reason.xml',
         'data/sequence_packing.xml',
         'security/ir.model.access.csv',
         'views/stock_quant_package.xml',

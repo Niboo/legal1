@@ -620,8 +620,14 @@
     <t t-name="damaged_product_modal">
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 formfield">
-                <label for="damage_reason">Reason</label>
-                <input type="text" class="form-control" id="damage_reason"/>
+                <div class="form-group">
+                    <label for="select_reason">Select Reason:</label>
+                    <select class="form-control" id="select_reason">
+                        <t t-foreach="damage_reasons" t-as="reason">
+                            <option><span t-esc="reason"/></option>
+                        </t>
+                    </select>
+                </div>
             </div>
         </div>
     </t>

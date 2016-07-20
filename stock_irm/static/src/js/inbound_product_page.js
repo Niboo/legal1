@@ -36,6 +36,8 @@
             self.barcodes = [];
             self.nb_already_printed = 0;
             self.quantity_to_print = 0;
+            self.packing_reference = packing_reference
+            self.packing_id = packing_id
         },
         start: function(){
             this._super();
@@ -251,12 +253,24 @@
         },
         add_listener_on_move_to_damaged_button: function(){
             var self = this;
-            var product_id = self.id;
             self.$elem.find('#move_to_damaged_button').click(function(){
+                var product_id = self.id;
+                var qty = self.$elem.find('#quantity input').get(0).value;
                 var modal = new instance.stock_irm.modal.damage_modal();
-                // TODO send package instead of product
-                modal.start(self, product_id);
+                modal.start(self, product_id, qty, self.damage_reasons);
             })
+        },
+        get_damage_reasons: function () {
+            var self = this;
+            self.session.rpc('/inbound_screen/get_damage_reasons')
+                .then(function (data) {
+                    if (data.status == 'ok') {
+                        self.damage_reasons = data.damage_reasons;
+                    } else {
+                        var modal = new instance.stock_irm.modal.exception_modal();
+                        modal.start(data.error, data.message);
+                    }
+                });
         },
         destroy: function(){
             this._super();

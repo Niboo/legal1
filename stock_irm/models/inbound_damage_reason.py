@@ -27,4 +27,4 @@ class InboundDamageReason(models.Model):
 
     _name = "stock.inbound.damage.reason"
 
-    stock_inbound_damage_reason = fields.Char()
+    reason = fields.Char()

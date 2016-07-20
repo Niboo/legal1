@@ -640,16 +640,16 @@
             self.footer_template = 'damaged_product_modal_footer';
             self.title = 'Move product to Damaged Products Location';
         },
-        start: function (caller, product_id) {
+        start: function (caller, product_id, qty, damage_reasons) {
             var self = this;
             self.$body = $(QWeb.render(self.body_template, {
-                // purchase_orders: orders,
+                'damage_reasons': damage_reasons,
             }));
             self.caller = caller;
             self.$footer = $(QWeb.render(self.footer_template));
             this._super();
             self.add_listener_on_cancel_button();
-            self.add_listener_on_move_to_damaged_button(product_id);
+            self.add_listener_on_move_to_damaged_button(product_id, qty);
         },
         add_listener_on_cancel_button: function(){
             var self = this;
@@ -657,16 +657,11 @@
                 self.$modal.modal('hide');
             })
         },
-        add_listener_on_move_to_damaged_button: function(product_id){
+        add_listener_on_move_to_damaged_button: function(product_id, qty){
             var self = this;
             self.$modal.find('#move_to_damaged').click(function(event){
-                var reason = self.$modal.find('#damage_reason').val();
-                if(reason) {
-                    self.caller.parent.move_to_damaged(product_id, reason);
-                } else {
-                    document.getElementById("damage_reason").style.backgroundColor = 'rgba(255,148,148,0.5)';
-                }
-
+                var reason = self.$modal.find('#select_reason').val();
+                self.caller.parent.move_to_damaged(product_id, qty, reason);
             })
         },
     });

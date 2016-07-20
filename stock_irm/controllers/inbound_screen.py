@@ -634,15 +634,32 @@ product id: %s, supplier id: %s
             'status': 'ok',
             'carts': carts,
         }
+
+    @http.route('/inbound_screen/get_damage_reasons', type='json', auth="user")
+    def get_damage_reasons(self):
+        env = http.request.env
+        try:
+            damage_reasons_objects = env['stock.inbound.damage.reason'].search([])
+            damage_reasons = [str(r.reason) for r in damage_reasons_objects]
+            if damage_reasons:
+                return {'status': 'ok',
+                    'damage_reasons': damage_reasons}
+            else:
+                raise Exception(
+                    "There are currently no Damage Reasons set.")
+        except Exception as e:
+            return {'status': 'error',
+                    'error': type(e).__name__,
+                    'message': e.args[0]}
     
     @http.route('/inbound_screen/move_to_damaged', type='json', auth="user")
-    def move_to_damaged(self, package_barcode, reason):
+    def move_to_damaged(self, product_id, qty, reason, package_barcode):
         env = http.request.env
-        package = env['stock.quant.package'].search([
-            ('barcode', '=', str(package_barcode))
-        ])
-        damaged_products_location = env['stock.location'].search([('is_damaged_location', '=', True)])
         try:
+            product = env['product.product'].browse(product_id)
+            damage_reason = env['stock.inbound.damage.reason'].search([('reason', '=', reason)])
+            damaged_products_location = env['stock.location'].search([('is_damaged_location', '=', True)])
+
             if len(damaged_products_location) < 1:
                 raise Exception(
                     "There is currently no Damaged Products Location set.")
@@ -650,13 +667,9 @@ product id: %s, supplier id: %s
                 raise Exception(
                     "There is currently more than one Damaged Products Location set.")
 
-            # TODO change package location to damaged_products_location
-            # product.location_id = damaged_products_location
-            # self.search_dest_package(package_barcode)
+            # TODO move package to damaged location
+            # currently available records: product_id, qty, reason, package_barcode
 
-            env['stock.inbound.damage.reason'].create({
-                'stock_inbound_damage_reason': reason,
-            })
             return {
                 'status': 'ok'
             }

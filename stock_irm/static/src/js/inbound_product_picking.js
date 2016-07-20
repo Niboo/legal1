@@ -280,11 +280,25 @@
                 }
             }
         },
-                is_box_free: function(barcode, move_line){
+        move_to_damaged: function(product_id, reason) {
             var self = this;
-            var same_box_lines = _.filter(self.po_move_lines, function (po_move_line) {
-                // Box already occupied by another product
-                return po_move_line.box == barcode && move_line.product_id != po_move_line.product_id;
+            self.session.rpc('/inbound_screen/move_to_damaged', {
+                product_id: product_id,
+                reason: reason,
+            }).then(function(data){
+                if (data.status == 'ok'){
+                    var modal = new instance.stock_irm.modal.damage_confirmed_modal();
+                    modal.start();
+                    window.setTimeout(function(){
+                        window.location.href = "/inbound_screen";
+                    }, 3000);
+                } else {
+                    var modal = new instance.stock_irm.modal.exception_modal();
+                    modal.start(data.error, data.message);
+                }
+            }).fail(function(data){
+                var modal = new instance.stock_irm.modal.exception_modal();
+                modal.start(data.data.arguments[0], data.data.arguments[1]);
             });
             return same_box_lines.length === 0;
         },
