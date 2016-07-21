@@ -120,7 +120,7 @@ class product_product(models.Model):
                         pp.ean13 ilike '%%{needle}%%' OR
                         psi.product_code ilike '%%{needle}%%' OR
                         psit.name ilike '%%{needle}%%')
-                    """.format(needle=arg[2].strip(),
+                    """.format(needle = arg[2] and arg[2].strip() or arg[2],
                         comp=self.pool.get('res.users').browse(cr,uid,[uid],context=context)[0].company_id.id))
                     query_result = cr.fetchall()
                     product_ids += [x[0] for x in query_result]
