@@ -365,7 +365,11 @@
             modal.start();
 
             self.parent.current_cart.box_index += 1;
-            $('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + self.parent.current_cart.name + ' / ' + self.parent.current_cart.box_index + '</span>');
+            var $result = $(QWeb.render("rack_button", {
+                name: self.parent.current_cart.name,
+                index: self.parent.current_cart.box_index
+            }));
+            $('#rack').html($result);
 
             self.display();
         },

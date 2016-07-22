@@ -521,4 +521,8 @@
         <a href="#" id="cancel" class="btn btn-lg btn-danger pull-left"> Cancel </a>
     </t>
 
+    <t t-name="rack_button">
+        <span class="glyphicon glyphicon-arrow-right"></span><span t-esc="name"/>/<span t-esc="index"/>
+    </t>
+
 </templates>
