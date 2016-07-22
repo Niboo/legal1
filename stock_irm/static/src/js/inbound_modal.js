@@ -376,7 +376,6 @@
                 var note = self.$modal.find('#packing_note').val();
                 self.caller.parent.add_product(self.product_id, self.qty);
                 self.caller.parent.confirm(note)
-                self.$modal.modal('hide');
                 self.caller.destroy();
                 self.caller.parent.refresh();
             })
@@ -407,19 +406,175 @@
         },
         add_listener_on_cancel: function(){
             var self = this;
-            self.$modal.find('#cancel').click(function(event){
+
+            self.$modal.find('#cancel').off('click.confirm_bote');
+            self.$modal.find('#cancel').on('click.confirm_bote', function (event) {
                 self.$modal.modal('hide');
-            })
+
+            });
         },
         add_listener_on_close_box: function(){
             var self = this;
-            self.$modal.find('#close').click(function(event){
+
+            self.$modal.find('#close').off('click.close');
+            self.$modal.find('#close').on('click.close', function (event) {
                 self.caller.close_box(self.box_barcode)
                 self.$modal.modal('hide');
-            })
+            });
+
         },
     });
 
     instance.stock_irm.modal.close_box_modal = close_box_modal;
+
+
+    var validate_po_line_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Validate Move';
+            self.block_modal = true;
+            self.template = 'valide_po_line';
+            self.footer_template = 'validate_po_line_footer';
+        },
+        start: function (caller, nb_product_more, po_line, product, qty_to_add, cart_id, box_name) {
+            var self = this;
+            self.$body = $(QWeb.render(self.template,{
+                nb_product_more: nb_product_more
+            }));
+
+            self.$footer = $(QWeb.render(self.footer_template,{
+                nb_product_more: nb_product_more
+            }));
+            self.caller = caller;
+            self.po_line = po_line;
+            self.product = product;
+            self.qty_to_add = qty_to_add;
+            self.cart_id = cart_id;
+            self.box_name = box_name;
+
+            self._super();
+            self.add_listener_on_validate();
+            self.add_listener_on_cancel();
+        },
+        add_listener_on_cancel: function(){
+            var self = this;
+
+            self.$modal.find('#cancel').off('click.close');
+            self.$modal.find('#cancel').on('click.close', function (event) {
+                self.$modal.modal('hide');
+            });
+        },
+        add_listener_on_validate: function(){
+            var self = this;
+            self.$modal.find('#validate').off('click.validate');
+            self.$modal.find('#validate').on('click.validate', function (event) {
+                self.caller.print_missing_labels();
+
+                self.caller.parent.add_product(self.product, self.qty_to_add);
+                self.session.rpc('/inbound_screen/process_complete_picking_line', {
+                    picking_line_id: self.po_line.id,
+                    cart_id : self.cart_id,
+                    box_name: self.box_name,
+                });
+
+                var modal = new instance.stock_irm.modal.select_next_destination_modal();
+                modal.start(self.caller, self.po_line);
+            })
+        },
+    });
+
+    instance.stock_irm.modal.validate_po_line_modal = validate_po_line_modal;
+
+    var select_next_destination_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Select Next Destination';
+            self.template = 'select_next_destination';
+            self.block_modal = true;
+
+        },
+        start: function (caller) {
+            var self = this;
+
+            var locations = [{'id':1,name:"test"},{'id':2,name:"testTESTtest"}];
+            self.$body = $(QWeb.render(self.template, {
+                locations:locations
+            }));
+
+            self.caller = caller;
+
+            self._super();
+            self.add_listener_on_locations();
+        },
+        add_listener_on_locations: function(){
+            var self = this;
+
+            self.$modal.find('.location_buttons').off('click.location_buttons');
+            self.$modal.find('.location_buttons').on('click.location_buttons', function (event) {
+                self.$modal.modal('hide');
+                self.caller.destroy();
+                self.caller.parent.start();
+            })
+        },
+    });
+
+    instance.stock_irm.modal.select_next_destination_modal = select_next_destination_modal;
+
+    var box_barcode_modal_staging = instance.stock_irm.modal.widget.extend({
+        init: function (caller) {
+            var self = this;
+            this._super(caller);
+            self.body_template = 'box_barcode_modal_staging';
+            self.footer_template = 'box_barcode_modal_staging_footer';
+            self.title = 'Scan The box for unfinished order lines';
+            self.block_modal = true;
+        },
+        start: function (uncomplete_order_line) {
+            var self = this;
+            self.uncomplete_order_line = uncomplete_order_line;
+            self.$body = $(QWeb.render(self.body_template));
+            self.$footer = $(QWeb.render(self.footer_template));
+            this._super();
+            self.add_listener_on_barcode_modal_confirm();
+            self.$modal.find('#box_barcode').focus();
+        },
+        confirm_box: function(){
+            var self = this;
+
+            var barcode = self.$modal.find('#box_barcode').val();
+            if(barcode){
+                self.session.rpc('/inbound_screen/check_staging_package_empty', {
+                    barcode: barcode
+                }).then(function(data){
+                    if(data.status=="ok"){
+                        var staging_box_id = data.dest_box_id;
+                        self.session.rpc('/inbound_screen/move_uncomplete_line_to_staging', {
+                            uncomplete_order_line: self.uncomplete_order_line,
+                            dest_box_id: staging_box_id,
+                        })
+                    }else{
+                        var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used in staging location");
+                        error_modal.start();
+                    }
+                })
+            }
+        },
+        add_listener_on_barcode_modal_confirm: function(){
+            var self = this;
+            self.$modal.find('#confirm_box_barcode').off('click.box.barcode');
+            $('#box_barcode').keyup(function(event){
+                if(event.keyCode==13){
+                    self.confirm_box();
+                }
+            });
+            self.$modal.find('#confirm_box_barcode').on('click.box.barcode', function(event){
+                self.confirm_box();
+            });
+        },
+    });
+
+    instance.stock_irm.modal.box_barcode_modal_staging = box_barcode_modal_staging;
 
 })();

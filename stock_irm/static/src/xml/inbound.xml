@@ -515,12 +515,52 @@
         </div>
     </t>
 
-
     <t t-name="propose_close_box_footer">
         <a href="#" id="close" class="btn btn-lg btn-success pull-right"> Close This Box </a>
         <a href="#" id="cancel" class="btn btn-lg btn-danger pull-left"> Cancel </a>
     </t>
 
+    <t t-name="valide_po_line">
+        <div class="row">
+            <span class='fa fa-question-circle fa-5x space-10' style='color:green'></span><b style='font-size: 2em'>A PO line is now fullfilled</b>
+            <br/>
+            <t t-if="nb_product_more>0">
+                <span style='color:red'><b>There are <span t-esc="nb_product_more"/> extra items </b></span>
+            </t>
+            <t t-if="nb_product_more==0">
+                <span><b style='color:green'>The item count match the order!</b></span>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="validate_po_line_footer">
+        <a href="#" id="validate" class="btn btn-lg btn-success pull-right">Validate this line
+            <t t-if="nb_product_more>0">
+                <span>and create an extra box</span>
+            </t>
+        </a>
+        <a href="#" id="cancel" class="btn btn-lg btn-danger pull-left">Cancel </a>
+    </t>
+
+    <t t-name="select_next_destination">
+        <div class="row">
+            <span class='fa fa-question-circle fa-5x space-10' style='color:green'></span><b style='font-size: 2em'>Select the next destination:</b>
+            <br/>
+            <t t-foreach="locations" t-as="location">
+                <a href="#" class="btn btn-lg btn-success purchase-btn location_buttons col-md-3" t-att-location-id="location.id" t-att-location-name="location.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="location.name" />
+                </a>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="box_barcode_modal_staging">
+        <input type="text" id="box_barcode"></input>
+    </t>
+
+    <t t-name="box_barcode_modal_staging_footer">
+        <a href="#" id="confirm_box_barcode" class="btn btn-success" >Confirm</a>
+    </>	
     <t t-name="rack_button">
         <span class="glyphicon glyphicon-arrow-right"></span><span t-esc="name"/>/<span t-esc="index"/>
     </t>

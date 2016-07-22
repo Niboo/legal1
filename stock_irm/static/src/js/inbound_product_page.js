@@ -71,16 +71,33 @@
                 self.color_printed_labels(self.quantity_to_print);
                 // force to lose focus to avoid adding +1 when scanning another product
                 $(':focus').blur()
+                self.check_current_picking_line();
+
             });
         },
         add_listener_on_keyboard_quantity: function(){
             var self = this;
-
             $('#quantity_to_print').keyup(function(event){
                 $('#quantity_to_print').val(event.currentTarget.value);
                 self.quantity_to_print = parseInt(event.currentTarget.value);
                 self.color_printed_labels(self.quantity_to_print);
+                self.check_current_picking_line();
             })
+        },
+        check_current_picking_line: function(){
+            var self = this;
+            var qty = parseInt($('#quantity input').val());
+            var line = self.parent.purchase_order_lines[0]
+
+            if(qty>=(line.quantity-line.quantity_already_scanned)){
+                var quantity_more = (qty+line.quantity_already_scanned) - self.parent.purchase_order_lines[0].quantity
+
+                // display popup if a line is fullfilled
+                if(quantity_more >= 0){
+                    var modal = new instance.stock_irm.modal.validate_po_line_modal();
+                    modal.start(self, quantity_more, self.parent.purchase_order_lines[0], self.id, qty, self.parent.current_cart.id, self.parent.current_package_barcode);
+                }
+            }
         },
         add_listener_on_label_quantity: function(){
             var self = this;

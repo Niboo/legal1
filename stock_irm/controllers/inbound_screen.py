@@ -352,21 +352,24 @@ product id: %s, supplier id: %s
                 auth='user')
     def get_purchase_lines(self, purchase_order_ids=False):
         env = http.request.env
-        po_lines = env['purchase.order.line'].search([
-            ('order_id', 'in', purchase_order_ids)
-        ])
+        purchase_orders = env['purchase.order'].browse(purchase_order_ids)
 
         lines = []
-        for po_line in po_lines:
-            lines.append({
-                'product_id': po_line.product_id.id,
-                'quantity': po_line.product_qty,
-                'id': po_line.id,
-                'product_name': po_line.product_id.name[0:22],
-                'progress_done': 0,
-                'quantity_already_scanned': 0,
-                'is_new': False,
-            })
+
+        for picking in purchase_orders.mapped('picking_ids').filtered(
+                lambda r: r.state == 'assigned'):
+            for move_line in picking.move_lines.filtered(
+                    lambda r: r.state == 'assigned'):
+
+                lines.append({
+                    'product_id': move_line.product_id.id,
+                    'quantity': move_line.product_qty,
+                    'id': move_line.id,
+                    'product_name': move_line.product_id.name[0:22],
+                    'progress_done': 0,
+                    'quantity_already_scanned': 0,
+                    'is_new': False,
+                })
 
         return {'status': 'ok',
                    'po_lines': lines}
@@ -698,3 +701,118 @@ product id: %s, supplier id: %s
         name = env['product.product'].browse(int(product_id)).name[0:22]
         return {"status": 'ok', "product_name": name}
 
+    @http.route('/inbound_screen/process_complete_picking_line',
+                type='json',
+                auth="user")
+    def process_complete_picking_line(self, picking_line_id, cart_id, box_name,
+                                      **kw):
+        env = http.request.env
+        picking_line = env['stock.move'].browse(int(picking_line_id))
+        cart = env['stock.location'].browse(int(cart_id))
+
+        dest_box = self.search_dest_box(box_name, cart, picking_line.product_id)
+        self.process_transfert(picking_line, dest_box)
+
+    def process_transfert(self, picking_line, dest_box):
+        env = http.request.env
+        picking = picking_line.picking_id
+
+        result = picking.do_enter_transfer_details()
+        wizard_id = result['res_id']
+        my_wizard = env['stock.transfer_details'].browse(wizard_id)
+
+        for wizard_line in my_wizard.item_ids:
+            if not (wizard_line.product_id == picking_line.product_id
+                    and wizard_line.quantity == picking_line.product_uom_qty):
+                wizard_line.unlink()
+            else:
+                wizard_line.destinationloc_id = dest_box.id
+
+        my_wizard.do_detailed_transfer()
+
+    @http.route('/inbound_screen/check_staging_package_empty',
+                type='json',
+                auth="user")
+    def check_staging_package_empty(self, barcode):
+        env = http.request.env
+
+        staging_location = env.ref('stock_irm.stock_staging_location')
+
+        dest_box = env['stock.location'].search([
+            ('location_id', '=', staging_location.id),
+            ('name', '=', str(barcode))
+        ])
+
+        if len(dest_box) > 1:
+            message = 'There is already a box with that barcode on the staging location'
+
+            env.cr.rollback()
+            return {
+                'status': 'error',
+                'message': message
+            }
+
+        if not dest_box:
+            dest_box = env['stock.location'].sudo().create({
+                'location_id': staging_location.id,
+                'name': str(barcode),
+            })
+
+        return {
+            'status': "ok",
+            'dest_box_id': dest_box.id
+        }
+
+    @http.route('/inbound_screen/move_uncomplete_line_to_staging',
+                type='json',
+                auth="user")
+    def move_uncomplete_line_to_staging(self, uncomplete_order_line, dest_box_id):
+        env = http.request.env
+        dest_box = env['stock.location'].browse(int(dest_box_id))
+
+        for line in uncomplete_order_line:
+            picking_line = env['stock.move'].browse(line['id'])
+            picking = picking_line.picking_id
+
+            result = picking.do_enter_transfer_details()
+            wizard_id = result['res_id']
+            my_wizard = env['stock.transfer_details'].browse(wizard_id)
+
+            for wizard_line in my_wizard.item_ids:
+                if not (wizard_line.product_id == picking_line.product_id
+                        and wizard_line.quantity == picking_line.product_uom_qty):
+                    wizard_line.unlink()
+                else:
+                    wizard_line.destinationloc_id = dest_box.id
+                    wizard_line.quantity = line['quantity_already_scanned']
+
+            my_wizard.do_detailed_transfer()
+
+    @http.route('/inbound_screen/create_picking_for_unordered_lines',
+                type='json',
+                auth="user")
+    def create_picking_for_unordered_lines(self, unordered_lines, dest_box_id):
+        env = http.request.env
+
+        picking_type_id = self.get_receipt_picking_type()
+
+        print unordered_lines
+
+        picking = env['stock.picking'].create({
+            # 'partner_id': supplier.id,
+            'picking_type_id': picking_type_id.id,
+        })
+
+
+        #
+        # for line in unordered_lines:
+        #     picking.write({
+        #         'move_lines': [(0, 0, {
+        #             'product_id': product.id,
+        #             'product_uom_qty': qty,
+        #             'picking_type_id': picking_type_id.id,
+        #             'location_dest_id': dest_box.id,
+        #             'location_id': env.ref('stock.stock_location_suppliers').id,
+        #             'product_uom': product.uom_id.id,
+        #             'name': 'automated picking - %s' % product.name,
+        #         })]

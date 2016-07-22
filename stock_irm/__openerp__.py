@@ -53,6 +53,7 @@ Module
         'security/ir.model.access.csv',
         'views/stock_quant_package.xml',
         'views/inbound_wave.xml',
+        'data/staging_location.xml',
     ],
     'qweb': [
     ],

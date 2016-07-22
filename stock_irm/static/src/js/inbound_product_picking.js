@@ -212,7 +212,6 @@
                 index = cart_box_list['index'];
                 quantity = cart_box_list[index];
             } else {
-                console.log("new box")
                 index = self.current_cart.box_index;
                 cart_box_list['index'] = index;
                 cart_box_list['package_barcode'] = self.current_package_barcode;
@@ -223,6 +222,8 @@
             quantity += qty;
             cart_box_list[index] = quantity;
 
+
+
             // search an existing PO line and fill it if possible. If not, create a new one or retrieve a newly created one.
             var po_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.progress_done != 100.0; })[0];
 
@@ -230,6 +231,7 @@
                 // we found a line we are able to fill!
                 po_line.quantity_already_scanned += qty;
                 po_line.progress_done = 100.0/po_line.quantity*po_line.quantity_already_scanned;
+
             }else{
                 var created_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.is_new == true; })[0];
 
@@ -298,27 +300,40 @@
         confirm: function(note) {
             var self = this;
 
-            self.session.rpc('/inbound_screen/process_picking', {
-                supplier_id: self.supplier_id,
-                results: self.received_products,
-                note: note,
-                purchase_orders: self.purchase_orders,
-                packing_id: self.packing_id,
-            }).then(function(data){
-                if (data.status == 'ok'){
-                    var modal = new instance.stock_irm.modal.confirmed_modal();
-                    modal.start();
-                    window.setTimeout(function(){
-                        window.location.href = "/inbound_screen";
-                    }, 3000);
-                } else {
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start(data.error, data.message);
-                }
-            }).fail(function(data){
-                var modal = new instance.stock_irm.modal.exception_modal();
-                modal.start(data.data.arguments[0], data.data.arguments[1]);
-            });
+            var uncomplete_order_line = $.grep(self.purchase_order_lines, function(a){ return a.is_new != false && a.quantity_already_scanned != a.quantity});
+            var unordered_product = $.grep(self.purchase_order_lines, function(a){ return a.is_new == true});
+
+            if(uncomplete_order_line.length > 0){
+                //todo: check if a box exist for that po!
+                var modal = new instance.stock_irm.modal.box_barcode_modal_staging();
+                modal.start(uncomplete_order_line);
+            }
+
+            if(unordered_product.length > 0){
+                //todo: do something with them :D
+                console.log(unordered_product)
+            }
+
+            //self.session.rpc('/inbound_screen/process_picking', {
+            //    supplier_id: self.supplier_id,
+            //    results: self.received_products,
+            //    note: note,
+            //    purchase_orders: self.purchase_orders
+            //}).then(function(data){
+            //    if (data.status == 'ok'){
+            //        var modal = new instance.stock_irm.modal.confirmed_modal();
+            //        modal.start();
+            //        window.setTimeout(function(){
+            //            window.location.href = "/inbound_screen";
+            //        }, 3000);
+            //    } else {
+            //        var modal = new instance.stock_irm.modal.exception_modal();
+            //        modal.start(data.error, data.message);
+            //    }
+            //}).fail(function(data){
+            //    var modal = new instance.stock_irm.modal.exception_modal();
+            //    modal.start(data.data.arguments[0], data.data.arguments[1]);
+            //});
         },
         process_barcode: function(barcode) {
             var self = this;

@@ -11,5 +11,11 @@
             <field eval="4" name="padding" />
             <field name="prefix">Packing </field>
         </record>
+        <record id="packing_order_sequence" model="ir.sequence">
+            <field name="name">Packing Order reference</field>
+            <field name="code">stock.packing.order</field>
+            <field eval="4" name="padding" />
+            <field name="prefix">Packing </field>
+        </record>
     </data>
 </openerp>
