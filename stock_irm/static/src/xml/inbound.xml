@@ -560,7 +560,7 @@
 
     <t t-name="box_barcode_modal_staging_footer">
         <a href="#" id="confirm_box_barcode" class="btn btn-success" >Confirm</a>
-    </>	
+    </t>
     <t t-name="rack_button">
         <span class="glyphicon glyphicon-arrow-right"></span><span t-esc="name"/>/<span t-esc="index"/>
     </t>
