@@ -790,6 +790,9 @@ product id: %s, supplier id: %s
 
             my_wizard.do_detailed_transfer()
 
+        return {'status': 'ok'}
+
+
     # This method is used for both unordered product and product that were
     # ordered but came in with too many items
     @http.route('/inbound_screen/create_picking_for_unordered_lines',

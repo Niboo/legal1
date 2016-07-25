@@ -296,7 +296,7 @@
                     var qty = self.$elem.find('#quantity input').get(0).value;
 
                     var modal = new instance.stock_irm.modal.confirm_note_modal();
-                    modal.start(self, self.id, parseInt(qty));
+                    modal.start(self, self.id, parseInt(qty), false);
                 }
             });
         },

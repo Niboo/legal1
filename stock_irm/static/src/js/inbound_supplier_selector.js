@@ -109,6 +109,7 @@
                 });
         },
 
+
     });
     instance.stock_irm.inbound_supplier_selector = new inbound_supplier_selector();
 

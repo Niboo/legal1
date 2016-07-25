@@ -60,6 +60,7 @@
                     self.printer_ip = data.printer_ip;
                 }
             });
+            self.add_listener_on_confirm_button()
         },
         refresh: function(){
             var self = this;
@@ -67,6 +68,7 @@
             self.add_listener_on_search();
             self.add_listener_on_product();
             self.add_listener_on_more();
+            self.add_listener_on_confirm_button()
         },
         add_listener_on_search: function(){
             var self = this;
@@ -231,7 +233,10 @@
                 // we found a line we are able to fill!
                 po_line.quantity_already_scanned += qty;
                 po_line.progress_done = 100.0/po_line.quantity*po_line.quantity_already_scanned;
-
+                console.log("found one!")
+                if(do_confirm){
+                   self.confirm(note)
+                }
             }else{
                 var created_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.is_new == true; })[0];
 
@@ -300,23 +305,32 @@
 
             self.current_cart = cart;
         },
-        confirm: function(note) {
-            var self = this;
 
-            var uncomplete_order_line = $.grep(self.purchase_order_lines, function(a){ return a.is_new != false && a.quantity_already_scanned != a.quantity});
+        confirm: function(note) {
+            // define a function that could be called AFTER the uncomplete order line check
+            function unordered_check(unordered_products, supplier_id){
+                var self = this;
+                var modal = new instance.stock_irm.modal.box_barcode_modal_staging();
+                modal.start(unordered_product, "Scan the box for the unordered products", "unordered", supplier_id);
+            }
+
+            var self = this;
+            var uncomplete_order_line = $.grep(self.purchase_order_lines, function(a){ return a.is_new == false && a.quantity_already_scanned != a.quantity});
             var unordered_product = $.grep(self.purchase_order_lines, function(a){ return a.is_new == true});
 
-            if(uncomplete_order_line.length > 0){
+            if(uncomplete_order_line.length > 0 && unordered_product.length > 0){
                 //todo: check if a box exist for that po!
                 var modal = new instance.stock_irm.modal.box_barcode_modal_staging();
-                modal.start(uncomplete_order_line, "Scan box for the incomplete order lines", "incomplete", self.supplier_id);
+                modal.start(uncomplete_order_line, "Scan box for the incomplete order lines", "incomplete", self.supplier_id, unordered_product, unordered_check);
+            }else{
+                if(unordered_product.length > 0){
+                    unordered_check(unordered_product, self.supplier_id)
+                }
             }
 
-            if(unordered_product.length > 0){
-                var modal = new instance.stock_irm.modal.box_barcode_modal_staging();
-                modal.start(unordered_product, "Scan the box for the unordered products", "unordered", self.supplier_id);
-            }
+
         },
+
         process_barcode: function(barcode) {
             var self = this;
             self.search = barcode.replace(/[\s]*/g, '');
@@ -374,6 +388,16 @@
             var po_line_without_current_product = $.grep(self.purchase_order_lines, function(e){ return e.product_id != product_id});
 
             self.purchase_order_lines = po_line_with_current_product.concat(po_line_without_current_product);
+        },
+
+        add_listener_on_confirm_button: function(){
+            console.log("add on confirm")
+            var self = this;
+            self.$nav.off('click.confirm');
+            self.$nav.on('click.confirm', '#confirm a', function(event){
+                var modal = new instance.stock_irm.modal.confirm_note_modal();
+                modal.start(self, false, false, true);
+            });
         },
 
     });

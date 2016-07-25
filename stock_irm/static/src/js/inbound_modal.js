@@ -354,13 +354,14 @@
             self.template = 'packing_order_note';
             self.footer_template = 'packing_order_note_footer';
         },
-        start: function (caller, product_id, qty) {
+        start: function (caller, product_id, qty, skip_add_product) {
             var self = this;
             self.$body = $(QWeb.render(self.template));
             self.$footer = $(QWeb.render(self.footer_template));
             self.caller = caller;
             self.product_id = product_id;
             self.qty = qty;
+            self.skip_add_product = skip_add_product;
 
             self._super();
             self.add_listener_on_cancel_note();
@@ -376,9 +377,15 @@
             var self = this;
             self.$modal.find('#confirm_note').click(function(event){
                 var note = self.$modal.find('#packing_note').val();
-                self.caller.parent.add_product(self.product_id, self.qty, true, note);
-                self.caller.destroy();
-                self.caller.parent.refresh();
+                if(!self.skip_add_product){
+                    self.caller.parent.add_product(self.product_id, self.qty, true, note);
+                    self.caller.destroy();
+                    self.caller.parent.refresh();
+                }else{
+                    self.caller.destroy();
+                    self.caller.confirm(note);
+
+                }
             })
         },
     });
@@ -532,14 +539,16 @@
             self.footer_template = 'box_barcode_modal_staging_footer';
             self.block_modal = true;
         },
-        start: function (order_lines, title, operation, supplier_id) {
+        start: function (order_lines, title, operation, supplier_id, unordered_lines, callback_method) {
             var self = this;
             self.order_lines = order_lines;
             self.$body = $(QWeb.render(self.body_template));
             self.$footer = $(QWeb.render(self.footer_template));
             self.title = title;
             self.operation = operation;
-            self.supplier_id = supplier_id
+            self.supplier_id = supplier_id;
+            self.unordered_lines = unordered_lines;
+            self.callback_method = callback_method;
 
             this._super();
             self.add_listener_on_barcode_modal_confirm();
@@ -560,8 +569,23 @@
                             self.session.rpc('/inbound_screen/move_uncomplete_line_to_staging', {
                                 uncomplete_order_line: self.order_lines,
                                 dest_box_id: staging_box_id,
-                                supplier_id: self.supplier_id,
+                            }).then(function(data){
+                                if (data.status == 'ok'){
+                                    if(self.unordered_lines && self.callback_method){
+                                        // if we have both unordered and incomplete line, then call the callback method.
+                                        self.callback_method(self.unordered_lines, self.supplier_id)
+                                    }else{
+                                        var modal = new instance.stock_irm.modal.confirmed_modal();
+                                        modal.start();
+                                        window.setTimeout(function(){
+                                            window.location.href = "/inbound_screen";
+                                        }, 3000);
+                                    }
 
+                                } else {
+                                    var modal = new instance.stock_irm.modal.exception_modal();
+                                    modal.start(data.error, data.message);
+                                }
                             })
                         }else{
                             var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used in staging location");
