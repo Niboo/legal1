@@ -485,10 +485,14 @@
                     picking_line_id: self.po_line.id,
                     cart_id : self.cart_id,
                     box_name: self.box_name
+                }).then(function(data){
+                    if (data.status == 'ok'){
+                        self.caller.close_box_if_no_more_product(self.product);
+                        var modal = new instance.stock_irm.modal.select_next_destination_modal();
+                        modal.start(self.caller, data.destination);
+                    }
                 });
-                self.caller.close_box_if_no_more_product(self.product);
-                var modal = new instance.stock_irm.modal.select_next_destination_modal();
-                modal.start(self.caller, self.po_line);
+
             })
         },
     });
@@ -499,29 +503,28 @@
         init: function () {
             var self = this;
             this._super();
-            self.title = 'Select Next Destination';
+            self.title = 'Destination of this package';
             self.template = 'select_next_destination';
+            self.template_footer = "select_next_destination_footer";
             self.block_modal = true;
 
         },
-        start: function (caller) {
+        start: function (caller, destination) {
             var self = this;
-
-            var locations = [{'id':1,name:"test"},{'id':2,name:"testTESTtest"}];
             self.$body = $(QWeb.render(self.template, {
-                locations:locations
+                destination:destination
             }));
-
+            self.$footer = $(QWeb.render(self.template_footer));
             self.caller = caller;
 
             self._super();
-            self.add_listener_on_locations();
+            self.add_listener_on_ok();
         },
-        add_listener_on_locations: function(){
+        add_listener_on_ok: function(){
             var self = this;
 
-            self.$modal.find('.location_buttons').off('click.location_buttons');
-            self.$modal.find('.location_buttons').on('click.location_buttons', function (event) {
+            self.$modal.find('#ok').off('click.ok');
+            self.$modal.find('#ok').on('click.ok', function (event) {
                 self.$modal.modal('hide');
                 self.caller.destroy();
                 self.caller.parent.start();

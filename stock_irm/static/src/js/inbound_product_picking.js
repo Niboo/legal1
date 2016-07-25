@@ -233,7 +233,6 @@
                 // we found a line we are able to fill!
                 po_line.quantity_already_scanned += qty;
                 po_line.progress_done = 100.0/po_line.quantity*po_line.quantity_already_scanned;
-                console.log("found one!")
                 if(do_confirm){
                    self.confirm(note)
                 }
@@ -391,7 +390,6 @@
         },
 
         add_listener_on_confirm_button: function(){
-            console.log("add on confirm")
             var self = this;
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){

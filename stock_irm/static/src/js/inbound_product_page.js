@@ -255,7 +255,6 @@
                 modal.start();
 
                 if(!cart_selection){
-                    console.log("augmentation box index")
                     self.parent.current_cart.box_index += 1;
                 }
                 return self.parent.current_cart.box_index;

@@ -272,3 +272,11 @@ a[is-in-usage='true'] {
 .extra-line{
     color: red;
 }
+
+#ok{
+    width:200px;
+}
+
+.location_buttons{
+    margin-top:2%
+}

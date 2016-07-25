@@ -710,7 +710,11 @@ product id: %s, supplier id: %s
         cart = env['stock.location'].browse(int(cart_id))
 
         dest_box = self.search_dest_box(box_name, cart, picking_line.product_id)
-        self.process_transfert(picking_line, dest_box)
+        destination = self.process_transfert(picking_line, dest_box)
+
+        values = {'status': 'ok',
+                'destination': destination}
+        return values
 
     def process_transfert(self, picking_line, dest_box):
         env = http.request.env
@@ -728,6 +732,8 @@ product id: %s, supplier id: %s
                 wizard_line.destinationloc_id = dest_box.id
 
         my_wizard.do_detailed_transfer()
+
+        return picking_line.move_dest_id.location_dest_id.name
 
     @http.route('/inbound_screen/check_staging_package_empty',
                 type='json',

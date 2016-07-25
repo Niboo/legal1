@@ -544,14 +544,15 @@
 
     <t t-name="select_next_destination">
         <div class="row">
-            <span class='fa fa-question-circle fa-5x space-10' style='color:green'></span><b style='font-size: 2em'>Select the next destination:</b>
-            <br/>
-            <t t-foreach="locations" t-as="location">
-                <a href="#" class="btn btn-lg btn-success purchase-btn location_buttons col-md-3" t-att-location-id="location.id" t-att-location-name="location.name">
-                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="location.name" />
-                </a>
-            </t>
+            <b style='font-size: 2em'>Destination of your package:   </b><br/>
+            <span class='fa fa-arrow-right fa-5x space-10 col-md-3' style='color:green'></span>
+            <a href="#" class="btn btn-lg btn-success purchase-btn location_buttons col-md-3">
+                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="destination" />
+            </a>
         </div>
+    </t>
+    <t t-name="select_next_destination_footer">
+        <a href="#" id="ok" class="btn btn-success" >Ok</a>
     </t>
 
     <t t-name="box_barcode_modal_staging">
