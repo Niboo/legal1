@@ -89,15 +89,17 @@
             var qty = parseInt($('#quantity input').val());
             var line = self.parent.purchase_order_lines[0]
 
-            if(qty>=(line.quantity-line.quantity_already_scanned)){
+            if(line && line.progress_done != 100.0 && line.product_id == self.id && qty>=(line.quantity-line.quantity_already_scanned)){
                 var quantity_more = (qty+line.quantity_already_scanned) - self.parent.purchase_order_lines[0].quantity
 
                 // display popup if a line is fullfilled
                 if(quantity_more >= 0){
                     var modal = new instance.stock_irm.modal.validate_po_line_modal();
                     modal.start(self, quantity_more, self.parent.purchase_order_lines[0], self.id, qty, self.parent.current_cart.id, self.parent.current_package_barcode);
+                    return true
                 }
             }
+            return false
         },
         add_listener_on_label_quantity: function(){
             var self = this;
@@ -240,18 +242,20 @@
             var box = self.select_box(self.id, cart_selection);
 
             self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' / ' + box + '</span>');
+
         },
         select_box: function(product_id, cart_selection){
             var self = this;
             var product_box = self.parent.get_already_used_box(product_id);
 
-            if(product_box){
+            if(product_box && $.inArray(self.parent.current_package_barcode, self.parent.closed_boxes) == -1){
                 return product_box;
             }else{
                 var modal = new instance.stock_irm.modal.box_barcode_modal(self);
                 modal.start();
 
                 if(!cart_selection){
+                    console.log("augmentation box index")
                     self.parent.current_cart.box_index += 1;
                 }
                 return self.parent.current_cart.box_index;
@@ -381,7 +385,6 @@
             var modal = new instance.stock_irm.modal.box_barcode_modal(self);
             modal.start();
 
-            self.parent.current_cart.box_index += 1;
             var $result = $(QWeb.render("rack_button", {
                 name: self.parent.current_cart.name,
                 index: self.parent.current_cart.box_index
@@ -389,6 +392,17 @@
             $('#rack').html($result);
 
             self.display();
+        },
+        close_box_if_no_more_product: function(product_id){
+            var self = this;
+            // this method is called when a PO line is validated.
+            // It closes the current box if the current product is not needed anymore on the selected PO's
+            // This way, extra product won't be added in the same box
+            var po_line = $.grep(self.parent.purchase_order_lines, function(e){ return e.product_id == product_id && e.progress_done != 100.0; })[0];
+
+            if(!po_line){
+                self.parent.closed_boxes.push(self.parent.current_package_barcode);
+            }
         },
         display: function(){
             var self = this;

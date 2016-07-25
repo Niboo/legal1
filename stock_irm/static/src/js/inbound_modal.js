@@ -195,11 +195,13 @@
                         if (!self.caller.parent.product_in_package[barcode] || self.caller.parent.product_in_package[barcode]==self.caller.id){
                             self.caller.parent.set_box_barcode(barcode);
                             self.caller.add_listener_for_barcode();
-                            self.$modal.modal('hide');
 
                             // we should "predisplay" a box under the product before it is added to a box. Otherwise,
                             // worker won't be able to close the first box for a determined product.
                             self.caller.predisplay_box();
+                            if(!self.caller.check_current_picking_line()){
+                                self.$modal.modal('hide');
+                            }
                         }else{
                             var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already filled with another product");
                             error_modal.start();
@@ -374,8 +376,7 @@
             var self = this;
             self.$modal.find('#confirm_note').click(function(event){
                 var note = self.$modal.find('#packing_note').val();
-                self.caller.parent.add_product(self.product_id, self.qty);
-                self.caller.parent.confirm(note)
+                self.caller.parent.add_product(self.product_id, self.qty, true, note);
                 self.caller.destroy();
                 self.caller.parent.refresh();
             })
@@ -462,6 +463,8 @@
 
             self.$modal.find('#cancel').off('click.close');
             self.$modal.find('#cancel').on('click.close', function (event) {
+                self.caller.destroy();
+                self.caller.parent.start();
                 self.$modal.modal('hide');
             });
         },
@@ -470,14 +473,13 @@
             self.$modal.find('#validate').off('click.validate');
             self.$modal.find('#validate').on('click.validate', function (event) {
                 self.caller.print_missing_labels();
-
                 self.caller.parent.add_product(self.product, self.qty_to_add);
                 self.session.rpc('/inbound_screen/process_complete_picking_line', {
                     picking_line_id: self.po_line.id,
                     cart_id : self.cart_id,
-                    box_name: self.box_name,
+                    box_name: self.box_name
                 });
-
+                self.caller.close_box_if_no_more_product(self.product);
                 var modal = new instance.stock_irm.modal.select_next_destination_modal();
                 modal.start(self.caller, self.po_line);
             })
@@ -528,14 +530,17 @@
             this._super(caller);
             self.body_template = 'box_barcode_modal_staging';
             self.footer_template = 'box_barcode_modal_staging_footer';
-            self.title = 'Scan The box for unfinished order lines';
             self.block_modal = true;
         },
-        start: function (uncomplete_order_line) {
+        start: function (order_lines, title, operation, supplier_id) {
             var self = this;
-            self.uncomplete_order_line = uncomplete_order_line;
+            self.order_lines = order_lines;
             self.$body = $(QWeb.render(self.body_template));
             self.$footer = $(QWeb.render(self.footer_template));
+            self.title = title;
+            self.operation = operation;
+            self.supplier_id = supplier_id
+
             this._super();
             self.add_listener_on_barcode_modal_confirm();
             self.$modal.find('#box_barcode').focus();
@@ -548,15 +553,37 @@
                 self.session.rpc('/inbound_screen/check_staging_package_empty', {
                     barcode: barcode
                 }).then(function(data){
-                    if(data.status=="ok"){
-                        var staging_box_id = data.dest_box_id;
-                        self.session.rpc('/inbound_screen/move_uncomplete_line_to_staging', {
-                            uncomplete_order_line: self.uncomplete_order_line,
+                    var staging_box_id = data.dest_box_id;
+                    if(self.operation =="incomplete"){
+
+                        if(data.status=="ok"){
+                            self.session.rpc('/inbound_screen/move_uncomplete_line_to_staging', {
+                                uncomplete_order_line: self.order_lines,
+                                dest_box_id: staging_box_id,
+                                supplier_id: self.supplier_id,
+
+                            })
+                        }else{
+                            var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used in staging location");
+                            error_modal.start();
+                        }
+                    }else if(self.operation=="unordered"){
+                        self.session.rpc('/inbound_screen/create_picking_for_unordered_lines', {
+                            extra_lines: self.order_lines,
                             dest_box_id: staging_box_id,
+                            supplier_id: self.supplier_id,
+                        }).then(function(data){
+                            if (data.status == 'ok'){
+                                var modal = new instance.stock_irm.modal.confirmed_modal();
+                                modal.start();
+                                window.setTimeout(function(){
+                                    window.location.href = "/inbound_screen";
+                                }, 3000);
+                            } else {
+                                var modal = new instance.stock_irm.modal.exception_modal();
+                                modal.start(data.error, data.message);
+                            }
                         })
-                    }else{
-                        var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used in staging location");
-                        error_modal.start();
                     }
                 })
             }

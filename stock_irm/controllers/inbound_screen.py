@@ -704,8 +704,7 @@ product id: %s, supplier id: %s
     @http.route('/inbound_screen/process_complete_picking_line',
                 type='json',
                 auth="user")
-    def process_complete_picking_line(self, picking_line_id, cart_id, box_name,
-                                      **kw):
+    def process_complete_picking_line(self, picking_line_id, cart_id, box_name):
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
         cart = env['stock.location'].browse(int(cart_id))
@@ -763,6 +762,9 @@ product id: %s, supplier id: %s
             'dest_box_id': dest_box.id
         }
 
+    # TODO: we should check if a box in the staging area already contains something
+    # from the same order. If it is the case, then we should put the new items in the same box
+    # until the order is fullfilled
     @http.route('/inbound_screen/move_uncomplete_line_to_staging',
                 type='json',
                 auth="user")
@@ -788,31 +790,39 @@ product id: %s, supplier id: %s
 
             my_wizard.do_detailed_transfer()
 
+    # This method is used for both unordered product and product that were
+    # ordered but came in with too many items
     @http.route('/inbound_screen/create_picking_for_unordered_lines',
                 type='json',
                 auth="user")
-    def create_picking_for_unordered_lines(self, unordered_lines, dest_box_id):
+    def create_picking_for_unordered_lines(self, extra_lines, dest_box_id, supplier_id):
         env = http.request.env
 
         picking_type_id = self.get_receipt_picking_type()
 
-        print unordered_lines
-
         picking = env['stock.picking'].create({
-            # 'partner_id': supplier.id,
+            'partner_id': int(supplier_id),
             'picking_type_id': picking_type_id.id,
         })
 
+        for line in extra_lines:
+            product = env['product.product'].browse(int(line['product_id']))
+            picking.write({
+                'move_lines': [(0, 0, {
+                    'product_id': product.id,
+                    'product_uom_qty': line['quantity_already_scanned'],
+                    'picking_type_id': picking_type_id.id,
+                    'location_dest_id': dest_box_id,
+                    'location_id': env.ref('stock.stock_location_suppliers').id,
+                    'product_uom': product.uom_id.id,
+                    'name': 'automated picking - %s' % product.name,
+                })]
+            })
+        picking.action_confirm()
 
-        #
-        # for line in unordered_lines:
-        #     picking.write({
-        #         'move_lines': [(0, 0, {
-        #             'product_id': product.id,
-        #             'product_uom_qty': qty,
-        #             'picking_type_id': picking_type_id.id,
-        #             'location_dest_id': dest_box.id,
-        #             'location_id': env.ref('stock.stock_location_suppliers').id,
-        #             'product_uom': product.uom_id.id,
-        #             'name': 'automated picking - %s' % product.name,
-        #         })]
+        result = picking.do_enter_transfer_details()
+        wizard_id = result['res_id']
+        my_wizard = env['stock.transfer_details'].browse(wizard_id)
+        my_wizard.do_detailed_transfer()
+
+        return {'status': 'ok'}

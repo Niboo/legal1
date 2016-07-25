@@ -171,7 +171,7 @@
                 }
             });
         },
-        add_product: function(product_id, qty){
+        add_product: function(product_id, qty, do_confirm, note){
             var self = this;
             var list_cart_with_product = {};
             var cart_box_list = {};
@@ -251,6 +251,9 @@
                                 'quantity_already_scanned': quantity,
                                 'is_new': true,
                             });
+                            if(do_confirm){
+                               self.confirm(note)
+                            }
                         }
                     });
                 }
@@ -306,34 +309,13 @@
             if(uncomplete_order_line.length > 0){
                 //todo: check if a box exist for that po!
                 var modal = new instance.stock_irm.modal.box_barcode_modal_staging();
-                modal.start(uncomplete_order_line);
+                modal.start(uncomplete_order_line, "Scan box for the incomplete order lines", "incomplete", self.supplier_id);
             }
 
             if(unordered_product.length > 0){
-                //todo: do something with them :D
-                console.log(unordered_product)
+                var modal = new instance.stock_irm.modal.box_barcode_modal_staging();
+                modal.start(unordered_product, "Scan the box for the unordered products", "unordered", self.supplier_id);
             }
-
-            //self.session.rpc('/inbound_screen/process_picking', {
-            //    supplier_id: self.supplier_id,
-            //    results: self.received_products,
-            //    note: note,
-            //    purchase_orders: self.purchase_orders
-            //}).then(function(data){
-            //    if (data.status == 'ok'){
-            //        var modal = new instance.stock_irm.modal.confirmed_modal();
-            //        modal.start();
-            //        window.setTimeout(function(){
-            //            window.location.href = "/inbound_screen";
-            //        }, 3000);
-            //    } else {
-            //        var modal = new instance.stock_irm.modal.exception_modal();
-            //        modal.start(data.error, data.message);
-            //    }
-            //}).fail(function(data){
-            //    var modal = new instance.stock_irm.modal.exception_modal();
-            //    modal.start(data.data.arguments[0], data.data.arguments[1]);
-            //});
         },
         process_barcode: function(barcode) {
             var self = this;
