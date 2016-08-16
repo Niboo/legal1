@@ -305,6 +305,22 @@
         </div>
     </t>
 
+    <t t-name="exception_modal">
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+                <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <h2>
+                    <t t-esc="error"/>
+                </h2>
+                <p class="error-message">
+                    <t t-esc="message"/>
+                </p>
+            </div>
+        </div>
+    </t>
+
 
 </templates>
 

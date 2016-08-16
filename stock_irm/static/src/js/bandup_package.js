@@ -81,9 +81,9 @@
                         }));
                         $('#goto_wave').show();
                         $('#package_list').append($new_box);
-                    }else{
-                        var modal = new instance.stock_irm.no_package_found_modal();
-                        modal.start();
+                    } else {
+                        var modal = new instance.stock_irm.modal.exception_modal();
+                        modal.start(data.error, data.message);
                     }
                 });
             }
@@ -92,14 +92,15 @@
             var self = this;
             $('#content').off('click.gotowave');
             $('#content').on('click.gotowave', '#goto_wave', function (event) {
-                self.session.rpc('/bandup/transfert_package_batch', {
+                self.session.rpc('/bandup/transfer_package_batch', {
                     package_ids: self.scanned_package_ids,
                 }).then(function(data){
                     if(data.status == 'ok'){
                         var bandup_wave_widget = new instance.stock_irm.bandup_waves(data.package_list)
                         bandup_wave_widget.start();
                     } else {
-                        console.log('error')
+                        var modal = new instance.stock_irm.modal.exception_modal();
+                        modal.start(data.error, data.message);
                     }
                 });
             })

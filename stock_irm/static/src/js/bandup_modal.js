@@ -25,22 +25,6 @@
         _lt = instance._lt;
     var QWeb = instance.qweb;
 
-    var no_package_found_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
-            var self = this;
-            this._super();
-            self.title = 'Package not Found!';
-            self.block_modal = false;
-        },
-        start: function () {
-            var self = this;
-            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>Package Not Found</b>";
-            this._super();
-        },
-    });
-
-    instance.stock_irm.no_package_found_modal = no_package_found_modal;
-
 
     var confirm_bandup_wave_modal = instance.stock_irm.modal.widget.extend({
         init: function () {

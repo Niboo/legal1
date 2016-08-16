@@ -81,10 +81,10 @@
         },
         start: function (error, message) {
             var self = this;
-            self.$body = $(QWeb.render(self.body_template), {
+            self.$body = $(QWeb.render(self.body_template, {
                 'error': error,
                 'message': message,
-            });
+            }));
             this._super();
         },
     });

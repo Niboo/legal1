@@ -124,9 +124,13 @@
                         }, 3000);
                     }
 
-                }else{
-                    console.log('error on moving package');
+                } else {
+                    var modal = new instance.stock_irm.modal.exception_modal();
+                    modal.start(data.error, data.message);
                 }
+            }).fail(function (data) {
+                var modal = new instance.stock_irm.modal.exception_modal();
+                modal.start(data.data.arguments[0], data.data.arguments[1]);
             });
 
 

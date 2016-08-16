@@ -52,19 +52,22 @@ class BandupController(http.Controller):
 
         if not scanned_package:
             return{
-                "result": "error",
-                "message": "Package couldnt be found",
+                "status": "error",
+                "error": "Error",
+                "message": "Package couldn't be found",
             }
 
         if not scanned_package.quant_ids:
             return{
-                "result": "error",
+                "status": "error",
+                "error": "Error",
                 "message": "Package has no move",
             }
 
         if scanned_package.inbound_wave_id:
             return{
-                "result": "error",
+                "status": "error",
+                "error": "Error",
                 "message": "Package is already assigned to an inbound wave",
             }
 
@@ -102,7 +105,7 @@ class BandupController(http.Controller):
         if not location:
             return {
                 'status': 'error',
-                'message': "No location have been found with that barcode"
+                'message': "No location has been found with this barcode"
             }
 
         return {
@@ -115,65 +118,78 @@ class BandupController(http.Controller):
         # method called after scanning the final location in the stock
         env = http.request.env
 
-        package = env['stock.quant.package'].browse(package_id)
-        self.transfer_package(package, False)
+        try:
+            package = env['stock.quant.package'].browse(package_id)
+            self.transfer_package(package, False)
+            return {'status': 'ok'}
+        except BaseException as e:
+            return {'status': 'error',
+                    'error': type(e).__name__,
+                    'message': str(e)}
 
-        return {
-            'status': 'ok',
-        }
-
-    @http.route('/bandup/transfert_package_batch', type='json', auth="user")
-    def transfert_package_batch(self, package_ids, **kw):
+    @http.route('/bandup/transfer_package_batch', type='json', auth="user")
+    def transfer_package_batch(self, package_ids, **kw):
         # method called when clicking on "go to wave". It moves all scanned
         # packages from input to "bandup" location, and create the package list
         # that will be used in the inbound wave
         env = http.request.env
 
-        inbound_wave = env['stock.inbound.wave'].create({
-            'user_id': http.request.uid,
-            'package_ids': [(6, False, package_ids)],
-            'state': "in_progress"
-        })
-
-        package_list = []
-
-        for package_id in package_ids:
-            package = env['stock.quant.package'].browse(package_id)
-            package = self.transfer_package(package, True)
-
-            total_qty = 0
-            for quant in package.quant_ids:
-                total_qty += quant.qty
-
-            one_quant = package.quant_ids[0]
-            picking = one_quant.reservation_id.picking_id
-            stock_location = picking.location_dest_id
-            putaway_strategy = env['stock.product.putaway.strategy'].search([
-                ('product_product_id', '=', package.quant_ids[0].product_id.id),
-                ('fixed_location_id.id', 'in', stock_location._get_sublocations())
-                ])
-            dest_location = putaway_strategy.fixed_location_id
-
-            package_list.append({
-                'product_name': package.quant_ids[0].product_id.name,
-                'product_description': package.quant_ids[0].product_id.description or "No description",
-                'product_quantity': total_qty,
-                'location_name': dest_location.name,
-                'location_position': str(dest_location.posx) + " / " +
-                                     str(dest_location.posy) + " / " +
-                                     str(dest_location.posz),
-                'package_barcode': package.barcode,
-                'package_id': package.id,
-                'location_dest_barcode': dest_location.loc_barcode,
-                'product_image':
-                     "/web/binary/image?model=product.product&id=%s&field=image"
-                     % package.quant_ids[0].product_id.id,
+        try:
+            inbound_wave = env['stock.inbound.wave'].create({
+                'user_id': http.request.uid,
+                'package_ids': [(6, False, package_ids)],
+                'state': "in_progress"
             })
 
-        return{
-            'status': 'ok',
-            'package_list': package_list,
-        }
+            package_list = []
+
+            for package_id in package_ids:
+                package = env['stock.quant.package'].browse(package_id)
+                package = self.transfer_package(package, True)
+
+                total_qty = 0
+                for quant in package.quant_ids:
+                    total_qty += quant.qty
+
+                one_quant = package.quant_ids[0]
+                picking = one_quant.reservation_id.picking_id
+                stock_location = picking.location_dest_id
+                putaway_strategy = env['stock.product.putaway.strategy'].search(
+                    [
+                        ('product_product_id', '=',
+                         package.quant_ids[0].product_id.id),
+                        ('fixed_location_id.id', 'in',
+                         stock_location._get_sublocations())
+                    ])
+                dest_location = putaway_strategy.fixed_location_id or stock_location
+
+                package_list.append({
+                    'product_name': package.quant_ids[0].product_id.name,
+                    'product_description': package.quant_ids[
+                                               0].product_id.description or "No description",
+                    'product_quantity': total_qty,
+                    'location_name': dest_location.name,
+                    'location_position': str(dest_location.posx) + " / " +
+                                         str(dest_location.posy) + " / " +
+                                         str(dest_location.posz),
+                    'package_barcode': package.barcode,
+                    'package_id': package.id,
+                    'location_dest_barcode': dest_location.loc_barcode,
+                    'product_image':
+                        "/web/binary/image?model=product.product&id=%s&field=image"
+                        % package.quant_ids[0].product_id.id,
+                })
+
+            return {
+                'status': 'ok',
+                'package_list': package_list,
+            }
+
+        except BaseException as e:
+            return {'status': 'error',
+                    'error': type(e).__name__,
+                    'message': str(e)}
+
 
     def transfer_package(self, package, is_end_package_needed=True):
         env = http.request.env
@@ -193,6 +209,10 @@ class BandupController(http.Controller):
                 packop = wizard.packop_ids.filtered(lambda r: r.package_id == package)
 
                 destination = item and item.destinationloc_id or packop.destinationloc_id
+
+                if not destination.is_bandup_location:
+                    raise Exception("The location %s is not a bandup location."
+                                    % destination.name)
 
                 if is_end_package_needed:
                     end_package = self.search_dest_package(package.barcode, destination)
