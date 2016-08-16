@@ -29,5 +29,11 @@ class ResPartner(models.Model):
     sequence = fields.Integer("Sequence")
 
     is_in_inbound = fields.Boolean("Appears In Inbound", default=False)
+
+
+class SupplierInfo(models.Model):
+
+    _inherit = "product.supplierinfo"
+
     requires_unpack = fields.Boolean("Requires unpacking", default=False)
     requires_relabel = fields.Boolean("Requires re-labelling", default=False)

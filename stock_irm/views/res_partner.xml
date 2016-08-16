@@ -12,14 +12,26 @@
                             <group>
                                 <field name="sequence"/>
                                 <field name="is_in_inbound"/>
-                                <field name="requires_unpack"/>
-                                <field name="requires_relabel"/>
                             </group>
                         </page>
                     </notebook>
                 </data>
             </field>
         </record>
-        
+
+        <record id="product_supplierinfo_form_view" model="ir.ui.view">
+            <field name="name">product.supplierinfo.form.view.inherited</field>
+            <field name="model">product.supplierinfo</field>
+            <field name="inherit_id" ref="product.product_supplierinfo_form_view"/>
+            <field name="arch" type="xml">
+                <data>
+                    <field name="company_id" position="after">
+                        <field name="requires_unpack"/>
+                        <field name="requires_relabel"/>
+                    </field>
+                </data>
+            </field>
+        </record>
+
     </data>
 </openerp>

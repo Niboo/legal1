@@ -143,15 +143,17 @@ AND rp.commercial_partner_id = %s
 
         product = env['product.product'].browse(int(id))
 
-        # retrieve the partner and its child to search for supplier info
-        supplier_childs = env['res.partner'].browse(int(supplier_id)).child_ids
+        supplier = env['res.partner'].browse(int(supplier_id))
 
-        requires_unpack = env['res.partner'].browse(int(supplier_id)).requires_unpack
-        requires_relabel = env['res.partner'].browse(int(supplier_id)).requires_relabel
+        # retrieve the partner and its child to search for supplier info
+        supplier_childs = supplier.child_ids
 
         supplier_info = product.seller_ids.filtered(
-            lambda r: r.name.id == int(supplier_id) or
+            lambda r: r.name.id == supplier.id or
                       r.name.id in supplier_childs.ids)
+
+        requires_unpack = supplier_info.requires_unpack
+        requires_relabel = supplier_info.requires_relabel
 
         if len(supplier_info) != 1:
             results = {
@@ -162,6 +164,7 @@ product id: %s, supplier id: %s
 """ % (product.id, supplier_id)
             }
             return results
+
         barcodes = supplier_info.xx_tag_ids.mapped('name')
         if product.ean13:
             barcodes.append(product.ean13)
