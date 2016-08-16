@@ -27,6 +27,9 @@ class WorkLocation(models.Model):
 
     _inherit = "work_location"
 
+    staging_location_id = fields.Many2one('stock.location', 'Staging Location ',
+                                          required=True)
+
     @api.one
     @api.constrains('work_location_printer_ids')
     def check_single_label_printer(self):

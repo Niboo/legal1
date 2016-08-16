@@ -70,45 +70,35 @@
 
             })
         },
-        set_purchase_order_lines: function(purchase_orders){
+        get_purchase_order_move_lines: function(purchase_order_ids){
             var self = this;
+            self.purchase_order_ids = purchase_order_ids;
 
-            self.purchase_orders = purchase_orders;
-            if(self.purchase_orders){
-                self.session.rpc('/inbound_screen/get_purchase_lines', {
-                    purchase_order_ids: self.purchase_orders
-                }).then(function (data) {
-                    self.po_lines = data.po_lines;
-                    var ProductPicking = instance.stock_irm.inbound_product_picking;
-                    self.product_picking = new ProductPicking(self.supplier_id, self.purchase_orders, self.po_lines);
-                    self.product_picking.start();
-                    self.$nav.find('#back').show();
-                    self.$nav.find('#search').show();
-                    self.$nav.find('#confirm').show();
-                });
-            }else{
+            self.session.rpc('/inbound_screen/get_purchase_order_move_lines', {
+                purchase_order_ids: self.purchase_order_ids
+            }).then(function (data) {
+                self.po_move_lines = data.po_move_lines;
                 var ProductPicking = instance.stock_irm.inbound_product_picking;
-                self.product_picking = new ProductPicking(self.supplier_id, self.purchase_orders, false);
+                self.product_picking = new ProductPicking(self.supplier_id, self.purchase_order_ids, self.po_move_lines);
                 self.product_picking.start();
                 self.$nav.find('#back').show();
                 self.$nav.find('#search').show();
                 self.$nav.find('#confirm').show();
-            }
+            });
         },
         get_suppliers: function(search){
             var self = this;
             self.session.rpc('/inbound_screen/get_suppliers', {
                 search: search
             }).then(function(data){
-                    self.suppliers = data.suppliers;
-                    var $result = $(QWeb.render('supplier_result', {
-                            suppliers: self.suppliers
-                    }));
-                    self.$elem.find('#results').html($result);
-                    self.add_listener_on_supplier();
-                });
+                self.suppliers = data.suppliers;
+                var $result = $(QWeb.render('supplier_result', {
+                        suppliers: self.suppliers
+                }));
+                self.$elem.find('#results').html($result);
+                self.add_listener_on_supplier();
+            });
         },
-
 
     });
     instance.stock_irm.inbound_supplier_selector = new inbound_supplier_selector();

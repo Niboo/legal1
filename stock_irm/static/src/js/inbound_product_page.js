@@ -26,32 +26,119 @@
     var QWeb = instance.qweb;
 
     var inbound_product_page = instance.stock_irm.widget.extend({
-    	init: function (parent, id, quantity, packing_reference, packing_id) {
+    	init: function (parent, id) {
             this._super();
             var self = this;
             self.id = id;
             self.template = 'product_page';
             self.parent = parent;
-            self.product;
-            self.quantity = quantity;
+            self.quantity = 0;
             self.barcodes = [];
             self.nb_already_printed = 0;
             self.quantity_to_print = 0;
-            self.packing_reference = packing_reference
-            self.packing_id = packing_id
         },
         start: function(){
             this._super();
             var self = this;
             self.get_product();
-            if (! self.parent.current_cart) {
-                self.get_carts();
+        },
+        get_product: function(){
+            var self = this;
+            self.session.rpc('/inbound_screen/get_product', {
+                id: self.id,
+                supplier_id: self.parent.supplier_id
+            }).then(function(data){
+
+                self.product = data.product;
+                self.barcodes = data.product.barcodes;
+
+                // Get the lines to treat for this product
+                self.product_move_lines = _.filter(self.parent.po_move_lines, function(po_move_line) {
+                    if(po_move_line.quantity_already_scanned == po_move_line.quantity) {
+                        return false;
+                    }
+                    return po_move_line.product_id == self.id;
+                });
+
+                self.display();
+                self.parent.print_label(self.product.name, self.barcodes[0] , 1)
+                self.nb_already_printed += 1;
+            })
+        },
+        display: function(){
+            var self = this;
+            var po_move_line_by_picking = _.groupBy(self.parent.po_move_lines, function(po_move_line){
+                return po_move_line.picking_name;
+            });
+
+            self.$elem = $(QWeb.render(self.template, {
+                po_lines: po_move_line_by_picking,
+                product: self.product,
+                quantity: self.quantity,
+                barcodes: self.barcodes,
+                current_package_barcode: self.parent.current_package_barcode,
+            }));
+
+            $('#content').html(self.$elem);
+
+            self.get_the_box();
+
+            // print the label the first time
+            self.add_listener_on_valid_button();
+            self.add_listener_on_quantity();
+            self.add_listener_on_label_quantity();
+            self.add_listener_on_cart_button();
+            self.add_listener_on_print_button();
+            self.add_listener_on_close_box();
+            self.add_listener_for_barcode();
+        },
+        get_the_box: function(){
+            var self = this;
+
+            var move_line_from_po = _.filter(self.product_move_lines, function(move_line){
+                return ! move_line.is_new;
+            })
+            if(move_line_from_po.length > 0){
+                if(move_line_from_po[0].box!==undefined) {
+                    self.set_box(move_line_from_po[0].box, move_line_from_po[0])
+                } else {
+                    var modal = new instance.stock_irm.modal.box_barcode_modal(self, move_line_from_po[0]);
+                    modal.start();
+                }
             }
+
+            var move_line_no_po = _.filter(self.product_move_lines, function(move_line){
+                return move_line.is_new;
+            })
+            if(move_line_no_po.length > 0){
+                self.set_box(move_line_no_po.box, move_line_no_po)
+            } else {
+                // var modal = new instance.stock_irm.modal.box_barcode_modal(self);
+                // modal.start();
+            }
+        },
+        set_box: function(box, move_line){
+            var self = this;
+            self.current_move_line = move_line;
+            self.current_move_line.box = box;
+
+            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + move_line.picking_name + ' / ' + box + '</span>');
+        },
+        add_listener_on_valid_button: function(){
+            var self = this;
+            self.$elem.find('#ok_button').click(function(event){
+                if(self.is_enough_label_printed()) {
+                    $(':focus').blur();
+                    var qty = self.$elem.find('#quantity input').get(0).value;
+                    self.parent.add_product(self.id, parseInt(qty), self.current_move_line);
+                    self.destroy();
+                }
+            });
         },
         add_listener_on_quantity: function(){
             var self = this;
             self.$elem.find('#quantity button').click(function(event){
-                qty = parseInt($('#quantity input').val());
+                var qty = parseInt($('#quantity input').val());
 
                 if($(event.currentTarget).attr('data-dir') == 'up'){
                     qty++;
@@ -71,35 +158,13 @@
                 self.color_printed_labels(self.quantity_to_print);
                 // force to lose focus to avoid adding +1 when scanning another product
                 $(':focus').blur()
-                self.check_current_picking_line();
-
             });
-        },
-        add_listener_on_keyboard_quantity: function(){
-            var self = this;
-            $('#quantity_to_print').keyup(function(event){
+
+            self.$elem.find('#quantity_to_print').keyup(function(event){
                 $('#quantity_to_print').val(event.currentTarget.value);
                 self.quantity_to_print = parseInt(event.currentTarget.value);
                 self.color_printed_labels(self.quantity_to_print);
-                self.check_current_picking_line();
             })
-        },
-        check_current_picking_line: function(){
-            var self = this;
-            var qty = parseInt($('#quantity input').val());
-            var line = self.parent.purchase_order_lines[0]
-
-            if(line && line.progress_done != 100.0 && line.product_id == self.id && qty>=(line.quantity-line.quantity_already_scanned)){
-                var quantity_more = (qty+line.quantity_already_scanned) - self.parent.purchase_order_lines[0].quantity
-
-                // display popup if a line is fullfilled
-                if(quantity_more >= 0){
-                    var modal = new instance.stock_irm.modal.validate_po_line_modal();
-                    modal.start(self, quantity_more, self.parent.purchase_order_lines[0], self.id, qty, self.parent.current_cart.id, self.parent.current_package_barcode);
-                    return true
-                }
-            }
-            return false
         },
         add_listener_on_label_quantity: function(){
             var self = this;
@@ -158,7 +223,7 @@
                 self.get_carts();
             })
         },
-        color_printed_labels: function(missing_labels){
+        color_printed_labels: function(){
             var self = this;
             var color = "green";
             if(self.quantity_to_print>0){
@@ -168,122 +233,37 @@
             $('#print_button').css({'color':color});
             $('#already_printed_quantity').css({'color':color});
         },
-        get_product: function(){
-            var self = this;
-            self.session.rpc('/inbound_screen/get_product', {
-                id: self.id,
-                supplier_id: self.parent.supplier_id
-            }).then(function(data){
-                
-                var box_id;
-                var quantity;
-                var cart_with_product = new Array();
-
-                // building the array with the needed information
-                if(self.parent.received_products[self.id]){
-                    $.each( self.parent.received_products[self.id], function( key, value ) {
-                        $.each(value, function(key, value){
-                            if(key!="index" && key!="package_barcode"){
-                                box_id = key;
-                                quantity = value;
-                            }
-                        });
-                        cart_with_product.push({
-                            "cart_name":self.parent.carts[key]["name"],
-                            "box": box_id, "quantity":quantity});
-                    });
-                }
-
-                self.product = data.product;
-                var product_box_list = self.create_box_with_product_info();
-
-
-                var po_line_by_picking = _.groupBy(self.parent.purchase_order_lines, function(po_line){
-                    return po_line.picking_name;
-                });
-
-                self.$elem = $(QWeb.render(self.template, {
-                    po_lines: po_line_by_picking,
-                    product: self.product,
-                    quantity: self.quantity,
-                    barcodes: data.product.barcodes,
-                    list_cart_with_product: cart_with_product,
-                    first_item_boxes: product_box_list,
-                    current_package_barcode: self.parent.current_package_barcode,
-                }));
-                self.barcodes = data.product.barcodes;
-
-                self.display();
-                self.parent.print_label(self.product.name, self.barcodes[0] , 1)
-                self.nb_already_printed += 1;
-            })
-        },
-        get_carts: function(){
-            //retrieve the carts and fill the modal page
-            var self = this;
-
-            self.session.rpc('/inbound_screen/get_carts', {
-            }).then(function(data){
-                self.carts = data.carts;
-                if(self.carts.length == 0){
-                    var modal = new instance.stock_irm.no_cart_modal();
-                    modal.start();
-                } else {
-                    var block_modal = true;
-                    if(self.parent.current_cart){
-                        block_modal = false;
-                    }
-                    var modal = new instance.stock_irm.modal.select_cart_modal(self, block_modal);
-                    modal.start(self.carts);
-                }
-            });
-        },
-        display_cart_info: function(cart_selection){
-            if (typeof(cart_selection)==='undefined') cart_selection = false;
-            var self = this;
-            var cart = self.parent.current_cart;
-            var box = self.select_box(self.id, cart_selection);
-
-            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + cart.name + ' / ' + box + '</span>');
-
-        },
-        select_box: function(product_id, cart_selection){
-            var self = this;
-            var product_box = self.parent.get_already_used_box(product_id);
-
-            if(product_box && $.inArray(self.parent.current_package_barcode, self.parent.closed_boxes) == -1){
-                return product_box;
-            }else{
-                var modal = new instance.stock_irm.modal.box_barcode_modal(self);
-                modal.start();
-
-                if(!cart_selection){
-                    self.parent.current_cart.box_index += 1;
-                }
-                return self.parent.current_cart.box_index;
-            }
-        },
         add_listener_on_search_button: function(){
             var self = this;
             self.$nav.find('#search a').show();
             self.$nav.off('click.search');
             self.$nav.on('click.search', '#search a', function (event) {
-                if(self.is_enough_label_printed()) {
-                    $(':focus').blur()
-                    var qty = self.$elem.find('#quantity input').get(0).value
-                    self.parent.add_product(self.id, parseInt(qty));
-                    self.destroy();
-                    self.parent.start();
-                }
+                var qty = parseInt($('#quantity input').val());
+                var product_image = $('#product_image').attr('src');
+
+                var modal = new instance.stock_irm.modal.going_back_modal();
+                modal.start(self, qty, product_image);
             })
+
+            // self.$nav.find('#search a').show();
+            // self.$nav.off('click.search');
+            // self.$nav.on('click.search', '#search a', function (event) {
+            //     if(self.is_enough_label_printed()) {
+            //         $(':focus').blur()
+            //         var qty = self.$elem.find('#quantity input').get(0).value
+            //         self.parent.add_product(self.id, parseInt(qty));
+            //         self.destroy();
+            //         self.parent.start();
+            //     }
+            // })
         },
         add_listener_on_back_button: function(){
             var self = this;
             self.$nav.find('#back a').show();
             self.$nav.off('click.back');
             self.$nav.on('click.back', '#back a', function(event){
-                qty = parseInt($('#quantity input').val());
-                product_image = $('#product_image').attr('src');
+                var qty = parseInt($('#quantity input').val());
+                var product_image = $('#product_image').attr('src');
 
                 var modal = new instance.stock_irm.modal.going_back_modal();
                 modal.start(self, qty, product_image);
@@ -352,35 +332,7 @@
             var self = this;
             self.parent.add_product(self.id, parseInt(qty));
         },
-        create_box_with_product_info: function(){
-            var self = this;
-            var cart_with_product = new Array();
-
-
-            if(self.parent.purchase_order_lines && self.parent.purchase_order_lines.length>0){
-                $.each(self.parent.received_products, function(key, value){
-                    $.each(value, function(key2, value2){
-                        $.each(value2, function(key3, value3){
-                            if(self.id == value3['product_in_box']){
-
-                                var is_closed = false;
-                                if ($.inArray(value3["package_barcode"], self.parent.closed_boxes) != -1) {
-                                    is_closed = true;
-                                }
-
-                                cart_with_product.push({
-                                    "barcode": value3["package_barcode"],
-                                    "is_closed": is_closed,
-                                    'is_new': self.parent.purchase_order_lines[0].is_new,
-                                });
-                            }
-                        });
-                    });
-                });
-            }
-
-            return cart_with_product;
-        },
+        
         close_box: function(box_barcode){
             var self = this;
             self.parent.closed_boxes.push(box_barcode);
@@ -406,131 +358,6 @@
                 self.parent.closed_boxes.push(self.parent.current_package_barcode);
             }
         },
-        display: function(){
-            var self = this;
-
-            var product_box_list = self.create_box_with_product_info();
-            var cart_with_product = new Array();
-
-            // building the array with the needed information
-            if(self.parent.received_products[self.id]){
-                $.each( self.parent.received_products[self.id], function( key, value ) {
-                    $.each(value, function(key2, value2){
-                        $.each(value2, function(key3, value3){
-                            if(key3!="index" && key3!="package_barcode" && key3!="product_in_box"){
-                                box_id = key3;
-                                quantity = value3
-                            }
-                        });
-                        cart_with_product.push({
-                            "cart_name":self.parent.carts[key]["name"],
-                            "box": box_id,
-                            "quantity":quantity});
-
-
-                    });
-                });
-            }
-
-            var po_line_by_picking = _.groupBy(self.parent.purchase_order_lines, function(po_line){
-                return po_line.picking_name;
-            });
-
-            self.$elem = $(QWeb.render(self.template, {
-                po_lines: po_line_by_picking,
-                product: self.product,
-                quantity: self.quantity,
-                barcodes: self.barcodes,
-                list_cart_with_product: cart_with_product,
-                first_item_boxes: product_box_list,
-                current_package_barcode: self.parent.current_package_barcode,
-            }));
-
-            $('#content').html(self.$elem);
-
-            if (self.parent.current_cart) {
-                self.display_cart_info();
-            }
-
-            // print the label the first time
-            self.add_listener_on_quantity();
-            self.add_listener_on_keyboard_quantity();
-            self.add_listener_on_label_quantity();
-            self.add_listener_on_cart_button();
-            self.add_listener_on_print_button();
-            self.add_listener_on_close_box();
-            self.add_listener_for_barcode();
-        },
-        // predisplay_box: function(){
-        //     var self = this;
-        //     var is_po_panel_empty = $.trim( $('#po_lines_panel').html() ).length
-        //     var is_package_0_empty = $.trim( $('#package-0').html() ).length
-        //
-        //     //check if the po line panel is empty (excluding white spaces!)
-        //     if( !is_po_panel_empty || !is_package_0_empty ){
-        //         var dummy_car_with_product = new Array();
-        //         dummy_car_with_product.push({
-        //             "barcode": self.parent.current_package_barcode,
-        //             "is_closed": false,
-        //             'is_new': true
-        //         });
-        //         var po_lines_with_product = $.grep(self.parent.purchase_order_lines, function(e){ return e.product_id == self.id});
-        //
-        //         if(!is_po_panel_empty || (!is_package_0_empty && po_lines_with_product.length<1)){
-        //             var dummy_po_lines = [];
-        //             dummy_po_lines.push({
-        //                 'product_id':self.product.id,
-        //                 'quantity': 0,
-        //                 'id': 0,
-        //                 'product_name': self.product.name.substring(0,22),
-        //                 'progress_done': 100,
-        //                 'picking_name': '_',
-        //                 'quantity_already_scanned': 0,
-        //                 'is_new': true
-        //             });
-        //         }
-        //
-        //         var po_line_by_picking = _.groupBy(dummy_po_lines, function(po_line){
-        //             return po_line.picking_name;
-        //         });
-        //
-        //         // if left panel is completely empty, it means we have no sale order.
-        //         // We have display a fake one
-        //         if(!is_po_panel_empty){
-        //             var $result = $(QWeb.render("inbound_line_list", {
-        //                 po_lines: po_line_by_picking,
-        //             }));
-        //             $('#po-lines-list').html($result);
-        //
-        //         }else{
-        //             // if package-0 if still empty and we have order lines with the selected product,
-        //             // we have to display the current box
-        //             if(!is_package_0_empty && po_lines_with_product.length>0 ){
-        //                 var $result = $(QWeb.render("current_package", {
-        //                     first_item_box: dummy_car_with_product[0]
-        //                 }));
-        //                 $('#package-0').html($result);
-        //             }
-        //
-        //             //if we package 0 is still empty and we don't have order lines, then
-        //             // we need to creer a new entry in the order lines
-        //             // without erasing the other ones, thus the "prepend".
-        //             if(!is_package_0_empty && po_lines_with_product.length<1 ){
-        //                 dummy_po_lines[0].is_new = false;
-        //                 dummy_po_lines[0].progress_done = 0;
-        //
-        //                 var $result = $(QWeb.render("display_lines", {
-        //                     po_line: dummy_po_lines[0],
-        //                     first_item_boxes: dummy_car_with_product,
-        //                     current_package_barcode: self.parent.current_package_barcode,
-        //                     display_first: true,
-        //                 }));
-        //
-        //                 $('#po_lines_panel').prepend($result);
-        //             }
-        //         }
-        //     }
-        // }
     });
 
     instance.stock_irm.inbound_product_page = inbound_product_page;

@@ -26,45 +26,40 @@
     var QWeb = instance.qweb;
 
     var inbound_product_picking = instance.stock_irm.widget.extend({
-    	init: function (supplier_id, purchase_orders, purchase_order_lines) {
+    	init: function (supplier_id, po_ids, po_move_lines) {
             this._super();
             var self = this;
-            self.carts = {};
-            self.current_cart = false;
             self.template = 'product_selector';
             self.supplier_id = supplier_id;
-            self.received_products = {};
-            self.product_in_package= {};
-            self.purchase_orders = purchase_orders;
-            self.purchase_order_lines = purchase_order_lines;
+            self.po_ids = po_ids;
+            self.po_move_lines = po_move_lines;
             self.closed_boxes = [];
         },
         start: function(){
             this._super();
             var self = this;
 
-            var po_line_by_picking = _.groupBy(self.purchase_order_lines, function(po_line){
-                return po_line.picking_name;
-            });
+            self.get_printer_ip();
 
+            var po_move_lines_by_picking = _.groupBy(self.po_move_lines, function(po_move_line){
+                return po_move_line.picking_name;
+            });
             self.$elem = $(QWeb.render(self.template,{
-                'po_lines': po_line_by_picking,
+                'po_lines': po_move_lines_by_picking,
             }));
 
             $('#content').html(self.$elem);
             self.search = '';
             self.add_listener_on_search();
-            self.get_printer_ip();
+            self.add_listener_on_confirm_button();
         },
         get_printer_ip: function(){
             var self = this;
-            self.session.rpc('/inbound_screen/get_printer_ip')
-                .then(function(data){
+            self.session.rpc('/inbound_screen/get_printer_ip').then(function(data){
                 if(data.status == 'ok'){
                     self.printer_ip = data.printer_ip;
                 }
             });
-            self.add_listener_on_confirm_button()
         },
         refresh: function(){
             var self = this;
@@ -76,9 +71,11 @@
         },
         add_listener_on_search: function(){
             var self = this;
+            // Do the search when clicking on the button
             self.$elem.find('#search_bar + span button').click(function (event) {
                 self.do_search();
             });
+            // Do the search when typing more than 5 letters
             self.$elem.find('#search_bar').keyup(function (event) {
                 if (event.currentTarget.value.length > 5 | event.which == 13) {
                     self.do_search();
@@ -96,6 +93,13 @@
                 self.search = search_value;
                 self.get_products();
             }
+        },
+        process_barcode: function(barcode) {
+            var self = this;
+            self.search = barcode.replace(/[\s]*/g, '');
+            self.page = 1;
+            self.$elem.find('#results').empty();
+            self.get_products();
         },
         add_listener_on_more: function(){
             var self = this;
@@ -116,26 +120,12 @@
                 self.go_to_product(product_id);
             })
         },
-        get_purchase_orders: function(product_id, qty) {
-            var self = this;
-            self.session.rpc('/inbound_screen/search_supplier_purchase', {
-                supplier: self.supplier_id,
-            }).then(function (data) {
-                if (data.status == 'ok') {
-                    var modal = new instance.stock_irm.modal.purchase_order_modal(self);
-                    modal.start(data.orders, product_id, qty);
-                } else {
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start(data.error, data.message);
-                }
-            });
-        },
         add_listener_on_confirm_button: function(){
             var self = this;
-
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
-                self.get_purchase_orders();
+                var modal = new instance.stock_irm.modal.confirm_note_modal();
+                modal.start(self, false, false, true);
             });
         },
         add_listener_on_back_button: function(){
@@ -167,7 +157,6 @@
 
                 self.add_listener_on_product($result);
                 self.$elem.find('#results').append($result);
-
                 self.$elem.find('#more').remove();
 
                 if(data.products_count > data.search_limit * self.page){
@@ -177,94 +166,84 @@
                 }
             });
         },
-        add_product: function(product_id, qty, do_confirm, note){
+
+        go_to_product: function(product_id){
+            var self = this;
+            var ProductPage = instance.stock_irm.inbound_product_page;
+
+            self.product_page = new ProductPage(self, product_id);
+            self.product_page.start();
+
+            // reorder the boxes so the one with the current product are at the top
+            var po_line_with_current_product = $.grep(self.po_move_lines, function(a){ return a.product_id == product_id});
+            var po_line_without_current_product = $.grep(self.po_move_lines, function(e){ return e.product_id != product_id});
+
+            self.po_move_lines = po_line_with_current_product.concat(po_line_without_current_product);
+        },
+
+        add_product: function(product_id, qty, move_line){
             var self = this;
             var list_cart_with_product = {};
             var cart_box_list = {};
-            var quantity = 0;
             var index;
 
-
-            // we book the cart only when adding a product (to avoid booking when missclicking)
-            self.session.rpc('/inbound_screen/book_cart', {
-                cart_id: self.current_cart.id,
-            });
-
-            // check if we already have the product id in our received products
-            // product is a list of the carts in which the product exists
-            if (_.has(self.received_products, product_id)) {
-                list_cart_with_product = self.received_products[product_id];
-            } else {
-                self.received_products[product_id] = list_cart_with_product;
+            var move_quantity_left = move_line.quantity - move_line.quantity_already_scanned
+            if(move_quantity_left > qty){
+                move_line.quantity_already_scanned += qty;
+                self.start();
             }
 
-            // check if the received product already exist in the current cart
-            if (_.has(list_cart_with_product, self.current_cart.id)) {
-                var current_cart = list_cart_with_product[self.current_cart.id]
-
-                if (_.has(current_cart, self.current_package_barcode)) {
-                    var current_package = current_cart[self.current_package_barcode]
-
-                    cart_box_list = current_package;
-                }else{
-                    list_cart_with_product[self.current_cart.id][self.current_package_barcode] = cart_box_list;
-                }
-            } else {
-                list_cart_with_product[self.current_cart.id] = {};
-                list_cart_with_product[self.current_cart.id][self.current_package_barcode] = cart_box_list;
-            }
-
-            if (!_.isEmpty(cart_box_list)){
-                index = cart_box_list['index'];
-                quantity = cart_box_list[index];
-            } else {
-                index = self.current_cart.box_index;
-                cart_box_list['index'] = index;
-                cart_box_list['package_barcode'] = self.current_package_barcode;
-                cart_box_list['product_in_box'] = product_id;
-                self.product_in_package[self.current_package_barcode] = product_id;
-            }
-
-            quantity += qty;
-            cart_box_list[index] = quantity;
-
-            // search an existing PO line and fill it if possible. If not, create a new one or retrieve a newly created one.
-            var po_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.progress_done != 100.0; })[0];
-
-            if(po_line){
-                // we found a line we are able to fill!
-                po_line.quantity_already_scanned += qty;
-                po_line.progress_done = 100.0/po_line.quantity*po_line.quantity_already_scanned;
-                if(do_confirm){
-                   self.confirm(note)
-                }
-            }else{
-                var created_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.is_new == true; })[0];
-
-                if(created_line){
-                    created_line.quantity+=qty;
-                }else{
-                    self.session.rpc('/inbound_screen/get_product_name', {
-                        product_id: product_id
-                    }).then(function(data){
-                        if(data.status == "ok"){
-                            self.purchase_order_lines.push({
-                                'product_id':product_id,
-                                'quantity': quantity,
-                                'id': 0,
-                                'product_name': data.product_name,
-                                'progress_done': 100,
-                                'quantity_already_scanned': quantity,
-                                'is_new': true,
-                            });
-                            self.update_po_lines();
-                            if(do_confirm){
-                               self.confirm(note)
-                            }
-                        }
-                    });
-                }
-            }
+            // if (!_.isEmpty(cart_box_list)){
+            //     index = cart_box_list['index'];
+            //     quantity = cart_box_list[index];
+            // } else {
+            //     index = self.current_cart.box_index;
+            //     cart_box_list['index'] = index;
+            //     cart_box_list['package_barcode'] = self.current_package_barcode;
+            //     cart_box_list['product_in_box'] = product_id;
+            //     self.product_in_package[self.current_package_barcode] = product_id;
+            // }
+            //
+            // quantity += qty;
+            // cart_box_list[index] = quantity;
+            //
+            // // search an existing PO line and fill it if possible. If not, create a new one or retrieve a newly created one.
+            // var po_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.progress_done != 100.0; })[0];
+            //
+            // if(po_line){
+            //     // we found a line we are able to fill!
+            //     po_line.quantity_already_scanned += qty;
+            //     po_line.progress_done = 100.0/po_line.quantity*po_line.quantity_already_scanned;
+            //     if(do_confirm){
+            //        self.confirm(note)
+            //     }
+            // }else{
+            //     var created_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.is_new == true; })[0];
+            //
+            //     if(created_line){
+            //         created_line.quantity+=qty;
+            //     }else{
+            //         self.session.rpc('/inbound_screen/get_product_name', {
+            //             product_id: product_id
+            //         }).then(function(data){
+            //             if(data.status == "ok"){
+            //                 self.purchase_order_lines.push({
+            //                     'product_id':product_id,
+            //                     'quantity': quantity,
+            //                     'id': 0,
+            //                     'product_name': data.product_name,
+            //                     'progress_done': 100,
+            //                     'quantity_already_scanned': quantity,
+            //                     'is_new': true,
+            //                 });
+            //                 self.update_po_lines();
+            //                 if(do_confirm){
+            //                    self.confirm(note)
+            //                 }
+            //             }
+            //         });
+            //     }
+            // }
 
         },
         get_already_used_box: function(product_id){
@@ -293,21 +272,6 @@
             var self = this;
             self.current_package_barcode = barcode;
         },
-        select_cart: function(cart_id, cart_name){
-            var self = this;
-            var cart = {
-                name: cart_name,
-                id: cart_id,
-                box_index: 1
-            }
-            if (_.has(self.carts, cart_id)) {
-                cart = self.carts[cart_id];
-            } else {
-                self.carts[cart_id] = cart;
-            }
-
-            self.current_cart = cart;
-        },
         confirm: function(note) {
             // define a function that could be called AFTER the uncomplete order line check
             function unordered_check(unordered_products, supplier_id){
@@ -329,14 +293,6 @@
                     unordered_check(unordered_product, self.supplier_id)
                 }
             }
-        },
-
-        process_barcode: function(barcode) {
-            var self = this;
-            self.search = barcode.replace(/[\s]*/g, '');
-            self.page = 1;
-            self.$elem.find('#results').empty();
-            self.get_products();
         },
         print_label: function(product_name, barcode, quantity){
             if(this.printer_ip){
@@ -376,36 +332,6 @@
 
             self.$elem.find('#po-lines-list').html($result);
         },
-        go_to_product: function(product_id){
-            var self = this;
-            var ProductPage = instance.stock_irm.inbound_product_page;
-
-            var po_line_by_picking = _.groupBy(self.purchase_order_lines, function(po_line){
-                return po_line.picking_name;
-            });
-            self.$elem = $(QWeb.render(self.template,{
-                'po_lines': po_line_by_picking,
-            }));
-
-            self.product_page = new ProductPage(self, product_id);
-            self.product_page.start();
-
-            // reorder the boxes so the one with the current product are at the top
-            var po_line_with_current_product = $.grep(self.purchase_order_lines, function(a){ return a.product_id == product_id});
-            var po_line_without_current_product = $.grep(self.purchase_order_lines, function(e){ return e.product_id != product_id});
-
-            self.purchase_order_lines = po_line_with_current_product.concat(po_line_without_current_product);
-        },
-
-        add_listener_on_confirm_button: function(){
-            var self = this;
-            self.$nav.off('click.confirm');
-            self.$nav.on('click.confirm', '#confirm a', function(event){
-                var modal = new instance.stock_irm.modal.confirm_note_modal();
-                modal.start(self, false, false, true);
-            });
-        },
-
     });
 
     instance.stock_irm.inbound_product_picking = inbound_product_picking;

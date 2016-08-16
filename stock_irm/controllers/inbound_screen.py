@@ -348,9 +348,9 @@ product id: %s, supplier id: %s
         return {'status': 'ok',
                    'orders': orders}
 
-    @http.route('/inbound_screen/get_purchase_lines', type='json',
+    @http.route('/inbound_screen/get_purchase_order_move_lines', type='json',
                 auth='user')
-    def get_purchase_lines(self, purchase_order_ids=False):
+    def get_purchase_order_move_lines(self, purchase_order_ids=False):
         env = http.request.env
         purchase_orders = env['purchase.order'].browse(purchase_order_ids)
 
@@ -366,14 +366,14 @@ product id: %s, supplier id: %s
                     'quantity': move_line.product_qty,
                     'id': move_line.id,
                     'picking_name': picking.name,
-                    'product_name': move_line.product_id.name[0:22],
+                    'product_name': move_line.product_id.name[0:20],
                     'progress_done': 0,
                     'quantity_already_scanned': 0,
                     'is_new': False,
                 })
 
         return {'status': 'ok',
-                   'po_lines': lines}
+                'po_move_lines': lines}
 
     @http.route('/inbound_screen/process_picking', type='json', auth="user")
     def process_picking(self, supplier_id, results, purchase_orders, note,

@@ -297,34 +297,34 @@
                                 </div>
                             </div>
 
-                            <t t-if="list_cart_with_product.length">
-                                <div class="row">
-                                    <hr/>
-                                    <div class="col-md-12">
-                                        <h4>Item is also in:</h4>
-                                        <div class="information-box">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Cart</th>
-                                                        <th>Box</th>
-                                                        <th>Quantity</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <t t-foreach="list_cart_with_product" t-as="item">
-                                                        <tr>
-                                                            <td><t t-esc="item.cart_name"/></td>
-                                                            <td><t t-esc="item.box"/></td>
-                                                            <td><t t-esc="item.quantity"/></td>
-                                                        </tr>
-                                                    </t>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </t>
+                            <!--<t t-if="list_cart_with_product.length">-->
+                                <!--<div class="row">-->
+                                    <!--<hr/>-->
+                                    <!--<div class="col-md-12">-->
+                                        <!--<h4>Item is also in:</h4>-->
+                                        <!--<div class="information-box">-->
+                                            <!--<table class="table table-striped">-->
+                                                <!--<thead>-->
+                                                    <!--<tr>-->
+                                                        <!--<th>Cart</th>-->
+                                                        <!--<th>Box</th>-->
+                                                        <!--<th>Quantity</th>-->
+                                                    <!--</tr>-->
+                                                <!--</thead>-->
+                                                <!--<tbody>-->
+                                                    <!--<t t-foreach="list_cart_with_product" t-as="item">-->
+                                                        <!--<tr>-->
+                                                            <!--<td><t t-esc="item.cart_name"/></td>-->
+                                                            <!--<td><t t-esc="item.box"/></td>-->
+                                                            <!--<td><t t-esc="item.quantity"/></td>-->
+                                                        <!--</tr>-->
+                                                    <!--</t>-->
+                                                <!--</tbody>-->
+                                            <!--</table>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</t>-->
 
                             <div class="row">
                                 <div class="col-md-12">
@@ -358,7 +358,7 @@
                     <div class="col-md-3">
                         <h4>Quantity to add:</h4>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <h4>Extra labels to print:</h4>
                     </div>
                     <div class="col-md-2">
@@ -368,7 +368,7 @@
                 <div class="row">
                     <div class="col-md-4 text-center">
                         <div id="rack" data-target='#cartSelectionModal'>
-                            <span>Select a cart</span>
+                            <span>Select a box</span>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -382,7 +382,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div id="label-quantity" class="input-group">
                             <span class="input-group-btn">
                                 <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
@@ -399,6 +399,13 @@
                                 <button class="btn btn-default" text="255" id="print_button" data-dir="print"><span class="glyphicon glyphicon-print"></span></button>
                             </span>
                             <input id="already_printed_quantity" type="text" class="form-control text-center" value="1" readonly="1"/>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div id="label-ok">
+                            <span>
+                                <button class="btn btn-default" text="255" id="ok_button" data-dir="valid"><span class="glyphicon glyphicon-ok"></span></button>
+                            </span>
                         </div>
                     </div>
                 </div>

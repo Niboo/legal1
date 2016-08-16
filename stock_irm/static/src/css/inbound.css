@@ -111,19 +111,19 @@ h2{
 
 #quantity .btn, #quantity .btn, #quantity input,
 #label-quantity .btn, #label-quantity input,
-#label-printed .btn, #label-printed .btn,
-#label-printed input
+#label-printed .btn,
+#label-printed input, #label-ok .btn
 {
     height: 100px;
 }
 
 #quantity .btn, #quantity .btn, #label-quantity .btn,
-#label-printed .btn, #label-printed .btn
+#label-printed .btn, #label-ok .btn
 {
-    width: 90px;
+    width: 70px;
 }
 
-#quantity .btn, #label-quantity .btn, #label-printed .btn
+#quantity .btn, #label-quantity .btn, #label-printed .btn, #label-ok .btn
 {
     font-size: 2vw;
 }

@@ -25,60 +25,7 @@
         _lt = instance._lt;
     var QWeb = instance.qweb;
 
-    var no_cart_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
-            var self = this;
-            this._super();
-            self.body_template = 'no_cart_message';
-            self.title = 'Cart Error';
-        },
-        start: function () {
-            var self = this;
-            self.$body = $(QWeb.render(self.body_template));
-            this._super();
-        },
-    });
-
-    instance.stock_irm.modal.no_cart_modal = no_cart_modal;
-
-    var select_cart_modal = instance.stock_irm.modal.widget.extend({
-        init: function (caller, block) {
-            var self = this;
-            this._super(caller);
-            self.body_template = 'cart_result';
-            self.title = 'Cart Selection';
-            self.block_modal = block;
-        },
-        start: function (carts) {
-            var self = this;
-            self.$body = $(QWeb.render(self.body_template, {
-                carts: carts,
-            }));
-            this._super();
-            self.add_listener_on_carts();
-        },
-        add_listener_on_carts: function(){
-            var self = this;
-            self.$modal.find('.modal-body .cart').click(function(event){
-                event.preventDefault();
-                var cart_id = $(event.currentTarget).attr('cart-id');
-                var cart_name = $(event.currentTarget).attr('cart-name');
-                self.caller.parent.select_cart(cart_id, cart_name);
-                self.caller.display_cart_info(true);
-            });
-            self.$modal.find("a[is-in-usage='true']").hide()
-            self.$modal.find('input:checkbox').live('click', function () {
-                if($('#display-all-cart').is(':checked')){
-                    self.$modal.find("a[is-in-usage='true']").show()
-                }else{
-                    self.$modal.find("a[is-in-usage='true']").hide()
-                }
-            });
-        },
-    });
-
-    instance.stock_irm.modal.select_cart_modal = select_cart_modal;
-
+    
     var purchase_order_modal = instance.stock_irm.modal.widget.extend({
         init: function (caller) {
             var self = this;
@@ -106,6 +53,7 @@
                 var index = self.selected_purchases.indexOf(purchase_id);
 
                 if(index != -1){
+                    // If the PO is already in the list, we remove it from the list
                     self.selected_purchases.splice(index, 1);
                     $(event.currentTarget).removeClass('selected-purchase-btn');
                 }else{
@@ -124,14 +72,9 @@
         add_listener_on_purchase_footer: function(){
             var self = this;
 
-            self.$modal.find('#select_purchases').off('click.select_purchases');
-            self.$modal.find('#select_purchases').on('click.select_purchases', function (event) {
-                self.caller.set_purchase_order_lines(self.selected_purchases);
-                self.$modal.modal('hide');
-            });
-            self.$modal.find('#no_purchases').off('click.no_purchases');
-            self.$modal.find('#no_purchases').on('click.no_purchases', function (event) {
-                self.caller.set_purchase_order_lines(false);
+            self.$modal.find('.btn-success').off('click.select_purchases click.no_purchases');
+            self.$modal.find('.btn-success').on('click.select_purchases click.no_purchases', function (event) {
+                self.caller.get_purchase_order_move_lines(self.selected_purchases);
                 self.$modal.modal('hide');
             });
         },
@@ -167,13 +110,14 @@
     instance.stock_irm.modal.not_enough_label_modal = not_enough_label_modal;
 
     var box_barcode_modal = instance.stock_irm.modal.widget.extend({
-        init: function (caller) {
+        init: function (caller, move_line) {
             var self = this;
             this._super(caller);
             self.body_template = 'box_barcode_modal';
             self.footer_template = 'box_barcode_footer_modal';
             self.title = 'Scan the box barcode';
             self.block_modal = true;
+            self.move_line = move_line;
         },
         start: function () {
             var self = this;
@@ -192,20 +136,9 @@
                     package_barcode: barcode
                 }).then(function(data){
                     if(data.status=="ok"){
-                        if (!self.caller.parent.product_in_package[barcode] || self.caller.parent.product_in_package[barcode]==self.caller.id){
-                            self.caller.parent.set_box_barcode(barcode);
-                            self.caller.add_listener_for_barcode();
-
-                            // we should "predisplay" a box under the product before it is added to a box. Otherwise,
-                            // worker won't be able to close the first box for a determined product.
-                            // self.caller.predisplay_box();
-                            if(!self.caller.check_current_picking_line()){
-                                self.$modal.modal('hide');
-                            }
-                        }else{
-                            var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already filled with another product");
-                            error_modal.start();
-                        }
+                        self.caller.add_listener_for_barcode();
+                        self.caller.set_box(barcode, self.move_line);
+                        self.$modal.modal('hide');
                     }else{
                         var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used elsewhere");
                         error_modal.start();
