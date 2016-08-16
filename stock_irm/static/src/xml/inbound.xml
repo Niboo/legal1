@@ -39,25 +39,32 @@
     <!-- products template -->
     <t t-name="product_selector">
         <div class="container">
-            <div class="search-row row">
-                <div class="col-md-12">
-                    <div id="custom-search-input">
-                        <div class="input-group col-md-12">
-                            <input type="text" id="search_bar" class="form-control input-lg" placeholder="Search for a product" />
-                            <span class="input-group-btn">
-                                <button class="btn btn-info btn-lg" type="button">
-                                    <i class="glyphicon glyphicon-search"></i>
-                                </button>
-                            </span>
+            <div class="row">
+                <div class="col-md-2" id="po-lines-list">
+                    <t t-call="inbound_line_list"></t>
+                </div>
+                <div class="col-md-10">
+                    <div class="search-row row">
+                        <div class="col-md-12">
+                            <div id="custom-search-input">
+                                <div class="input-group col-md-12">
+                                    <input type="text" id="search_bar" class="form-control input-lg" placeholder="Search for a product" />
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-info btn-lg" type="button">
+                                            <i class="glyphicon glyphicon-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <hr/>
-            <div id="results" class="scan-row">
-                <div class="col-md-12">
-                    <div class="text-center"><h1>Scan a product</h1></div>
-                    <img src="/stock_irm/static/img/scan.jpg" class="center-block img-responsive" />
+                    <hr/>
+                    <div id="results" class="scan-row">
+                        <div class="col-md-12">
+                            <div class="text-center"><h1>Scan a product</h1></div>
+                            <img src="/stock_irm/static/img/scan.jpg" class="center-block img-responsive" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -156,53 +163,25 @@
     </t>
 
     <t t-name="inbound_line_list">
-        <ul class="list-group">
-            <div id="po_lines_panel">
-                <t t-if="po_lines and po_lines.length">
-                    <t t-call="po_line_panel"></t>
-                </t>
-            </div>
+        <ul class="list-group" t-if="po_lines">
+            <t t-foreach="po_lines" t-as="picking_name">
+                <li class="list-group-item">
+                    <t t-call="display_lines"></t>
+                </li>
+            </t>
         </ul>
     </t>
 
-    <t t-name="po_line_panel">
-        <t t-set="i" t-value="1"/>
-        <t t-foreach="po_lines" t-as="po_line">
-            <li class="list-group-item">
-                <a href="#" t-att-data-id="po_line.id">
-                    <t t-call="display_lines"></t>
-                </a>
-            </li>
-            <t t-set="i" t-value="i+1"/>
-        </t>
-    </t>
-
     <t t-name="display_lines">
-        <div class="progress picking_progress" id="picking-progress-bar">
-        <div t-att-id="po_line.id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+po_line.progress_done+'%;'"/>
-            <div id="picking-name">
-                <span t-esc="po_line.product_name"/>
+        <span t-esc="picking_name"/>
+        <t t-foreach="po_lines[picking_name]" t-as="po_line">
+            <div class="progress picking_progress" id="picking-progress-bar">
+                <div t-att-id="po_line.id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+po_line.progress_done+'%;'"/>
+                <div id="picking-name">
+                    <span><t t-esc="po_line.product_name"/> - <t t-esc="po_line.quantity_already_scanned"/> / <t t-esc="po_line.quantity"/></span>
+                </div>
             </div>
-        </div>
-        <div t-att-id="'package-'+po_line_index">
-            <t t-if="po_line_first or display_first">
-                <t t-if="first_item_boxes.length">
-                    <ul class="list-group">
-                        <t t-foreach="first_item_boxes" t-as="first_item_box">
-                            <t t-if="current_package_barcode==first_item_box.barcode">
-                                <t t-call="current_package"></t>
-                            </t>
-                            <t t-if="current_package_barcode!=first_item_box.barcode and first_item_box.is_closed==false">
-                                <t t-call="open_package"></t>
-                            </t>
-                            <t t-if="current_package_barcode!=first_item_box.barcode and first_item_box.is_closed==true">
-                                <t t-call="closed_package"></t>
-                            </t>
-                        </t>
-                    </ul>
-                </t>
-            </t>
-        </div>
+        </t>
     </t>
 
     <t t-name="current_package">
@@ -250,121 +229,128 @@
         </t>
     </t>
 
+    <t t-name="purchase_move_list">
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <div id="po-lines-list">
+                <t t-call="inbound_line_list" />
+            </div>
+        </div>
+    </t>
+
     <t t-name="product_page">
         <div class="container page">
-            <div id='product_row'>
-                <div class="row">
-                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-                        <div id="po-lines-list">
-                            <t t-call="inbound_line_list" />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <img id="product_image" t-att-src="product.image" class="center-block img-responsive"/>
-                            </div>
-                        </div>
-                        <t t-if="product.requires_unpack or product.requires_relabel">
+            <div class="row">
+                <div class="col-md-2" id="po-lines-list">
+                    <t t-call="inbound_line_list"></t>
+                </div>
+                <div class="col-md-10">
+                    <div id='product_row'>
+                    <div class="row">
+                        <div class="col-md-4">
                             <div class="row">
-                                <t t-if="product.requires_unpack">
-                                    <div class="col-md-12">
-                                        <div class="alert alert-warning info-prompt">
-                                            <i class="fa fa-sign-out info-prompt-icon" aria-hidden="true"></i> Requires unpacking
-                                        </div>
-                                    </div>
-                                </t>
-                                <t t-if="product.requires_relabel">
-                                    <div class="col-md-12">
-                                        <div class="alert alert-warning info-prompt">
-                                            <i class="fa fa-tags info-prompt-icon" aria-hidden="true"></i> Requires re-labelling
-                                        </div>
-                                    </div>
-                                </t>
-                            </div>
-                        </t>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h1 id="product-name"><t t-esc="product.name"/></h1>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12" id="product_description">
-                                <h3><t t-esc="product.description"/></h3>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <h4>Product code:</h4>
-                            </div>
-                            <div class="col-md-3">
-                                <h4><t t-esc="product.default_code"/></h4>
-                            </div>
-                            <div class="col-md-3">
-                                <h4>Supplier code:</h4>
-                            </div>
-                            <div class="col-md-3">
-                                <h4><t t-esc="product.supplier_code"/></h4>
-                            </div>
-                        </div>
-
-                        <t t-if="list_cart_with_product.length">
-                            <div class="row">
-                                <hr/>
                                 <div class="col-md-12">
-                                    <h4>Item is also in:</h4>
-                                    <div class="information-box">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Cart</th>
-                                                    <th>Box</th>
-                                                    <th>Quantity</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <t t-foreach="list_cart_with_product" t-as="item">
+                                    <img id="product_image" t-att-src="product.image" class="center-block img-responsive"/>
+                                </div>
+                            </div>
+                            <t t-if="product.requires_unpack or product.requires_relabel">
+                                <div class="row">
+                                    <t t-if="product.requires_unpack">
+                                        <div class="col-md-12">
+                                            <div class="alert alert-warning info-prompt">
+                                                <i class="fa fa-sign-out info-prompt-icon" aria-hidden="true"></i> Requires unpacking
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <t t-if="product.requires_relabel">
+                                        <div class="col-md-12">
+                                            <div class="alert alert-warning info-prompt">
+                                                <i class="fa fa-tags info-prompt-icon" aria-hidden="true"></i> Requires re-labelling
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h1 id="product-name"><t t-esc="product.name"/></h1>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12" id="product_description">
+                                    <h3><t t-esc="product.description"/></h3>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <h4>Product code:</h4>
+                                </div>
+                                <div class="col-md-3">
+                                    <h4><t t-esc="product.default_code"/></h4>
+                                </div>
+                                <div class="col-md-3">
+                                    <h4>Supplier code:</h4>
+                                </div>
+                                <div class="col-md-3">
+                                    <h4><t t-esc="product.supplier_code"/></h4>
+                                </div>
+                            </div>
+
+                            <t t-if="list_cart_with_product.length">
+                                <div class="row">
+                                    <hr/>
+                                    <div class="col-md-12">
+                                        <h4>Item is also in:</h4>
+                                        <div class="information-box">
+                                            <table class="table table-striped">
+                                                <thead>
                                                     <tr>
-                                                        <td><t t-esc="item.cart_name"/></td>
-                                                        <td><t t-esc="item.box"/></td>
-                                                        <td><t t-esc="item.quantity"/></td>
+                                                        <th>Cart</th>
+                                                        <th>Box</th>
+                                                        <th>Quantity</th>
                                                     </tr>
-                                                </t>
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="list_cart_with_product" t-as="item">
+                                                        <tr>
+                                                            <td><t t-esc="item.cart_name"/></td>
+                                                            <td><t t-esc="item.box"/></td>
+                                                            <td><t t-esc="item.quantity"/></td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <hr/>
+                                    <h4>Barcodes</h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div id="barcodes">
+                                    <div class="col-md-2">
+                                        <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
+                                    </div>
+                                    <div class="col-md-10 tags">
+                                        <ul class="list-group">
+                                            <t t-foreach="barcodes" t-as="barcode">
+                                                <li class="list-group-item"><t t-esc="barcode"/></li>
+                                            </t>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-                        </t>
 
-                        <div class="row">
-                            <div class="col-md-12">
-                                <hr/>
-                                <h4>Barcodes</h4>
-                            </div>
                         </div>
-                        <div class="row">
-                            <div id="barcodes">
-                                <div class="col-md-2">
-                                    <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
-                                </div>
-                                <div class="col-md-10 tags">
-                                    <ul class="list-group">
-                                        <t t-foreach="barcodes" t-as="barcode">
-                                            <li class="list-group-item"><t t-esc="barcode"/></li>
-                                        </t>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
-            </div>
-
-            <div id='qty_row'>
+                    <div id='qty_row'>
                 <div class="row">
                     <div class="col-md-4">
                         <h4>Put in box:</h4>
@@ -415,6 +401,8 @@
                             <input id="already_printed_quantity" type="text" class="form-control text-center" value="1" readonly="1"/>
                         </div>
                     </div>
+                </div>
+            </div>
                 </div>
             </div>
         </div>

@@ -198,7 +198,7 @@
 
                             // we should "predisplay" a box under the product before it is added to a box. Otherwise,
                             // worker won't be able to close the first box for a determined product.
-                            self.caller.predisplay_box();
+                            // self.caller.predisplay_box();
                             if(!self.caller.check_current_picking_line()){
                                 self.$modal.modal('hide');
                             }

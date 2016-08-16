@@ -365,6 +365,7 @@ product id: %s, supplier id: %s
                     'product_id': move_line.product_id.id,
                     'quantity': move_line.product_qty,
                     'id': move_line.id,
+                    'picking_name': picking.name,
                     'product_name': move_line.product_id.name[0:22],
                     'progress_done': 0,
                     'quantity_already_scanned': 0,

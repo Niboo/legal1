@@ -198,9 +198,12 @@
                 var product_box_list = self.create_box_with_product_info();
 
 
-                
+                var po_line_by_picking = _.groupBy(self.parent.purchase_order_lines, function(po_line){
+                    return po_line.picking_name;
+                });
+
                 self.$elem = $(QWeb.render(self.template, {
-                    po_lines: self.parent.purchase_order_lines,
+                    po_lines: po_line_by_picking,
                     product: self.product,
                     quantity: self.quantity,
                     barcodes: data.product.barcodes,
@@ -429,8 +432,12 @@
                 });
             }
 
+            var po_line_by_picking = _.groupBy(self.parent.purchase_order_lines, function(po_line){
+                return po_line.picking_name;
+            });
+
             self.$elem = $(QWeb.render(self.template, {
-                po_lines: self.parent.purchase_order_lines,
+                po_lines: po_line_by_picking,
                 product: self.product,
                 quantity: self.quantity,
                 barcodes: self.barcodes,
@@ -454,72 +461,76 @@
             self.add_listener_on_close_box();
             self.add_listener_for_barcode();
         },
-        predisplay_box: function(){
-            var self = this;
-            var is_po_panel_empty = $.trim( $('#po_lines_panel').html() ).length
-            var is_package_0_empty = $.trim( $('#package-0').html() ).length
-
-            //check if the po line panel is empty (excluding white spaces!)
-            if( !is_po_panel_empty || !is_package_0_empty ){
-                var dummy_car_with_product = new Array();
-                dummy_car_with_product.push({
-                    "barcode": self.parent.current_package_barcode,
-                    "is_closed": false,
-                    'is_new': true
-                });
-                var po_lines_with_product = $.grep(self.parent.purchase_order_lines, function(e){ return e.product_id == self.id});
-
-                if(!is_po_panel_empty || (!is_package_0_empty && po_lines_with_product.length<1)){
-                    var dummy_po_lines = [];
-                    dummy_po_lines.push({
-                        'product_id':self.product.id,
-                        'quantity': 0,
-                        'id': 0,
-                        'product_name': self.product.name.substring(0,22),
-                        'progress_done': 100,
-                        'quantity_already_scanned': 0,
-                        'is_new': true
-                    });
-                }
-
-                // if left panel is completely empty, it means we have no sale order.
-                // We have display a fake one
-                if(!is_po_panel_empty){
-                    var $result = $(QWeb.render("po_line_panel", {
-                        po_lines: dummy_po_lines,
-                        first_item_boxes: dummy_car_with_product,
-                    }));
-                    $('#po_lines_panel').html($result);
-
-                }else{
-                    // if package-0 if still empty and we have order lines with the selected product,
-                    // we have to display the current box
-                    if(!is_package_0_empty && po_lines_with_product.length>0 ){
-                        var $result = $(QWeb.render("current_package", {
-                            first_item_box: dummy_car_with_product[0]
-                        }));
-                        $('#package-0').html($result);
-                    }
-
-                    //if we package 0 is still empty and we don't have order lines, then
-                    // we need to creer a new entry in the order lines
-                    // without erasing the other ones, thus the "prepend".
-                    if(!is_package_0_empty && po_lines_with_product.length<1 ){
-                        dummy_po_lines[0].is_new = false;
-                        dummy_po_lines[0].progress_done = 0;
-
-                        var $result = $(QWeb.render("display_lines", {
-                            po_line: dummy_po_lines[0],
-                            first_item_boxes: dummy_car_with_product,
-                            current_package_barcode: self.parent.current_package_barcode,
-                            display_first: true,
-                        }));
-
-                        $('#po_lines_panel').prepend($result);
-                    }
-                }
-            }
-        }
+        // predisplay_box: function(){
+        //     var self = this;
+        //     var is_po_panel_empty = $.trim( $('#po_lines_panel').html() ).length
+        //     var is_package_0_empty = $.trim( $('#package-0').html() ).length
+        //
+        //     //check if the po line panel is empty (excluding white spaces!)
+        //     if( !is_po_panel_empty || !is_package_0_empty ){
+        //         var dummy_car_with_product = new Array();
+        //         dummy_car_with_product.push({
+        //             "barcode": self.parent.current_package_barcode,
+        //             "is_closed": false,
+        //             'is_new': true
+        //         });
+        //         var po_lines_with_product = $.grep(self.parent.purchase_order_lines, function(e){ return e.product_id == self.id});
+        //
+        //         if(!is_po_panel_empty || (!is_package_0_empty && po_lines_with_product.length<1)){
+        //             var dummy_po_lines = [];
+        //             dummy_po_lines.push({
+        //                 'product_id':self.product.id,
+        //                 'quantity': 0,
+        //                 'id': 0,
+        //                 'product_name': self.product.name.substring(0,22),
+        //                 'progress_done': 100,
+        //                 'picking_name': '_',
+        //                 'quantity_already_scanned': 0,
+        //                 'is_new': true
+        //             });
+        //         }
+        //
+        //         var po_line_by_picking = _.groupBy(dummy_po_lines, function(po_line){
+        //             return po_line.picking_name;
+        //         });
+        //
+        //         // if left panel is completely empty, it means we have no sale order.
+        //         // We have display a fake one
+        //         if(!is_po_panel_empty){
+        //             var $result = $(QWeb.render("inbound_line_list", {
+        //                 po_lines: po_line_by_picking,
+        //             }));
+        //             $('#po-lines-list').html($result);
+        //
+        //         }else{
+        //             // if package-0 if still empty and we have order lines with the selected product,
+        //             // we have to display the current box
+        //             if(!is_package_0_empty && po_lines_with_product.length>0 ){
+        //                 var $result = $(QWeb.render("current_package", {
+        //                     first_item_box: dummy_car_with_product[0]
+        //                 }));
+        //                 $('#package-0').html($result);
+        //             }
+        //
+        //             //if we package 0 is still empty and we don't have order lines, then
+        //             // we need to creer a new entry in the order lines
+        //             // without erasing the other ones, thus the "prepend".
+        //             if(!is_package_0_empty && po_lines_with_product.length<1 ){
+        //                 dummy_po_lines[0].is_new = false;
+        //                 dummy_po_lines[0].progress_done = 0;
+        //
+        //                 var $result = $(QWeb.render("display_lines", {
+        //                     po_line: dummy_po_lines[0],
+        //                     first_item_boxes: dummy_car_with_product,
+        //                     current_package_barcode: self.parent.current_package_barcode,
+        //                     display_first: true,
+        //                 }));
+        //
+        //                 $('#po_lines_panel').prepend($result);
+        //             }
+        //         }
+        //     }
+        // }
     });
 
     instance.stock_irm.inbound_product_page = inbound_product_page;

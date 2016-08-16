@@ -43,8 +43,12 @@
             this._super();
             var self = this;
 
+            var po_line_by_picking = _.groupBy(self.purchase_order_lines, function(po_line){
+                return po_line.picking_name;
+            });
+
             self.$elem = $(QWeb.render(self.template,{
-                'po_lines': self.purchase_order_lines,
+                'po_lines': po_line_by_picking,
             }));
 
             $('#content').html(self.$elem);
@@ -224,8 +228,6 @@
             quantity += qty;
             cart_box_list[index] = quantity;
 
-
-
             // search an existing PO line and fill it if possible. If not, create a new one or retrieve a newly created one.
             var po_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.progress_done != 100.0; })[0];
 
@@ -255,6 +257,7 @@
                                 'quantity_already_scanned': quantity,
                                 'is_new': true,
                             });
+                            self.update_po_lines();
                             if(do_confirm){
                                self.confirm(note)
                             }
@@ -262,6 +265,7 @@
                     });
                 }
             }
+
         },
         get_already_used_box: function(product_id){
             var self = this;
@@ -304,7 +308,6 @@
 
             self.current_cart = cart;
         },
-
         confirm: function(note) {
             // define a function that could be called AFTER the uncomplete order line check
             function unordered_check(unordered_products, supplier_id){
@@ -326,8 +329,6 @@
                     unordered_check(unordered_product, self.supplier_id)
                 }
             }
-
-
         },
 
         process_barcode: function(barcode) {
@@ -365,18 +366,25 @@
         },
         update_po_lines: function(){
             var self = this;
-            $result = $(QWeb.render("inbound_line_list",{
-                'po_lines': self.purchase_order_lines
+            var po_line_by_picking = _.groupBy(self.purchase_order_lines, function(po_line){
+                return po_line.picking_name;
+            });
+
+            var $result = $(QWeb.render("inbound_line_list",{
+                'po_lines': po_line_by_picking
             }));
 
-            $('#po-lines-list').html($result);
+            self.$elem.find('#po-lines-list').html($result);
         },
         go_to_product: function(product_id){
             var self = this;
             var ProductPage = instance.stock_irm.inbound_product_page;
 
+            var po_line_by_picking = _.groupBy(self.purchase_order_lines, function(po_line){
+                return po_line.picking_name;
+            });
             self.$elem = $(QWeb.render(self.template,{
-                'po_lines': self.purchase_order_lines,
+                'po_lines': po_line_by_picking,
             }));
 
             self.product_page = new ProductPage(self, product_id);
