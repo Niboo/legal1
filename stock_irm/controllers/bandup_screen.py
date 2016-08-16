@@ -54,7 +54,7 @@ class BandupController(http.Controller):
             return{
                 "status": "error",
                 "error": "Error",
-                "message": "Package couldn't be found",
+                "message": "Package could not be found",
             }
 
         if not scanned_package.quant_ids:
@@ -210,7 +210,7 @@ class BandupController(http.Controller):
 
                 destination = item and item.destinationloc_id or packop.destinationloc_id
 
-                if not destination.is_bandup_location:
+                if not (destination.is_bandup_location and is_end_package_needed):
                     raise Exception("The location %s is not a bandup location."
                                     % destination.name)
 

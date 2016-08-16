@@ -377,7 +377,7 @@ product id: %s, supplier id: %s
         except Exception as e:
             return {'status': 'error',
                     'error': type(e).__name__,
-                    'message': e.value}
+                    'message': str(e)}
 
     def create_whole_new_picking(self, supplier, inbound_list, packing_order):
         env = http.request.env
