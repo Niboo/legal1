@@ -210,13 +210,17 @@ class BandupController(http.Controller):
 
                 destination = item and item.destinationloc_id or packop.destinationloc_id
 
-                if not (destination.is_bandup_location and is_end_package_needed):
+                if destination.is_bandup_location == False \
+                        and is_end_package_needed == True:
                     raise Exception("The location %s is not a bandup location."
                                     % destination.name)
 
                 if is_end_package_needed:
                     end_package = self.search_dest_package(package.barcode, destination)
                     end_package.inbound_wave_id = package.inbound_wave_id
+
+                if not destination:
+                    destination = picking.location_dest_id
 
             # remove everything from the wizard
 
