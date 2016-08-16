@@ -39,6 +39,9 @@
                 if(data.status == 'ok'){
                     self.packing_reference = data.packing_reference;
                     self.packing_id = data.packing_id;
+                    var $elem = self.$nav.find('#packing-order-li')
+                    $elem.find('span').html(data.packing_reference);
+                    $elem.show();
                 }
             });
         },
@@ -50,7 +53,6 @@
             self.search = '';
             self.add_listener_on_search();
             self.get_printer_ip();
-
         },
         get_printer_ip: function(){
             var self = this;

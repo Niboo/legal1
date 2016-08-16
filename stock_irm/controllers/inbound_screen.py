@@ -655,6 +655,6 @@ product id: %s, supplier id: %s
         env = http.request.env
         packing_order = env['stock.packing.order'].create({})
         return {"status": 'ok',
-                'packing_reference':packing_order.reference,
+                'packing_reference':packing_order.name,
                 'packing_id': packing_order.id
                 };

@@ -105,6 +105,7 @@
                                 <ul class="nav navbar-nav navbar-left">
                                     <li id="back" style="display:none;"><a href="#"><span class="glyphicon glyphicon-chevron-left" /></a></li>
                                     <li id="wave-id-li" style="display:none;" class="navbar-default"><a href="#"><span id="wave-id"/></a></li>
+                                    <li id="packing-order-li" style="display:none;" class="navbar-default"><a href="#"><span id="packing-order-ref"/></a></li>
                                     <!--<li role="separator" class="divider" />-->
                                 </ul>
                                 <ul class="nav navbar-nav navbar-center">

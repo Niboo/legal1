@@ -160,9 +160,6 @@
             <div id='product_row'>
                 <div class="row">
                     <div class="col-md-4">
-                        <div class="alert alert-success fade in info-prompt">
-                            <h1>Packing reference: <t t-esc="packing_reference"/></h1>
-                        </div>
                         <img id="product_image" t-att-src="product.image" class="center-block img-responsive"/>
                     </div>
                     <div class="col-md-8">

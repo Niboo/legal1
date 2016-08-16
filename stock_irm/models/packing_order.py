@@ -26,7 +26,7 @@ class PackingOrder(models.Model):
 
     _name = "stock.packing.order"
 
-    reference = fields.Char("Reference")
+    name = fields.Char("Reference")
     supplier_reference = fields.Char("Supplier Reference")
     note = fields.Char("Note")
     stock_move_ids = fields.One2many('stock.move', 'packing_order_id',
@@ -38,7 +38,7 @@ class PackingOrder(models.Model):
 
     @api.multi
     def create(self, vals):
-        vals['reference'] = self.env['ir.sequence'].get('stock.packing.order')
+        vals['name'] = self.env['ir.sequence'].get('stock.packing.order')
         vals['creation_time'] = fields.Datetime.now()
         vals['write_time'] = fields.Datetime.now()
         vals['user_id'] = self._uid
