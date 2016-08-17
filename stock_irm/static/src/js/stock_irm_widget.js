@@ -189,10 +189,11 @@
     instance.stock_irm.modal.worklocation_modal = worklocation_modal;
 
     var stock_irm_widget = instance.Class.extend({
-        init: function () {
+        init: function (class_name) {
             var self = this;
             self.session = new instance.Session();
             self.$nav = $('nav');
+            self.class_name = class_name;
         },
         start: function(){
             var self = this;
@@ -214,6 +215,7 @@
             var self = this;
             var pressed = false;
             var chars = [];
+            console.log('Listen for barcode : ' + self.class_name);
             $(document).off('keypress.barcode');
             $(document).on('keypress.barcode', function(e) {
                 chars.push(String.fromCharCode(e.which));

@@ -815,3 +815,6 @@ product id: %s, supplier id: %s
         my_wizard.do_detailed_transfer()
 
         return {'status': 'ok'}
+
+
+

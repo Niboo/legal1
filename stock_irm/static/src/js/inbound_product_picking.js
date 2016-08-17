@@ -27,7 +27,7 @@
 
     var inbound_product_picking = instance.stock_irm.widget.extend({
     	init: function (supplier_id, po_ids, po_move_lines) {
-            this._super();
+            this._super('inbound_product_picking');
             var self = this;
             self.template = 'product_selector';
             self.supplier_id = supplier_id;
@@ -95,6 +95,7 @@
             }
         },
         process_barcode: function(barcode) {
+            console.log('I process barcode from the picking page');
             var self = this;
             self.search = barcode.replace(/[\s]*/g, '');
             self.page = 1;
@@ -195,7 +196,6 @@
                 return ! move_line.is_new;
             })
             if(move_line_from_po.length > 0){
-                console.log('yes!');
                 if(move_line_from_po[0].box!==undefined) {
                     self.set_box(move_line_from_po[0].box, move_line_from_po[0], callback)
                     return

@@ -27,7 +27,7 @@
 
     var inbound_product_page = instance.stock_irm.widget.extend({
     	init: function (parent, id) {
-            this._super();
+            this._super('inbound_product_page');
             var self = this;
             self.id = id;
             self.template = 'product_page';
@@ -81,7 +81,6 @@
             self.add_listener_on_label_quantity();
             self.add_listener_on_print_button();
             self.add_listener_on_close_box();
-            self.add_listener_for_barcode();
         },
         add_listener_on_valid_button: function(){
             var self = this;
@@ -97,6 +96,7 @@
         do_after_set_box: function(box, move_line){
             var self = this;
             self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + move_line.picking_name + ' / ' + box + '</span>');
+            self.add_listener_for_barcode();
         },
         add_listener_on_quantity: function(){
             var self = this;
@@ -246,6 +246,7 @@
             this._super();
         },
         process_barcode: function(barcode) {
+            console.log('I process barcode from the product page');
             var self = this;
             var qty = self.$elem.find('#quantity input').get(0).value;
 

@@ -137,7 +137,6 @@
                     package_barcode: barcode
                 }).then(function(data){
                     if(data.status=="ok"){
-                        self.caller.add_listener_for_barcode();
                         self.caller.set_box(barcode, self.move_line, self.callback);
                         self.$modal.modal('hide');
                     }else{
