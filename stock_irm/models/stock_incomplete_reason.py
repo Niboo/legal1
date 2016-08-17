@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+# -​*- coding: utf-8 -*​-
 ##############################################################################
 #
-#    Author: Jerome Guerriat
-#    Copyright 2015 Niboo SPRL
+#    Author: Tobias Zehntner
+#    Copyright 2016 Niboo SPRL
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -19,14 +19,12 @@
 #
 ##############################################################################
 
-from . import res_partner
-from . import res_users
-from . import printing_printer
-from . import work_location
-from . import stock_location
-from . import picking_waves
-from . import stock_picking_type
-from . import packing_order
-from . import stock_quant_package
-from . import inbound_wave
-from . import stock_incomplete_reason
+from openerp import fields
+from openerp import models
+from openerp import api
+
+class IncompleteReason(models.Model):
+
+    _name = "stock.incomplete.reason"
+
+    reason = fields.Char()
