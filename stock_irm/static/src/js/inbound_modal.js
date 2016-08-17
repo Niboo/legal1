@@ -404,7 +404,8 @@
             var self = this;
             self.$modal.find('#validate').off('click.validate');
             self.$modal.find('#validate').on('click.validate', function (event) {
-                self.session.rpc('/inbound_screen/process_complete_picking_line', {
+                self.session.rpc('/inbound_screen/process_picking_line', {
+                    qty: self.move_line.quantity_already_scanned,
                     picking_line_id: self.move_line.id,
                     box_name: self.move_line.box
                 }).then(function(data){
@@ -413,7 +414,6 @@
                         modal.start(self.caller, data.destination, self.nb_product_more, self.move_line, self.product);
                     }
                 });
-
             })
         },
     });

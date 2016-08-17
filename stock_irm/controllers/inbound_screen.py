@@ -186,27 +186,6 @@ product id: %s, supplier id: %s
         }
         return results
 
-    @http.route('/inbound_screen/get_carts', type='json', auth="user")
-    def get_carts(self, search="",  **kw):
-        env = http.request.env
-        inbound_carts = list()
-
-        domain = [('is_inbound_cart', '=', True)]
-
-        carts = env['stock.location'].search(
-            domain
-        )
-
-        for cart in carts:
-            inbound_carts.append({
-                'is_in_usage': cart.is_in_usage,
-                'id': cart.id,
-                'name': cart.name,
-            })
-
-        return {'status': 'ok',
-                   'carts': inbound_carts}
-
     @http.route('/inbound_screen/check_package_empty', type='json',
                 auth='user')
     def check_package_empty(self, package_barcode):
@@ -218,14 +197,9 @@ product id: %s, supplier id: %s
 
         if dest_package and (dest_package.quant_ids or
                                  dest_package.children_ids):
-            return{
-                'status': 'error'
-            }
+            return {'status': 'error'}
 
-        return {
-            "status": "ok"
-        }
-
+        return {'status': 'ok'}
 
     def search_dest_package(self, package_barcode):
         env = http.request.env
@@ -253,31 +227,6 @@ product id: %s, supplier id: %s
             'status': 'error',
             'message': message
         }
-
-    def create_moves_for_leftover(self, picking, supplier, product, qty,
-                                  dest_box):
-        """we have to create a picking and a stock move
-        :param picking:
-        :param supplier:
-        :return:
-        """
-        env = http.request.env
-
-        picking_type_id = self.get_receipt_picking_type()
-
-        picking.write({
-            'move_lines': [(0, 0, {
-                'product_id': product.id,
-                'product_uom_qty': qty,
-                'picking_type_id': picking_type_id.id,
-                'location_dest_id': dest_box.id,
-                'location_id': env.ref('stock.stock_location_suppliers').id,
-                'product_uom': product.uom_id.id,
-                'name': 'automated picking - %s' % product.name,
-            })]
-        })
-
-        return picking
 
     @http.route('/inbound_screen/search_supplier_purchase', type='json',
                 auth='user')
@@ -327,82 +276,6 @@ product id: %s, supplier id: %s
         return {'status': 'ok',
                 'po_move_lines': lines}
 
-    @http.route('/inbound_screen/process_picking', type='json', auth="user")
-    def process_picking(self, supplier_id, results, purchase_orders, note,
-                        packing_id,  **kw):
-        env = http.request.env
-
-        try:
-            supplier = env['res.partner'].browse(int(supplier_id))
-            packing_order = env['stock.packing.order'].browse(int(packing_id))
-            # TODO: retrieve packing order here!
-
-            if purchase_orders:
-                picking_ids = \
-                    self.retrieve_pickings_from_orders(purchase_orders)
-
-                product_quantities = self.create_product_qty_dict(results)
-                self.treat_pickings(picking_ids, product_quantities, results,
-                                    packing_order)
-
-            self.create_whole_new_picking(supplier, results, packing_order)
-
-            return{
-                'status': 'ok',
-                'nb_picking_created': 0,
-                'nb_picking_filled': 0,
-            }
-
-        except Exception as e:
-            return {'status': 'error',
-                    'error': type(e).__name__,
-                    'message': str(e)}
-
-    def create_whole_new_picking(self, supplier, inbound_list, packing_order):
-        env = http.request.env
-
-        picking = False
-        picking_type_id = self.get_receipt_picking_type()
-
-        for product_id, cart_dict in inbound_list.iteritems():
-            product = env['product.product'].browse(int(product_id))
-
-            # multiple location could be found for the same product
-            for cart_id, location_dict in cart_dict.iteritems():
-                if location_dict.get('index'):
-                    del(location_dict['index'])
-
-                cart = env['stock.location'].browse(int(cart_id))
-
-                for box_id, quantity in location_dict.iteritems():
-                    if box_id != "package_barcode":
-                        if not quantity:
-                            self.no_quantity_error(product, cart)
-
-                        if not picking:
-                            picking = env['stock.picking'].create({
-                                'partner_id': supplier.id,
-                                'picking_type_id': picking_type_id.id,
-                            })
-
-                        input_location = env.ref('stock.stock_location_company')
-                        self.create_moves_for_leftover(picking, supplier, product,
-                                                         quantity, input_location)
-
-        if not picking:
-            return
-
-        product_quantities = self.create_product_qty_dict(inbound_list)
-
-        picking.action_confirm()
-        self.treat_pickings(picking, product_quantities, inbound_list, packing_order)
-
-        return {
-            'status': 'ok',
-            'nb_picking_created': 0,
-            'nb_picking_filled': 0,
-        }
-
     def get_receipt_picking_type(self):
         env = http.request.env
 
@@ -413,7 +286,6 @@ product id: %s, supplier id: %s
         if not picking_type_id:
             raise exceptions.ValidationError(
                 'Please, set a picking type to be used for receipt')
-
 
         return picking_type_id
 
@@ -435,110 +307,6 @@ product id: %s, supplier id: %s
                     picking_ids.append(picking)
 
         return picking_ids
-
-    def create_product_qty_dict(self, results):
-        product_quantities = dict()
-        env = http.request.env
-
-        for product_id, cart_dict in results.iteritems():
-            product = env['product.product'].browse(int(product_id))
-
-            # multiple location could be found for the same product
-            for cart_id, location_dict in cart_dict.iteritems():
-                if location_dict.get('index'):
-                    del(location_dict['index'])
-
-                cart = env['stock.location'].browse(int(cart_id))
-                for box_id, quantity in location_dict.iteritems():
-                    if box_id != "package_barcode":
-                        if not quantity:
-                            self.no_quantity_error(product, cart)
-                        if product.id in product_quantities.keys():
-                            product_quantities[product.id] += quantity
-                        else:
-                            product_quantities[product.id] = quantity
-
-        return product_quantities
-
-    def treat_pickings(self, picking_ids, product_quantity_dict, results, packing_order):
-        env = http.request.env
-
-        for picking in picking_ids:
-
-            result = picking.do_enter_transfer_details()
-            wizard_id = result['res_id']
-            my_wizard = env['stock.transfer_details'].browse(wizard_id)
-
-            do_validate_picking = False
-
-            for wizard_line in my_wizard.item_ids:
-                product = wizard_line.product_id
-                line_quantity = wizard_line.quantity
-                available_quantity = product_quantity_dict.get(product.id, 0)
-
-                if available_quantity > 0:
-                    do_validate_picking = True
-                    product_quantity_dict[product.id] -= line_quantity
-                    self.treat_picking_line(wizard_line, product, results)
-
-                else:
-                    wizard_line.quantity = 0
-                    continue
-
-            if do_validate_picking:
-                my_wizard.do_detailed_transfer()
-                for line in picking.move_lines:
-                    line.packing_order_id = packing_order.id
-
-    def treat_picking_line(self, wizard_line_to_treat, product, results):
-        env = http.request.env
-        cart_dict = results[str(product.id)]
-
-        for cart_id, location_dict in cart_dict.iteritems():
-            cart = env['stock.location'].browse(cart_id)
-            item_to_delete = []
-
-            for box_id, box_quantity in location_dict.iteritems():
-                if not wizard_line_to_treat:
-                    break
-                wizard_line = wizard_line_to_treat
-
-                dest_box = self.search_dest_box(box_id, cart, product)
-
-                # Treat results dict
-                if box_id != "package_barcode":
-                    location_dict[box_id] -= wizard_line.quantity
-                    if location_dict[box_id] <= 0:
-                        item_to_delete.append(box_id)
-
-                    # Treat wizard
-                    wizard_line.destinationloc_id = dest_box.id
-                    wizard_line_to_treat = False
-
-                    dest_package = self.search_dest_package(
-                        cart_dict[cart_id]['package_barcode']
-                    )
-                    wizard_line.result_package_id = dest_package.id
-
-                    if box_quantity < wizard_line.quantity:
-                        wizard_line_dict = {
-                            'product_id': product.id,
-                            'quantity': wizard_line.quantity - box_quantity,
-                            'sourceloc_id': wizard_line.sourceloc_id.id,
-                            'destinationloc_id': wizard_line.destinationloc_id.id,
-                            'transfer_id': wizard_line.transfer_id.id,
-                            'product_uom_id': wizard_line.product_uom_id.id,
-                            'result_package_id': dest_package.id
-                        }
-
-                        wizard_line.quantity = box_quantity
-                        wizard_line_to_treat = wizard_line.create(wizard_line_dict)
-
-            for item in item_to_delete:
-                del(location_dict[item])
-
-        if wizard_line_to_treat:
-            wizard_line_to_treat.unlink()
 
     @http.route('/inbound_screen/change_user', type='http', auth="user")
     def change_user(self, **kw):
@@ -629,61 +397,21 @@ product id: %s, supplier id: %s
         else:
             return {"status": 'error'}
 
-    @http.route('/inbound_screen/book_cart',
-                type='json',
+    @http.route('/inbound_screen/process_picking_line', type='json',
                 auth="user")
-    def book_cart(self, cart_id, **kw):
-        env = http.request.env
-
-        env['stock.location'].browse(int(cart_id)).sudo().is_in_usage = True
-
-    @http.route('/inbound_screen/create_packing_order', type='json', auth="user")
-    def create_packing_order(self, **kw):
-        env = http.request.env
-        packing_order = env['stock.packing.order'].create({})
-        return {"status": 'ok',
-                'packing_reference':packing_order.name,
-                'packing_id': packing_order.id
-                };
-
-    @http.route('/inbound_screen/get_product_name',
-                type='json',
-                auth="user")
-    def get_product_name(self, product_id, **kw):
-        env = http.request.env
-        name = env['product.product'].browse(int(product_id)).name[0:22]
-        return {"status": 'ok', "product_name": name}
-
-    @http.route('/inbound_screen/process_complete_picking_line',
-                type='json',
-                auth="user")
-    def process_complete_picking_line(self, picking_line_id, box_name):
+    def process_picking_line(self, qty, picking_line_id, box_name):
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
 
         dest_location = picking_line.picking_id.location_dest_id
-        destination = self.process_transfer(picking_line, dest_location, box_name)
-
-        values = {'status': 'ok',
-                'destination': destination}
-        return values
-
-    @http.route('/inbound_screen/process_incomplete_picking_line',
-                type='json',
-                auth="user")
-    def process_incomplete_picking_line(self, qty, picking_line_id, box_name):
-        env = http.request.env
-        picking_line = env['stock.move'].browse(int(picking_line_id))
-
-        dest_location = picking_line.picking_id.location_dest_id
-        destination = self.process_transfer(picking_line, dest_location,
-                                            box_name, qty)
+        destination = self.process_transfer(qty, picking_line, dest_location,
+                                            box_name)
 
         values = {'status': 'ok',
                   'destination': destination}
         return values
 
-    def process_transfer(self, picking_line, dest_box, box_name, qty=False):
+    def process_transfer(self, qty, picking_line, dest_location, box_name):
         env = http.request.env
         picking = picking_line.picking_id
 
@@ -698,14 +426,32 @@ product id: %s, supplier id: %s
                     and wizard_line.quantity == picking_line.product_uom_qty):
                 wizard_line.unlink()
             else:
-                wizard_line.destinationloc_id = dest_box.id
+                wizard_line.destinationloc_id = dest_location.id
                 wizard_line.result_package_id = dest_package.id
                 if qty:
                     wizard_line.quantity = qty
 
-        my_wizard.do_detailed_transfer()
+        my_wizard.sudo().do_detailed_transfer()
+
+        self.transfer_to_next_location(dest_package)
 
         return picking_line.move_dest_id.location_dest_id.name
+
+    def transfer_to_next_location(self, package):
+        env = http.request.env
+        for quant in package.quant_ids:
+            picking = quant.reservation_id.picking_id
+
+            wizard_id = picking.do_enter_transfer_details()['res_id']
+            wizard = env['stock.transfer_details'].browse(wizard_id)
+
+            for item in wizard.item_ids:
+                end_package = self.search_dest_package(package.barcode,
+                                                       item.destinationloc_id)
+                item.result_package_id = end_package.id
+
+            wizard.sudo().do_detailed_transfer()
+        package.unlink()
 
     @http.route('/inbound_screen/check_staging_package_empty',
                 type='json',
