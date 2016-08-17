@@ -110,6 +110,9 @@
                         qty--;
                     }
                 }
+                move_line = self.parent.current_move_line;
+                move_line.progress_done = 100 / move_line.quantity * (move_line.quantity_already_scanned + qty);
+                $("#"+move_line.id).css({"width":move_line.progress_done+'%'});
 
                 $('#quantity input').val(qty);
 

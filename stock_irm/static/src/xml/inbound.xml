@@ -173,15 +173,21 @@
     </t>
 
     <t t-name="display_lines">
-        <span t-esc="picking_name"/>
-        <t t-foreach="po_lines[picking_name]" t-as="po_line">
-            <div class="progress picking_progress" id="picking-progress-bar">
-                <div t-att-id="po_line.id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+po_line.progress_done+'%;'"/>
-                <div id="picking-name">
-                    <span><t t-esc="po_line.product_name"/> - <t t-esc="po_line.quantity_already_scanned"/> / <t t-esc="po_line.quantity"/></span>
-                </div>
-            </div>
-        </t>
+        <ul class="list-group">
+            <p t-esc="picking_name"/>
+            <t t-foreach="po_lines[picking_name]" t-as="po_line">
+                <li class="list-group-item">
+                    <a href="#" style="pointer-events: none; cursor: default;">
+                        <div class="progress picking_progress" id="picking-progress-bar">
+                            <div t-att-id="po_line.id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+po_line.progress_done+'%;'"/>
+                            <div id="picking-name">
+                                <span><t t-esc="po_line.product_name"/> - <t t-esc="po_line.quantity_already_scanned"/> / <t t-esc="po_line.quantity"/></span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            </t>
+        </ul>
     </t>
 
     <t t-name="current_package">

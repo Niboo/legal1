@@ -236,6 +236,12 @@
                 callback.do_after_set_box(box, move_line);
             }
         },
+        update_progress: function(move_line) {
+            var self = this;
+
+            move_line.progress_done = 100 / move_line.quantity * move_line.quantity_already_scanned;
+            $("#"+move_line.id).css({"width":move_line.progress_done+'%'});
+        },
         add_product: function(product, qty, move_line){
             var self = this;
 
@@ -243,12 +249,14 @@
                 var move_quantity_left = move_line.quantity - move_line.quantity_already_scanned
                 if (move_quantity_left > qty) {
                     move_line.quantity_already_scanned += qty;
+                    self.update_progress(move_line);
                     self.start();
                     return
                 }
 
                 if (move_quantity_left == qty) {
                     move_line.quantity_already_scanned += qty;
+                    self.update_progress(move_line);
                     var modal = new instance.stock_irm.modal.validate_po_line_modal();
                     modal.start(self, 0, move_line);
                     return
@@ -257,12 +265,14 @@
                 if (move_quantity_left < qty) {
                     move_line.quantity_already_scanned += move_quantity_left;
                     qty -= move_quantity_left;
+                    self.update_progress(move_line);
                     var modal = new instance.stock_irm.modal.validate_po_line_modal();
                     modal.start(self, qty, move_line, product);
                     return
                 }
             } else {
                 move_line.quantity_already_scanned += qty;
+                self.update_progress(move_line);
                 self.start();
                 return
             }
