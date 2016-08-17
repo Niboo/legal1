@@ -297,35 +297,6 @@
                                 </div>
                             </div>
 
-                            <!--<t t-if="list_cart_with_product.length">-->
-                                <!--<div class="row">-->
-                                    <!--<hr/>-->
-                                    <!--<div class="col-md-12">-->
-                                        <!--<h4>Item is also in:</h4>-->
-                                        <!--<div class="information-box">-->
-                                            <!--<table class="table table-striped">-->
-                                                <!--<thead>-->
-                                                    <!--<tr>-->
-                                                        <!--<th>Cart</th>-->
-                                                        <!--<th>Box</th>-->
-                                                        <!--<th>Quantity</th>-->
-                                                    <!--</tr>-->
-                                                <!--</thead>-->
-                                                <!--<tbody>-->
-                                                    <!--<t t-foreach="list_cart_with_product" t-as="item">-->
-                                                        <!--<tr>-->
-                                                            <!--<td><t t-esc="item.cart_name"/></td>-->
-                                                            <!--<td><t t-esc="item.box"/></td>-->
-                                                            <!--<td><t t-esc="item.quantity"/></td>-->
-                                                        <!--</tr>-->
-                                                    <!--</t>-->
-                                                <!--</tbody>-->
-                                            <!--</table>-->
-                                        <!--</div>-->
-                                    <!--</div>-->
-                                <!--</div>-->
-                            <!--</t>-->
-
                             <div class="row">
                                 <div class="col-md-12">
                                     <hr/>

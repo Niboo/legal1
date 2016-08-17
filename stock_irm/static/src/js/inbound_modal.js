@@ -446,6 +446,7 @@
             self.$modal.find('#ok').off('click.ok');
             self.$modal.find('#ok').on('click.ok', function (event) {
                 if(self.leftover == 0) {
+                    self.$modal.modal('hide');
                     self.caller.destroy();
                     self.caller.start();
                 } else {

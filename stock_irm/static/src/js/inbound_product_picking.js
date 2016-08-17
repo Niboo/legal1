@@ -95,7 +95,6 @@
             }
         },
         process_barcode: function(barcode) {
-            console.log('I process barcode from the picking page');
             var self = this;
             self.search = barcode.replace(/[\s]*/g, '');
             self.page = 1;

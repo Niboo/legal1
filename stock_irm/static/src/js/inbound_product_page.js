@@ -201,17 +201,6 @@
                 modal.start(self, qty, product_image);
             })
 
-            // self.$nav.find('#search a').show();
-            // self.$nav.off('click.search');
-            // self.$nav.on('click.search', '#search a', function (event) {
-            //     if(self.is_enough_label_printed()) {
-            //         $(':focus').blur()
-            //         var qty = self.$elem.find('#quantity input').get(0).value
-            //         self.parent.add_product(self.id, parseInt(qty));
-            //         self.destroy();
-            //         self.parent.start();
-            //     }
-            // })
         },
         add_listener_on_back_button: function(){
             var self = this;
@@ -246,7 +235,6 @@
             this._super();
         },
         process_barcode: function(barcode) {
-            console.log('I process barcode from the product page');
             var self = this;
             var qty = self.$elem.find('#quantity input').get(0).value;
 
