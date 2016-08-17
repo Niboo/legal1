@@ -5,5 +5,19 @@
         <record id="stock_irm.label_printer_type" model="document_type">
             <field name="name">Worklocation label printer</field>
         </record>
+
+        <record model="ir.ui.view" id="work_location_form_view">
+            <field name="name">work_location.form.inherited</field>
+            <field name="model">work_location</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="dyn_report_to_printer_location.work_location_form_view"></field>
+            <field name="arch" type="xml">
+                <data>
+                    <field name="user_id" position="after">
+                        <field name="staging_location_id" />
+                    </field>
+                </data>
+            </field>
+        </record>
     </data>
 </openerp>

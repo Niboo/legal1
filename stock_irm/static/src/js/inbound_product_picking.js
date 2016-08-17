@@ -125,7 +125,7 @@
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
                 var modal = new instance.stock_irm.modal.confirm_note_modal();
-                modal.start(self, false, false, true);
+                modal.start(self);
             });
         },
         add_listener_on_back_button: function(){
@@ -180,119 +180,136 @@
 
             self.po_move_lines = po_line_with_current_product.concat(po_line_without_current_product);
         },
-
-        add_product: function(product_id, qty, move_line){
+        get_the_box: function(product, callback){
             var self = this;
-            var list_cart_with_product = {};
-            var cart_box_list = {};
-            var index;
 
-            var move_quantity_left = move_line.quantity - move_line.quantity_already_scanned
-            if(move_quantity_left > qty){
+            // Get the lines to treat for this product
+            self.product_move_lines = _.filter(self.po_move_lines, function(po_move_line) {
+                if(po_move_line.quantity_already_scanned == po_move_line.quantity) {
+                    return false;
+                }
+                return po_move_line.product_id == product.id;
+            });
+
+            var move_line_from_po = _.filter(self.product_move_lines, function(move_line){
+                return ! move_line.is_new;
+            })
+            if(move_line_from_po.length > 0){
+                console.log('yes!');
+                if(move_line_from_po[0].box!==undefined) {
+                    self.set_box(move_line_from_po[0].box, move_line_from_po[0], callback)
+                    return
+                } else {
+                    var modal = new instance.stock_irm.modal.box_barcode_modal(self, move_line_from_po[0], callback);
+                    modal.start();
+                    return
+                }
+            }
+
+            var move_line_no_po = _.filter(self.product_move_lines, function(move_line){
+                return move_line.is_new;
+            })
+            if(move_line_no_po.length == 1){
+                self.set_box(move_line_no_po[0].box, move_line_no_po[0], callback)
+            } else {
+                var move_line = {
+                    'product_id': product.id,
+                    'quantity': 0,
+                    'id': 0,
+                    'product_name': product.name.substring(0,22),
+                    'progress_done': 100,
+                    'picking_name': '_',
+                    'quantity_already_scanned': 0,
+                    'is_new': true
+                };
+                self.po_move_lines.push(move_line);
+
+                var modal = new instance.stock_irm.modal.box_barcode_modal(self, move_line, callback);
+                modal.start();
+            }
+        },
+        set_box: function(box, move_line, callback) {
+            var self = this;
+            self.current_move_line = move_line;
+            self.current_move_line.box = box;
+
+            if (callback!==undefined) {
+                callback.do_after_set_box(box, move_line);
+            }
+        },
+        add_product: function(product, qty, move_line){
+            var self = this;
+
+            if(!move_line.is_new) {
+                var move_quantity_left = move_line.quantity - move_line.quantity_already_scanned
+                if (move_quantity_left > qty) {
+                    move_line.quantity_already_scanned += qty;
+                    self.start();
+                    return
+                }
+
+                if (move_quantity_left == qty) {
+                    move_line.quantity_already_scanned += qty;
+                    var modal = new instance.stock_irm.modal.validate_po_line_modal();
+                    modal.start(self, 0, move_line);
+                    return
+                }
+
+                if (move_quantity_left < qty) {
+                    move_line.quantity_already_scanned += move_quantity_left;
+                    qty -= move_quantity_left;
+                    var modal = new instance.stock_irm.modal.validate_po_line_modal();
+                    modal.start(self, qty, move_line, product);
+                    return
+                }
+            } else {
                 move_line.quantity_already_scanned += qty;
                 self.start();
+                return
             }
-
-            // if (!_.isEmpty(cart_box_list)){
-            //     index = cart_box_list['index'];
-            //     quantity = cart_box_list[index];
-            // } else {
-            //     index = self.current_cart.box_index;
-            //     cart_box_list['index'] = index;
-            //     cart_box_list['package_barcode'] = self.current_package_barcode;
-            //     cart_box_list['product_in_box'] = product_id;
-            //     self.product_in_package[self.current_package_barcode] = product_id;
-            // }
-            //
-            // quantity += qty;
-            // cart_box_list[index] = quantity;
-            //
-            // // search an existing PO line and fill it if possible. If not, create a new one or retrieve a newly created one.
-            // var po_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.progress_done != 100.0; })[0];
-            //
-            // if(po_line){
-            //     // we found a line we are able to fill!
-            //     po_line.quantity_already_scanned += qty;
-            //     po_line.progress_done = 100.0/po_line.quantity*po_line.quantity_already_scanned;
-            //     if(do_confirm){
-            //        self.confirm(note)
-            //     }
-            // }else{
-            //     var created_line = $.grep(self.purchase_order_lines, function(e){ return e.product_id == product_id && e.is_new == true; })[0];
-            //
-            //     if(created_line){
-            //         created_line.quantity+=qty;
-            //     }else{
-            //         self.session.rpc('/inbound_screen/get_product_name', {
-            //             product_id: product_id
-            //         }).then(function(data){
-            //             if(data.status == "ok"){
-            //                 self.purchase_order_lines.push({
-            //                     'product_id':product_id,
-            //                     'quantity': quantity,
-            //                     'id': 0,
-            //                     'product_name': data.product_name,
-            //                     'progress_done': 100,
-            //                     'quantity_already_scanned': quantity,
-            //                     'is_new': true,
-            //                 });
-            //                 self.update_po_lines();
-            //                 if(do_confirm){
-            //                    self.confirm(note)
-            //                 }
-            //             }
-            //         });
-            //     }
-            // }
-
-        },
-        get_already_used_box: function(product_id){
-            var self = this;
-            var index = false;
-
-            if (_.has(self.received_products, product_id)) {
-                var product = self.received_products[product_id];
-
-                if (_.has(product, self.current_cart.id)){
-
-                    var cart_box_list = product[self.current_cart.id]
-
-                    $.each(cart_box_list, function(key, value){
-                        if(value.product_in_box == product_id && $.inArray(self.closed_boxes, value.package_barcode)==-1) {
-                            index = value['index'];
-                            //save the current package barcode since we may "come back" from another package
-                            self.current_package_barcode=value['package_barcode']
-                        }
-                    });
-                }
-            }
-            return index;
-        },
-        set_box_barcode: function(barcode){
-            var self = this;
-            self.current_package_barcode = barcode;
         },
         confirm: function(note) {
-            // define a function that could be called AFTER the uncomplete order line check
-            function unordered_check(unordered_products, supplier_id){
-                var self = this;
-                var modal = new instance.stock_irm.modal.box_barcode_modal_staging();
-                modal.start(unordered_product, "Scan the box for the unordered products", "unordered", supplier_id);
-            }
-
             var self = this;
-            var uncomplete_order_line = $.grep(self.purchase_order_lines, function(a){ return a.is_new == false && a.quantity_already_scanned != a.quantity});
-            var unordered_product = $.grep(self.purchase_order_lines, function(a){ return a.is_new == true});
+            console.log('test');
+            var uncomplete_order_line = $.grep(self.po_move_lines, function(a){ return a.is_new == false && a.quantity_already_scanned > 0 && a.quantity_already_scanned != a.quantity});
+            var unordered_product = $.grep(self.po_move_lines, function(a){ return a.is_new == true});
 
-            if(uncomplete_order_line.length > 0 && unordered_product.length > 0){
-                //todo: check if a box exist for that po!
-                var modal = new instance.stock_irm.modal.box_barcode_modal_staging();
-                modal.start(uncomplete_order_line, "Scan box for the incomplete order lines", "incomplete", self.supplier_id, unordered_product, unordered_check);
-            }else{
-                if(unordered_product.length > 0){
-                    unordered_check(unordered_product, self.supplier_id)
-                }
+            var staging_id = $('#change-worklocation').attr('data-staging-id')
+
+
+            if(unordered_product.length > 0) {
+                self.session.rpc('/inbound_screen/create_picking_for_unordered_lines', {
+                    extra_lines: unordered_product,
+                    dest_box_id: staging_id,
+                    supplier_id: self.supplier_id,
+                }).then(function (data) {
+                    if (data.status != 'ok') {
+                        var modal = new instance.stock_irm.modal.exception_modal();
+                        modal.start(data.error, data.message);
+                    }
+                });
             }
+
+            if(uncomplete_order_line.length > 0) {
+                _.each(uncomplete_order_line, function (line) {
+                    self.session.rpc('/inbound_screen/process_incomplete_picking_line', {
+                        'qty': line.quantity_already_scanned,
+                        'picking_line_id': line.id,
+                        'box_name': line.box,
+                    }).then(function (data) {
+                        if (data.status != 'ok') {
+                            var modal = new instance.stock_irm.modal.exception_modal();
+                            modal.start(data.error, data.message);
+                        }
+                    })
+                })
+            }
+
+            var modal = new instance.stock_irm.modal.confirmed_modal();
+            modal.start();
+            window.setTimeout(function(){
+                window.location.href = "/inbound_screen";
+            }, 5000);
         },
         print_label: function(product_name, barcode, quantity){
             if(this.printer_ip){

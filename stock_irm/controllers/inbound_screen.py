@@ -39,6 +39,7 @@ class InboundController(http.Controller):
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
             'worklocation_id': current_user.work_location_id.id or 0,
+            'work_location_staging_id': current_user.work_location_id.staging_location_id.id,
             'title': 'Inbound',
         })
 
@@ -205,55 +206,6 @@ product id: %s, supplier id: %s
 
         return {'status': 'ok',
                    'carts': inbound_carts}
-
-    @http.route('/inbound_screen/get_cart_boxes', type='json', auth="user")
-    def get_cart_boxes(self, cart_id,  **kw):
-        env = http.request.env
-        cart_boxes = list()
-        if not cart_id:
-            raise exceptions.ValidationError('You have to choose a cart')
-
-        domain = [('location_id', '=', int(cart_id))]
-        boxes = env['stock.location'].search(
-            domain,
-            order='name'
-        )
-
-        for box in boxes:
-            cart_boxes.append({
-                'id': box.id,
-                'name': box.name,
-            })
-
-        return {'status': 'ok',
-                   'cart_boxes': cart_boxes}
-
-    def search_dest_box(self, box_name, cart, product):
-        env = http.request.env
-
-        dest_box = env['stock.location'].search([
-            ('location_id', '=', int(cart.id)),
-            ('name', '=', str(box_name))
-        ])
-
-        if len(dest_box) > 1:
-            message = 'Multiple locations have been found on cart "%s" with ' \
-                      'the name: "%s" <br/> (product "%s") ' \
-                      % (cart.name, str(box_name), product.name)
-
-            env.cr.rollback()
-            return {
-                'status': 'error',
-                'message': message
-            }
-
-        if not dest_box:
-            dest_box = env['stock.location'].sudo().create({
-                'location_id': cart.id,
-                'name': str(box_name),
-            })
-
-        return dest_box
 
     @http.route('/inbound_screen/check_package_empty', type='json',
                 auth='user')
@@ -705,19 +657,33 @@ product id: %s, supplier id: %s
     @http.route('/inbound_screen/process_complete_picking_line',
                 type='json',
                 auth="user")
-    def process_complete_picking_line(self, picking_line_id, cart_id, box_name):
+    def process_complete_picking_line(self, picking_line_id, box_name):
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
-        cart = env['stock.location'].browse(int(cart_id))
 
-        dest_box = self.search_dest_box(box_name, cart, picking_line.product_id)
-        destination = self.process_transfert(picking_line, dest_box)
+        dest_location = picking_line.picking_id.location_dest_id
+        destination = self.process_transfer(picking_line, dest_location, box_name)
 
         values = {'status': 'ok',
                 'destination': destination}
         return values
 
-    def process_transfert(self, picking_line, dest_box):
+    @http.route('/inbound_screen/process_incomplete_picking_line',
+                type='json',
+                auth="user")
+    def process_incomplete_picking_line(self, qty, picking_line_id, box_name):
+        env = http.request.env
+        picking_line = env['stock.move'].browse(int(picking_line_id))
+
+        dest_location = picking_line.picking_id.location_dest_id
+        destination = self.process_transfer(picking_line, dest_location,
+                                            box_name, qty)
+
+        values = {'status': 'ok',
+                  'destination': destination}
+        return values
+
+    def process_transfer(self, picking_line, dest_box, box_name, qty=False):
         env = http.request.env
         picking = picking_line.picking_id
 
@@ -725,12 +691,17 @@ product id: %s, supplier id: %s
         wizard_id = result['res_id']
         my_wizard = env['stock.transfer_details'].browse(wizard_id)
 
+        dest_package = self.search_dest_package(box_name)
+
         for wizard_line in my_wizard.item_ids:
             if not (wizard_line.product_id == picking_line.product_id
                     and wizard_line.quantity == picking_line.product_uom_qty):
                 wizard_line.unlink()
             else:
                 wizard_line.destinationloc_id = dest_box.id
+                wizard_line.result_package_id = dest_package.id
+                if qty:
+                    wizard_line.quantity = qty
 
         my_wizard.do_detailed_transfer()
 
@@ -773,8 +744,7 @@ product id: %s, supplier id: %s
     # from the same order. If it is the case, then we should put the new items in the same box
     # until the order is fullfilled
     @http.route('/inbound_screen/move_uncomplete_line_to_staging',
-                type='json',
-                auth="user")
+                type='json', auth="user")
     def move_uncomplete_line_to_staging(self, uncomplete_order_line, dest_box_id):
         env = http.request.env
         dest_box = env['stock.location'].browse(int(dest_box_id))
@@ -815,7 +785,10 @@ product id: %s, supplier id: %s
             'picking_type_id': picking_type_id.id,
         })
 
+        box_by_product = {}
+
         for line in extra_lines:
+            box_by_product[line['product_id']] = line['box']
             product = env['product.product'].browse(int(line['product_id']))
             picking.write({
                 'move_lines': [(0, 0, {
@@ -833,6 +806,12 @@ product id: %s, supplier id: %s
         result = picking.do_enter_transfer_details()
         wizard_id = result['res_id']
         my_wizard = env['stock.transfer_details'].browse(wizard_id)
+
+        for wizard_line in my_wizard.item_ids:
+            box_name = box_by_product[wizard_line.product_id.id]
+            dest_package = self.search_dest_package(box_name)
+            wizard_line.result_package_id = dest_package.id
+
         my_wizard.do_detailed_transfer()
 
         return {'status': 'ok'}

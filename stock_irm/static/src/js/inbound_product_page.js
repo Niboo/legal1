@@ -52,14 +52,6 @@
                 self.product = data.product;
                 self.barcodes = data.product.barcodes;
 
-                // Get the lines to treat for this product
-                self.product_move_lines = _.filter(self.parent.po_move_lines, function(po_move_line) {
-                    if(po_move_line.quantity_already_scanned == po_move_line.quantity) {
-                        return false;
-                    }
-                    return po_move_line.product_id == self.id;
-                });
-
                 self.display();
                 self.parent.print_label(self.product.name, self.barcodes[0] , 1)
                 self.nb_already_printed += 1;
@@ -81,48 +73,15 @@
 
             $('#content').html(self.$elem);
 
-            self.get_the_box();
+            self.parent.get_the_box(self.product, self);
 
             // print the label the first time
             self.add_listener_on_valid_button();
             self.add_listener_on_quantity();
             self.add_listener_on_label_quantity();
-            self.add_listener_on_cart_button();
             self.add_listener_on_print_button();
             self.add_listener_on_close_box();
             self.add_listener_for_barcode();
-        },
-        get_the_box: function(){
-            var self = this;
-
-            var move_line_from_po = _.filter(self.product_move_lines, function(move_line){
-                return ! move_line.is_new;
-            })
-            if(move_line_from_po.length > 0){
-                if(move_line_from_po[0].box!==undefined) {
-                    self.set_box(move_line_from_po[0].box, move_line_from_po[0])
-                } else {
-                    var modal = new instance.stock_irm.modal.box_barcode_modal(self, move_line_from_po[0]);
-                    modal.start();
-                }
-            }
-
-            var move_line_no_po = _.filter(self.product_move_lines, function(move_line){
-                return move_line.is_new;
-            })
-            if(move_line_no_po.length > 0){
-                self.set_box(move_line_no_po.box, move_line_no_po)
-            } else {
-                // var modal = new instance.stock_irm.modal.box_barcode_modal(self);
-                // modal.start();
-            }
-        },
-        set_box: function(box, move_line){
-            var self = this;
-            self.current_move_line = move_line;
-            self.current_move_line.box = box;
-
-            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + move_line.picking_name + ' / ' + box + '</span>');
         },
         add_listener_on_valid_button: function(){
             var self = this;
@@ -130,10 +89,14 @@
                 if(self.is_enough_label_printed()) {
                     $(':focus').blur();
                     var qty = self.$elem.find('#quantity input').get(0).value;
-                    self.parent.add_product(self.id, parseInt(qty), self.current_move_line);
+                    self.parent.add_product(self.product, parseInt(qty), self.parent.current_move_line);
                     self.destroy();
                 }
             });
+        },
+        do_after_set_box: function(box, move_line){
+            var self = this;
+            self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + move_line.picking_name + ' / ' + box + '</span>');
         },
         add_listener_on_quantity: function(){
             var self = this;
@@ -216,13 +179,6 @@
 
             self.color_printed_labels(self.quantity_to_print);
         },
-        add_listener_on_cart_button: function(){
-            var self = this;
-
-            self.$elem.find("div[data-target='#cartSelectionModal']").click(function(){
-                self.get_carts();
-            })
-        },
         color_printed_labels: function(){
             var self = this;
             var color = "green";
@@ -273,13 +229,8 @@
             var self = this;
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
-                if(self.is_enough_label_printed()){
-                    var product_id = self.id;
-                    var qty = self.$elem.find('#quantity input').get(0).value;
-
-                    var modal = new instance.stock_irm.modal.confirm_note_modal();
-                    modal.start(self, self.id, parseInt(qty), false);
-                }
+                var modal = new instance.stock_irm.modal.confirm_note_modal();
+                modal.start(self.parent);
             });
         },
         add_listener_on_close_box: function(){
@@ -328,11 +279,6 @@
             }
         },
 
-        add_product: function(product_id, qty){
-            var self = this;
-            self.parent.add_product(self.id, parseInt(qty));
-        },
-        
         close_box: function(box_barcode){
             var self = this;
             self.parent.closed_boxes.push(box_barcode);

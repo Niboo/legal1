@@ -110,7 +110,7 @@
     instance.stock_irm.modal.not_enough_label_modal = not_enough_label_modal;
 
     var box_barcode_modal = instance.stock_irm.modal.widget.extend({
-        init: function (caller, move_line) {
+        init: function (caller, move_line, callback) {
             var self = this;
             this._super(caller);
             self.body_template = 'box_barcode_modal';
@@ -118,6 +118,7 @@
             self.title = 'Scan the box barcode';
             self.block_modal = true;
             self.move_line = move_line;
+            self.callback = callback
         },
         start: function () {
             var self = this;
@@ -137,10 +138,10 @@
                 }).then(function(data){
                     if(data.status=="ok"){
                         self.caller.add_listener_for_barcode();
-                        self.caller.set_box(barcode, self.move_line);
+                        self.caller.set_box(barcode, self.move_line, self.callback);
                         self.$modal.modal('hide');
                     }else{
-                        var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used elsewhere");
+                        var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
                         error_modal.start();
                     }
                 })
@@ -163,13 +164,15 @@
     instance.stock_irm.modal.box_barcode_modal = box_barcode_modal;
 
     var box_already_used = instance.stock_irm.modal.widget.extend({
-        init: function (caller, message) {
+        init: function (caller, move_line, callback, message) {
             var self = this;
             this._super(caller);
             self.title = 'Box already used';
             self.block_modal = true;
             self.footer_template = 'select_another_box_footer_modal';
             self.message = message;
+            self.move_line = move_line;
+            self.callback = callback;
         },
         start: function () {
             var self = this;
@@ -182,7 +185,7 @@
             var self = this;
             self.$modal.find('#select_another').off('click.another');
             self.$modal.find('#select_another').on('click.another', function(event){
-                var modal = new instance.stock_irm.modal.box_barcode_modal(self.caller);
+                var modal = new instance.stock_irm.modal.box_barcode_modal(self.caller, self.move_line, self.callback);
                 modal.start();
             });
         },
@@ -287,14 +290,11 @@
             self.template = 'packing_order_note';
             self.footer_template = 'packing_order_note_footer';
         },
-        start: function (caller, product_id, qty, skip_add_product) {
+        start: function (caller) {
             var self = this;
             self.$body = $(QWeb.render(self.template));
             self.$footer = $(QWeb.render(self.footer_template));
             self.caller = caller;
-            self.product_id = product_id;
-            self.qty = qty;
-            self.skip_add_product = skip_add_product;
 
             self._super();
             self.add_listener_on_cancel_note();
@@ -310,15 +310,8 @@
             var self = this;
             self.$modal.find('#confirm_note').click(function(event){
                 var note = self.$modal.find('#packing_note').val();
-                if(!self.skip_add_product){
-                    self.caller.parent.add_product(self.product_id, self.qty, true, note);
-                    self.caller.destroy();
-                    self.caller.parent.refresh();
-                }else{
-                    self.caller.destroy();
-                    self.caller.confirm(note);
-
-                }
+                self.caller.destroy();
+                self.caller.confirm(note);
             })
         },
     });
@@ -378,8 +371,9 @@
             self.template = 'valide_po_line';
             self.footer_template = 'validate_po_line_footer';
         },
-        start: function (caller, nb_product_more, po_line, product, qty_to_add, cart_id, box_name) {
+        start: function (caller, nb_product_more, move_line, product) {
             var self = this;
+            self.nb_product_more = nb_product_more;
             self.$body = $(QWeb.render(self.template,{
                 nb_product_more: nb_product_more
             }));
@@ -388,12 +382,8 @@
                 nb_product_more: nb_product_more
             }));
             self.caller = caller;
-            self.po_line = po_line;
+            self.move_line = move_line;
             self.product = product;
-            self.qty_to_add = qty_to_add;
-            self.cart_id = cart_id;
-            self.box_name = box_name;
-
             self._super();
             self.add_listener_on_validate();
             self.add_listener_on_cancel();
@@ -412,17 +402,13 @@
             var self = this;
             self.$modal.find('#validate').off('click.validate');
             self.$modal.find('#validate').on('click.validate', function (event) {
-                self.caller.print_missing_labels();
-                self.caller.parent.add_product(self.product, self.qty_to_add);
                 self.session.rpc('/inbound_screen/process_complete_picking_line', {
-                    picking_line_id: self.po_line.id,
-                    cart_id : self.cart_id,
-                    box_name: self.box_name
+                    picking_line_id: self.move_line.id,
+                    box_name: self.move_line.box
                 }).then(function(data){
                     if (data.status == 'ok'){
-                        self.caller.close_box_if_no_more_product(self.product);
                         var modal = new instance.stock_irm.modal.select_next_destination_modal();
-                        modal.start(self.caller, data.destination);
+                        modal.start(self.caller, data.destination, self.nb_product_more, self.move_line, self.product);
                     }
                 });
 
@@ -440,15 +426,17 @@
             self.template = 'select_next_destination';
             self.template_footer = "select_next_destination_footer";
             self.block_modal = true;
-
         },
-        start: function (caller, destination) {
+        start: function (caller, destination, leftover, move_line, product) {
             var self = this;
             self.$body = $(QWeb.render(self.template, {
                 destination:destination
             }));
             self.$footer = $(QWeb.render(self.template_footer));
             self.caller = caller;
+            self.leftover = leftover;
+            self.move_line = move_line;
+            self.product = product;
 
             self._super();
             self.add_listener_on_ok();
@@ -458,10 +446,17 @@
 
             self.$modal.find('#ok').off('click.ok');
             self.$modal.find('#ok').on('click.ok', function (event) {
-                self.$modal.modal('hide');
-                self.caller.destroy();
-                self.caller.parent.start();
+                if(self.leftover == 0) {
+                    self.caller.destroy();
+                    self.caller.start();
+                } else {
+                    self.caller.get_the_box(self.product, self);
+                }
             })
+        },
+        do_after_set_box: function(box, move_line){
+            var self = this;
+            self.caller.add_product(self.product, self.leftover, move_line);
         },
     });
 
