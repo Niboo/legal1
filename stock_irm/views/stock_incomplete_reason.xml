@@ -8,7 +8,7 @@
                 <form string="Stock Incomplete Reason">
                     <sheet>
                         <group>
-                            <field name="reason"/>
+                            <field name="name"/>
                         </group>
                     </sheet>
                 </form>
@@ -20,7 +20,7 @@
             <field name="model">stock.incomplete.reason</field>
             <field name="arch" type="xml">
                 <tree string="Stock Incomplete Reasons">
-                    <field name="reason"/>
+                    <field name="name"/>
                     <field name="write_uid"/>
                 </tree>
             </field>

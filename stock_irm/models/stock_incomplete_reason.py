@@ -27,4 +27,4 @@ class IncompleteReason(models.Model):
 
     _name = "stock.incomplete.reason"
 
-    reason = fields.Char()
+    name = fields.Char(string="Reason")
