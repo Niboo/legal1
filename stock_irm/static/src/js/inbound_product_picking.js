@@ -238,9 +238,11 @@
         },
         update_progress: function(move_line) {
             var self = this;
-
-            move_line.progress_done = 100 / move_line.quantity * move_line.quantity_already_scanned;
-            $("#"+move_line.id).css({"width":move_line.progress_done+'%'});
+            var qty = move_line.quantity;
+            var qty_scanned = move_line.quantity_already_scanned;
+            var percentage = 100 / qty * qty_scanned;
+            move_line.progress_done = percentage;
+            self.$elem.find("#"+move_line.id).css({"width":move_line.progress_done+'%'});
         },
         add_product: function(product, qty, move_line){
             var self = this;
