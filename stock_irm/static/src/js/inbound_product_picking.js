@@ -34,6 +34,16 @@
             self.po_ids = po_ids;
             self.po_move_lines = po_move_lines;
             self.closed_boxes = [];
+            self.session.rpc('/inbound_screen/create_packing_order').then(function(data){
+                if(data.status == 'ok'){
+                    self.packing_reference = data.packing_reference;
+                    self.packing_id = data.packing_id;
+                    var $elem = self.$nav.find('#packing-order-li')
+                    $elem.find('span').html(data.packing_reference);
+                    $elem.show();
+                }
+            });
+
         },
         start: function(){
             this._super();

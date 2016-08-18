@@ -539,3 +539,14 @@ product id: %s, supplier id: %s
 
         return {'status': 'ok',
                 'destination': picking.location_dest_id.name}
+
+    @http.route('/inbound_screen/create_packing_order', type='json', auth="user")
+    def create_packing_order(self, **kw):
+        env = http.request.env
+        packing_order = env['stock.packing.order'].create({})
+        print 'create_packing_order'
+        return {"status": 'ok',
+                'packing_reference':packing_order.name,
+                'packing_id': packing_order.id
+                };
+
