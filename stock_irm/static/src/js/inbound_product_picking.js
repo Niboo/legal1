@@ -120,12 +120,35 @@
                 self.go_to_product(product_id);
             })
         },
+        confirm_po_move: function(){
+            var self = this;
+            // var modal = new instance.stock_irm.modal.confirm_note_modal();
+            var uncomplete_and_unexpected_move_line = _.filter(self.po_move_lines, function(move) {
+                // Filter the lines that have not been scanned at all
+                if(move.quantity_already_scanned == 0){
+                    return false;
+                }
+
+                // Filter move that are completed
+                if (move.quantity_already_scanned == move.quantity) {
+                    return false;
+                }
+                return true;
+            });
+
+            if(uncomplete_and_unexpected_move_line.length > 0) {
+                var modal = new instance.stock_irm.modal.confirm_move_modal(self, self.supplier_id, uncomplete_and_unexpected_move_line);
+                modal.start();
+            } else {
+                var modal = new instance.stock_irm.modal.confirm_note_modal(self);
+                modal.start();
+            }
+        },
         add_listener_on_confirm_button: function(){
             var self = this;
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
-                var modal = new instance.stock_irm.modal.confirm_note_modal();
-                modal.start(self);
+                self.confirm_po_move();
             });
         },
         add_listener_on_back_button: function(){
@@ -281,46 +304,11 @@
         },
         confirm: function(note) {
             var self = this;
-            console.log('test');
-            var uncomplete_order_line = $.grep(self.po_move_lines, function(a){ return a.is_new == false && a.quantity_already_scanned > 0 && a.quantity_already_scanned != a.quantity});
-            var unordered_product = $.grep(self.po_move_lines, function(a){ return a.is_new == true});
-
-            var staging_id = $('#change-worklocation').attr('data-staging-id')
-
-
-            if(unordered_product.length > 0) {
-                self.session.rpc('/inbound_screen/create_picking_for_unordered_lines', {
-                    extra_lines: unordered_product,
-                    dest_box_id: staging_id,
-                    supplier_id: self.supplier_id,
-                }).then(function (data) {
-                    if (data.status != 'ok') {
-                        var modal = new instance.stock_irm.modal.exception_modal();
-                        modal.start(data.error, data.message);
-                    }
-                });
-            }
-
-            if(uncomplete_order_line.length > 0) {
-                _.each(uncomplete_order_line, function (line) {
-                    self.session.rpc('/inbound_screen/process_incomplete_picking_line', {
-                        'qty': line.quantity_already_scanned,
-                        'picking_line_id': line.id,
-                        'box_name': line.box,
-                    }).then(function (data) {
-                        if (data.status != 'ok') {
-                            var modal = new instance.stock_irm.modal.exception_modal();
-                            modal.start(data.error, data.message);
-                        }
-                    })
-                })
-            }
-
             var modal = new instance.stock_irm.modal.confirmed_modal();
             modal.start();
             window.setTimeout(function(){
                 window.location.href = "/inbound_screen";
-            }, 5000);
+            }, 2000);
         },
         print_label: function(product_name, barcode, quantity){
             if(this.printer_ip){

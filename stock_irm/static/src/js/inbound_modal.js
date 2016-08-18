@@ -283,36 +283,121 @@
 
     instance.stock_irm.modal.going_back_modal = going_back_modal;
 
+    var confirm_move_modal = instance.stock_irm.modal.widget.extend({
+        init: function (caller, supplier_id, uncomplete_and_unexpected_move_line) {
+            var self = this;
+            this._super();
+            self.title = 'Confirm unexpected or uncomplete Moves';
+            self.block_modal = true;
+            self.template = 'confirm_unexpected_uncomplete_move';
+            self.footer_template = 'confirm_unexpected_uncomplete_move_footer';
+            self.uncomplete_and_unexpected_move_line = uncomplete_and_unexpected_move_line;
+            self.staging_id = $('#change-worklocation').attr('data-staging-id');
+            self.supplier_id = supplier_id;
+            self.caller = caller;
+        },
+        start: function () {
+            var self = this;
+            self.$body = $(QWeb.render(self.template, {
+                moves : self.uncomplete_and_unexpected_move_line
+            }));
+            self.$footer = $(QWeb.render(self.footer_template));
+
+            self._super();
+            self.add_listener_on_validate();
+            self.add_listener_on_finish();
+        },
+        add_listener_on_validate: function(){
+            var self = this;
+            self.$modal.find('.validate').click(function(event){
+                var $button = $(event.currentTarget);
+                var id = $button.attr('id');
+                
+                var move = self.uncomplete_and_unexpected_move_line[id];
+                if(move.is_new){
+                    self.confirm_unexpected_move($button, move);
+                } else {
+                    self.confirm_incomplete_move($button, move);
+                }
+            });
+        },
+        validate_line: function($button, destination){
+            var self = this;
+            var moves_pending = _.filter(self.uncomplete_and_unexpected_move_line, function(move){
+                return move.state === undefined || move.state != 'done';
+            });
+            if(moves_pending.length == 0){
+                self.$modal.find('#finish').removeClass('hidden');
+            }
+            $button.parents('tr').addClass('bg-success');
+            $button.replaceWith('<span style="font-size:1.4em" class="label pull-right label-primary">' + destination + '</span>');
+        },
+        confirm_incomplete_move: function($button, move){
+            var self = this;
+            self.session.rpc('/inbound_screen/process_picking_line', {
+                qty: move.quantity_already_scanned,
+                picking_line_id: move.id,
+                box_name: move.box,
+            }).then(function(data){
+                if (data.status != 'ok'){
+                    var modal = new instance.stock_irm.modal.exception_modal();
+                    modal.start(data.error, data.message);
+                } else {
+                    move.state = 'done';
+                    self.validate_line($button, data.destination);
+                }
+            });
+        },
+        confirm_unexpected_move: function($button, move){
+            var self = this;
+            self.session.rpc('/inbound_screen/create_picking_for_unordered_lines', {
+                extra_line: move,
+                dest_box_id: self.staging_id,
+                supplier_id: self.supplier_id,
+                box_name: move.box,
+            }).then(function (data) {
+                if (data.status != 'ok') {
+                    var modal = new instance.stock_irm.modal.exception_modal();
+                    modal.start(data.error, data.message);
+                } else {
+                    move.state = 'done';
+                    self.validate_line($button, data.destination);
+                }
+            });
+        },
+        add_listener_on_finish: function(){
+            var self = this;
+            self.$modal.find('#finish').click(function(event){
+                var modal = new instance.stock_irm.modal.confirm_note_modal(self.caller);
+                modal.start();
+            });
+        },
+    });
+
+    instance.stock_irm.modal.confirm_move_modal = confirm_move_modal;
+
     var confirm_note_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller) {
             var self = this;
             this._super();
             self.title = 'Confirm Inbound Picking';
             self.block_modal = true;
             self.template = 'packing_order_note';
             self.footer_template = 'packing_order_note_footer';
+            self.caller = caller;
         },
-        start: function (caller) {
+        start: function () {
             var self = this;
             self.$body = $(QWeb.render(self.template));
             self.$footer = $(QWeb.render(self.footer_template));
-            self.caller = caller;
 
             self._super();
-            self.add_listener_on_cancel_note();
             self.add_listener_on_confirm_note();
-        },
-        add_listener_on_cancel_note: function(){
-            var self = this;
-            self.$modal.find('#cancel_note').click(function(event){
-                self.$modal.modal('hide');
-            })
         },
         add_listener_on_confirm_note: function(){
             var self = this;
             self.$modal.find('#confirm_note').click(function(event){
                 var note = self.$modal.find('#packing_note').val();
-                self.caller.destroy();
                 self.caller.confirm(note);
             })
         },
@@ -465,101 +550,5 @@
 
     instance.stock_irm.modal.select_next_destination_modal = select_next_destination_modal;
 
-    var box_barcode_modal_staging = instance.stock_irm.modal.widget.extend({
-        init: function (caller) {
-            var self = this;
-            this._super(caller);
-            self.body_template = 'box_barcode_modal_staging';
-            self.footer_template = 'box_barcode_modal_staging_footer';
-            self.block_modal = true;
-        },
-        start: function (order_lines, title, operation, supplier_id, unordered_lines, callback_method) {
-            var self = this;
-            self.order_lines = order_lines;
-            self.$body = $(QWeb.render(self.body_template));
-            self.$footer = $(QWeb.render(self.footer_template));
-            self.title = title;
-            self.operation = operation;
-            self.supplier_id = supplier_id;
-            self.unordered_lines = unordered_lines;
-            self.callback_method = callback_method;
-
-            this._super();
-            self.add_listener_on_barcode_modal_confirm();
-            self.$modal.find('#box_barcode').focus();
-        },
-        confirm_box: function(){
-            var self = this;
-
-            var barcode = self.$modal.find('#box_barcode').val();
-            if(barcode){
-                self.session.rpc('/inbound_screen/check_staging_package_empty', {
-                    barcode: barcode
-                }).then(function(data){
-                    var staging_box_id = data.dest_box_id;
-                    if(self.operation =="incomplete"){
-
-                        if(data.status=="ok"){
-                            self.session.rpc('/inbound_screen/move_uncomplete_line_to_staging', {
-                                uncomplete_order_line: self.order_lines,
-                                dest_box_id: staging_box_id,
-                            }).then(function(data){
-                                if (data.status == 'ok'){
-                                    if(self.unordered_lines && self.callback_method){
-                                        // if we have both unordered and incomplete line, then call the callback method.
-                                        self.callback_method(self.unordered_lines, self.supplier_id)
-                                    }else{
-                                        var modal = new instance.stock_irm.modal.confirmed_modal();
-                                        modal.start();
-                                        window.setTimeout(function(){
-                                            window.location.href = "/inbound_screen";
-                                        }, 3000);
-                                    }
-
-                                } else {
-                                    var modal = new instance.stock_irm.modal.exception_modal();
-                                    modal.start(data.error, data.message);
-                                }
-                            })
-                        }else{
-                            var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, "This box is already used in staging location");
-                            error_modal.start();
-                        }
-                    }else if(self.operation=="unordered"){
-                        self.session.rpc('/inbound_screen/create_picking_for_unordered_lines', {
-                            extra_lines: self.order_lines,
-                            dest_box_id: staging_box_id,
-                            supplier_id: self.supplier_id,
-                        }).then(function(data){
-                            if (data.status == 'ok'){
-                                var modal = new instance.stock_irm.modal.confirmed_modal();
-                                modal.start();
-                                window.setTimeout(function(){
-                                    window.location.href = "/inbound_screen";
-                                }, 3000);
-                            } else {
-                                var modal = new instance.stock_irm.modal.exception_modal();
-                                modal.start(data.error, data.message);
-                            }
-                        })
-                    }
-                })
-            }
-        },
-        add_listener_on_barcode_modal_confirm: function(){
-            var self = this;
-            self.$modal.find('#confirm_box_barcode').off('click.box.barcode');
-            $('#box_barcode').keyup(function(event){
-                if(event.keyCode==13){
-                    self.confirm_box();
-                }
-            });
-            self.$modal.find('#confirm_box_barcode').on('click.box.barcode', function(event){
-                self.confirm_box();
-            });
-        },
-    });
-
-    instance.stock_irm.modal.box_barcode_modal_staging = box_barcode_modal_staging;
 
 })();

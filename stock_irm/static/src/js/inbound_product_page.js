@@ -225,8 +225,7 @@
             var self = this;
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
-                var modal = new instance.stock_irm.modal.confirm_note_modal();
-                modal.start(self.parent);
+                self.confirm_po_move();
             });
         },
         add_listener_on_close_box: function(){

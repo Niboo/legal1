@@ -428,6 +428,47 @@
         </div>
     </t>
 
+    <t t-name="confirm_unexpected_uncomplete_move">
+        <table class="table">
+            <tr>
+                <th></th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th></th>
+                <th>Box</th>
+                <th></th>
+            </tr>
+            <t t-foreach="moves" t-as="move">
+                <tr>
+                    <td width="15%">
+                        <t t-if="move.is_new"><span>Extra</span></t>
+                        <t t-if="!move.is_new"><span t-esc="move.picking_name"/></t>
+                    </td>
+                    <td width="35%">
+                        <span t-esc="move.product_name"/>
+                    </td>
+                    <td width="10%" class="text-center">
+                        <t t-if="move.is_new"><span t-esc="move.quantity_already_scanned" /></t>
+                        <t t-if="!move.is_new"><span><t t-esc="move.quantity_already_scanned" /> / <t t-esc="move.quantity" /></span></t>
+                    </td>
+                    <td class="text-center" width="10%">
+                        <span>in</span>
+                    </td>
+                    <td width="15%">
+                        <span t-esc="move.box"/>
+                    </td>
+                    <td width="10%">
+                        <a href="#" class="btn btn-success pull-right validate" t-att-id="moves.indexOf(move)" >Validate</a>
+                    </td>
+                </tr>
+            </t>
+        </table>
+    </t>
+
+    <t t-name="confirm_unexpected_uncomplete_move_footer">
+        <a href="#" id="finish" class="btn btn-success pull-right hidden">Finish</a>
+    </t>
+
     <t t-name="packing_order_note">
         <div class="row">
             <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 formfield">
@@ -439,8 +480,8 @@
 
     <t t-name="packing_order_note_footer">
         <a href="#" id="confirm_note" class="btn btn-success pull-right">Confirm</a>
-        <a href="#" id="cancel_note" class="btn btn-danger pull-left">Cancel</a>
     </t>
+
 
     <t t-name="confirm_purchase_orders">
         <a href="#" id="select_purchases" class="btn btn-success" style="display:none">Bound to Selected Purchases</a>

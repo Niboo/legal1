@@ -403,15 +403,13 @@ product id: %s, supplier id: %s
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
 
-        dest_location = picking_line.picking_id.location_dest_id
-        destination = self.process_transfer(qty, picking_line, dest_location,
-                                            box_name)
+        destination = self.process_transfer(qty, picking_line, box_name)
 
         values = {'status': 'ok',
                   'destination': destination}
         return values
 
-    def process_transfer(self, qty, picking_line, dest_location, box_name):
+    def process_transfer(self, qty, picking_line, box_name):
         env = http.request.env
         picking = picking_line.picking_id
 
@@ -426,10 +424,8 @@ product id: %s, supplier id: %s
                     and wizard_line.quantity == picking_line.product_uom_qty):
                 wizard_line.unlink()
             else:
-                wizard_line.destinationloc_id = dest_location.id
                 wizard_line.result_package_id = dest_package.id
-                if qty:
-                    wizard_line.quantity = qty
+                wizard_line.quantity = qty
 
         my_wizard.sudo().do_detailed_transfer()
 
@@ -444,14 +440,7 @@ product id: %s, supplier id: %s
 
             wizard_id = picking.do_enter_transfer_details()['res_id']
             wizard = env['stock.transfer_details'].browse(wizard_id)
-
-            for item in wizard.item_ids:
-                end_package = self.search_dest_package(package.barcode,
-                                                       item.destinationloc_id)
-                item.result_package_id = end_package.id
-
             wizard.sudo().do_detailed_transfer()
-        package.unlink()
 
     @http.route('/inbound_screen/check_staging_package_empty',
                 type='json',
@@ -486,42 +475,12 @@ product id: %s, supplier id: %s
             'dest_box_id': dest_box.id
         }
 
-    # TODO: we should check if a box in the staging area already contains something
-    # from the same order. If it is the case, then we should put the new items in the same box
-    # until the order is fullfilled
-    @http.route('/inbound_screen/move_uncomplete_line_to_staging',
-                type='json', auth="user")
-    def move_uncomplete_line_to_staging(self, uncomplete_order_line, dest_box_id):
-        env = http.request.env
-        dest_box = env['stock.location'].browse(int(dest_box_id))
-
-        for line in uncomplete_order_line:
-            picking_line = env['stock.move'].browse(line['id'])
-            picking = picking_line.picking_id
-
-            result = picking.do_enter_transfer_details()
-            wizard_id = result['res_id']
-            my_wizard = env['stock.transfer_details'].browse(wizard_id)
-
-            for wizard_line in my_wizard.item_ids:
-                if not (wizard_line.product_id == picking_line.product_id
-                        and wizard_line.quantity == picking_line.product_uom_qty):
-                    wizard_line.unlink()
-                else:
-                    wizard_line.destinationloc_id = dest_box.id
-                    wizard_line.quantity = line['quantity_already_scanned']
-
-            my_wizard.do_detailed_transfer()
-
-        return {'status': 'ok'}
-
-
     # This method is used for both unordered product and product that were
     # ordered but came in with too many items
     @http.route('/inbound_screen/create_picking_for_unordered_lines',
                 type='json',
                 auth="user")
-    def create_picking_for_unordered_lines(self, extra_lines, dest_box_id, supplier_id):
+    def create_picking_for_unordered_lines(self, extra_line, dest_box_id, supplier_id, box_name):
         env = http.request.env
 
         picking_type_id = self.get_receipt_picking_type()
@@ -533,34 +492,35 @@ product id: %s, supplier id: %s
 
         box_by_product = {}
 
-        for line in extra_lines:
-            box_by_product[line['product_id']] = line['box']
-            product = env['product.product'].browse(int(line['product_id']))
-            picking.write({
-                'move_lines': [(0, 0, {
-                    'product_id': product.id,
-                    'product_uom_qty': line['quantity_already_scanned'],
-                    'picking_type_id': picking_type_id.id,
-                    'location_dest_id': dest_box_id,
-                    'location_id': env.ref('stock.stock_location_suppliers').id,
-                    'product_uom': product.uom_id.id,
-                    'name': 'automated picking - %s' % product.name,
-                })]
-            })
+        box_by_product[extra_line['product_id']] = extra_line['box']
+        product = env['product.product'].browse(int(extra_line['product_id']))
+        picking.write({
+            'move_lines': [(0, 0, {
+                'product_id': product.id,
+                'product_uom_qty': extra_line['quantity_already_scanned'],
+                'picking_type_id': picking_type_id.id,
+                'location_dest_id': picking_type_id.default_location_dest_id.id,
+                'location_id': env.ref('stock.stock_location_suppliers').id,
+                'product_uom': product.uom_id.id,
+                'name': 'automated picking - %s' % product.name,
+            })]
+        })
+
         picking.action_confirm()
 
         result = picking.do_enter_transfer_details()
         wizard_id = result['res_id']
         my_wizard = env['stock.transfer_details'].browse(wizard_id)
 
+        dest_package = self.search_dest_package(box_name)
+
         for wizard_line in my_wizard.item_ids:
-            box_name = box_by_product[wizard_line.product_id.id]
-            dest_package = self.search_dest_package(box_name)
             wizard_line.result_package_id = dest_package.id
+            wizard_line.destinationloc_id = int(dest_box_id)
 
-        my_wizard.do_detailed_transfer()
+        my_wizard.sudo().do_detailed_transfer()
 
-        return {'status': 'ok'}
+        self.transfer_to_next_location(dest_package)
 
-
-
+        return {'status': 'ok',
+                'destination': picking.location_dest_id.name}
