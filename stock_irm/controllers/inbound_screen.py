@@ -544,7 +544,6 @@ product id: %s, supplier id: %s
     def create_packing_order(self, **kw):
         env = http.request.env
         packing_order = env['stock.packing.order'].create({})
-        print 'create_packing_order'
         return {"status": 'ok',
                 'packing_reference':packing_order.name,
                 'packing_id': packing_order.id
