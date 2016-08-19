@@ -122,7 +122,6 @@
         },
         confirm_po_move: function(){
             var self = this;
-            // var modal = new instance.stock_irm.modal.confirm_note_modal();
             var uncomplete_and_unexpected_move_line = _.filter(self.po_move_lines, function(move) {
                 // Filter the lines that have not been scanned at all
                 if(move.quantity_already_scanned == 0){
@@ -189,7 +188,6 @@
                 }
             });
         },
-
         go_to_product: function(product_id){
             var self = this;
             var ProductPage = instance.stock_irm.inbound_product_page;

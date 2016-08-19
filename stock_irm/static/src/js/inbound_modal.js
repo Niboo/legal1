@@ -298,14 +298,19 @@
         },
         start: function () {
             var self = this;
-            self.$body = $(QWeb.render(self.template, {
-                moves : self.uncomplete_and_unexpected_move_line
-            }));
-            self.$footer = $(QWeb.render(self.footer_template));
+            self.session.rpc('/inbound_screen/get_incomplete_reason').then(function(data){
+                if(data.status == 'ok'){
+                    self.$body = $(QWeb.render(self.template, {
+                        reasons: data.reasons,
+                        moves : self.uncomplete_and_unexpected_move_line
+                    }));
+                    self.$footer = $(QWeb.render(self.footer_template));
 
-            self._super();
-            self.add_listener_on_validate();
-            self.add_listener_on_finish();
+                    self.show_modal();
+                    self.add_listener_on_validate();
+                    self.add_listener_on_finish();
+                }
+            });
         },
         add_listener_on_validate: function(){
             var self = this;
@@ -430,8 +435,7 @@
 
             self.$modal.find('#cancel').off('click.confirm_bote');
             self.$modal.find('#cancel').on('click.confirm_bote', function (event) {
-                self.$modal.modal('hide');
-
+                    self.$modal.modal('hide');
             });
         },
         add_listener_on_close_box: function(){

@@ -442,6 +442,21 @@ product id: %s, supplier id: %s
             wizard = env['stock.transfer_details'].browse(wizard_id)
             wizard.sudo().do_detailed_transfer()
 
+    @http.route('/inbound_screen/get_incomplete_reason',
+                type='json',
+                auth="user")
+    def get_incomplete_reason(self):
+        env = http.request.env
+
+        reasons = env['stock.incomplete.reason'].search([])
+        reason_list = []
+        for reason in reasons:
+            reason_list.append({'name': reason.name,
+                                'id': reason.id})
+
+        return {'status': 'ok',
+                'reasons': reason_list}
+
     @http.route('/inbound_screen/check_staging_package_empty',
                 type='json',
                 auth="user")

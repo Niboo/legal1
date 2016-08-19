@@ -444,18 +444,27 @@
                         <t t-if="move.is_new"><span>Extra</span></t>
                         <t t-if="!move.is_new"><span t-esc="move.picking_name"/></t>
                     </td>
-                    <td width="35%">
+                    <td width="25%">
                         <span t-esc="move.product_name"/>
                     </td>
                     <td width="10%" class="text-center">
                         <t t-if="move.is_new"><span t-esc="move.quantity_already_scanned" /></t>
                         <t t-if="!move.is_new"><span><t t-esc="move.quantity_already_scanned" /> / <t t-esc="move.quantity" /></span></t>
                     </td>
-                    <td class="text-center" width="10%">
+                    <td class="text-center" width="5%">
                         <span>in</span>
                     </td>
-                    <td width="15%">
+                    <td width="10%">
                         <span t-esc="move.box"/>
+                    </td>
+                    <td width="20%">
+                        <div class="form-group">
+                            <select class="form-control">
+                                <t t-foreach="reasons" t-as="reason">
+                                    <option><t t-esc="reason.name"/></option>
+                                </t>
+                            </select>
+                        </div>
                     </td>
                     <td width="10%">
                         <a href="#" class="btn btn-success pull-right validate" t-att-id="moves.indexOf(move)" >Validate</a>

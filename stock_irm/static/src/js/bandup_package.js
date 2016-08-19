@@ -38,10 +38,25 @@
             self.scanned_package_barcodes = [];
             self.scanned_package_ids = [];
         },
-        start: function(){
+        start: function() {
             var self = this;
             self._super();
-            self.session.rpc('/bandup/get_inbound_wave', {}).then(function(data){
+
+            self.session.rpc('/inbound_wave/get_wave_template', {}).then(function (data) {
+                if (data.status == "ok") {
+                    var modal = new instance.stock_irm.modal.select_wave_template(self, data.wave_templates);
+                    modal.start();
+                }
+            });
+        },
+        get_waves: function(wave_template){
+            var self = this;
+
+            self.wave_template = wave_template;
+
+            self.session.rpc('/inbound_wave/get_inbound_wave', {
+                wave_template_id: self.wave_template.id
+            }).then(function(data){
                 if(data.status=="ok"){
                     var $result = $(QWeb.render(self.template, {
                         'waves': data.waves,
@@ -54,7 +69,6 @@
                     self.add_listener_on_numpad();
                 }
             });
-
         },
         process_barcode: function(barcode){
             var self = this;
@@ -64,6 +78,7 @@
             if($.inArray(true_barcode, self.scanned_package_barcodes) == -1){
                 self.session.rpc('/bandup/get_package', {
                     barcode: true_barcode,
+                    wave_template_id: self.wave_template.id
                 }).then(function(data){
                     if(data.status == "ok"){
                         self.scanned_package_barcodes.push(true_barcode);
@@ -94,6 +109,7 @@
             $('#content').on('click.gotowave', '#goto_wave', function (event) {
                 self.session.rpc('/bandup/transfer_package_batch', {
                     package_ids: self.scanned_package_ids,
+                    wave_template_id: self.wave_template.id,
                 }).then(function(data){
                     if(data.status == 'ok'){
                         var bandup_wave_widget = new instance.stock_irm.bandup_waves(data.package_list)
@@ -116,7 +132,6 @@
                 }else if(value=="Enter"){
                     self.process_barcode($('#manual-barcode').val());
                     $('#manual-barcode').val("");
-
                 }else{
                     $('#manual-barcode').val($('#manual-barcode').val()+value);
                 }

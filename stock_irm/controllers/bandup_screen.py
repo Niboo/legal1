@@ -38,16 +38,14 @@ class BandupController(http.Controller):
         })
 
     @http.route('/bandup/get_package', type='json', auth="user")
-    def get_package(self, barcode, **kw):
+    def get_package(self, barcode, wave_template_id, **kw):
         env = http.request.env
 
-        input_location = env.ref('stock.stock_location_company')
+        wave_template = env['picking.dispatch'].browse(wave_template_id)
 
         # retrieve package information (product, quantity,...)
         scanned_package = env['stock.quant.package'].search(
-            [('barcode', '=', str(barcode)),
-             ('location_id', 'in', input_location._get_sublocations())
-             ]
+            [('barcode', '=', str(barcode))]
         )
 
         if not scanned_package:
@@ -64,14 +62,30 @@ class BandupController(http.Controller):
                 "message": "Package has no move",
             }
 
-        if scanned_package.inbound_wave_id:
-            return{
+        if not len(scanned_package.quant_ids) == 1:
+            return {
                 "status": "error",
                 "error": "Error",
-                "message": "Package is already assigned to an inbound wave",
+                "message": "Package contains items from different move.",
             }
 
-        product = scanned_package.quant_ids[0].product_id
+        quant = scanned_package.quant_ids
+        picking = quant.reservation_id.picking_id
+        if not picking:
+            return {
+                "status": "error",
+                "error": "Error",
+                "message": "No picking is related to this package.",
+            }
+
+        if picking.location_dest_id != wave_template.default_location_src_id:
+            return {
+                "status": "error",
+                "error": "Error",
+                "message": "The package is not in your location",
+            }
+
+        product = scanned_package.quant_ids.product_id
 
         total_qty = 0
         for quant in scanned_package.quant_ids:
@@ -127,63 +141,38 @@ class BandupController(http.Controller):
                     'error': type(e).__name__,
                     'message': str(e)}
 
+    def transfer_to_next_location(self, package):
+        env = http.request.env
+        for quant in package.quant_ids:
+            picking = quant.reservation_id.picking_id
+
+            wizard_id = picking.do_enter_transfer_details()['res_id']
+            wizard = env['stock.transfer_details'].browse(wizard_id)
+            wizard.sudo().do_detailed_transfer()
+
     @http.route('/bandup/transfer_package_batch', type='json', auth="user")
-    def transfer_package_batch(self, package_ids, **kw):
+    def transfer_package_batch(self, package_ids, wave_template_id, **kw):
         # method called when clicking on "go to wave". It moves all scanned
         # packages from input to "bandup" location, and create the package list
         # that will be used in the inbound wave
         env = http.request.env
 
         try:
-            inbound_wave = env['stock.inbound.wave'].create({
-                'user_id': http.request.uid,
-                'package_ids': [(6, False, package_ids)],
-                'state': "in_progress"
+            inbound_wave = env['picking.dispatch'].create({
+                'picker_id': http.request.uid,
+                'state': 'draft',
+                'wave_template_id': wave_template_id,
             })
 
             package_list = []
 
             for package_id in package_ids:
                 package = env['stock.quant.package'].browse(package_id)
-                package = self.transfer_package(package, True)
+                self.transfer_to_next_location(package)
 
-                total_qty = 0
-                for quant in package.quant_ids:
-                    total_qty += quant.qty
+            inbound_wave.auto_select_move()
 
-                one_quant = package.quant_ids[0]
-                picking = one_quant.reservation_id.picking_id
-                stock_location = picking.location_dest_id
-                putaway_strategy = env['stock.product.putaway.strategy'].search(
-                    [
-                        ('product_product_id', '=',
-                         package.quant_ids[0].product_id.id),
-                        ('fixed_location_id.id', 'in',
-                         stock_location._get_sublocations())
-                    ])
-                dest_location = putaway_strategy.fixed_location_id or stock_location
-
-                package_list.append({
-                    'product_name': package.quant_ids[0].product_id.name,
-                    'product_description': package.quant_ids[
-                                               0].product_id.description or "No description",
-                    'product_quantity': total_qty,
-                    'location_name': dest_location.name,
-                    'location_position': str(dest_location.posx) + " / " +
-                                         str(dest_location.posy) + " / " +
-                                         str(dest_location.posz),
-                    'package_barcode': package.barcode,
-                    'package_id': package.id,
-                    'location_dest_barcode': dest_location.loc_barcode,
-                    'product_image':
-                        "/web/binary/image?model=product.product&id=%s&field=image"
-                        % package.quant_ids[0].product_id.id,
-                })
-
-            return {
-                'status': 'ok',
-                'package_list': package_list,
-            }
+            return self.get_wave(inbound_wave.id)
 
         except BaseException as e:
             return {'status': 'error',
@@ -270,60 +259,83 @@ class BandupController(http.Controller):
 
         return dest_package
 
-    @http.route('/bandup/get_inbound_wave', type='json', auth="user")
-    def get_inbound_wave(self, **kw):
+    @http.route('/inbound_wave/get_wave_template', type='json', auth='user')
+    def get_wave_template(self, **kw):
+        env = http.request.env
+
+        wave_template_list = []
+
+        wave_templates = env['wave.template'].search([
+            ('wave_type', '=', 'inbound')])
+        for wave_template in wave_templates:
+            wave_template_list.append({
+                'name': wave_template.name,
+                'id': wave_template.id,
+            })
+
+        return {'status': 'ok',
+                'wave_templates': wave_template_list}
+
+    @http.route('/inbound_wave/get_inbound_wave', type='json', auth="user")
+    def get_inbound_wave(self, wave_template_id, **kw):
         env = http.request.env
 
         wave_list = []
 
-        waves = env['stock.inbound.wave'].search([
-            ('user_id', '=', http.request.uid),
+        waves = env['picking.dispatch'].search([
+            ('wave_template_id', '=', wave_template_id),
             ('state', '!=', 'done'),
+            ('state', '!=', 'cancel')
         ])
 
         for wave in waves:
-                wave_list.append({
-                    'name': wave.id,
-                    'id': wave.id,
-                })
+            wave_list.append({
+                'name': wave.name,
+                'id': wave.id,
+            })
 
-        results = {'status': 'ok',
-                   'waves': wave_list,
-                   }
-        return results
+        return {'status': 'ok',
+                'waves': wave_list,
+                }
 
     @http.route('/bandup/get_wave', type='json', auth="user")
     def get_wave(self, wave_id, **kw):
         env = http.request.env
 
-        inbound_wave = env['stock.inbound.wave'].browse(int(wave_id))
+        inbound_wave = env['picking.dispatch'].browse(int(wave_id))
         package_list = []
 
-        bandup_locations = env['stock.location'].search([
-            ('is_bandup_location', '=', True)
-        ])
+        for picking in inbound_wave.related_picking_ids:
+            wizard_id = picking.do_enter_transfer_details()['res_id']
+            wizard = env['stock.transfer_details'].browse(wizard_id)
 
-        for package in inbound_wave.package_ids.filtered(
-                lambda r: r.location_id.id in bandup_locations.ids):
+            for item in wizard.packop_ids:
+                package = item.package_id
+                quant = package.quant_ids
+                product = quant.product_id
+                total_qty = quant.qty
+                dest_location = item.destinationloc_id
+                location_position = '%s / %s / %s' % (
+                    str(dest_location.posx),
+                    str(dest_location.posy),
+                    str(dest_location.posz))
 
-            total_qty = 0
-            for quant in package.quant_ids:
-                total_qty += quant.qty
+                package_list.append({
+                    'product_name': product.name,
+                    'product_description': product.description
+                                           or "No description",
+                    'product_quantity': total_qty,
+                    'location_name': dest_location.name,
+                    'location_position': location_position,
+                    'package_barcode': package.barcode,
+                    'package_id': package.id,
+                    'location_dest_barcode': dest_location.loc_barcode,
+                    'product_image':
+                        "/web/binary/image?model=product.product&id=%s&field=image"
+                        % product.id,
+                })
 
-            package_list.append({
-                'product_name': package.quant_ids[0].product_id.name,
-                'product_description': package.quant_ids[0].product_id.description,
-                'product_quantity': total_qty,
-                'location_name':"dummy for the moment",
-                'package_barcode': package.barcode,
-                'package_id': package.id,
-                'location_dest_barcode': 'test',
-                'product_image':
-                     "/web/binary/image?model=product.product&id=%s&field=image"
-                     % package.quant_ids[0].product_id.id,
-            })
-
-        return{
+        return {
             'status': 'ok',
             'package_list': package_list,
         }
