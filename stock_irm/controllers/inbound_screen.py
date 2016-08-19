@@ -327,6 +327,7 @@ product id: %s, supplier id: %s
             worklocations.append({
                 'id': location.id,
                 'name': location.name,
+                'work_location_staging_id': location.staging_location_id.id,
             })
 
         return {'status': 'ok',
@@ -399,11 +400,15 @@ product id: %s, supplier id: %s
 
     @http.route('/inbound_screen/process_picking_line', type='json',
                 auth="user")
-    def process_picking_line(self, qty, picking_line_id, box_name):
+    def process_picking_line(self, qty, picking_line_id, box_name,
+                             packing_order_id, reason_id):
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
 
         destination = self.process_transfer(qty, picking_line, box_name)
+
+        picking_line.write({'packing_order_id': packing_order_id,
+                            'reason_id': reason_id})
 
         values = {'status': 'ok',
                   'destination': destination}
@@ -495,7 +500,9 @@ product id: %s, supplier id: %s
     @http.route('/inbound_screen/create_picking_for_unordered_lines',
                 type='json',
                 auth="user")
-    def create_picking_for_unordered_lines(self, extra_line, dest_box_id, supplier_id, box_name):
+    def create_picking_for_unordered_lines(self, extra_line, dest_box_id,
+                                           supplier_id, box_name,
+                                           packing_order_id, reason_id):
         env = http.request.env
 
         picking_type_id = self.get_receipt_picking_type()
@@ -537,15 +544,23 @@ product id: %s, supplier id: %s
 
         self.transfer_to_next_location(dest_package)
 
+        self.add_packing_order_on_move(picking, packing_order_id, reason_id)
+
         return {'status': 'ok',
                 'destination': picking.location_dest_id.name}
+
+    def add_packing_order_on_move(self, picking, packing_order_id, reason_id):
+        for move in picking.move_lines:
+            move.write({'packing_order_id': packing_order_id,
+                        'reason_id': reason_id})
+
 
     @http.route('/inbound_screen/create_packing_order', type='json', auth="user")
     def create_packing_order(self, **kw):
         env = http.request.env
         packing_order = env['stock.packing.order'].create({})
-        return {"status": 'ok',
+        return {'status': 'ok',
                 'packing_reference':packing_order.name,
                 'packing_id': packing_order.id
-                };
+                }
 

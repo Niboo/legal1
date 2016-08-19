@@ -23,6 +23,12 @@ from openerp import fields
 from openerp import models
 from openerp import api
 
+class StockMove(models.Model):
+
+    _inherit = "stock.move"
+
+    reason_id = fields.Many2one('stock.incomplete.reason', 'Reason')
+
 class IncompleteReason(models.Model):
 
     _name = "stock.incomplete.reason"

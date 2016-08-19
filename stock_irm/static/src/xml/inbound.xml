@@ -109,7 +109,7 @@
         <!-- cart selection modal -->
         <div class="row">
             <t t-foreach="worklocations" t-as="worklocation">
-                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-staging-id="worklocation.work_location_staging_id" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
                     <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
                 </a>
             </t>
@@ -436,6 +436,7 @@
                 <th>Quantity</th>
                 <th></th>
                 <th>Box</th>
+                <th>Reason</th>
                 <th></th>
             </tr>
             <t t-foreach="moves" t-as="move">
@@ -461,7 +462,7 @@
                         <div class="form-group">
                             <select class="form-control">
                                 <t t-foreach="reasons" t-as="reason">
-                                    <option><t t-esc="reason.name"/></option>
+                                    <option t-att-value="reason.id"><t t-esc="reason.name"/></option>
                                 </t>
                             </select>
                         </div>

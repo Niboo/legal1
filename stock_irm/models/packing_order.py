@@ -36,7 +36,7 @@ class PackingOrder(models.Model):
     creation_time = fields.Datetime("Created on")
     write_time = fields.Datetime("Last Written on")
 
-    @api.multi
+    @api.model
     def create(self, vals):
         vals['name'] = self.env['ir.sequence'].get('stock.packing.order')
         vals['creation_time'] = fields.Datetime.now()

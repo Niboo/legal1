@@ -170,7 +170,9 @@
                 event.preventDefault();
                 var worklocation_id = $(event.currentTarget).attr('worklocation-id');
                 var worklocation_name = $(event.currentTarget).attr('worklocation-name');
+                var worklocation_staging = $(event.currentTarget).attr('staging-id');
                 $('#change-worklocation').attr('data-id', worklocation_id);
+                $('#change-worklocation').attr('data-staging-id', worklocation_staging);
 
                 self.session.rpc('/inbound_screen/get_worklocation_printers', {
                     'location_id':worklocation_id,
@@ -292,8 +294,7 @@
         },
         get_worklocations: function(){
             var self = this;
-            self.session.rpc('/inbound_screen/get_worklocations', {
-            }).then(function(data){
+            self.session.rpc('/inbound_screen/get_worklocations').then(function(data){
                 self.worklocations = data.worklocations;
                 var modal = new worklocation_modal(self);
                 modal.start(self.worklocations);

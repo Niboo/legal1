@@ -71,9 +71,14 @@
         },
         add_listener_on_purchase_footer: function(){
             var self = this;
+            self.$modal.find('.btn-success').off('click.select_purchases');
+            self.$modal.find('.btn-success').off('click.no_purchases');
 
-            self.$modal.find('.btn-success').off('click.select_purchases click.no_purchases');
-            self.$modal.find('.btn-success').on('click.select_purchases click.no_purchases', function (event) {
+            self.$modal.find('#select_purchases').on('click.select_purchases', function (event) {
+                self.caller.get_purchase_order_move_lines(self.selected_purchases);
+                self.$modal.modal('hide');
+            });
+            self.$modal.find('#no_purchases').on('click.no_purchases', function (event) {
                 self.caller.get_purchase_order_move_lines(self.selected_purchases);
                 self.$modal.modal('hide');
             });
@@ -295,6 +300,7 @@
             self.staging_id = $('#change-worklocation').attr('data-staging-id');
             self.supplier_id = supplier_id;
             self.caller = caller;
+            self.packing_order_id = $('#packing-order-ref').attr('data-id');
         },
         start: function () {
             var self = this;
@@ -317,12 +323,13 @@
             self.$modal.find('.validate').click(function(event){
                 var $button = $(event.currentTarget);
                 var id = $button.attr('id');
-                
+                var reason_id = $button.parents('tr').find('select').val();
+
                 var move = self.uncomplete_and_unexpected_move_line[id];
                 if(move.is_new){
-                    self.confirm_unexpected_move($button, move);
+                    self.confirm_unexpected_move($button, move, reason_id);
                 } else {
-                    self.confirm_incomplete_move($button, move);
+                    self.confirm_incomplete_move($button, move, reason_id);
                 }
             });
         },
@@ -337,12 +344,14 @@
             $button.parents('tr').addClass('bg-success');
             $button.replaceWith('<span style="font-size:1.4em" class="label pull-right label-primary">' + destination + '</span>');
         },
-        confirm_incomplete_move: function($button, move){
+        confirm_incomplete_move: function($button, move, reason_id){
             var self = this;
             self.session.rpc('/inbound_screen/process_picking_line', {
                 qty: move.quantity_already_scanned,
                 picking_line_id: move.id,
                 box_name: move.box,
+                packing_order_id: self.packing_order_id,
+                reason_id: reason_id,
             }).then(function(data){
                 if (data.status != 'ok'){
                     var modal = new instance.stock_irm.modal.exception_modal();
@@ -353,13 +362,15 @@
                 }
             });
         },
-        confirm_unexpected_move: function($button, move){
+        confirm_unexpected_move: function($button, move, reason_id){
             var self = this;
             self.session.rpc('/inbound_screen/create_picking_for_unordered_lines', {
                 extra_line: move,
                 dest_box_id: self.staging_id,
                 supplier_id: self.supplier_id,
                 box_name: move.box,
+                packing_order_id: self.packing_order_id,
+                reason_id: reason_id
             }).then(function (data) {
                 if (data.status != 'ok') {
                     var modal = new instance.stock_irm.modal.exception_modal();
@@ -461,6 +472,7 @@
             self.block_modal = true;
             self.template = 'valide_po_line';
             self.footer_template = 'validate_po_line_footer';
+            self.packing_order_id = $('#packing-order-ref').attr('data-id');
         },
         start: function (caller, nb_product_more, move_line, product) {
             var self = this;
@@ -496,7 +508,8 @@
                 self.session.rpc('/inbound_screen/process_picking_line', {
                     qty: self.move_line.quantity_already_scanned,
                     picking_line_id: self.move_line.id,
-                    box_name: self.move_line.box
+                    box_name: self.move_line.box,
+                    packing_order_id: self.packing_order_id,
                 }).then(function(data){
                     if (data.status == 'ok'){
                         var modal = new instance.stock_irm.modal.select_next_destination_modal();
@@ -548,6 +561,10 @@
         },
         do_after_set_box: function(box, move_line){
             var self = this;
+            console.log(self.leftover);
+            console.log(move_line);
+            console.log(box);
+            console.log(self.product);
             self.caller.add_product(self.product, self.leftover, move_line);
         },
     });

@@ -27,6 +27,7 @@
 
     var inbound_product_picking = instance.stock_irm.widget.extend({
     	init: function (supplier_id, po_ids, po_move_lines) {
+            console.log('init');
             this._super('inbound_product_picking');
             var self = this;
             self.template = 'product_selector';
@@ -38,9 +39,10 @@
                 if(data.status == 'ok'){
                     self.packing_reference = data.packing_reference;
                     self.packing_id = data.packing_id;
-                    var $elem = self.$nav.find('#packing-order-li')
-                    $elem.find('span').html(data.packing_reference);
-                    $elem.show();
+                    var $elem = self.$nav.find('#packing-order-ref');
+                    $elem.html(data.packing_reference);
+                    $elem.attr('data-id', data.packing_id);
+                    self.$nav.find('#packing-order-li').show();
                 }
             });
 
@@ -300,7 +302,9 @@
                     qty -= move_quantity_left;
                     self.update_progress(move_line);
                     var modal = new instance.stock_irm.modal.validate_po_line_modal();
-                    modal.start(self, qty, move_line, product);
+                    window.setTimeout(function() {
+                        modal.start(self, qty, move_line, product);
+                    }, 500);
                     return
                 }
             } else {
