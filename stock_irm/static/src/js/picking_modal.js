@@ -43,6 +43,39 @@
 
     instance.stock_irm.modal.picking_modal = picking_modal;
 
+    var select_wave_template = instance.stock_irm.modal.widget.extend({
+        init: function(caller, wave_templates){
+            var self = this;
+            this._super();
+            self.title = 'Select Wave Template';
+            self.block_modal = true;
+            self.template = 'select_wave_template';
+            self.wave_templates = wave_templates;
+            self.caller = caller
+        },
+        start: function(){
+            var self = this;
+            self.$body = $(QWeb.render(self.template, {
+                wave_templates: self.wave_templates
+            }));
+            this._super();
+            self.add_listener_on_wave_template();
+        },
+        add_listener_on_wave_template: function(){
+            var self = this;
+            self.$modal.find('.template').click(function(event){
+                var $button = $(event.currentTarget);
+                var id = $button.attr('id');
+                var wave_template = self.wave_templates[id];
+
+                self.$modal.modal('hide');
+                self.caller.get_waves(wave_template);
+            });
+        }
+    });
+
+    instance.stock_irm.modal.select_wave_template = select_wave_template;
+
     var end_wave_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
             var self = this;

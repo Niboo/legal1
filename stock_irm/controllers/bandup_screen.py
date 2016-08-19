@@ -152,9 +152,15 @@ class BandupController(http.Controller):
 
     @http.route('/bandup/transfer_package_batch', type='json', auth="user")
     def transfer_package_batch(self, package_ids, wave_template_id, **kw):
-        # method called when clicking on "go to wave". It moves all scanned
-        # packages from input to "bandup" location, and create the package list
-        # that will be used in the inbound wave
+        """
+        method called when clicking on "go to wave". It moves all scanned
+        packages from input to "bandup" location, and create the package list
+        that will be used in the inbound wave
+        :param package_ids:
+        :param wave_template_id:
+        :param kw:
+        :return:
+        """
         env = http.request.env
 
         try:
@@ -163,8 +169,6 @@ class BandupController(http.Controller):
                 'state': 'draft',
                 'wave_template_id': wave_template_id,
             })
-
-            package_list = []
 
             for package_id in package_ids:
                 package = env['stock.quant.package'].browse(package_id)

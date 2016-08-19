@@ -36,12 +36,27 @@
             });
             self.template = 'go_picking';
         },
-        start: function(){
+        start: function() {
             var self = this;
+
+            self.session.rpc('/outbound_wave/get_wave_template', {}).then(function (data) {
+                if (data.status == "ok") {
+                    var modal = new instance.stock_irm.modal.select_wave_template(self, data.wave_templates);
+                    modal.start();
+                }
+            });
+        },
+        get_waves: function(wave_template){
+            var self = this;
+
+            self.wave_template = wave_template;
+
             self.qty_in_box = 0;
             self.first_pass = false;
 
-            self.session.rpc('/picking_waves/get_waves', {}).then(function(data){
+            self.session.rpc('/outbound_wave/get_outbound_wave', {
+                wave_template_id: self.wave_template.id
+            }).then(function(data){
                 if (data.status == 'ok'){
                     self.$elem = $(QWeb.render(self.template, {
                         waves: data.waves,
@@ -52,7 +67,7 @@
                     self.$elem.find('.wave-div a').click(function(event){
 
                         var wave_id = $(event.currentTarget).attr('wave-id');
-                        self.session.rpc('/picking_waves/get_wave', {
+                        self.session.rpc('/outbound_wave/get_wave', {
                             'wave_id': wave_id,
                         }).then(function(data){
                             self.$nav.find('#back').show();
@@ -83,10 +98,13 @@
             var self = this;
             self.$elem.find('#create-wave').click(function(event){
 
-                self.session.rpc('/picking_waves/create_picking', {})
-                        .then(function(data){
+                self.session.rpc('/outbound_wave/create_picking', {
+                    wave_template_id: self.wave_template.id
+                }).then(function(data){
+
                     self.$nav.find('#back').show();
-                            self.add_listener_on_back_button();
+                    self.add_listener_on_back_button();
+
                     if(data.status == "empty"){
                         self.$elem = $(QWeb.render('picking_empty', {}));
                         $('#content').html(self.$elem);

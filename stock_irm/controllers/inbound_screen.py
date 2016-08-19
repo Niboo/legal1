@@ -401,7 +401,7 @@ product id: %s, supplier id: %s
     @http.route('/inbound_screen/process_picking_line', type='json',
                 auth="user")
     def process_picking_line(self, qty, picking_line_id, box_name,
-                             packing_order_id, reason_id):
+                             packing_order_id, reason_id=False):
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
 
