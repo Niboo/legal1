@@ -10,7 +10,7 @@
                         <div id="package_list" class="row"/>
                     </div>
                     <div class="col-xs-6 text-center">
-                        <h1>Select a cart</h1>
+                        <h1>Then, select a cart to finish</h1>
                         <div id="cart_list" class="row">
                             <t t-if="carts.length">
                                 <t t-foreach="carts" t-as="cart">
