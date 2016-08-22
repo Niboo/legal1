@@ -44,7 +44,7 @@ class StockPickingType(models.Model):
 
     @api.multi
     @api.constrains('is_band_up_to_bo_cart')
-    def _check_single_inbound_receipt(self):
+    def _check_single_band_up_to_cart(self):
         self.ensure_one()
         if len(self.env['stock.picking.type'].search(
                 [('is_band_up_to_bo_cart', '=', True)])) > 1:
