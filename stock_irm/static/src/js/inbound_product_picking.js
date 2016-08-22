@@ -260,6 +260,14 @@
                 modal.start();
             }
         },
+        is_box_free: function(barcode, move_line){
+            var self = this;
+            var same_box_lines = _.filter(self.po_move_lines, function (po_move_line) {
+                // Box already occupied by another product
+                return po_move_line.box == barcode && move_line.product_id != po_move_line.product_id;
+            });
+            return same_box_lines.length === 0;
+        },
         set_box: function(box, move_line, callback) {
             var self = this;
             self.current_move_line = move_line;
