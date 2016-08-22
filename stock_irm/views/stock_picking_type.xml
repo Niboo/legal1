@@ -9,6 +9,7 @@
                 <field name="return_picking_type_id" position="after">
                     <field name="is_for_picking_wave"/>
                     <field name="is_receipts"/>
+                    <field name="is_band_up_to_bo_cart"/>
                 </field>
             </field>
         </record>

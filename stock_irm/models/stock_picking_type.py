@@ -31,6 +31,8 @@ class StockPickingType(models.Model):
 
     is_receipts = fields.Boolean("Is in inbound")
 
+    is_band_up_to_bo_cart = fields.Boolean('Is Band Up to BO cart')
+
     @api.multi
     @api.constrains('is_receipts')
     def _check_single_inbound_receipt(self):
@@ -39,3 +41,12 @@ class StockPickingType(models.Model):
                 [('is_receipts', '=', True)])) > 1:
             raise Warning("You should not select multiple inbound screen"
                           " picking type")
+
+    @api.multi
+    @api.constrains('is_band_up_to_bo_cart')
+    def _check_single_inbound_receipt(self):
+        self.ensure_one()
+        if len(self.env['stock.picking.type'].search(
+                [('is_band_up_to_bo_cart', '=', True)])) > 1:
+            raise Warning('You should not select multiple Band Up to BO cart'
+                          ' picking type')
