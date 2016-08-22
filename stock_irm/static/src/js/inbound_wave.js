@@ -46,7 +46,7 @@
                 }
             });
         },
-        add_listener_on_existing_waves: function(){
+        add_listener_on_existing_waves: function() {
             var self = this;
 
             $('.wave-div a').off('click.existing_wave');
@@ -54,15 +54,16 @@
                 var wave_id = $(event.currentTarget).attr('wave-id');
                 self.session.rpc('/inbound_wave/get_wave', {
                     'wave_id': wave_id,
-                }).then(function(data){
-                    if(data.status=="ok"){
+                }).then(function (data) {
+                    if (data.status == "ok") {
                         self.package_list = data.package_list;
                         console.log(self.package_list);
                         self.display();
                     }
                 })
-        })},
-        get_waves: function(wave_template){
+            });
+        },
+        get_carts_and_waves: function(wave_template){
             var self = this;
 
             self.wave_template = wave_template;
@@ -71,20 +72,42 @@
                 wave_template_id: self.wave_template.id
             }).then(function(data){
                 if(data.status=="ok"){
-                    var $result = $(QWeb.render(self.template, {
-                        waves: data.waves,
-                        carts: []
-                    }));
+                    self.waves = data.waves;
+                    self.session.rpc('/inbound_wave/get_carts', {
+                        wave_template_id: self.wave_template.id
+                    }).then(function(data) {
+                        if (data.status == "ok") {
+                            var $result = $(QWeb.render(self.template, {
+                                waves: self.waves,
+                                carts: data.carts,
+                            }));
 
-                    $('#content').html($result);
-                    self.add_listener_on_existing_waves();
-                    self.add_listener_on_carts();
-                    self.add_listener_on_numpad();
+                            $('#content').html($result);
+                            self.add_listener_on_existing_waves();
+                            self.add_listener_on_carts();
+                            self.add_listener_on_numpad();
+                        }
+                    });
                 }
             });
         },
         add_listener_on_carts: function(){
+            var self = this;
 
+            $('#cart_list a').off('click.cart');
+            $('#cart_list a').on('click.cart', function (event) {
+                var cart_id = $(event.currentTarget).attr('cart-id');
+                self.session.rpc('/inbound_wave/get_package_list', {
+                    wave_template_id: self.wave_template.id,
+                    cart_id: cart_id,
+                }).then(function (data) {
+                    if (data.status == "ok") {
+                        self.package_list = data.package_list;
+                        console.log(self.package_list);
+                        self.display();
+                    }
+                })
+            });
         },
         add_listener_on_numpad: function(){
             var self = this;
@@ -112,7 +135,7 @@
                 'product': self.package_list[0],
                 'packages': display_package_list,
             }));
-
+            console.log($elem);
             $('#content').html($elem);
             self.add_listener_on_numpad();
             var $message = $(QWeb.render('info_package_barcode'));

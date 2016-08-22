@@ -159,6 +159,7 @@ class InboundWaveController(http.Controller):
 
         wave_templates = env['wave.template'].search([
             ('wave_type', '=', 'inbound')])
+
         for wave_template in wave_templates:
             wave_template_list.append({
                 'name': wave_template.name,
@@ -167,6 +168,28 @@ class InboundWaveController(http.Controller):
 
         return {'status': 'ok',
                 'wave_templates': wave_template_list}
+
+    @http.route('/inbound_wave/get_carts', type='json', auth="user")
+    def get_carts(self, wave_template_id, **kw):
+        env = http.request.env
+
+        wave_template = env['wave.template'].browse(wave_template_id)
+        picking_type = wave_template.picking_type_id
+        cart_list = []
+
+        carts = env['stock.location'].search([
+            ('location_id', '=', picking_type.default_location_src_id.id)
+        ])
+
+        for cart in carts:
+            cart_list.append({
+                'name': cart.name,
+                'id': cart.id,
+            })
+
+        return {'status': 'ok',
+            'carts': cart_list,
+            }
 
     @http.route('/inbound_wave/get_inbound_wave', type='json', auth="user")
     def get_inbound_wave(self, wave_template_id, **kw):
@@ -189,6 +212,38 @@ class InboundWaveController(http.Controller):
         return {'status': 'ok',
                 'waves': wave_list,
                 }
+
+    @http.route('/inbound_wave/get_package_list', type='json', auth='user')
+    def get_package_list(self, wave_template_id, cart_id, **kw):
+        env = http.request.env
+
+        try:
+            packages = env['stock.quant.package'].search(
+                [('location_id','=',int(cart_id))])
+
+            if not packages:
+                return {'status': 'error',
+                        'error': 'No package available!',
+                        'message': 'There are no package in the cart'}
+
+            inbound_wave = env['picking.dispatch'].create({
+                'picker_id': http.request.uid,
+                'state': 'draft',
+                'wave_template_id': wave_template_id,
+            })
+
+            SelectPackingWiz = env['select.packing.stock.wizard'].with_context(
+                active_id=inbound_wave.id)
+            packages_val = [(4, package.id, False) for package in packages]
+            wizard = SelectPackingWiz.create({'packing_move_ids': packages_val})
+            wizard.select_moves_from_pack()
+
+            return self.get_wave(inbound_wave.id)
+
+        except BaseException as e:
+            return {'status': 'error',
+                    'error': type(e).__name__,
+                    'message': str(e)}
 
     @http.route('/inbound_wave/get_wave', type='json', auth="user")
     def get_wave(self, wave_id, **kw):

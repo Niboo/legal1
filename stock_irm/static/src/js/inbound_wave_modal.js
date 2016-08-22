@@ -68,7 +68,7 @@
                 var wave_template = self.wave_templates[id];
 
                 self.$modal.modal('hide');
-                self.caller.get_waves(wave_template);
+                self.caller.get_carts_and_waves(wave_template);
             });
         }
     });
