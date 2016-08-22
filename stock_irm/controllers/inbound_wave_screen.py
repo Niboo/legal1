@@ -22,9 +22,9 @@
 from openerp import http
 
 
-class BandupController(http.Controller):
-    @http.route('/bandup', type='http', auth="user")
-    def bandup(self, **kw):
+class InboundWaveController(http.Controller):
+    @http.route('/inbound_wave', type='http', auth="user")
+    def inbound_wave(self, **kw):
         # render the first template
         env = http.request.env
         current_user = env['res.users'].browse(http.request.uid)
@@ -34,80 +34,10 @@ class BandupController(http.Controller):
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
             'worklocation_id': current_user.work_location_id.id or 0,
-            'title': 'Bandup',
+            'title': 'Inbound Wave',
         })
 
-    @http.route('/bandup/get_package', type='json', auth="user")
-    def get_package(self, barcode, wave_template_id, **kw):
-        env = http.request.env
-
-        wave_template = env['picking.dispatch'].browse(wave_template_id)
-
-        # retrieve package information (product, quantity,...)
-        scanned_package = env['stock.quant.package'].search(
-            [('barcode', '=', str(barcode))]
-        )
-
-        if not scanned_package:
-            return{
-                "status": "error",
-                "error": "Error",
-                "message": "Package could not be found",
-            }
-
-        if not scanned_package.quant_ids:
-            return{
-                "status": "error",
-                "error": "Error",
-                "message": "Package has no move",
-            }
-
-        if not len(scanned_package.quant_ids) == 1:
-            return {
-                "status": "error",
-                "error": "Error",
-                "message": "Package contains items from different move.",
-            }
-
-        quant = scanned_package.quant_ids
-        picking = quant.reservation_id.picking_id
-        if not picking:
-            return {
-                "status": "error",
-                "error": "Error",
-                "message": "No picking is related to this package.",
-            }
-
-        if picking.location_dest_id != wave_template.default_location_src_id:
-            return {
-                "status": "error",
-                "error": "Error",
-                "message": "The package is not in your location",
-            }
-
-        product = scanned_package.quant_ids.product_id
-
-        total_qty = 0
-        for quant in scanned_package.quant_ids:
-            total_qty += quant.qty
-
-        return {
-            'status': 'ok',
-            'scanned_package': {
-                'id': scanned_package.id,
-                'barcode': scanned_package.barcode,
-                'name': scanned_package.name,
-            },
-            'product': {
-                'id': product.id,
-                'name': product.name,
-                'description': product.description or "No description",
-                'quantity': total_qty,
-                'image': "/web/binary/image?model=product.product&id=%s&field=image" % product.id,
-            }
-        }
-
-    @http.route('/bandup/get_location', type='json', auth="user")
+    @http.route('/inbound_wave/get_location', type='json', auth="user")
     def get_location(self, barcode, **kw):
         env = http.request.env
 
@@ -127,7 +57,7 @@ class BandupController(http.Controller):
             'location_name': location.name,
         }
 
-    @http.route('/bandup/move_package', type='json', auth='user')
+    @http.route('/inbound_wave/move_package', type='json', auth='user')
     def move_package(self, package_id, **kw):
         # method called after scanning the final location in the stock
         env = http.request.env
@@ -136,52 +66,6 @@ class BandupController(http.Controller):
             package = env['stock.quant.package'].browse(package_id)
             self.transfer_package(package, False)
             return {'status': 'ok'}
-        except BaseException as e:
-            return {'status': 'error',
-                    'error': type(e).__name__,
-                    'message': str(e)}
-
-    def transfer_to_next_location(self, package):
-        env = http.request.env
-        for quant in package.quant_ids:
-            picking = quant.reservation_id.picking_id
-
-            wizard_id = picking.do_enter_transfer_details()['res_id']
-            wizard = env['stock.transfer_details'].browse(wizard_id)
-            wizard.sudo().do_detailed_transfer()
-
-    @http.route('/bandup/transfer_package_batch', type='json', auth="user")
-    def transfer_package_batch(self, package_ids, wave_template_id, **kw):
-        """
-        method called when clicking on "go to wave". It moves all scanned
-        packages from input to "bandup" location, and create the package list
-        that will be used in the inbound wave
-        :param package_ids:
-        :param wave_template_id:
-        :param kw:
-        :return:
-        """
-        env = http.request.env
-
-        try:
-            inbound_wave = env['picking.dispatch'].create({
-                'picker_id': http.request.uid,
-                'state': 'draft',
-                'wave_template_id': wave_template_id,
-            })
-
-            packages = env['stock.quant.package'].browse(package_ids)
-            for package in packages:
-                self.transfer_to_next_location(package)
-
-            SelectPackingWiz = env['select.packing.stock.wizard'].with_context(
-                active_id=inbound_wave.id)
-            packages_val = [(4, package.id, False) for package in packages]
-            wizard = SelectPackingWiz.create({'packing_move_ids': packages_val})
-            wizard.select_moves_from_pack()
-
-            return self.get_wave(inbound_wave.id)
-
         except BaseException as e:
             return {'status': 'error',
                     'error': type(e).__name__,
@@ -306,7 +190,7 @@ class BandupController(http.Controller):
                 'waves': wave_list,
                 }
 
-    @http.route('/bandup/get_wave', type='json', auth="user")
+    @http.route('/inbound_wave/get_wave', type='json', auth="user")
     def get_wave(self, wave_id, **kw):
         env = http.request.env
 
