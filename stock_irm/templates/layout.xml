@@ -65,6 +65,11 @@
 
         </template>
 
+        <template id="stock_irm.assets_select_package" name="Stock IRM assets for select package">
+            <script type="text/javascript" src="/stock_irm/static/src/js/select_package_modal.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/select_package.js"></script>
+            <link href="/stock_irm/static/src/css/select_package.css" rel="stylesheet"/>
+        </template>
 
         <template id="stock_irm.layout" name="Stock IRM Header">
             <html lang="en">
@@ -86,6 +91,9 @@
                     </t>
                     <t t-if="title == 'Inbound Wave'">
                         <t t-call-assets="stock_irm.assets_inbound_wave" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Select Package'">
+                        <t t-call-assets="stock_irm.assets_select_package" t-js="false"/>
                     </t>
                 </head>
                 <body>
@@ -154,6 +162,9 @@
                     <t t-if="title == 'Inbound Wave'">
                         <t t-call-assets="stock_irm.assets_inbound_wave" t-css="false"/>
                     </t>
+                    <t t-if="title == 'Select Package'">
+                        <t t-call-assets="stock_irm.assets_select_package" t-css="false"/>
+                    </t>
                 </body>
             </html>
 
@@ -177,6 +188,11 @@
         </template>
 
         <template id="stock_irm.inbound_wave_screen" name="Inbound Wave">
+            <t t-call="stock_irm.layout">
+            </t>
+        </template>
+        
+        <template id="stock_irm.select_package_screen" name="Select Package Screen">
             <t t-call="stock_irm.layout">
             </t>
         </template>
