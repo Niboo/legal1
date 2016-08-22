@@ -27,16 +27,14 @@
     instance.picking_waves = {}
 
     var bandup_waves = instance.stock_irm.widget.extend({
-        init: function (package_list) {
+        init: function () {
             this._super();
             var self = this;
-
-            self.package_list = package_list;
-
-            self.current_package_barcode = self.package_list[0].package_barcode;
-            self.current_location_dest_barcode = self.package_list[0].location_dest_barcode;
-            
             self.template = 'inbound_wave_layout';
+
+            QWeb.add_template('/stock_irm/static/src/xml/inbound_wave.xml', function(){
+                self.start();
+            });
         },
         start: function() {
             var self = this;
@@ -47,8 +45,6 @@
                     modal.start();
                 }
             });
-
-            self.display();
         },
         add_listener_on_existing_waves: function(){
             var self = this;
@@ -56,12 +52,13 @@
             $('.wave-div a').off('click.existing_wave');
             $('.wave-div a').on('click.existing_wave', function (event) {
                 var wave_id = $(event.currentTarget).attr('wave-id');
-                self.session.rpc('/bandup/get_wave', {
+                self.session.rpc('/inbound_wave/get_wave', {
                     'wave_id': wave_id,
                 }).then(function(data){
                     if(data.status=="ok"){
-                        var bandup_wave_widget = new instance.stock_irm.bandup_waves(data.package_list)
-                        bandup_wave_widget.start();
+                        self.package_list = data.package_list;
+                        console.log(self.package_list);
+                        self.display();
                     }
                 })
         })},
@@ -75,16 +72,19 @@
             }).then(function(data){
                 if(data.status=="ok"){
                     var $result = $(QWeb.render(self.template, {
-                        'waves': data.waves,
+                        waves: data.waves,
+                        carts: []
                     }));
-                    self.step = "bandup";
 
                     $('#content').html($result);
                     self.add_listener_on_existing_waves();
-                    self.add_listener_on_goto_wave();
+                    self.add_listener_on_carts();
                     self.add_listener_on_numpad();
                 }
             });
+        },
+        add_listener_on_carts: function(){
+
         },
         add_listener_on_numpad: function(){
             var self = this;
@@ -108,7 +108,7 @@
             var self = this;
 
             var display_package_list = self.package_list.slice(1, 6);
-            var $elem = $(QWeb.render(self.template, {
+            var $elem = $(QWeb.render('inbound_wave_wave_layout', {
                 'product': self.package_list[0],
                 'packages': display_package_list,
             }));
@@ -178,5 +178,5 @@
         }
     });
 
-    instance.stock_irm.bandup_waves = bandup_waves;
+    instance.stock_irm.bandup_waves = new bandup_waves();
 })();

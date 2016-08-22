@@ -56,6 +56,15 @@
 
         </template>
 
+        <template id="stock_irm.assets_inbound_wave" name="Stock IRM assets for inbound wave">
+            <script type="text/javascript" src="/web/static/lib/jquery.ui//js/jquery-ui-1.9.1.custom.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_wave.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_wave_modal.js"></script>
+
+            <link href="/stock_irm/static/src/css/inbound_wave.css" rel="stylesheet"/>
+
+        </template>
+
 
         <template id="stock_irm.layout" name="Stock IRM Header">
             <html lang="en">
@@ -74,6 +83,9 @@
                     </t>
                     <t t-if="title == 'Bandup'">
                         <t t-call-assets="stock_irm.assets_bandup" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Inbound Wave'">
+                        <t t-call-assets="stock_irm.assets_inbound_wave" t-js="false"/>
                     </t>
                 </head>
                 <body>
@@ -139,6 +151,9 @@
                     <t t-if="title == 'Bandup'">
                         <t t-call-assets="stock_irm.assets_bandup" t-css="false"/>
                     </t>
+                    <t t-if="title == 'Inbound Wave'">
+                        <t t-call-assets="stock_irm.assets_inbound_wave" t-css="false"/>
+                    </t>
                 </body>
             </html>
 
@@ -157,6 +172,11 @@
         </template>
 
         <template id="stock_irm.bandup_screen" name="Bandup Screen">
+            <t t-call="stock_irm.layout">
+            </t>
+        </template>
+
+        <template id="stock_irm.inbound_wave_screen" name="Inbound Wave">
             <t t-call="stock_irm.layout">
             </t>
         </template>
