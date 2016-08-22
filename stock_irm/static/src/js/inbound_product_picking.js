@@ -260,6 +260,14 @@
                 modal.start();
             }
         },
+        is_box_free: function(barcode, move_line){
+            var self = this;
+            var same_box_lines = _.filter(self.po_move_lines, function (po_move_line) {
+                // Box already occupied by another product
+                return po_move_line.box == barcode && move_line.product_id != po_move_line.product_id;
+            });
+            return same_box_lines.length === 0;
+        },
         set_box: function(box, move_line, callback) {
             var self = this;
             self.current_move_line = move_line;
@@ -316,11 +324,21 @@
         },
         confirm: function(note) {
             var self = this;
-            var modal = new instance.stock_irm.modal.confirmed_modal();
-            modal.start();
-            window.setTimeout(function(){
-                window.location.href = "/inbound_screen";
-            }, 2000);
+            self.session.rpc('/inbound_screen/save_packing_note', {
+                packing_id: self.packing_id,
+                note: note,
+            }).then(function (data) {
+                if(data.status == 'ok'){
+                    var modal = new instance.stock_irm.modal.confirmed_modal();
+                    modal.start();
+                    window.setTimeout(function(){
+                        window.location.href = "/inbound_screen";
+                    }, 2000);
+                } else {
+                    var modal = new instance.stock_irm.modal.exception_modal();
+                    modal.start('Error', 'Packing note could not be saved');
+                }
+            });
         },
         print_label: function(product_name, barcode, quantity){
             if(this.printer_ip){

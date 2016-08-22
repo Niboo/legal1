@@ -516,16 +516,15 @@ product id: %s, supplier id: %s
 
         box_by_product[extra_line['product_id']] = extra_line['box']
         product = env['product.product'].browse(int(extra_line['product_id']))
-        picking.write({
-            'move_lines': [(0, 0, {
-                'product_id': product.id,
-                'product_uom_qty': extra_line['quantity_already_scanned'],
-                'picking_type_id': picking_type_id.id,
-                'location_dest_id': picking_type_id.default_location_dest_id.id,
-                'location_id': env.ref('stock.stock_location_suppliers').id,
-                'product_uom': product.uom_id.id,
-                'name': 'automated picking - %s' % product.name,
-            })]
+        move_line = env['stock.move'].create({
+            'product_id': product.id,
+            'product_uom_qty': extra_line['quantity_already_scanned'],
+            'picking_type_id': picking_type_id.id,
+            'location_dest_id': picking_type_id.default_location_dest_id.id,
+            'location_id': env.ref('stock.stock_location_suppliers').id,
+            'product_uom': product.uom_id.id,
+            'name': 'automated picking - %s' % product.name,
+            'picking_id': picking.id,
         })
 
         picking.action_confirm()
@@ -547,7 +546,7 @@ product id: %s, supplier id: %s
         self.add_packing_order_on_move(picking, packing_order_id, reason_id)
 
         return {'status': 'ok',
-                'destination': picking.location_dest_id.name}
+                'destination': move_line.move_dest_id.location_dest_id.name}
 
     def add_packing_order_on_move(self, picking, packing_order_id, reason_id):
         for move in picking.move_lines:
@@ -564,3 +563,9 @@ product id: %s, supplier id: %s
                 'packing_id': packing_order.id
                 }
 
+    @http.route('/inbound_screen/save_packing_note', type='json', auth='user')
+    def save_packing_note(self, packing_id, note, **kw):
+        env = http.request.env
+        packing_oder = env['stock.packing.order'].browse(int(packing_id))
+        packing_oder.note = note
+        return {'status': 'ok'}

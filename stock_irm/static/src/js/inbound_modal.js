@@ -139,23 +139,27 @@
         },
         confirm_box: function(){
             var self = this;
-
             var barcode = self.$modal.find('#box_barcode').val();
             if(barcode){
-                self.session.rpc('/inbound_screen/check_package_empty', {
-                    package_barcode: barcode
-                }).then(function(data){
-                    if(data.status=="ok"){
-                        $(self.$modal).on('hidden.bs.modal', function (e) {
-                            self.caller.set_box(barcode, self.move_line, self.callback);
-                            $(self.$modal).off();
-                        });
-                        self.$modal.modal('hide');
-                    }else{
-                        var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
-                        error_modal.start();
-                    }
-                })
+                if(self.caller.is_box_free(barcode, self.move_line)){
+                    self.session.rpc('/inbound_screen/check_package_empty', {
+                        package_barcode: barcode
+                    }).then(function(data){
+                        if(data.status=="ok"){                        
+                            $(self.$modal).on('hidden.bs.modal', function (e) {
+                                self.caller.set_box(barcode, self.move_line, self.callback);
+                                $(self.$modal).off();
+                            });                        
+                            self.$modal.modal('hide');
+                        }else{
+                            var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
+                            error_modal.start();
+                        }
+                    })
+                } else {
+                    var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
+                    error_modal.start();
+                }
             }
         },
         add_listener_on_barcode_modal_confirm: function(){
@@ -565,10 +569,6 @@
         },
         do_after_set_box: function(box, move_line){
             var self = this;
-            console.log(self.leftover);
-            console.log(move_line);
-            console.log(box);
-            console.log(self.product);
             self.caller.add_product(self.product, self.leftover, move_line);
         },
     });
