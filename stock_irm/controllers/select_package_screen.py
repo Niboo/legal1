@@ -105,9 +105,40 @@ class SelectPackageController(http.Controller):
             }
         }
 
+    @http.route('/select_package/move_to_cart', auth='user', type='json')
+    def move_to_cart(self, package_ids, cart_id, **kw):
+        env = http.request.env
+
+        packages = env['stock.quant.package'].browse(package_ids)
+        for package in packages:
+            for quant in package.quant_ids:
+                picking = quant.reservation_id.picking_id
+
+                wizard_id = picking.do_enter_transfer_details()['res_id']
+                wizard = env['stock.transfer_details'].browse(wizard_id)
+                for packop in wizard.packop_ids:
+                    packop.destinationloc_id = int(cart_id)
+                wizard.sudo().do_detailed_transfer()
+
+        return {'status': 'ok',}
+
     @http.route('/select_package/get_carts', auth='user', type='json')
     def get_carts(self):
         env = http.request.env
-        current_location = env['stock.picking.type'].search(
+        picking_type = env['stock.picking.type'].search(
             [('is_band_up_to_bo_cart', '=', True)], limit=1)
-        # TODO: find all the cart with the current location as "parent location"
+        location = picking_type.default_location_dest_id
+        cart_list = []
+
+        carts = env['stock.location'].search(
+            [('location_id', '=', location.id)])
+
+        for cart in carts:
+            cart_list.append({
+                'name': cart.name,
+                'id': cart.id,
+            })
+
+        return {'status': 'ok',
+                'carts': cart_list,
+                }

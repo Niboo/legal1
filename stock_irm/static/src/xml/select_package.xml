@@ -11,18 +11,21 @@
                     </div>
                     <div class="col-xs-6 text-center">
                         <h1>Select a cart</h1>
-                        <div class="cart-list"/>
+                        <div id="cart_list" class="row">
+                            <t t-if="carts.length">
+                                <t t-foreach="carts" t-as="cart">
+                                    <a href="#" class="btn btn-lg btn-success cart " t-att-cart-id="cart.id" t-att-cart-name="cart.name">
+                                        <span class="glyphicon glyphicon-list-alt" aria-hidden="true"  /> <t t-esc="cart.name"/>
+                                    </a>
+                                </t>
+                            </t>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div id="bottom-div">
             <div class="row">
-                <div class="col-xs-2 pull-right">
-                    <button class="collapse btn btn-success btn-to-wave button-touch">
-                        Add to cart
-                    </button>
-                </div>
                 <div class="col-xs-2 text-right numpad-above">
                     <t t-call="numpad"/>
                 </div>

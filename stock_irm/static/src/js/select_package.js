@@ -41,11 +41,33 @@
         start: function() {
             var self = this;
             self._super();
-            // self.session.rpc('/select_package/get_carts').then(function () {
-                self.$elem = $(QWeb.render(self.template, {}));
-                $('#content').html(self.$elem);
-                self.add_listener_on_numpad();
-            // });
+            self.session.rpc('/select_package/get_carts').then(function (data) {
+                if (data.status == "ok") {
+                    self.$elem = $(QWeb.render(self.template, {
+                        carts: data.carts,
+                    }));
+                    $('#content').html(self.$elem);
+                    self.add_listener_on_numpad();
+                    self.add_listener_on_cart();
+                }
+            });
+        },
+        add_listener_on_cart: function(){
+            var self = this;
+
+            self.$elem.find('#cart_list a').off('click.cart');
+            self.$elem.find('#cart_list a').on('click.cart', function (event) {
+                console.log('test');
+                var cart_id = $(event.currentTarget).attr('cart-id');
+                self.session.rpc('/select_package/move_to_cart', {
+                    cart_id: cart_id,
+                    package_ids: self.scanned_package_ids,
+                }).then(function (data) {
+                    if (data.status == "ok") {
+                        console.log('Ok');
+                    }
+                })
+            });
         },
         process_barcode: function(barcode){
             var self = this;
