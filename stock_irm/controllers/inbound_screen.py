@@ -564,3 +564,9 @@ product id: %s, supplier id: %s
                 'packing_id': packing_order.id
                 }
 
+    @http.route('/inbound_screen/save_packing_note', type='json', auth='user')
+    def save_packing_note(self, packing_id, note, **kw):
+        env = http.request.env
+        packing_oder = env['stock.packing.order'].browse(int(packing_id))
+        packing_oder.note = note
+        return {'status': 'ok'}
