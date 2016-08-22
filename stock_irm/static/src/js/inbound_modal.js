@@ -145,7 +145,10 @@
                     package_barcode: barcode
                 }).then(function(data){
                     if(data.status=="ok"){
-                        self.caller.set_box(barcode, self.move_line, self.callback);
+                        $(self.$modal).on('hidden.bs.modal', function (e) {
+                            self.caller.set_box(barcode, self.move_line, self.callback);
+                            $(self.$modal).off();
+                        });
                         self.$modal.modal('hide');
                     }else{
                         var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
