@@ -131,10 +131,11 @@
             self.$footer = $(QWeb.render(self.footer_template));
             this._super();
             self.add_listener_on_barcode_modal_confirm();
-            // TODO fix with deferred instead (other listener calls blur after this focus)
-            window.setTimeout(function() {
+
+            $(self.$modal).on('shown.bs.modal', function (e) {
                 self.$modal.find('#box_barcode').focus();
-            }, 500);
+                self.$modal.on();
+            });
         },
         confirm_box: function(){
             var self = this;
