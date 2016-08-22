@@ -25,6 +25,23 @@
         _lt = instance._lt;
     var QWeb = instance.qweb;
 
+
+    var confirm_bandup_wave_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Picking Confirmed!';
+            self.block_modal = true;
+        },
+        start: function () {
+            var self = this;
+            self.$body = "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>";
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.confirm_bandup_wave_modal = confirm_bandup_wave_modal;
+
     var barcode_error_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
             var self = this;

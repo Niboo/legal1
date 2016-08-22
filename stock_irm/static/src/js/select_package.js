@@ -64,7 +64,11 @@
                     package_ids: self.scanned_package_ids,
                 }).then(function (data) {
                     if (data.status == "ok") {
-                        console.log('Ok');
+                        var modal = new instance.stock_irm.modal.confirm_bandup_wave_modal();
+                        modal.start();
+                        window.setTimeout(function(){
+                            window.location.href = "/select_package";
+                        }, 3000);
                     }
                 })
             });

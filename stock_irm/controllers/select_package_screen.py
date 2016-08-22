@@ -120,7 +120,7 @@ class SelectPackageController(http.Controller):
                     packop.destinationloc_id = int(cart_id)
                 wizard.sudo().do_detailed_transfer()
 
-        return {'status': 'ok',}
+        return {'status': 'ok'}
 
     @http.route('/select_package/get_carts', auth='user', type='json')
     def get_carts(self):
