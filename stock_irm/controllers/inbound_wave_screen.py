@@ -245,6 +245,15 @@ class InboundWaveController(http.Controller):
                     'error': type(e).__name__,
                     'message': str(e)}
 
+    def get_real_destination_location(self, package, dest_location):
+        env = http.request.env
+
+        putaway_strategy = env['stock.product.putaway.strategy'].search([
+                ('product_product_id', '=', package.quant_ids[0].product_id.id),
+                ('fixed_location_id.id', 'in', dest_location._get_sublocations())
+            ])
+        return putaway_strategy.fixed_location_id or dest_location
+
     @http.route('/inbound_wave/get_wave', type='json', auth="user")
     def get_wave(self, wave_id, **kw):
         env = http.request.env
@@ -262,6 +271,8 @@ class InboundWaveController(http.Controller):
                 product = quant.product_id
                 total_qty = quant.qty
                 dest_location = item.destinationloc_id
+                dest_location = self.get_real_destination_location(package,
+                                                                   dest_location)
                 location_position = '%s / %s / %s' % (
                     str(dest_location.posx),
                     str(dest_location.posy),
