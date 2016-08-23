@@ -291,6 +291,7 @@
                 self.$modal.modal('hide');
                 self.caller.destroy();
                 self.caller.parent.refresh();
+                self.caller.parent.add_listener_for_barcode();
             })
         },
     });
