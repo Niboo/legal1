@@ -97,7 +97,23 @@
             var self = this;
             self.$elem.find('#rack').html('<span class="glyphicon glyphicon-arrow-right"></span> <span> ' + move_line.picking_name + ' / ' + box + '</span>');
             self.add_listener_for_barcode();
+
+            var move_line = self.parent.current_move_line;
+            var qty_already_scanned = parseInt(move_line.quantity_already_scanned);
+            var qty_to_add = parseInt(self.$elem.find('#quantity input').get(0).value);
+            var qty_scanned = qty_already_scanned + qty_to_add;
+            self.update_progress(move_line, qty_scanned);
         },
+
+        update_progress: function(move_line, qty_scanned) {
+            var self = this;
+            var qty = move_line.quantity;
+            var percentage = 100 / qty * qty_scanned;
+            move_line.progress_done = percentage;
+            self.$elem.find("#"+move_line.id).css({"width":move_line.progress_done+'%'});
+            console.log(move_line.id);
+        },
+
         add_listener_on_quantity: function(){
             var self = this;
             self.$elem.find('#quantity button').click(function(event){
@@ -110,13 +126,10 @@
                         qty--;
                     }
                 }
-                
+
                 var move_line = self.parent.current_move_line;
-                var move_qty = move_line.quantity;
-                var move_qty_scanned = move_line.quantity_already_scanned;
-                var percentage = 100 / move_qty * (move_qty_scanned + qty);
-                move_line.progress_done = percentage;
-                self.$elem.find("#"+move_line.id).css({"width":move_line.progress_done+'%'});
+                var qty_scanned = move_line.quantity_already_scanned + qty;
+                self.update_progress(move_line, qty_scanned);
 
                 $('#quantity input').val(qty);
 
@@ -255,6 +268,11 @@
             } else {
                 //if we scanned the same product, simply update the quantity and print the label
                 qty++;
+
+                var move_line = self.parent.current_move_line;
+                var qty_scanned = move_line.quantity_already_scanned + qty;
+                self.update_progress(move_line, qty_scanned);
+
                 self.$elem.find('#quantity input').get(0).value = qty;
 
                 // print the label each time we scan again
