@@ -410,8 +410,10 @@ product id: %s, supplier id: %s
         picking_line.write({'packing_order_id': packing_order_id,
                             'reason_id': reason_id})
 
+        dest_list = self.get_destinations(destination)
+
         values = {'status': 'ok',
-                  'destination': destination}
+                  'destinations': dest_list}
         return values
 
     def process_transfer(self, qty, picking_line, box_name):
@@ -434,18 +436,33 @@ product id: %s, supplier id: %s
 
         my_wizard.sudo().do_detailed_transfer()
 
-        self.transfer_to_next_location(dest_package)
+        return picking_line.move_dest_id.location_dest_id
 
-        return picking_line.move_dest_id.location_dest_id.name
-
-    def transfer_to_next_location(self, package):
+    def transfer_to_next_location(self, package, destination_id=False):
         env = http.request.env
         for quant in package.quant_ids:
             picking = quant.reservation_id.picking_id
 
             wizard_id = picking.do_enter_transfer_details()['res_id']
             wizard = env['stock.transfer_details'].browse(wizard_id)
+
+            if destination_id:
+                for packop in wizard.packop_ids:
+                    packop.destinationloc_id = int(destination_id)
+
             wizard.sudo().do_detailed_transfer()
+
+    @http.route('/inbound_screen/move_to_destination',
+                type='json',
+                auth="user")
+    def move_to_destination(self, box_name, destination_id, **kw):
+        env = http.request.env
+        package = self.search_dest_package(box_name)
+        self.transfer_to_next_location(package, destination_id)
+
+        destination = env['stock.location'].browse(int(destination_id))
+        return {'status': 'ok',
+                'destination': destination.name}
 
     @http.route('/inbound_screen/get_incomplete_reason',
                 type='json',
@@ -541,12 +558,32 @@ product id: %s, supplier id: %s
 
         my_wizard.sudo().do_detailed_transfer()
 
-        self.transfer_to_next_location(dest_package)
+        dest_list = self.get_destinations(
+            move_line.move_dest_id.location_dest_id)
 
         self.add_packing_order_on_move(picking, packing_order_id, reason_id)
 
         return {'status': 'ok',
-                'destination': move_line.move_dest_id.location_dest_id.name}
+                'destinations': dest_list}
+
+    def get_destinations(self, location):
+        locations = location.search([('location_id','=',location.id),
+                         ('is_inbound_cart','=',True)])
+
+        locations_list = []
+        if locations:
+            for location in locations:
+                locations_list.append({
+                    'name': location.name,
+                    'id': location.id,
+                })
+        else:
+            locations_list.append({
+                'name': location.name,
+                'id': location.id,
+            })
+
+        return locations_list
 
     def add_packing_order_on_move(self, picking, packing_order_id, reason_id):
         for move in picking.move_lines:

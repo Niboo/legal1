@@ -341,7 +341,28 @@
                 }
             });
         },
-        validate_line: function($button, destination){
+        add_listener_on_destinations: function($destinations, move){
+            var self = this;
+            console.log($destinations);
+            $destinations.change(function(event){
+                var destination_id = $(event.currentTarget).val();
+                if(destination_id != 0){
+                    $destinations.attr('disabled', 'disabled');
+                    self.session.rpc('/inbound_screen/move_to_destination', {
+                        box_name: move.box,
+                        destination_id: destination_id,
+                    }).then(function(data){
+                        if(data.status == 'ok'){
+                            move.state = 'done';
+                            self.validate_line($destinations, data.destination);
+                        } else {
+                            $destinations.removeAttr('disabled');
+                        }
+                    });
+                }
+            })
+        },
+        validate_line: function($destinations, destination){
             var self = this;
             var moves_pending = _.filter(self.uncomplete_and_unexpected_move_line, function(move){
                 return move.state === undefined || move.state != 'done';
@@ -349,8 +370,8 @@
             if(moves_pending.length == 0){
                 self.$modal.find('#finish').removeClass('hidden');
             }
-            $button.parents('tr').addClass('bg-success');
-            $button.replaceWith('<span style="font-size:1.4em" class="label pull-right label-primary">' + destination + '</span>');
+            $destinations.parents('tr').addClass('bg-success');
+            $destinations.replaceWith('<span style="font-size:1.4em" class="label pull-right label-primary">' + destination + '</span>');
         },
         confirm_incomplete_move: function($button, move, reason_id){
             var self = this;
@@ -365,8 +386,11 @@
                     var modal = new instance.stock_irm.modal.exception_modal();
                     modal.start(data.error, data.message);
                 } else {
-                    move.state = 'done';
-                    self.validate_line($button, data.destination);
+                    var $destinations = $(QWeb.render('confirm_unexpected_uncomplete_move_destinations', {
+                        destinations: data.destinations
+                    }));
+                    $button.replaceWith($destinations);
+                    self.add_listener_on_destinations($destinations, move);
                 }
             });
         },
@@ -384,8 +408,11 @@
                     var modal = new instance.stock_irm.modal.exception_modal();
                     modal.start(data.error, data.message);
                 } else {
-                    move.state = 'done';
-                    self.validate_line($button, data.destination);
+                    var $destinations = $(QWeb.render('confirm_unexpected_uncomplete_move_destinations', {
+                        destinations: data.destinations
+                    }));
+                    $button.replaceWith($destinations);
+                    self.add_listener_on_destinations($destinations, move);
                 }
             });
         },
@@ -521,7 +548,7 @@
                 }).then(function(data){
                     if (data.status == 'ok'){
                         var modal = new instance.stock_irm.modal.select_next_destination_modal();
-                        modal.start(self.caller, data.destination, self.nb_product_more, self.move_line, self.product);
+                        modal.start(self.caller, data.destinations, self.nb_product_more, self.move_line, self.product);
                     }
                 });
             })
@@ -536,34 +563,42 @@
             this._super();
             self.title = 'Destination of this package';
             self.template = 'select_next_destination';
-            self.template_footer = "select_next_destination_footer";
             self.block_modal = true;
         },
-        start: function (caller, destination, leftover, move_line, product) {
+        start: function (caller, destinations, leftover, move_line, product) {
             var self = this;
             self.$body = $(QWeb.render(self.template, {
-                destination:destination
+                destinations: destinations
             }));
-            self.$footer = $(QWeb.render(self.template_footer));
             self.caller = caller;
             self.leftover = leftover;
             self.move_line = move_line;
             self.product = product;
 
             self._super();
-            self.add_listener_on_ok();
+            self.add_listener_on_destinations(move_line);
         },
-        add_listener_on_ok: function(){
+        add_listener_on_destinations: function(move){
             var self = this;
 
-            self.$modal.find('#ok').off('click.ok');
-            self.$modal.find('#ok').on('click.ok', function (event) {
-                if(self.leftover == 0) {
-                    self.$modal.modal('hide');
-                    self.caller.destroy();
-                    self.caller.start();
-                } else {
-                    self.caller.get_the_box(self.product, self);
+            self.$modal.find('.destination').off('click.destination');
+            self.$modal.find('.destination').on('click.destination', function (event) {
+                var destination_id = $(event.currentTarget).attr('data-id');
+                if(destination_id != 0){
+                    self.session.rpc('/inbound_screen/move_to_destination', {
+                        box_name: move.box,
+                        destination_id: destination_id,
+                    }).then(function(data){
+                        if(data.status == 'ok') {
+                            if (self.leftover == 0) {
+                                self.$modal.modal('hide');
+                                self.caller.destroy();
+                                self.caller.start();
+                            } else {
+                                self.caller.get_the_box(self.product, self);
+                            }
+                        }
+                    });
                 }
             })
         },

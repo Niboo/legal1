@@ -479,6 +479,15 @@
         <a href="#" id="finish" class="btn btn-success pull-right hidden">Finish</a>
     </t>
 
+    <t t-name="confirm_unexpected_uncomplete_move_destinations">
+        <select id="select_destination">
+            <option value="0">----</option>
+            <t t-foreach="destinations" t-as="destination">
+                <option t-att-value="destination.id"><t t-esc="destination.name"/></option>
+            </t>
+        </select>
+    </t>
+
     <t t-name="packing_order_note">
         <div class="row">
             <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 formfield">
@@ -569,13 +578,12 @@
         <div class="row">
             <b style='font-size: 2em'>Destination of your package:   </b><br/>
             <span class='fa fa-arrow-right fa-5x space-10 col-md-3' style='color:green'></span>
-            <a href="#" class="btn btn-lg btn-success purchase-btn location_buttons col-md-3">
-                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="destination" />
-            </a>
+            <t t-foreach="destinations" t-as="destination">
+                <a href="#" t-att-data-id="destination.id" class="btn btn-lg btn-success purchase-btn destination col-md-3">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="destination.name" />
+                </a>
+            </t>
         </div>
-    </t>
-    <t t-name="select_next_destination_footer">
-        <a href="#" id="ok" class="btn btn-success" >Ok</a>
     </t>
 
     <t t-name="box_barcode_modal_staging">
