@@ -258,11 +258,11 @@
 
             if(!_.contains(self.barcodes, barcode.replace(/[\s]*/g, ''))){
                 if(self.is_enough_label_printed()){
-                   //if we scanned another product, then add the previous product before processing the barcode
-                    self.parent.start();
-                    self.parent.add_product(self.id, parseInt(qty));
-                    self.parent.process_barcode(barcode);
-                    self.destroy();
+                    //if we scanned another product, show warning
+                    var qty = parseInt($('#quantity input').val());
+                    var product_image = $('#product_image').attr('src');
+                    var modal = new instance.stock_irm.modal.going_back_modal();
+                    modal.start(self, qty, product_image);
                 }
             } else {
                 //if we scanned the same product, simply update the quantity and print the label

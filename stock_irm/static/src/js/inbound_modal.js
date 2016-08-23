@@ -282,6 +282,7 @@
             var self = this;
             self.$modal.find('#continue').click(function(event){
                 self.$modal.modal('hide');
+                self.caller.add_listener_for_barcode();
             })
         },
         add_listener_on_confirm_going_back_button: function(){
