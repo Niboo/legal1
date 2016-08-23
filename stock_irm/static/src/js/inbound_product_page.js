@@ -111,7 +111,6 @@
             var percentage = 100 / qty * qty_scanned;
             move_line.progress_done = percentage;
             self.$elem.find("#"+move_line.id).css({"width":move_line.progress_done+'%'});
-            console.log(move_line.id);
         },
 
         add_listener_on_quantity: function(){
