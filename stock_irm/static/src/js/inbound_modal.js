@@ -288,6 +288,11 @@
         add_listener_on_confirm_going_back_button: function(){
             var self = this;
             self.$modal.find('#go_back').click(function(event){
+                // if box is empty, set it free
+                var move_line = self.caller.parent.current_move_line;
+                if (move_line.quantity_already_scanned == 0) {
+                    self.caller.parent.set_box_free(move_line);
+                }
                 self.$modal.modal('hide');
                 self.caller.destroy();
                 self.caller.parent.refresh();
