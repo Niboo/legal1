@@ -27,7 +27,6 @@
 
     var inbound_product_picking = instance.stock_irm.widget.extend({
     	init: function (supplier_id, po_ids, po_move_lines) {
-            console.log('init');
             this._super('inbound_product_picking');
             var self = this;
             self.template = 'product_selector';
@@ -83,15 +82,22 @@
         },
         add_listener_on_search: function(){
             var self = this;
+            var wait_for_search = false;
             // Do the search when clicking on the button
             self.$elem.find('#search_bar + span button').click(function (event) {
                 self.do_search();
             });
-            // Do the search when typing more than 5 letters
+            // Do the search when typing more than 5 letters or enter
             self.$elem.find('#search_bar').keyup(function (event) {
-                if (event.currentTarget.value.length > 5 | event.which == 13) {
-                    self.do_search();
+                if (wait_for_search == false) {
+                    setTimeout(function() {
+                        if (event.currentTarget.value.length > 5 | event.which == 13) {
+                            self.do_search();
+                        }
+                        wait_for_search = false;
+                    }, 500);
                 }
+                wait_for_search = true;
             });
         },
         do_search: function(){
@@ -103,7 +109,7 @@
                 self.page = 1;
                 self.$elem.find('#results').empty();
                 self.search = search_value;
-                self.get_products();
+                self.get_products(false);
             }
         },
         process_barcode: function(barcode) {
@@ -111,7 +117,7 @@
             self.search = barcode.replace(/[\s]*/g, '');
             self.page = 1;
             self.$elem.find('#results').empty();
-            self.get_products();
+            self.get_products(true);
         },
         add_listener_on_more: function(){
             var self = this;
@@ -119,7 +125,7 @@
             self.$elem.find('#more').click(function(event){
                 event.preventDefault();
                 self.page += 1;
-                self.get_products();
+                self.get_products(false);
             })
         },
         add_listener_on_product: function($result){
@@ -171,7 +177,7 @@
                 modal.start();
             })
         },
-        get_products: function(){
+        get_products: function(skip_product_clic){
             var self = this;
             self.session.rpc('/inbound_screen/get_products', {
                 supplier_id: self.supplier_id,
@@ -180,7 +186,7 @@
             }).then(function(data){
                 self.products = data.products;
 
-                if (self.products.length == 1){
+                if (self.products.length == 1 && skip_product_clic){
                     self.go_to_product(self.products[0].id);
                     return;
                 }
