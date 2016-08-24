@@ -440,7 +440,7 @@ product id: %s, supplier id: %s
         unwanted_lines = my_wizard_items.filtered(
             lambda r: r.id != needed_line.id)
 
-        unwanted_lines.sudo().unlink()
+        unwanted_lines.unlink()
 
         my_wizard.sudo().do_detailed_transfer()
 
