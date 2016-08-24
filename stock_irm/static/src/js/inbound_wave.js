@@ -176,7 +176,7 @@
         move_package: function(){
             var self = this;
 
-            self.session.rpc('/bandup/move_package', {
+            self.session.rpc('/inbound_wave/move_package', {
                 package_id: self.package_list[0].package_id
             }).then(function(data){
                 if(data.status == "ok"){

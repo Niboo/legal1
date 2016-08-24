@@ -575,8 +575,9 @@ product id: %s, supplier id: %s
                 'destinations': dest_list}
 
     def get_destinations(self, location):
-        locations = location.search([('location_id','=',location.id),
-                         ('is_inbound_cart','=',True)])
+        locations = location.search([
+            ('location_id', '=', location.id), ('is_inbound_cart', '=', True)
+        ])
 
         locations_list = []
         if locations:
@@ -586,10 +587,11 @@ product id: %s, supplier id: %s
                     'id': location.id,
                 })
         else:
-            locations_list.append({
-                'name': location.name,
-                'id': location.id,
-            })
+            if location:
+                locations_list.append({
+                    'name': location.name,
+                    'id': location.id,
+                })
 
         return locations_list
 
