@@ -78,7 +78,6 @@
                                 self.$elem = $(QWeb.render('picking_empty', {}));
                                 $('#content').html(self.$elem);
                             } else {
-                                self.$nav.find('#print-pickings').show();
                                 self.move_list = data.move_list;
                                 self.current_move_index = 0;
                                 self.pickings = data.picking_list;
@@ -110,7 +109,6 @@
                         self.$elem = $(QWeb.render('picking_empty', {}));
                         $('#content').html(self.$elem);
                     } else {
-                        self.$nav.find('#print-pickings').show();
 
                         self.move_list = data.move_list;
                         self.current_move_index = 0;
@@ -163,7 +161,6 @@
             $('#wave-id').html(self.wave_name);
             $('#wave-id-li').show();
 	        $('#print-wave').show();
-	        $('#print-pickings').show();
             self.add_listener_on_manual_input();
             self.add_listener_on_skip_picking();
             self.add_listener_on_picking_list();

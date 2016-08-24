@@ -138,7 +138,6 @@
                                 <ul class="nav navbar-nav navbar-right">
                                     <li id="search" style="display:none;"><a href="#"><span class="glyphicon glyphicon-search" /> Search</a></li>
                                     <li id="confirm" style="display:none;" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-ok" /> Confirm</a></li>
-                                    <li id="print-pickings" style="display:none;" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-print"/> Print All Pickings</a></li>
                                 </ul>
                             </div>
                         </nav>

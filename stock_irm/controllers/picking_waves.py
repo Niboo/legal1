@@ -212,26 +212,6 @@ class InboundController(http.Controller):
         }
         return results
 
-    @http.route('/picking_waves/current_user_waves', type='json', auth='user')
-    def current_user_waves(self, **kw):
-        env = http.request.env
-        waves = env['stock.picking.wave'].search([
-            ('state', '=', 'in_progress'),
-            ('user_id', '=', http.request.uid)
-        ])
-
-        wave_list = []
-        for wave in waves:
-            if wave.picking_ids:
-                wave_list.append({
-                    'id': wave.id,
-                    'name': wave.name,
-                })
-
-        results = {'status': 'ok',
-                   'waves': wave_list}
-        return results
-
     def create_picking_info(self, pickings):
         picking_list = []
         for picking in pickings:

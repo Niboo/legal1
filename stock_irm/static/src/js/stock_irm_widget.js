@@ -250,23 +250,7 @@
                 self.toggleFullScreen(document.documentElement);
             });
         },
-        add_listener_on_print_pickings_button: function() {
-            var self = this;
 
-            $('#print-pickings').click(function() {
-                self.session.rpc('/print_pickings', {
-                    'wave_id' : self.wave_id,
-                }).then(function(data) {
-                    if(data.status == 'ok'){
-                        console.log('Print all pickings: Success')
-                    } else {
-                        console.log('Error while trying to print all pickings.')
-                        var modal = new exception_modal();
-                        modal.start(data.error, data.message);
-                    }
-                })
-            });
-        },
         process_barcode: function(barcode){
             // dummy method to process barcode
             console.log("Barcode Scanned: " + barcode);
@@ -279,7 +263,6 @@
             self.add_listener_for_barcode();
             self.add_listener_on_user_button();
             self.add_listener_on_worklocation_button();
-            self.add_listener_on_print_pickings_button();
             self.add_listener_on_fullscreen_button();
         },
         destroy: function(){
