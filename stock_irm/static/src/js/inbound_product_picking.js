@@ -279,8 +279,7 @@
         },
         set_box_free: function(move_line) {
             var self = this;
-            var po_lines = self.po_move_lines;
-            delete po_lines[po_lines.indexOf(move_line)];
+            self.po_move_lines.splice(self.po_move_lines.indexOf(move_line),1);
         },
         update_progress: function(move_line) {
             var self = this;
