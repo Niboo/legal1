@@ -279,11 +279,8 @@
         },
         set_box_free: function(move_line) {
             var self = this;
-            for( i=self.po_move_lines.length-1; i>=0; i--) {
-                if(self.po_move_lines[i].box == move_line.box) {
-                    self.po_move_lines.splice(i,1);
-                }
-            }
+            var po_lines = self.po_move_lines;
+            delete po_lines[po_lines.indexOf(move_line)];
         },
         update_progress: function(move_line) {
             var self = this;
