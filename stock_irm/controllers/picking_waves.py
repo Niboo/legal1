@@ -246,13 +246,27 @@ class InboundController(http.Controller):
         return picking_list
 
     def create_moves_info(self, wave_id):
-        stock_move = wave_id.move_ids
+        stock_moves = wave_id.move_ids
         move_list = []
+        env = http.request.env
 
-        sorted_moves = sorted(stock_move,
-                              key=lambda move: (move.location_dest_id.name,
-                                                move.product_id.id))
+        def find_origin_location(to_treat_move):
+            parent_location = to_treat_move.location_id.location_id
+            sub_locations = to_treat_move.location_id._get_sublocations()
+
+            putaway_strategy = env['stock.product.putaway.strategy'].search([
+                ('product_product_id', '=', to_treat_move.product_id.id),
+                ('fixed_location_id.id', 'in', sub_locations)])
+            return putaway_strategy.fixed_location_id or to_treat_move.location_id
+
+        def sort_by_origin_location(to_treat_move):
+            return (find_origin_location(to_treat_move).name,
+                    to_treat_move.product_id.id)
+
+        sorted_moves = sorted(stock_moves, key=sort_by_origin_location)
+
         for move in sorted_moves:
+            product_location = find_origin_location(move)
 
             move_list.append(
                 {'picking_id': move.picking_id.id,
@@ -269,7 +283,7 @@ class InboundController(http.Controller):
                      % move.product_id.id,
                      'ean13': move.product_id.ean13,
                      'location_id': move.location_id.id,
-                     'location_name': move.location_id.name,
+                     'location_name': product_location.name,
                  },
                  'location_barcode': move.location_id.loc_barcode,
                  'location_dest_id': move.location_dest_id.id,
