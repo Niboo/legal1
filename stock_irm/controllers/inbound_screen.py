@@ -423,16 +423,24 @@ product id: %s, supplier id: %s
         result = picking.do_enter_transfer_details()
         wizard_id = result['res_id']
         my_wizard = env['stock.transfer_details'].browse(wizard_id)
+        my_wizard_items = my_wizard.item_ids
 
         dest_package = self.search_dest_package(box_name)
 
-        for wizard_line in my_wizard.item_ids:
-            if not (wizard_line.product_id == picking_line.product_id
-                    and wizard_line.quantity == picking_line.product_uom_qty):
-                wizard_line.unlink()
-            else:
+        for wizard_line in my_wizard_items:
+            if (wizard_line.product_id == picking_line.product_id):
+
+                # find a line we can validate
                 wizard_line.result_package_id = dest_package.id
                 wizard_line.quantity = qty
+                needed_line = wizard_line
+                break
+
+        # unlink all other lines (since we only transfer one line at a time)
+        unwanted_lines = my_wizard_items.filtered(
+            lambda r: r.id != needed_line.id)
+
+        unwanted_lines.sudo().unlink()
 
         my_wizard.sudo().do_detailed_transfer()
 
@@ -589,7 +597,6 @@ product id: %s, supplier id: %s
         for move in picking.move_lines:
             move.write({'packing_order_id': packing_order_id,
                         'reason_id': reason_id})
-
 
     @http.route('/inbound_screen/create_packing_order', type='json', auth="user")
     def create_packing_order(self, **kw):
