@@ -263,7 +263,12 @@
                 self.po_move_lines.push(move_line);
 
                 var modal = new instance.stock_irm.modal.box_barcode_modal(self, move_line, callback);
-                modal.start();
+                // if creating extra box for leftover items, show cancel button
+                if(callback.template == 'select_next_destination') {
+                    modal.start(true);
+                } else {
+                    modal.start();
+                }
             }
         },
         is_box_free: function(barcode, move_line){

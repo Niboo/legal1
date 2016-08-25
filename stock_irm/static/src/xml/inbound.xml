@@ -512,7 +512,10 @@
     </t>
 
     <t t-name="box_barcode_footer_modal">
-        <a href="#" id="confirm_box_barcode" class="btn btn-success" >Confirm</a>
+        <a href="#" id="confirm_box_barcode" class="btn btn-success pull-right" >Confirm</a>
+        <t t-if="show_cancel">
+            <a href="#" id="cancel" class="btn btn-danger pull-left">Cancel extra items</a>
+        </t>
     </t>
 
     <t t-name="select_another_box_footer_modal">
@@ -571,7 +574,6 @@
                 <span>and create an extra box</span>
             </t>
         </a>
-        <a href="#" id="cancel" class="btn btn-lg btn-danger pull-left">Cancel </a>
     </t>
 
     <t t-name="select_next_destination">

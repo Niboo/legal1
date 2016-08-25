@@ -125,19 +125,28 @@
             self.move_line = move_line;
             self.callback = callback
         },
-        start: function () {
+        start: function (show_cancel) {
             var self = this;
+            // set to false if no parameter given
+            if (show_cancel !== true) {
+                show_cancel = false;
+            }
             self.$body = $(QWeb.render(self.body_template));
-            self.$footer = $(QWeb.render(self.footer_template));
-            this._super();
-            self.add_listener_on_barcode_modal_confirm();
+            self.$footer = $(QWeb.render(self.footer_template,{
+                'show_cancel': show_cancel,
+            }));
 
+            this._super();
+            self.add_listener_on_barcode_modal_confirm(show_cancel);
+            if (show_cancel == true) {
+                self.add_listener_on_cancel();
+            }
             $(self.$modal).on('shown.bs.modal', function (e) {
                 self.$modal.find('#box_barcode').focus();
                 self.$modal.on();
             });
         },
-        confirm_box: function(){
+        confirm_box: function(show_cancel){
             var self = this;
             var barcode = self.$modal.find('#box_barcode').val();
             if(barcode){
@@ -153,25 +162,36 @@
                             self.$modal.modal('hide');
                         }else{
                             var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
-                            error_modal.start();
+                            error_modal.start(show_cancel);
                         }
                     })
                 } else {
                     var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
-                    error_modal.start();
+                    error_modal.start(show_cancel);
                 }
             }
         },
-        add_listener_on_barcode_modal_confirm: function(){
+        add_listener_on_barcode_modal_confirm: function(show_cancel){
             var self = this;
             self.$modal.find('#confirm_box_barcode').off('click.box.barcode');
             $('#box_barcode').keyup(function(event){
                 if(event.keyCode==13){
-                    self.confirm_box();
+                    self.confirm_box(show_cancel);
                 }
             });
             self.$modal.find('#confirm_box_barcode').on('click.box.barcode', function(event){
-                self.confirm_box();
+                self.confirm_box(show_cancel);
+            });
+        },
+        add_listener_on_cancel: function(){
+            var self = this;
+            self.$modal.find('#cancel').off('click.close');
+            self.$modal.find('#cancel').on('click.close', function (event) {
+                self.caller.set_box_free(self.move_line);
+                self.caller.destroy();
+                self.caller.start();
+                self.$modal.modal('hide');
+
             });
         },
     });
@@ -189,19 +209,19 @@
             self.move_line = move_line;
             self.callback = callback;
         },
-        start: function () {
+        start: function (show_cancel) {
             var self = this;
             self.$footer = $(QWeb.render(self.footer_template));
             self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>"+self.message+"</b>";
             this._super();
-            self.add_listener_on_select_another();
+            self.add_listener_on_select_another(show_cancel);
         },
-        add_listener_on_select_another: function(){
+        add_listener_on_select_another: function(show_cancel){
             var self = this;
             self.$modal.find('#select_another').off('click.another');
             self.$modal.find('#select_another').on('click.another', function(event){
                 var modal = new instance.stock_irm.modal.box_barcode_modal(self.caller, self.move_line, self.callback);
-                modal.start();
+                modal.start(show_cancel);
             });
         },
     });
@@ -531,17 +551,6 @@
             self.product = product;
             self._super();
             self.add_listener_on_validate();
-            self.add_listener_on_cancel();
-        },
-        add_listener_on_cancel: function(){
-            var self = this;
-
-            self.$modal.find('#cancel').off('click.close');
-            self.$modal.find('#cancel').on('click.close', function (event) {
-                self.caller.destroy();
-                self.caller.parent.start();
-                self.$modal.modal('hide');
-            });
         },
         add_listener_on_validate: function(){
             var self = this;
