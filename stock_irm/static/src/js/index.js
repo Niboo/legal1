@@ -38,6 +38,7 @@
         },
         start: function(){
             var self = this;
+            self._super();
             self.session.rpc('/index/get_credentials', {}).then(function(data){
                 if (data.status == 'ok'){
                     self.$elem = $(QWeb.render(self.template, {

@@ -38,6 +38,7 @@
         },
         start: function() {
             var self = this;
+            self._super();
 
             self.session.rpc('/outbound_wave/get_wave_template', {}).then(function (data) {
                 if (data.status == "ok") {

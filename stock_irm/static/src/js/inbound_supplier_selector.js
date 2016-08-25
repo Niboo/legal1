@@ -37,6 +37,7 @@
         },
         start: function(){
             var self = this;
+            self._super();
             self.$elem = $(QWeb.render(this.template));
             $('#content').html(self.$elem);
 
