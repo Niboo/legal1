@@ -247,7 +247,7 @@ product id: %s, supplier id: %s
                            'id': order.id})
 
         return {'status': 'ok',
-                   'orders': orders}
+                'orders': orders}
 
     @http.route('/inbound_screen/get_purchase_order_move_lines', type='json',
                 auth='user')
@@ -257,8 +257,10 @@ product id: %s, supplier id: %s
 
         lines = []
 
-        for picking in purchase_orders.mapped('picking_ids').filtered(
-                lambda r: r.state == 'assigned'):
+        pickings = purchase_orders.mapped('picking_ids').filtered(
+            lambda r: r.state == 'assigned')
+        pickings = pickings.sorted(key=lambda pick: pick.min_date and pick.id)
+        for picking in pickings:
             for move_line in picking.move_lines.filtered(
                     lambda r: r.state == 'assigned'):
 
