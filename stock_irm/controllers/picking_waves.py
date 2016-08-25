@@ -268,3 +268,12 @@ class InboundController(http.Controller):
                  })
 
         return move_list
+
+    @http.route('/outbound_wave/get_wave_time', type='json', auth='user')
+    def get_wave_time(self, wave_id, **kw):
+        env = http.request.env
+
+        wave = env['picking.dispatch'].browse(int(wave_id))
+
+        return {'status': 'ok',
+                'total_time': wave.total_time}

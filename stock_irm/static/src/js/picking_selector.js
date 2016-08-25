@@ -237,9 +237,6 @@
         process_barcode: function(barcode){
             var self = this;
 
-            console.log(self.current_product_barcode);
-            console.log(self.current_destination_barcode);
-
             // check if the barcode scanned is the barcode we needed
             var is_product_barcode = barcode.replace(/[\s]*/g, '') == self.current_product_barcode;
             var is_destination_barcode = barcode.replace(/[\s]*/g, '') == self.current_destination_barcode;
@@ -321,26 +318,17 @@
         },
         validate_wave: function(){
             var self = this;
-            var msec = new Date().getTime() - self.starting_time;
-            var secs = msec/1000;
-            var hours = Math.floor(secs / (60 * 60));
-            var divisor_for_minutes = secs % (60 * 60);
-            var minutes = Math.floor(divisor_for_minutes / 60);
-            var divisor_for_seconds = divisor_for_minutes % 60;
-            var seconds = Math.ceil(divisor_for_seconds);
-            var time = "";
-            if(minutes < 10){
-                time = hours+ ":0" + minutes;
-            }else{
-                time = hours+ ":0" + minutes;
-            }
-            if(seconds < 10){
-                time += ":0" + seconds;
-            }else{
-                time += ":" + seconds;
-            }
-            var modal = new instance.stock_irm.modal.end_wave_modal(self);
-            modal.start(time, self.pickings);
+
+            self.session.rpc('/outbound_wave/get_wave_time', {
+                wave_id:self.wave_id,
+            }).then(function (data) {
+                if (data.status == "ok") {
+                    var total_time = data.total_time
+                    var modal = new instance.stock_irm.modal.end_wave_modal(self);
+                    modal.start(total_time*60, self.pickings);
+                }
+            });
+
         },
         add_listener_on_quantity: function(){
             var self = this;
@@ -404,7 +392,7 @@
         },
 	    add_listener_on_endbox: function(){
             var self = this;
-            $('.end-box').click(function(event){
+            $('#content').find('.end-box').click(function(event){
                 event.preventDefault();
                 if($(event.currentTarget).hasClass("btn-warning")){
                     $(event.currentTarget).switchClass("btn-warning", "btn-success", 100)
