@@ -192,6 +192,7 @@ class InboundWaveController(http.Controller):
     @http.route('/inbound_wave/get_inbound_wave', type='json', auth="user")
     def get_inbound_wave(self, wave_template_id, **kw):
         env = http.request.env
+        current_user = env['res.users'].browse(http.request.uid)
 
         wave_list = []
 
@@ -199,6 +200,8 @@ class InboundWaveController(http.Controller):
             ('wave_template_id', '=', wave_template_id),
             ('state', '!=', 'done'),
             ('state', '!=', 'cancel'),
+             '|', ('state', '!=', 'assigned'),
+                 ('picker_id', '=', current_user.id),
             ('move_ids', '!=', False),
         ])
 
@@ -269,9 +272,14 @@ class InboundWaveController(http.Controller):
     @http.route('/inbound_wave/get_wave', type='json', auth="user")
     def get_wave(self, wave_id, **kw):
         env = http.request.env
+        current_user = env['res.users'].browse(http.request.uid)
 
         inbound_wave = env['picking.dispatch'].browse(int(wave_id))
         package_list = []
+
+        # assign wave
+        inbound_wave['state'] = 'assigned'
+        inbound_wave['picker_id'] = current_user
 
         for move in inbound_wave.move_ids:
             package = move.reserved_quant_ids[0].package_id

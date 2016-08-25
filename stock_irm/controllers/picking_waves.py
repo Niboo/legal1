@@ -53,6 +53,7 @@ class InboundController(http.Controller):
     @http.route('/outbound_wave/get_outbound_wave', type='json', auth="user")
     def get_outbound_wave(self, wave_template_id, **kw):
         env = http.request.env
+        current_user = env['res.users'].browse(http.request.uid)
 
         wave_list = []
 
@@ -60,6 +61,8 @@ class InboundController(http.Controller):
             ('wave_template_id', '=', wave_template_id),
             ('state', '!=', 'done'),
             ('state', '!=', 'cancel'),
+            '|', ('state', '!=', 'assigned'),
+                 ('picker_id', '=', current_user.id),
             ('move_ids', '!=', False),
         ])
 
@@ -76,9 +79,13 @@ class InboundController(http.Controller):
     @http.route('/outbound_wave/get_wave', type='json', auth="user")
     def get_wave(self, wave_id, **kw):
         env = http.request.env
+        current_user = env['res.users'].browse(http.request.uid)
 
         selected_wave = env['picking.dispatch'].browse(int(wave_id))
-
+        # assign wave
+        selected_wave['state'] = 'assigned'
+        selected_wave['picker_id'] = current_user
+        print selected_wave.id, selected_wave.state, current_user.name
         picking_list = self.create_picking_info(selected_wave.related_picking_ids)
 
         # sort the location by alphabetical name
