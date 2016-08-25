@@ -93,15 +93,20 @@
             });
             // Do the search when typing more than 5 letters or enter
             self.$elem.find('#search_bar').keyup(function (event) {
-                if (wait_for_search == false) {
-                    setTimeout(function() {
-                        if (event.currentTarget.value.length > 5 | event.which == 13) {
-                            self.do_search();
-                        }
-                        wait_for_search = false;
-                    }, 500);
+                if (event.which == 13){
+                    self.do_search();
+                }else{
+                   if (wait_for_search == false) {
+                       setTimeout(function() {
+                           if (event.currentTarget.value.length > 5) {
+                               self.do_search();
+                           }
+                           wait_for_search = false;
+                       }, 500);
+                   }
+                   wait_for_search = true;
                 }
-                wait_for_search = true;
+                
             });
         },
         do_search: function(){
