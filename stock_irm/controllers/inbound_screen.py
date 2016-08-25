@@ -403,7 +403,7 @@ product id: %s, supplier id: %s
     @http.route('/inbound_screen/process_picking_line', type='json',
                 auth="user")
     def process_picking_line(self, qty, picking_line_id, box_name,
-                             packing_order_id, reason_id=False):
+                             packing_order_id, reason_id=False, cart_id=False):
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
 
@@ -414,9 +414,15 @@ product id: %s, supplier id: %s
 
         dest_list = self.get_destinations(destination)
 
-        values = {'status': 'ok',
-                  'destinations': dest_list}
-        return values
+        if filter(lambda dest: dest['id'] == cart_id, dest_list):
+            destination_id = cart_id
+        else:
+            destination_id = dest_list[0]['id']
+
+        destination = self.move_to_destination(box_name, destination_id)
+
+        return {'status': 'ok',
+                'destination': destination['destination']}
 
     def process_transfer(self, qty, picking_line, box_name):
         env = http.request.env
@@ -461,9 +467,9 @@ product id: %s, supplier id: %s
 
             wizard.sudo().do_detailed_transfer()
 
-    @http.route('/inbound_screen/move_to_destination',
-                type='json',
-                auth="user")
+    # @http.route('/inbound_screen/move_to_destination',
+    #             type='json',
+    #             auth="user")
     def move_to_destination(self, box_name, destination_id, **kw):
         env = http.request.env
         package = self.search_dest_package(box_name)
@@ -526,9 +532,9 @@ product id: %s, supplier id: %s
     @http.route('/inbound_screen/create_picking_for_unordered_lines',
                 type='json',
                 auth="user")
-    def create_picking_for_unordered_lines(self, extra_line, dest_box_id,
-                                           supplier_id, box_name,
-                                           packing_order_id, reason_id):
+    def create_picking_for_unordered_lines(
+            self, extra_line, dest_box_id, supplier_id, box_name,
+            packing_order_id, reason_id, cart_id=False):
         env = http.request.env
 
         picking, move_line = self.create_picking(
@@ -553,8 +559,15 @@ product id: %s, supplier id: %s
 
         self.add_packing_order_on_move(picking, packing_order_id, reason_id)
 
+        if filter(lambda dest: dest['id'] == cart_id, dest_list):
+            destination_id = cart_id
+        else:
+            destination_id = dest_list[0]['id']
+
+        destination = self.move_to_destination(box_name, destination_id)
+
         return {'status': 'ok',
-                'destinations': dest_list}
+                'destination': destination['destination']}
 
     def create_picking(self, supplier_id, product_id, quantity):
         env = http.request.env

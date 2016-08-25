@@ -102,7 +102,10 @@
     <t t-name="cart_result_body">
         <div class="row">
             <t t-foreach="carts" t-as="cart">
-                <a href="#" class="btn btn-lg btn-success cart col-md-3" t-att-cart-id="cart.id" t-att-cart-name="cart.name" t-att-is-in-usage="cart.is_in_usage">
+                <a href="#" class="btn btn-lg btn-success cart col-md-3"
+                   t-att-cart-id="cart.id"
+                   t-att-cart-name="cart.name" t-att-is-in-usage="cart.is_in_usage"
+                   t-att-is-selected="current_cart !== undefined &amp;&amp; cart.id == current_cart.id">
                     <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="cart.name" />
                 </a>
             </t>
@@ -484,6 +487,10 @@
     </t>
 
     <t t-name="confirm_unexpected_uncomplete_move_footer">
+        <div class="row">
+            <h4 class="pull-left" style="margin-left: 25px;">Select A Cart</h4>
+        </div>
+        <t t-call="cart_result_body"/>
         <a href="#" id="finish" class="btn btn-success pull-right hidden">Finish</a>
     </t>
 
@@ -589,12 +596,14 @@
         <div class="row">
             <b style='font-size: 2em'>Destination of your package:   </b><br/>
             <span class='fa fa-arrow-right fa-5x space-10 col-md-3' style='color:green'></span>
-            <t t-foreach="destinations" t-as="destination">
-                <a href="#" t-att-data-id="destination.id" class="btn btn-lg btn-success purchase-btn destination col-md-3">
-                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="destination.name" />
-                </a>
-            </t>
+            <a href="#" class="btn btn-lg btn-success purchase-btn destination col-md-3">
+                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="destination"/>
+            </a>
         </div>
+    </t>
+
+    <t t-name="select_next_destination_footer">
+        <a href="#" id="confirm_next_destination" class="btn btn-success" >Confirm</a>
     </t>
 
     <t t-name="box_barcode_modal_staging">
@@ -604,6 +613,7 @@
     <t t-name="box_barcode_modal_staging_footer">
         <a href="#" id="confirm_box_barcode" class="btn btn-success" >Confirm</a>
     </t>
+
     <t t-name="rack_button">
         <span class="glyphicon glyphicon-arrow-right"></span><span t-esc="name"/>/<span t-esc="index"/>
     </t>

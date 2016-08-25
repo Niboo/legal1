@@ -150,6 +150,11 @@ h2{
 
 /* ########## barcodes */
 
+a.cart[is-selected='true'] {
+    background-color: #006085;
+    border-color: #006085;
+}
+
 a[is-in-usage='true'] {
     background-color: #FFB100;
     border-color: #FFB100;

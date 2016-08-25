@@ -351,11 +351,21 @@
                         reasons: data.reasons,
                         moves : self.uncomplete_and_unexpected_move_line
                     }));
-                    self.$footer = $(QWeb.render(self.footer_template));
-
+                    self.get_cart_list();
+                }
+            });
+        },
+        get_cart_list: function () {
+            var self = this;
+            self.session.rpc('/inbound_screen/get_cart_list', {}).then(function (data) {
+                if(data.status == 'ok'){
+                    self.$footer = $(QWeb.render(self.footer_template, {
+                        carts: data.carts,
+                        current_cart: self.caller.cart}));
                     self.show_modal();
                     self.add_listener_on_validate();
                     self.add_listener_on_finish();
+                    self.add_listener_on_cart_buttons();
                 }
             });
         },
@@ -374,28 +384,21 @@
                 }
             });
         },
-        add_listener_on_destinations: function($destinations, move){
+        add_listener_on_cart_buttons: function () {
             var self = this;
-            console.log($destinations);
-            $destinations.change(function(event){
-                var destination_id = $(event.currentTarget).val();
-                if(destination_id != 0){
-                    $destinations.attr('disabled', 'disabled');
-                    self.session.rpc('/inbound_screen/move_to_destination', {
-                        box_name: move.box,
-                        destination_id: destination_id,
-                    }).then(function(data){
-                        if(data.status == 'ok'){
-                            move.state = 'done';
-                            self.validate_line($destinations, data.destination);
-                        } else {
-                            $destinations.removeAttr('disabled');
-                        }
-                    });
-                }
-            })
+            self.$footer.off('click.cart-select-button');
+            self.$footer.on('click.cart-select-button', '.cart', function (e) {
+                var $this = $(this);
+                var cart = {
+                    id: parseInt($this.attr('cart-id')),
+                    name: $this.attr('cart-name'),
+                };
+                self.caller.set_cart(cart);
+                self.$footer.find('a.cart[is-selected="true"]').attr('is-selected', false);
+                $this.attr('is-selected', true);
+            });
         },
-        validate_line: function($destinations, destination){
+        validate_line: function($button, destination){
             var self = this;
             var moves_pending = _.filter(self.uncomplete_and_unexpected_move_line, function(move){
                 return move.state === undefined || move.state != 'done';
@@ -403,8 +406,8 @@
             if(moves_pending.length == 0){
                 self.$modal.find('#finish').removeClass('hidden');
             }
-            $destinations.parents('tr').addClass('bg-success');
-            $destinations.replaceWith('<span style="font-size:1.4em" class="label pull-right label-primary">' + destination + '</span>');
+            $button.parents('tr').addClass('bg-success');
+            $button.replaceWith('<span style="font-size:1.4em" class="label pull-right label-primary">' + destination + '</span>');
         },
         confirm_incomplete_move: function($button, move, reason_id){
             var self = this;
@@ -414,16 +417,14 @@
                 box_name: move.box,
                 packing_order_id: self.packing_order_id,
                 reason_id: reason_id,
+                cart_id: self.caller.cart.id,
             }).then(function(data){
                 if (data.status != 'ok'){
                     var modal = new instance.stock_irm.modal.exception_modal();
                     modal.start(data.error, data.message);
                 } else {
-                    var $destinations = $(QWeb.render('confirm_unexpected_uncomplete_move_destinations', {
-                        destinations: data.destinations
-                    }));
-                    $button.replaceWith($destinations);
-                    self.add_listener_on_destinations($destinations, move);
+                    move.state = 'done';
+                    self.validate_line($button, data.destination);
                 }
             });
         },
@@ -435,20 +436,19 @@
                 supplier_id: self.supplier_id,
                 box_name: move.box,
                 packing_order_id: self.packing_order_id,
-                reason_id: reason_id
+                reason_id: reason_id,
+                cart_id: self.caller.cart.id,
             }).then(function (data) {
                 if (data.status != 'ok') {
                     var modal = new instance.stock_irm.modal.exception_modal();
                     modal.start(data.error, data.message);
                 } else {
-                    var $destinations = $(QWeb.render('confirm_unexpected_uncomplete_move_destinations', {
-                        destinations: data.destinations
-                    }));
-                    $button.replaceWith($destinations);
-                    self.add_listener_on_destinations($destinations, move);
+                    move.state = 'done';
+                    self.validate_line($button, data.destination);
                 }
             });
         },
+
         add_listener_on_finish: function(){
             var self = this;
             self.$modal.find('#finish').click(function(event){
@@ -567,10 +567,11 @@
                     picking_line_id: self.move_line.id,
                     box_name: self.move_line.box,
                     packing_order_id: self.packing_order_id,
+                    cart_id: self.caller.cart.id,
                 }).then(function(data){
                     if (data.status == 'ok'){
                         var modal = new instance.stock_irm.modal.select_next_destination_modal();
-                        modal.start(self.caller, data.destinations, self.nb_product_more, self.move_line, self.product);
+                        modal.start(self.caller, data.destination, self.nb_product_more, self.move_line, self.product);
                     }
                 });
             })
@@ -587,40 +588,31 @@
             self.template = 'select_next_destination';
             self.block_modal = true;
         },
-        start: function (caller, destinations, leftover, move_line, product) {
+        start: function (caller, destination, leftover, move_line, product) {
             var self = this;
+            console.log(destination);
             self.$body = $(QWeb.render(self.template, {
-                destinations: destinations
+                destination: destination
             }));
+            self.$footer = $(QWeb.render('select_next_destination_footer'));
             self.caller = caller;
             self.leftover = leftover;
             self.move_line = move_line;
             self.product = product;
 
             self._super();
-            self.add_listener_on_destinations(move_line);
+            self.add_listener_on_confirm(move_line);
         },
-        add_listener_on_destinations: function(move){
+        add_listener_on_confirm: function(move){
             var self = this;
-
-            self.$modal.find('.destination').off('click.destination');
-            self.$modal.find('.destination').on('click.destination', function (event) {
-                var destination_id = $(event.currentTarget).attr('data-id');
-                if(destination_id != 0){
-                    self.session.rpc('/inbound_screen/move_to_destination', {
-                        box_name: move.box,
-                        destination_id: destination_id,
-                    }).then(function(data){
-                        if(data.status == 'ok') {
-                            if (self.leftover == 0) {
-                                self.$modal.modal('hide');
-                                self.caller.destroy();
-                                self.caller.start();
-                            } else {
-                                self.caller.get_the_box(self.product, self);
-                            }
-                        }
-                    });
+            self.$modal.find('#confirm_next_destination').off('click.destination');
+            self.$modal.find('#confirm_next_destination').on('click.destination', function (event) {
+                if (self.leftover == 0) {
+                    self.$modal.modal('hide');
+                    self.caller.destroy();
+                    self.caller.start();
+                } else {
+                    self.caller.get_the_box(self.product, self);
                 }
             })
         },
@@ -696,12 +688,13 @@
         },
         start: function (caller, carts) {
             var self = this;
-            self.$body = $(QWeb.render(self.template, {
-                carts: carts
-            }));
-            self.footer_template = 'generic_confirm_button';
             self.caller = caller;
             self.carts = carts;
+            self.$body = $(QWeb.render(self.template, {
+                carts: carts,
+                current_cart: self.caller.cart,
+            }));
+            self.footer_template = 'generic_confirm_button';
             self._super();
             self.add_listener_on_cart_button();
         },
