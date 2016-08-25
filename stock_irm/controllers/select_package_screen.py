@@ -112,14 +112,17 @@ class SelectPackageController(http.Controller):
 
         packages = env['stock.quant.package'].browse(package_ids)
         for package in packages:
-            for quant in package.quant_ids:
-                picking = quant.reservation_id.picking_id
+            quant = package.quant_ids[0]
+            picking = quant.reservation_id.picking_id
 
-                wizard_id = picking.do_enter_transfer_details()['res_id']
-                wizard = env['stock.transfer_details'].browse(wizard_id)
-                for packop in wizard.packop_ids:
-                    packop.destinationloc_id = int(cart_id)
-                wizard.sudo().do_detailed_transfer()
+            wizard_id = picking.do_enter_transfer_details()['res_id']
+            wizard = env['stock.transfer_details'].browse(wizard_id)
+            for packop in wizard.packop_ids:
+                if packop.package_id != package:
+                    packop.unlink()
+                    continue
+                packop.destinationloc_id = int(cart_id)
+            wizard.sudo().do_detailed_transfer()
 
         return {'status': 'ok'}
 

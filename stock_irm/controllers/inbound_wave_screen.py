@@ -225,6 +225,18 @@ class InboundWaveController(http.Controller):
                         'error': 'No package available!',
                         'message': 'There are no package in the cart'}
 
+            free_packages = []
+            for package in packages:
+                for quant in package.quant_ids:
+                    if not quant.reservation_id.dispatch_id:
+                        free_packages.append(package)
+
+            if not free_packages:
+                return {'status': 'error',
+                        'error': 'No package available!',
+                        'message': 'All the packages on the cart are '
+                                   'already in a wave.'}
+
             inbound_wave = env['picking.dispatch'].create({
                 'picker_id': http.request.uid,
                 'state': 'draft',
@@ -233,7 +245,7 @@ class InboundWaveController(http.Controller):
 
             SelectPackingWiz = env['select.packing.stock.wizard'].with_context(
                 active_id=inbound_wave.id)
-            packages_val = [(4, package.id, False) for package in packages]
+            packages_val = [(4, package.id, False) for package in free_packages]
             wizard = SelectPackingWiz.create({'packing_move_ids': packages_val})
             wizard.select_moves_from_pack()
 
@@ -260,37 +272,33 @@ class InboundWaveController(http.Controller):
         inbound_wave = env['picking.dispatch'].browse(int(wave_id))
         package_list = []
 
-        for picking in inbound_wave.related_picking_ids:
-            wizard_id = picking.do_enter_transfer_details()['res_id']
-            wizard = env['stock.transfer_details'].browse(wizard_id)
+        for move in inbound_wave.move_ids:
+            package = move.reserved_quant_ids[0].package_id
+            quant = package.quant_ids
+            product = quant.product_id
+            total_qty = quant.qty
+            dest_location = move.location_dest_id
+            dest_location = self.get_real_destination_location(package,
+                                                               dest_location)
+            location_position = '%s / %s / %s' % (
+                str(dest_location.posx),
+                str(dest_location.posy),
+                str(dest_location.posz))
 
-            for item in wizard.packop_ids:
-                package = item.package_id
-                quant = package.quant_ids
-                product = quant.product_id
-                total_qty = quant.qty
-                dest_location = item.destinationloc_id
-                dest_location = self.get_real_destination_location(package,
-                                                                   dest_location)
-                location_position = '%s / %s / %s' % (
-                    str(dest_location.posx),
-                    str(dest_location.posy),
-                    str(dest_location.posz))
-
-                package_list.append({
-                    'product_name': product.name,
-                    'product_description': product.description
-                                           or "No description",
-                    'product_quantity': total_qty,
-                    'location_name': dest_location.name,
-                    'location_position': location_position,
-                    'package_barcode': package.barcode,
-                    'package_id': package.id,
-                    'location_dest_barcode': dest_location.loc_barcode,
-                    'product_image':
-                        "/web/binary/image?model=product.product&id=%s&field=image"
-                        % product.id,
-                })
+            package_list.append({
+                'product_name': product.name,
+                'product_description': product.description
+                                       or "No description",
+                'product_quantity': total_qty,
+                'location_name': dest_location.name,
+                'location_position': location_position,
+                'package_barcode': package.barcode,
+                'package_id': package.id,
+                'location_dest_barcode': dest_location.loc_barcode,
+                'product_image':
+                    "/web/binary/image?model=product.product&id=%s&field=image"
+                    % product.id,
+            })
 
         return {
             'status': 'ok',

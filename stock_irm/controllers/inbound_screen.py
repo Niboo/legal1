@@ -428,8 +428,7 @@ product id: %s, supplier id: %s
         dest_package = self.search_dest_package(box_name)
 
         for wizard_line in my_wizard_items:
-            if (wizard_line.product_id == picking_line.product_id):
-
+            if wizard_line.product_id == picking_line.product_id:
                 # find a line we can validate
                 wizard_line.result_package_id = dest_package.id
                 wizard_line.quantity = qty
