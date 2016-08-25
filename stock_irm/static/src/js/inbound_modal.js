@@ -75,12 +75,18 @@
             self.$modal.find('.btn-success').off('click.no_purchases');
 
             self.$modal.find('#select_purchases').on('click.select_purchases', function (event) {
-                self.caller.get_purchase_order_move_lines(self.selected_purchases);
                 self.$modal.modal('hide');
+                self.$modal.on('hidden.bs.modal', function () {
+                    self.caller.get_purchase_order_move_lines(self.selected_purchases);
+                    self.$modal.off();
+                })
             });
             self.$modal.find('#no_purchases').on('click.no_purchases', function (event) {
-                self.caller.get_purchase_order_move_lines(self.selected_purchases);
                 self.$modal.modal('hide');
+                self.$modal.on('hidden.bs.modal', function () {
+                    self.caller.get_purchase_order_move_lines(self.selected_purchases);
+                    self.$modal.off();
+                });
             });
         },
     });
@@ -626,5 +632,44 @@
 
     instance.stock_irm.modal.select_next_destination_modal = select_next_destination_modal;
 
+
+    var select_cart_modal = instance.stock_irm.modal.widget.extend({
+        template: 'cart_result_body',
+        init: function (block_modal) {
+            var self = this;
+            this._super();
+            self.title = 'Select a cart';
+            self.block_modal = block_modal;
+        },
+        start: function (caller, carts) {
+            var self = this;
+            self.$body = $(QWeb.render(self.template, {
+                carts: carts
+            }));
+            self.footer_template = 'generic_confirm_button';
+            self.caller = caller;
+            self.carts = carts;
+            self._super();
+            self.add_listener_on_cart_button();
+        },
+        add_listener_on_cart_button: function () {
+            var self = this;
+            self.$body.find('.cart').off('click');
+            self.$body.find('.cart').on('click', function (e) {
+                var $this = $(this);
+                var cart = {
+                    id: parseInt($this.attr('cart-id')),
+                    name: $this.attr('cart-name'),
+                };
+                self.$modal.modal('hide');
+                self.$modal.on('hidden.bs.modal', function () {
+                    self.caller.set_cart(cart);
+                    self.$modal.off();
+                });
+            })
+        }
+    });
+
+    instance.stock_irm.modal.select_cart_modal = select_cart_modal;
 
 })();

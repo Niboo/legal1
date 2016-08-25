@@ -96,6 +96,10 @@
             </label>
         </div>
         <!-- cart selection modal -->
+        <t t-call="cart_result_body"/>
+    </t>
+
+    <t t-name="cart_result_body">
         <div class="row">
             <t t-foreach="carts" t-as="cart">
                 <a href="#" class="btn btn-lg btn-success cart col-md-3" t-att-cart-id="cart.id" t-att-cart-name="cart.name" t-att-is-in-usage="cart.is_in_usage">
@@ -597,6 +601,10 @@
     </t>
     <t t-name="rack_button">
         <span class="glyphicon glyphicon-arrow-right"></span><span t-esc="name"/>/<span t-esc="index"/>
+    </t>
+
+    <t t-name="cart_navbar_item">
+        <a href="#"><span class="glyphicon glyphicon-inbox" aria-hidden="true"/> <t t-esc="cart.name"/></a>
     </t>
 
 </templates>

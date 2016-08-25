@@ -94,7 +94,7 @@
             }).then(function(data){
                 self.suppliers = data.suppliers;
                 var $result = $(QWeb.render('supplier_result', {
-                        suppliers: self.suppliers
+                    suppliers: self.suppliers
                 }));
                 self.$elem.find('#results').html($result);
                 self.add_listener_on_supplier();

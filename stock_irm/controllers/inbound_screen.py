@@ -616,3 +616,21 @@ product id: %s, supplier id: %s
         packing_oder = env['stock.packing.order'].browse(int(packing_id))
         packing_oder.note = note
         return {'status': 'ok'}
+
+    @http.route('/inbound_screen/get_cart_list', type='json', auth='user')
+    def get_cart_list(self):
+        env = http.request.env
+        locations = env['stock.location']\
+            .search([('is_inbound_cart', '=', True)])
+
+        carts = []
+        for location in locations:
+            carts.append({
+                'id': location.id,
+                'name': location.name,
+                'is_in_usage': location.is_in_usage,
+            })
+        return {
+            'status': 'ok',
+            'carts': carts,
+        }

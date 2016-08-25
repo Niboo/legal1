@@ -27,8 +27,8 @@
 
     var inbound_product_picking = instance.stock_irm.widget.extend({
     	init: function (supplier_id, po_ids, po_move_lines) {
-            this._super('inbound_product_picking');
             var self = this;
+            self._super('inbound_product_picking');
             self.template = 'product_selector';
             self.supplier_id = supplier_id;
             self.po_ids = po_ids;
@@ -47,9 +47,8 @@
 
         },
         start: function(){
-            this._super();
             var self = this;
-
+            self._super();
             self.get_printer_ip();
 
             var po_move_lines_by_picking = _.groupBy(self.po_move_lines, function(po_move_line){
@@ -58,11 +57,15 @@
             self.$elem = $(QWeb.render(self.template,{
                 'po_lines': po_move_lines_by_picking,
             }));
+            if(self.cart === undefined){
+                self.get_cart(true);
+            }
 
             $('#content').html(self.$elem);
             self.search = '';
             self.add_listener_on_search();
             self.add_listener_on_confirm_button();
+            self.add_listener_on_cart_select_button();
         },
         get_printer_ip: function(){
             var self = this;
@@ -78,7 +81,8 @@
             self.add_listener_on_search();
             self.add_listener_on_product();
             self.add_listener_on_more();
-            self.add_listener_on_confirm_button()
+            self.add_listener_on_confirm_button();
+            self.add_listener_on_cart_select_button();
         },
         add_listener_on_search: function(){
             var self = this;
@@ -392,6 +396,32 @@
             }));
 
             self.$elem.find('#po-lines-list').html($result);
+        },
+        get_cart: function (block_modal) {
+            var self = this;
+            self.session.rpc('/inbound_screen/get_cart_list', {}).then(function (data) {
+                if(data.status == 'ok'){
+                    var modal = new instance.stock_irm.modal.select_cart_modal(block_modal);
+                    modal.start(self, data.carts);
+                } else {
+                    var modal = new instance.stock_irm.modal.exception_modal();
+                    modal.start('Error', 'Could not retrieve the cart list');
+                }
+            });
+        },
+        set_cart: function (cart) {
+            var self = this;
+            self.cart = cart;
+            self.$change_cart.html(QWeb.render('cart_navbar_item', {'cart': self.cart}));
+        },
+        add_listener_on_cart_select_button: function () {
+            var self = this;
+            self.$change_cart = self.$nav.find('#change-cart');
+            self.$change_cart.show();
+            self.$nav.off('click.change-cart');
+            self.$nav.on('click.change-cart', '#change-cart a', function (e) {
+                self.get_cart(false);
+            });
         },
     });
 
