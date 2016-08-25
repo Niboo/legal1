@@ -192,7 +192,7 @@
                         var modal = new instance.stock_irm.modal.confirm_bandup_wave_modal();
                         modal.start();
                         window.setTimeout(function(){
-                            window.location.href = "/bandup";
+                            window.location.href = "/inbound_wave";
                         }, 3000);
                     }
 
