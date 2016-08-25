@@ -20,7 +20,7 @@
 ##############################################################################
 
 from openerp import http
-
+from datetime import datetime
 
 class InboundController(http.Controller):
     @http.route('/picking_waves', type='http', auth="user")
@@ -59,7 +59,8 @@ class InboundController(http.Controller):
         waves = env['picking.dispatch'].search([
             ('wave_template_id', '=', wave_template_id),
             ('state', '!=', 'done'),
-            ('state', '!=', 'cancel')
+            ('state', '!=', 'cancel'),
+            ('move_ids', '!=', False),
         ])
 
         for wave in waves:
@@ -86,6 +87,7 @@ class InboundController(http.Controller):
         results = {'status': 'ok', 'move_list': move_list,
                    'picking_list': picking_list, 'wave_id': selected_wave.id,
                    'wave_name': selected_wave.name
+
                    }
         return results
 
@@ -97,6 +99,7 @@ class InboundController(http.Controller):
             'picker_id': http.request.uid,
             'state': 'draft',
             'wave_template_id': wave_template_id,
+            'start_time': datetime.now()
         })
 
         # retrieve the pickings with that type
@@ -140,8 +143,6 @@ class InboundController(http.Controller):
             inbound_wave.unlink()
             return {'status': 'empty'}
 
-
-
         picking_list = self.create_picking_info(pickings)
         move_list = self.create_moves_info(inbound_wave)
 
@@ -183,11 +184,9 @@ class InboundController(http.Controller):
         return results
 
     @http.route('/picking_waves/validate_wave', type='json', auth="user")
-    def validate_wave(self, wave_id, time_to_complete, **kw):
+    def validate_wave(self, wave_id, **kw):
         env = http.request.env
-        wave = env['stock.picking.wave'].browse(int(wave_id))
-
-        wave.time_to_complete = time_to_complete
+        wave = env['picking.dispatch'].browse(int(wave_id))
 
         for picking in wave.picking_ids:
             if any(move.state != 'done' for move in picking.move_lines):
@@ -203,9 +202,6 @@ class InboundController(http.Controller):
                 })
 
                 picking.move_lines[0].location_dest_id.location_id = new_loc
-
-
-        wave.done()
 
         results = {
             "status": "ok",

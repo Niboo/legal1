@@ -108,6 +108,7 @@
                     if (data.status == "ok") {
                         self.package_list = data.package_list;
                         var current_package = self.package_list[0]
+                        self.wave_id = data.wave_id;
                         self.current_package_barcode = current_package.package_barcode;
                         self.current_location_dest_barcode = current_package.location_dest_barcode;
                         self.step = 'package';

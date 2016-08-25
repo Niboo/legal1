@@ -237,6 +237,9 @@
         process_barcode: function(barcode){
             var self = this;
 
+            console.log(self.current_product_barcode);
+            console.log(self.current_destination_barcode);
+
             // check if the barcode scanned is the barcode we needed
             var is_product_barcode = barcode.replace(/[\s]*/g, '') == self.current_product_barcode;
             var is_destination_barcode = barcode.replace(/[\s]*/g, '') == self.current_destination_barcode;
@@ -319,33 +322,25 @@
         validate_wave: function(){
             var self = this;
             var msec = new Date().getTime() - self.starting_time;
-
-            self.session.rpc('/picking_waves/validate_wave', {
-                'wave_id': self.wave_id,
-                'time_to_complete': msec,
-            }).then(function(data){
-                if (data.status == 'ok'){
-                    var secs = msec/1000;
-                    var hours = Math.floor(secs / (60 * 60));
-                    var divisor_for_minutes = secs % (60 * 60);
-                    var minutes = Math.floor(divisor_for_minutes / 60);
-                    var divisor_for_seconds = divisor_for_minutes % 60;
-                    var seconds = Math.ceil(divisor_for_seconds);
-                    var time = "";
-                    if(minutes < 10){
-                        time = hours+ ":0" + minutes;
-                    }else{
-                        time = hours+ ":0" + minutes;
-                    }
-                    if(seconds < 10){
-                        time += ":0" + seconds;
-                    }else{
-                        time += ":" + seconds;
-                    }
-                    var modal = new instance.stock_irm.modal.end_wave_modal();
-                    modal.start();
-                }
-            });
+            var secs = msec/1000;
+            var hours = Math.floor(secs / (60 * 60));
+            var divisor_for_minutes = secs % (60 * 60);
+            var minutes = Math.floor(divisor_for_minutes / 60);
+            var divisor_for_seconds = divisor_for_minutes % 60;
+            var seconds = Math.ceil(divisor_for_seconds);
+            var time = "";
+            if(minutes < 10){
+                time = hours+ ":0" + minutes;
+            }else{
+                time = hours+ ":0" + minutes;
+            }
+            if(seconds < 10){
+                time += ":0" + seconds;
+            }else{
+                time += ":" + seconds;
+            }
+            var modal = new instance.stock_irm.modal.end_wave_modal(self);
+            modal.start(time, self.pickings);
         },
         add_listener_on_quantity: function(){
             var self = this;
@@ -409,7 +404,7 @@
         },
 	    add_listener_on_endbox: function(){
             var self = this;
-            self.$elem.find('.end-box').click(function(event){
+            $('.end-box').click(function(event){
                 event.preventDefault();
                 if($(event.currentTarget).hasClass("btn-warning")){
                     $(event.currentTarget).switchClass("btn-warning", "btn-success", 100)

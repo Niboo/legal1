@@ -77,19 +77,22 @@
     instance.stock_irm.modal.select_wave_template = select_wave_template;
 
     var end_wave_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller) {
             var self = this;
             this._super();
+            self.caller = caller;
             self.title = 'Wave Finished!';
         },
-        start: function () {
+        start: function (time, pickings) {
             var self = this;
+            self.pickings = pickings;
             self.$body = "<i class='fa fa-check fa-5x' style='color:green'></i>" +"<b style='font-size: 2em'>Wait for redirection...</b>";
             self.$footer = "<b style='font-size: 3em;'>Time to complete: </b><b class='time-complete'>"+time+"</b>";
             this._super();
             window.setTimeout(function(){
                 var to_outputs = [];
                 var to_temps = [];
+
                 $.each(self.pickings, function(key, value){
                     if(value['progress_done']<100){
                         to_temps.push(value);
@@ -104,8 +107,9 @@
                     to_temps: to_temps,
                 }));
                 $('#content').html(self.$elem);
-                self.add_listener_on_endbox();
+                self.caller.add_listener_on_endbox();
             }, 3000);
+
         },
     });
 

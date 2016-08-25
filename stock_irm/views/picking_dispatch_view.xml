@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="picking_dispatch_form_view_inherit" model="ir.ui.view">
+            <field name="name">picking.dispatch.form.view.inherit</field>
+            <field name="model">picking.dispatch</field>
+            <field name="inherit_id" ref="picking_dispatch.picking_dispatch_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page name="time" string="Time informations">
+                        <group>
+                            <field name="start_time" readonly="1"/>
+                            <field name="end_time"/>
+                            <field name="total_time" widget="float_time"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

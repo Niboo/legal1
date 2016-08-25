@@ -33,11 +33,11 @@ Module
         'xx_product_supplierinfo_tags',
         'dyn_report_to_printer_location',
         'base_report_to_printer',
-        'stock_picking_wave',
         'stock',
         'procurement',
         'stock_weight_reservation',
         'stock_putaway_product',
+        'picking_dispatch_multiwave',
     ],
     'data': [
         'views/res_partner.xml',
@@ -54,6 +54,7 @@ Module
         'views/stock_quant_package.xml',
         'views/inbound_wave.xml',
         'views/stock_incomplete_reason.xml',
+        'views/picking_dispatch_view.xml',
         'data/staging_location.xml',
     ],
     'qweb': [

@@ -20,6 +20,7 @@
 ##############################################################################
 
 from openerp import http
+from datetime import datetime
 
 
 class InboundWaveController(http.Controller):
@@ -103,14 +104,12 @@ class InboundWaveController(http.Controller):
                     destination = picking.location_dest_id
 
             # remove everything from the wizard
-
             wizard.write({
                 'item_ids': [(5, False, False)],
                 'packop_ids': [(5, False, False)]
             })
 
             # then create a new wizard item
-
             wizard_values = {
                     'package_id': package.id,
                     'product_id': quant.product_id.id,
@@ -199,7 +198,8 @@ class InboundWaveController(http.Controller):
         waves = env['picking.dispatch'].search([
             ('wave_template_id', '=', wave_template_id),
             ('state', '!=', 'done'),
-            ('state', '!=', 'cancel')
+            ('state', '!=', 'cancel'),
+            ('move_ids', '!=', False),
         ])
 
         for wave in waves:
@@ -218,7 +218,7 @@ class InboundWaveController(http.Controller):
 
         try:
             packages = env['stock.quant.package'].search(
-                [('location_id','=',int(cart_id))])
+                [('location_id', '=', int(cart_id))])
 
             if not packages:
                 return {'status': 'error',
@@ -241,6 +241,7 @@ class InboundWaveController(http.Controller):
                 'picker_id': http.request.uid,
                 'state': 'draft',
                 'wave_template_id': wave_template_id,
+                'start_time': datetime.now()
             })
 
             SelectPackingWiz = env['select.packing.stock.wizard'].with_context(
@@ -301,6 +302,7 @@ class InboundWaveController(http.Controller):
             })
 
         return {
+            'wave_id': wave_id,
             'status': 'ok',
             'package_list': package_list,
         }
