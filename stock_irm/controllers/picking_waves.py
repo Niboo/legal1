@@ -84,7 +84,7 @@ class InboundController(http.Controller):
         selected_wave = env['picking.dispatch'].browse(int(wave_id))
         # assign wave
         selected_wave['state'] = 'assigned'
-        selected_wave['picker_id'] = current_user
+        selected_wave['picker_id'] = current_user.id
         print selected_wave.id, selected_wave.state, current_user.name
         picking_list = self.create_picking_info(selected_wave.related_picking_ids)
 

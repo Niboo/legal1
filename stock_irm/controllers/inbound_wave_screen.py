@@ -279,7 +279,7 @@ class InboundWaveController(http.Controller):
 
         # assign wave
         inbound_wave['state'] = 'assigned'
-        inbound_wave['picker_id'] = current_user
+        inbound_wave['picker_id'] = current_user.id
 
         for move in inbound_wave.move_ids:
             package = move.reserved_quant_ids[0].package_id
