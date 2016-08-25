@@ -49,7 +49,8 @@ class SelectPackageController(http.Controller):
             return{
                 'status': 'error',
                 'error': 'Error',
-                'message': 'Package could not be found',
+                'message': 'Package could not be found! '
+                           '(Check if the package has a barcode)',
             }
 
         if not scanned_package.quant_ids:

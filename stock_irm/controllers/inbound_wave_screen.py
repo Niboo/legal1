@@ -71,7 +71,6 @@ class InboundWaveController(http.Controller):
                     'error': type(e).__name__,
                     'message': str(e)}
 
-
     def transfer_package(self, package, is_end_package_needed=True):
         env = http.request.env
 
