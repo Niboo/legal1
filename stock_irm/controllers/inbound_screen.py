@@ -259,7 +259,7 @@ product id: %s, supplier id: %s
 
         pickings = purchase_orders.mapped('picking_ids').filtered(
             lambda r: r.state == 'assigned')
-        pickings = pickings.sorted(key=lambda pick: pick.min_date and pick.id)
+        pickings = pickings.sorted(key=lambda pick: (pick.min_date, pick.id))
         for picking in pickings:
             for move_line in picking.move_lines.filtered(
                     lambda r: r.state == 'assigned'):
