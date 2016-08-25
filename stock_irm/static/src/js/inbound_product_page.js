@@ -36,8 +36,7 @@
             self.barcodes = [];
             self.nb_already_printed = 0;
             self.quantity_to_print = 0;
-            self.packing_reference = packing_reference
-            self.packing_id = packing_id
+            self.get_damage_reasons();
         },
         start: function(){
             this._super();
@@ -83,6 +82,7 @@
             self.add_listener_on_label_quantity();
             self.add_listener_on_print_button();
             self.add_listener_on_close_box();
+            self.add_listener_on_move_to_damaged_button();
         },
         add_listener_on_valid_button: function(){
             var self = this;
@@ -253,7 +253,7 @@
         },
         add_listener_on_move_to_damaged_button: function(){
             var self = this;
-            self.$elem.find('#move_to_damaged_button').click(function(){
+            self.$elem.find('#mark_damaged_button').click(function(){
                 var product_id = self.id;
                 var qty = self.$elem.find('#quantity input').get(0).value;
                 var modal = new instance.stock_irm.modal.damage_modal();

@@ -139,7 +139,8 @@
         },
         add_listener_on_product: function($result){
             var self = this;
-            if (!$result){
+            if (!$result){                    self.packing_reference = data.packing_reference;
+                    self.packing_id = data.packing_id;
                 $result = self.$elem.find('#results');
             }
             $result.find('a').click(function(event){
@@ -282,9 +283,12 @@
         },
         move_to_damaged: function(product_id, reason) {
             var self = this;
+            console.log(self.current_move_line)
             self.session.rpc('/inbound_screen/move_to_damaged', {
                 product_id: product_id,
                 reason: reason,
+                qty: 1,
+                move_id:self.current_move_line.id,
             }).then(function(data){
                 if (data.status == 'ok'){
                     var modal = new instance.stock_irm.modal.damage_confirmed_modal();
@@ -300,7 +304,6 @@
                 var modal = new instance.stock_irm.modal.exception_modal();
                 modal.start(data.data.arguments[0], data.data.arguments[1]);
             });
-            return same_box_lines.length === 0;
         },
         set_box: function(box, move_line, callback) {
             var self = this;
@@ -310,6 +313,14 @@
             if (callback!==undefined) {
                 callback.do_after_set_box(box, move_line);
             }
+        },
+        is_box_free: function(barcode, move_line){
+            var self = this;
+            var same_box_lines = _.filter(self.po_move_lines, function (po_move_line) {
+                // Box already occupied by another product
+                return po_move_line.box == barcode && move_line.product_id != po_move_line.product_id;
+            });
+            return same_box_lines.length === 0;
         },
         set_box_free: function(move_line) {
             var self = this;

@@ -653,12 +653,19 @@ product id: %s, supplier id: %s
                     'message': e.args[0]}
     
     @http.route('/inbound_screen/move_to_damaged', type='json', auth="user")
-    def move_to_damaged(self, product_id, qty, reason, package_barcode):
+    def move_to_damaged(self, product_id, qty, reason, move_id):
         env = http.request.env
         try:
-            product = env['product.product'].browse(product_id)
-            damage_reason = env['stock.inbound.damage.reason'].search([('reason', '=', reason)])
-            damaged_products_location = env['stock.location'].search([('is_damaged_location', '=', True)])
+            move = env['stock.move'].browse(int(move_id))
+            product = env['product.product'].browse(int(product_id))
+
+            damage_reason = env['stock.inbound.damage.reason'].search(
+                [('reason', '=', reason)
+            ])
+
+            damaged_products_location = env['stock.location'].search([
+                ('is_damaged_location', '=', True)
+            ])
 
             if len(damaged_products_location) < 1:
                 raise Exception(
@@ -667,8 +674,19 @@ product id: %s, supplier id: %s
                 raise Exception(
                     "There is currently more than one Damaged Products Location set.")
 
-            # TODO move package to damaged location
-            # currently available records: product_id, qty, reason, package_barcode
+            if not move_id:
+                raise Exception("No move selected")
+
+            scrap_obj = env['stock.move.scrap']
+            move_scrap = scrap_obj.with_context(active_id=move.id).create({
+                'product_id': product.id,
+                'product_qty': int(qty),
+                'product_uom': product.uom_id.id,
+                'location_id': damaged_products_location.id
+            })
+
+            print "move_created"
+            move_scrap.with_context(active_ids=[move.id]).move_scrap()
 
             return {
                 'status': 'ok'

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+    <data>
+        <record id="broken_reason" model="stock.inbound.damage.reason">
+            <field name="reason">Object is broken</field>
+        </record>
+    </data>
+</openerp>

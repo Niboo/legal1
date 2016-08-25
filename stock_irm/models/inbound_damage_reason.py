@@ -23,8 +23,9 @@ from openerp import fields
 from openerp import models
 from openerp import api
 
+
 class InboundDamageReason(models.Model):
 
     _name = "stock.inbound.damage.reason"
 
-    reason = fields.Char()
+    reason = fields.Char(string="Reason")

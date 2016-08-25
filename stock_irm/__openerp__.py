@@ -51,6 +51,7 @@ Module
         'views/packing_order.xml',
         'views/inbound_damage_reason.xml',
         'data/sequence_packing.xml',
+        'data/damaged_reason.xml',
         'security/ir.model.access.csv',
         'views/stock_quant_package.xml',
         'views/inbound_wave.xml',
