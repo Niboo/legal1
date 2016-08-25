@@ -261,6 +261,11 @@
                                 <div class="col-md-12">
                                     <img id="product_image" t-att-src="product.image" class="center-block img-responsive"/>
                                 </div>
+                                <div class="col-md-12">
+                                    <button id="mark_damaged_button" type="button" class="btn btn-danger btn-large button-touch">
+                                        <i class="fa fa-chain-broken button-icon" aria-hidden="true"></i> Mark damaged
+                                    </button>
+                                </div>
                             </div>
                             <t t-if="product.requires_unpack or product.requires_relabel">
                                 <div class="row">
@@ -307,36 +312,26 @@
                                 </div>
                             </div>
 
-                
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <hr/>
-                                <h4>Barcodes</h4>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div id="barcodes">
-                                <div class="col-md-2">
-                                    <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
-                                </div>
-                                <div class="col-md-5 tags">
-                                    <ul class="list-group">
-                                        <t t-foreach="barcodes" t-as="barcode">
-                                            <li class="list-group-item"><t t-esc="barcode"/></li>
-                                        </t>
-                                    </ul>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <hr/>
+                                    <h4>Barcodes</h4>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pull-right">
-                                <button id="mark_damaged_button" type="button" class="btn btn-danger btn-large button-touch">
-                                    <i class="fa fa-chain-broken button-icon" aria-hidden="true"></i> Mark damaged
-                                </button>
+                            <div class="row">
+                                <div id="barcodes">
+                                    <div class="col-md-2">
+                                        <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
+                                    </div>
+                                    <div class="col-md-5 tags">
+                                        <ul class="list-group">
+                                            <t t-foreach="barcodes" t-as="barcode">
+                                                <li class="list-group-item"><t t-esc="barcode"/></li>
+                                            </t>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
                         </div>
                     </div>
                 </div>
@@ -619,7 +614,7 @@
 
     <t t-name="damaged_product_modal">
         <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 formfield">
+            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 formfield">
                 <div class="form-group">
                     <label for="select_reason">Select Reason:</label>
                     <select class="form-control" id="select_reason">
@@ -629,6 +624,11 @@
                     </select>
                 </div>
             </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 formfield">
+                <label for="select_reason">Select quantity:</label>
+                <input type="number" id="qty_damaged" class="form-control"/>
+            </div>
+
         </div>
     </t>
     

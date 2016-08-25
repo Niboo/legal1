@@ -255,9 +255,8 @@
             var self = this;
             self.$elem.find('#mark_damaged_button').click(function(){
                 var product_id = self.id;
-                var qty = self.$elem.find('#quantity input').get(0).value;
                 var modal = new instance.stock_irm.modal.damage_modal();
-                modal.start(self, product_id, qty, self.damage_reasons);
+                modal.start(self, product_id, self.damage_reasons);
             })
         },
         get_damage_reasons: function () {

@@ -139,8 +139,7 @@
         },
         add_listener_on_product: function($result){
             var self = this;
-            if (!$result){                    self.packing_reference = data.packing_reference;
-                    self.packing_id = data.packing_id;
+            if (!$result){
                 $result = self.$elem.find('#results');
             }
             $result.find('a').click(function(event){
@@ -281,21 +280,17 @@
                 }
             }
         },
-        move_to_damaged: function(product_id, reason) {
+        move_to_damaged: function(product_id, reason, quantity) {
             var self = this;
-            console.log(self.current_move_line)
             self.session.rpc('/inbound_screen/move_to_damaged', {
                 product_id: product_id,
                 reason: reason,
-                qty: 1,
+                qty: quantity,
                 move_id:self.current_move_line.id,
+                supplier_id: self.supplier_id,
             }).then(function(data){
                 if (data.status == 'ok'){
-                    var modal = new instance.stock_irm.modal.damage_confirmed_modal();
-                    modal.start();
-                    window.setTimeout(function(){
-                        window.location.href = "/inbound_screen";
-                    }, 3000);
+
                 } else {
                     var modal = new instance.stock_irm.modal.exception_modal();
                     modal.start(data.error, data.message);

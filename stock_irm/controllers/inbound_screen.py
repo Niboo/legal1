@@ -531,29 +531,10 @@ product id: %s, supplier id: %s
                                            packing_order_id, reason_id):
         env = http.request.env
 
-        picking_type_id = self.get_receipt_picking_type()
-
-        picking = env['stock.picking'].create({
-            'partner_id': int(supplier_id),
-            'picking_type_id': picking_type_id.id,
-        })
-
-        box_by_product = {}
-
-        box_by_product[extra_line['product_id']] = extra_line['box']
-        product = env['product.product'].browse(int(extra_line['product_id']))
-        move_line = env['stock.move'].create({
-            'product_id': product.id,
-            'product_uom_qty': extra_line['quantity_already_scanned'],
-            'picking_type_id': picking_type_id.id,
-            'location_dest_id': picking_type_id.default_location_dest_id.id,
-            'location_id': env.ref('stock.stock_location_suppliers').id,
-            'product_uom': product.uom_id.id,
-            'name': 'automated picking - %s' % product.name,
-            'picking_id': picking.id,
-        })
-
-        picking.action_confirm()
+        picking, move_line = self.create_picking(
+            supplier_id, extra_line['product_id'],
+            extra_line['quantity_already_scanned'],
+        )
 
         result = picking.do_enter_transfer_details()
         wizard_id = result['res_id']
@@ -574,6 +555,32 @@ product id: %s, supplier id: %s
 
         return {'status': 'ok',
                 'destinations': dest_list}
+
+    def create_picking(self, supplier_id, product_id, quantity):
+        env = http.request.env
+
+        picking_type_id = self.get_receipt_picking_type()
+
+        picking = env['stock.picking'].create({
+            'partner_id': int(supplier_id),
+            'picking_type_id': picking_type_id.id,
+        })
+
+        product = env['product.product'].browse(int(product_id))
+        move_line = env['stock.move'].create({
+            'product_id': product.id,
+            'product_uom_qty': quantity,
+            'picking_type_id': picking_type_id.id,
+            'location_dest_id': picking_type_id.default_location_dest_id.id,
+            'location_id': env.ref('stock.stock_location_suppliers').id,
+            'product_uom': product.uom_id.id,
+            'name': 'automated picking - %s' % product.name,
+            'picking_id': picking.id,
+        })
+        picking.action_confirm()
+
+        return picking, move_line
+
 
     def get_destinations(self, location):
         locations = location.search([
@@ -653,11 +660,12 @@ product id: %s, supplier id: %s
                     'message': e.args[0]}
     
     @http.route('/inbound_screen/move_to_damaged', type='json', auth="user")
-    def move_to_damaged(self, product_id, qty, reason, move_id):
+    def move_to_damaged(self, product_id, qty, reason, move_id, supplier_id):
         env = http.request.env
         try:
+            product_id = int(product_id)
             move = env['stock.move'].browse(int(move_id))
-            product = env['product.product'].browse(int(product_id))
+            product = env['product.product'].browse(product_id)
 
             damage_reason = env['stock.inbound.damage.reason'].search(
                 [('reason', '=', reason)
@@ -675,7 +683,8 @@ product id: %s, supplier id: %s
                     "There is currently more than one Damaged Products Location set.")
 
             if not move_id:
-                raise Exception("No move selected")
+                picking, move = self.create_picking(supplier_id,
+                                                         product_id, qty)
 
             scrap_obj = env['stock.move.scrap']
             move_scrap = scrap_obj.with_context(active_id=move.id).create({
@@ -685,7 +694,6 @@ product id: %s, supplier id: %s
                 'location_id': damaged_products_location.id
             })
 
-            print "move_created"
             move_scrap.with_context(active_ids=[move.id]).move_scrap()
 
             return {

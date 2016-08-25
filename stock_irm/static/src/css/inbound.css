@@ -159,6 +159,7 @@ a[is-in-usage='true'] {
 
 #product_image {
     margin-bottom: 20px;
+    min-height: 250px;
 }
 
 #qty_row {

@@ -640,7 +640,7 @@
             self.footer_template = 'damaged_product_modal_footer';
             self.title = 'Move product to Damaged Products Location';
         },
-        start: function (caller, product_id, qty, damage_reasons) {
+        start: function (caller, product_id, damage_reasons) {
             var self = this;
             self.$body = $(QWeb.render(self.body_template, {
                 'damage_reasons': damage_reasons,
@@ -649,7 +649,7 @@
             self.$footer = $(QWeb.render(self.footer_template));
             this._super();
             self.add_listener_on_cancel_button();
-            self.add_listener_on_move_to_damaged_button(product_id, qty);
+            self.add_listener_on_move_to_damaged_button(product_id);
         },
         add_listener_on_cancel_button: function(){
             var self = this;
@@ -661,8 +661,11 @@
             var self = this;
             self.$modal.find('#move_to_damaged').click(function(event){
                 var reason = self.$modal.find('#select_reason').val();
-                self.caller.parent.move_to_damaged(product_id, qty, reason);
-            })
+                var quantity = self.$modal.find('#qty_damaged').val();
+                self.caller.parent.move_to_damaged(product_id, reason, quantity);
+                self.$modal.modal('hide');
+
+            });
         },
     });
 
