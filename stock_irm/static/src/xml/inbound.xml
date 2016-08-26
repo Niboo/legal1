@@ -484,6 +484,22 @@
                 </tr>
             </t>
         </table>
+        <t t-if="scrap_lines">
+            <hr/>
+            <h4>Damage Products</h4>
+            <table class="table">
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Reason</th>
+                </tr>
+                <t t-foreach="scrap_lines" t-as="scrap_line">
+                    <td><t t-esc="name"/></td>
+                    <td><t t-esc="qty"/></td>
+                    <td><t t-esc="reason"/></td>
+                </t>
+            </table>
+        </t>
     </t>
 
     <t t-name="confirm_unexpected_uncomplete_move_footer">

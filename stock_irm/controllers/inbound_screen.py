@@ -691,5 +691,10 @@ product id: %s, supplier id: %s
         move_scrap.with_context(active_ids=[move.id]).move_scrap()
 
         return {
-            'status': 'ok'
+            'status': 'ok',
+            'scrap_line': {
+                'name': move_scrap.product_id.name,
+                'qty': qty,
+                'reason': reason,
+            }
         }

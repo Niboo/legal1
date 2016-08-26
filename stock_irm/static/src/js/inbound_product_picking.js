@@ -286,12 +286,17 @@
                 product_id: product_id,
                 reason: reason,
                 qty: quantity,
-                move_id:self.current_move_line.id,
+                move_id: self.current_move_line.id,
                 supplier_id: self.supplier_id,
             }).then(function(data){
                 if (data.status != 'ok'){
                     var modal = new instance.stock_irm.modal.exception_modal();
                     modal.start(data.error, data.message);
+                } else {
+                    if(self.scrap_lines === undefined){
+                        self.scrap_lines = [];
+                    }
+                    self.scrap_lines.push(data.scrap_line);
                 }
             }).fail(function(data){
                 var modal = new instance.stock_irm.modal.exception_modal();

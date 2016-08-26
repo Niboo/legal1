@@ -349,7 +349,8 @@
                 if(data.status == 'ok'){
                     self.$body = $(QWeb.render(self.template, {
                         reasons: data.reasons,
-                        moves : self.uncomplete_and_unexpected_move_line
+                        moves : self.uncomplete_and_unexpected_move_line,
+                        scrap_lines: self.caller.scrap_lines,
                     }));
                     self.get_cart_list();
                 }
@@ -661,21 +662,6 @@
     });
 
     instance.stock_irm.modal.damage_modal = damage_modal;
-    var damage_confirmed_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
-            var self = this;
-            self._super();
-            self.title = 'Moved to Damaged Products Location!';
-            self.block_modal = true;
-        },
-        start: function () {
-            var self = this;
-            self.$body = "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>";
-            self._super();
-        },
-    });
-
-    instance.stock_irm.modal.damage_confirmed_modal = damage_confirmed_modal;
 
     var select_cart_modal = instance.stock_irm.modal.widget.extend({
         template: 'cart_result_body',
