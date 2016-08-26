@@ -467,9 +467,6 @@ product id: %s, supplier id: %s
 
             wizard.sudo().do_detailed_transfer()
 
-    # @http.route('/inbound_screen/move_to_destination',
-    #             type='json',
-    #             auth="user")
     def move_to_destination(self, box_name, destination_id, **kw):
         env = http.request.env
         package = self.search_dest_package(box_name)

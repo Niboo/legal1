@@ -57,7 +57,6 @@
 
             self.$elem.find('#cart_list a').off('click.cart');
             self.$elem.find('#cart_list a').on('click.cart', function (event) {
-                console.log('test');
                 var cart_id = $(event.currentTarget).attr('cart-id');
                 self.session.rpc('/select_package/move_to_cart', {
                     cart_id: cart_id,

@@ -155,11 +155,6 @@ a.cart[is-selected='true'] {
     border-color: #006085;
 }
 
-a[is-in-usage='true'] {
-    background-color: #FFB100;
-    border-color: #FFB100;
-}
-
 /* ########## product page */
 
 #product_image {

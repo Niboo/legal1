@@ -309,10 +309,9 @@ class InboundWaveController(http.Controller):
                     % product.id,
             })
 
-            package_list.sorted(key=lambda package: package.location_name)
-
         return {
             'wave_id': wave_id,
             'status': 'ok',
-            'package_list': package_list,
+            'package_list': sorted(
+                package_list, key=lambda package: package['location_name']),
         }

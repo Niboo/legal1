@@ -590,7 +590,6 @@
         },
         start: function (caller, destination, leftover, move_line, product) {
             var self = this;
-            console.log(destination);
             self.$body = $(QWeb.render(self.template, {
                 destination: destination
             }));
@@ -711,6 +710,7 @@
                 self.$modal.on('hidden.bs.modal', function () {
                     self.caller.set_cart(cart);
                     self.$modal.off();
+                    self.caller.add_listener_for_barcode();
                 });
             })
         }

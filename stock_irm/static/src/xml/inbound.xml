@@ -104,7 +104,7 @@
             <t t-foreach="carts" t-as="cart">
                 <a href="#" class="btn btn-lg btn-success cart col-md-3"
                    t-att-cart-id="cart.id"
-                   t-att-cart-name="cart.name" t-att-is-in-usage="cart.is_in_usage"
+                   t-att-cart-name="cart.name"
                    t-att-is-selected="current_cart !== undefined &amp;&amp; cart.id == current_cart.id">
                     <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="cart.name" />
                 </a>
