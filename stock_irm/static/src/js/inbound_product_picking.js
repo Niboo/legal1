@@ -289,9 +289,7 @@
                 move_id:self.current_move_line.id,
                 supplier_id: self.supplier_id,
             }).then(function(data){
-                if (data.status == 'ok'){
-
-                } else {
+                if (data.status != 'ok'){
                     var modal = new instance.stock_irm.modal.exception_modal();
                     modal.start(data.error, data.message);
                 }

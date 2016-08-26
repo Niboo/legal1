@@ -645,61 +645,61 @@ product id: %s, supplier id: %s
     @http.route('/inbound_screen/get_damage_reasons', type='json', auth="user")
     def get_damage_reasons(self):
         env = http.request.env
-        try:
-            damage_reasons_objects = env['stock.inbound.damage.reason'].search([])
-            damage_reasons = [str(r.reason) for r in damage_reasons_objects]
-            if damage_reasons:
-                return {'status': 'ok',
-                    'damage_reasons': damage_reasons}
-            else:
-                raise Exception(
-                    "There are currently no Damage Reasons set.")
-        except Exception as e:
-            return {'status': 'error',
-                    'error': type(e).__name__,
-                    'message': e.args[0]}
-    
+        damage_reasons_objects = env['stock.inbound.damage.reason'].search([])
+        damage_reasons = [str(damage_reason.reason)
+                          for damage_reason in damage_reasons_objects]
+        if damage_reasons:
+            return {
+                'status': 'ok',
+                'damage_reasons': damage_reasons
+            }
+        else:
+            return {
+                'status': 'error',
+                'error': 'Error',
+                'message': 'There are currently no Damage Reasons set.'
+            }
+
     @http.route('/inbound_screen/move_to_damaged', type='json', auth="user")
     def move_to_damaged(self, product_id, qty, reason, move_id, supplier_id):
         env = http.request.env
-        try:
-            product_id = int(product_id)
-            move = env['stock.move'].browse(int(move_id))
-            product = env['product.product'].browse(product_id)
+        product_id = int(product_id)
+        move = env['stock.move'].browse(int(move_id))
+        product = env['product.product'].browse(product_id)
 
-            damage_reason = env['stock.inbound.damage.reason'].search(
-                [('reason', '=', reason)
-            ])
+        damaged_products_location = env['stock.location'].search([
+            ('is_damaged_location', '=', True)
+        ])
 
-            damaged_products_location = env['stock.location'].search([
-                ('is_damaged_location', '=', True)
-            ])
-
-            if len(damaged_products_location) < 1:
-                raise Exception(
-                    "There is currently no Damaged Products Location set.")
-            elif len(damaged_products_location) > 1:
-                raise Exception(
-                    "There is currently more than one Damaged Products Location set.")
-
-            if not move_id:
-                picking, move = self.create_picking(supplier_id,
-                                                         product_id, qty)
-
-            scrap_obj = env['stock.move.scrap']
-            move_scrap = scrap_obj.with_context(active_id=move.id).create({
-                'product_id': product.id,
-                'product_qty': int(qty),
-                'product_uom': product.uom_id.id,
-                'location_id': damaged_products_location.id
-            })
-
-            move_scrap.with_context(active_ids=[move.id]).move_scrap()
-
+        if len(damaged_products_location) < 1:
             return {
-                'status': 'ok'
+                'status': 'error',
+                'error': 'Error',
+                'message': 'There is currently no Damaged Products '
+                           'Location set.'
             }
-        except Exception as e:
-            return {'status': 'error',
-                    'error': type(e).__name__,
-                    'message': e.args[0]}
+        elif len(damaged_products_location) > 1:
+            return {
+                'status': 'error',
+                'error': 'Error',
+                'message': 'There is currently more than one Damaged Products'
+                           ' Location set.'
+            }
+
+        if not move_id:
+            picking, move = self.create_picking(supplier_id,
+                                                product_id, qty)
+
+        scrap_obj = env['stock.move.scrap']
+        move_scrap = scrap_obj.with_context(active_id=move.id).create({
+            'product_id': product.id,
+            'product_qty': int(qty),
+            'product_uom': product.uom_id.id,
+            'location_id': damaged_products_location.id
+        })
+
+        move_scrap.with_context(active_ids=[move.id]).move_scrap()
+
+        return {
+            'status': 'ok'
+        }

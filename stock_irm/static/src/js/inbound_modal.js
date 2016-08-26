@@ -634,8 +634,8 @@
 
   var damage_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
-            this._super();
             var self = this;
+            self._super();
             self.body_template = 'damaged_product_modal';
             self.footer_template = 'damaged_product_modal_footer';
             self.title = 'Move product to Damaged Products Location';
@@ -647,7 +647,7 @@
             }));
             self.caller = caller;
             self.$footer = $(QWeb.render(self.footer_template));
-            this._super();
+            self._super();
             self.add_listener_on_cancel_button();
             self.add_listener_on_move_to_damaged_button(product_id);
         },
@@ -673,14 +673,14 @@
     var damage_confirmed_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
             var self = this;
-            this._super();
+            self._super();
             self.title = 'Moved to Damaged Products Location!';
             self.block_modal = true;
         },
         start: function () {
             var self = this;
             self.$body = "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>";
-            this._super();
+            self._super();
         },
     });
 
