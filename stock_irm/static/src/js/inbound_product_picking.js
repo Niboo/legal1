@@ -58,7 +58,7 @@
                 'po_lines': po_move_lines_by_picking,
             }));
             if(self.cart === undefined){
-                self.get_cart(true);
+                self.get_carts(true);
             }
 
             $('#content').html(self.$elem);
@@ -397,7 +397,7 @@
 
             self.$elem.find('#po-lines-list').html($result);
         },
-        get_cart: function (block_modal) {
+        get_carts: function (block_modal) {
             var self = this;
             self.session.rpc('/inbound_screen/get_cart_list', {}).then(function (data) {
                 if(data.status == 'ok'){
@@ -420,7 +420,7 @@
             self.$change_cart.show();
             self.$nav.off('click.change-cart');
             self.$nav.on('click.change-cart', '#change-cart a', function (e) {
-                self.get_cart(false);
+                self.get_carts(false);
             });
         },
     });
