@@ -667,25 +667,6 @@ product id: %s, supplier id: %s
         move = env['stock.move'].browse(int(move_id))
         product = env['product.product'].browse(product_id)
 
-        damaged_products_location = env['stock.location'].search([
-            ('is_damaged_location', '=', True)
-        ])
-
-        if len(damaged_products_location) < 1:
-            return {
-                'status': 'error',
-                'error': 'Error',
-                'message': 'There is currently no Damaged Products '
-                           'Location set.'
-            }
-        elif len(damaged_products_location) > 1:
-            return {
-                'status': 'error',
-                'error': 'Error',
-                'message': 'There is currently more than one Damaged Products'
-                           ' Location set.'
-            }
-
         if not move_id:
             picking, move = self.create_picking(supplier_id,
                                                 product_id, qty)
@@ -695,7 +676,6 @@ product id: %s, supplier id: %s
             'product_id': product.id,
             'product_qty': int(qty),
             'product_uom': product.uom_id.id,
-            'location_id': damaged_products_location.id
         })
 
         move_scrap.with_context(active_ids=[move.id]).move_scrap()

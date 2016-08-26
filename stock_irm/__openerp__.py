@@ -57,7 +57,6 @@ Module
         'views/inbound_wave.xml',
         'views/stock_incomplete_reason.xml',
         'views/picking_dispatch_view.xml',
-        'data/staging_location.xml',
     ],
     'qweb': [
     ],
