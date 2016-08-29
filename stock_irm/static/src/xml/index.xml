@@ -50,7 +50,7 @@
                             <!--</t>-->
                         </div>
                         <div class="col-md-4">
-                            <a id="goto_rma" type="button" href="#" class="btn goto-button rma">
+                            <a id="goto_rma" type="button" href="/rma_screen" class="btn goto-button rma">
                                 RMA<br/>
                                 <i class="fa fa-share-square big-icon" aria-hidden="true"></i>
                             </a>

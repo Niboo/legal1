@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Jerome Guerriat
-#    Copyright 2015 Niboo SPRL
+#    Author: Pierre Faniel
+#    Copyright 2016 Niboo SPRL
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -25,48 +25,52 @@ from datetime import datetime
 from openerp.http import request
 
 
-class InboundController(http.Controller):
-    @http.route('/inbound_screen', type='http', auth="user")
-    def inbound_screen(self, **kw):
-        current_user = http.request.env['res.users'].browse(http.request.uid)
-        inbound_suppliers = http.request.env['res.partner'].search([
-            ('is_in_inbound', '=', True)],
-            order='sequence'
-        )
+class RMAScreenController(http.Controller):
+    @http.route('/rma_screen', type='http', auth="user")
+    def rma_screen(self, **kw):
+        # claims = env['crm.claim'].search([('stage_id', '=', stage_new.id)])
+        #
+        # customers = claims.mapped('partner_id')
 
-        return http.request.render('stock_irm.inbound_screen', {
-            'suppliers': inbound_suppliers,
-            'user_name': current_user.partner_id.name,
-            'worklocation_name': current_user.work_location_id.name,
-            'worklocation_id': current_user.work_location_id.id or 0,
-            'work_location_staging_id': current_user.work_location_id.staging_location_id.id,
-            'title': 'Inbound',
+        env = http.request.env
+        work_location = env.user.work_location_id
+        return http.request.render('stock_irm.rma_screen', {
+            'user_name': env.user.partner_id.name,
+            'worklocation_name': work_location.name,
+            'worklocation_id': work_location.id or 0,
+            'work_location_staging_id': work_location.staging_location_id.id,
+            'title': 'RMA',
         })
 
-    @http.route('/inbound_screen/get_suppliers', type='json', auth="user")
+    @http.route('/rma_screen/get_customers', type='json', auth="user")
     def get_suppliers(self, search="",  **kw):
         env = http.request.env
-        inbound_suppliers = list()
+        stages = env['crm.claim.stage'].search(
+            ['|',
+             ('name', '=', 'New'),
+             ('name', '=', 'In Progress')
+             ])
+        claims = env['crm.claim'].search([('stage_id', 'in', stages.ids)])
 
-        domain = [('is_in_inbound', '=', True)]
+        customers = claims.mapped('partner_id')
 
         if search:
-            domain.append(('display_name', 'ilike', search))
+            customers = customers.filtered(
+                lambda partner: search.lower() in partner.display_name.lower())
 
-        suppliers = env['res.partner'].search(
-            domain,
-            order='sequence'
-        )
-
-        for supplier in suppliers:
-            inbound_suppliers.append({
-                'id': supplier.id,
-                'name': supplier.name,
+        inbound_customers = []
+        for customer in customers:
+            inbound_customers.append({
+                'id': customer.id,
+                'name': customer.name,
             })
-        return {'status': 'ok',
-                'suppliers': inbound_suppliers}
 
-    @http.route('/inbound_screen/get_products', type='json', auth="user")
+        return {
+            'status': 'ok',
+            'customers': inbound_customers,
+        }
+
+    @http.route('/rma_screen/get_products', type='json', auth="user")
     def get_products(self, supplier_id, search="", page=0,  **kw):
         cr = http.request.cr
         products = list()
@@ -88,7 +92,6 @@ FROM product_template AS pt
 
 WHERE (pt.name ilike %s
 OR pp.ean13 ilike %s
-OR pp.default_code ilike %s
 OR psitags.name ilike %s
 OR psi.product_code ilike %s)
 
@@ -99,7 +102,7 @@ GROUP BY pt.name, pp.id
 ORDER BY pp.id
 LIMIT %s
 OFFSET %s
-""", [search, search, search, search, search, supplier_id, search_limit, search_offset])
+""", [search, search, search, search, supplier_id, search_limit, search_offset])
         products_results = cr.fetchall()
 
         cr.execute("""
@@ -112,14 +115,13 @@ FROM product_template AS pt
 
 WHERE (pt.name ilike %s
 OR pp.ean13 ilike %s
-OR pp.default_code ilike %s
 OR psitags.name ilike %s
 OR psi.product_code ilike %s)
 
 AND pt.sale_ok IS TRUE
 AND psi.name = rp.id
 AND rp.commercial_partner_id = %s
-""", [search, search, search, search, search, supplier_id])
+""", [search, search, search, search, supplier_id])
 
         products_count = cr.fetchall()
 
@@ -136,7 +138,7 @@ AND rp.commercial_partner_id = %s
                    'products_count': products_count[0][0]}
         return results
 
-    @http.route('/inbound_screen/get_product', type='json', auth="user")
+    @http.route('/rma_screen/get_product', type='json', auth="user")
     def get_product(self, id, supplier_id, **kw):
         env = http.request.env
 
@@ -187,7 +189,7 @@ product id: %s, supplier id: %s
         }
         return results
 
-    @http.route('/inbound_screen/check_package_empty', type='json',
+    @http.route('/rma_screen/check_package_empty', type='json',
                 auth='user')
     def check_package_empty(self, package_barcode):
         env = http.request.env
@@ -229,38 +231,41 @@ product id: %s, supplier id: %s
             'message': message
         }
 
-    @http.route('/inbound_screen/search_supplier_purchase', type='json',
+    @http.route('/rma_screen/search_customer_claims', type='json',
                 auth='user')
-    def search_supplier_purchase(self, supplier):
+    def search_customer_claims(self, customer_id):
         env = http.request.env
-        supplier = env['res.partner'].search([('id', '=', int(supplier))])
 
-        purchase_orders = env['purchase.order'].search([
-            ('partner_id.commercial_partner_id', '=',
-             supplier.commercial_partner_id.id),
-            ('state', '=', 'approved'),
-            ('shipped', '=', False),
-        ], order="date_order ASC")
+        stages = env['crm.claim.stage'].search(
+            ['|',
+             ('name', '=', 'New'),
+             ('name', '=', 'In Progress')
+             ])
 
-        orders = []
-        for order in purchase_orders:
-            orders.append({'name': order.name,
-                           'id': order.id})
+        crm_claims = env['crm.claim'].search([
+            ('partner_id', '=', int(customer_id)),
+            ('stage_id', 'in', stages.ids),
+        ])
+
+        claims = []
+        for claim in crm_claims:
+            claims.append({'name': claim.code,
+                           'id': claim.id, })
 
         return {'status': 'ok',
-                'orders': orders}
+                'claims': claims}
 
-    @http.route('/inbound_screen/get_purchase_order_move_lines', type='json',
+    @http.route('/rma_screen/get_claim_move_lines', type='json',
                 auth='user')
-    def get_purchase_order_move_lines(self, purchase_order_ids=False):
+    def get_claim_move_lines(self, claim_ids=False):
         env = http.request.env
-        purchase_orders = env['purchase.order'].browse(purchase_order_ids)
-
-        lines = []
+        claims = env['crm.claim'].browse(claim_ids)
 
         pickings = claims.mapped('picking_ids').filtered(
             lambda r: r.state == 'assigned')
         pickings = pickings.sorted(key=lambda pick: (pick.min_date, pick.id))
+
+        lines = []
         for picking in pickings:
             for move_line in picking.move_lines.filtered(
                     lambda r: r.state == 'assigned'):
@@ -311,13 +316,13 @@ product id: %s, supplier id: %s
 
         return picking_ids
 
-    @http.route('/inbound_screen/change_user', type='http', auth="user")
+    @http.route('/rma_screen/change_user', type='http', auth="user")
     def change_user(self, **kw):
         request.session.logout(keep_db=True)
         request.session.authenticate(request.session.db, login=kw['login'],
                                      password=kw['password'])
 
-    @http.route('/inbound_screen/get_worklocations', type='json', auth="user")
+    @http.route('/rma_screen/get_worklocations', type='json', auth="user")
     def get_worklocation(self, **kw):
         env = http.request.env
         wklc = env['work_location']
@@ -336,51 +341,7 @@ product id: %s, supplier id: %s
         return {'status': 'ok',
                'worklocations': worklocations}
 
-
-    @http.route('/inbound_screen/switch_worklocation',
-                type='json',
-                auth="user")
-    def switch_worklocation(self, new_work_location_id, **kw):
-        env = http.request.env
-        user = env['res.users'].browse(request.uid)
-        user.sudo().work_location_id = int(new_work_location_id)
-
-        return self.get_printer_ip()
-
-    @http.route('/inbound_screen/get_printer_ip', type='json', auth="user")
-    def get_printer_ip(self, **kw):
-        env = http.request.env
-        WorkLocationPrinter = env['work_location_printer']
-        label_printer_type = env.ref('stock_irm.label_printer_type')
-        printer_ip = False
-
-        user = env['res.users'].browse(request.uid)
-
-        work_location_printer = WorkLocationPrinter.search(
-            [('document_type_id', '=', label_printer_type.id),
-             ('work_location_id', '=', user.work_location_id.id)])
-
-        if work_location_printer.printing_printer_id:
-            printer_ip = work_location_printer.printing_printer_id.ip_adress
-
-        return{'status': 'ok',
-                   'printer_ip': printer_ip}
-
-    @http.route('/inbound_screen/get_worklocation_printers',
-                type='json',
-                auth="user")
-    def get_worklocation_printers(self, location_id, **kw):
-        env = http.request.env
-        wklc = env['work_location']
-
-        printers = []
-        for line in wklc.browse(int(location_id)).work_location_printer_ids:
-            printers.append({'id':line.printing_printer_id.id,
-                             'ip_adress':line.printing_printer_id.ip_adress})
-        return {'status': 'ok',
-                   'printers': printers}
-
-    @http.route('/inbound_screen/get_user', type='json', auth="user")
+    @http.route('/rma_screen/get_user', type='json', auth="user")
     def get_user(self, barcode="",  **kw):
         env = http.request.env
         domain = []
@@ -401,7 +362,7 @@ product id: %s, supplier id: %s
         else:
             return {"status": 'error'}
 
-    @http.route('/inbound_screen/process_picking_line', type='json',
+    @http.route('/rma_screen/process_picking_line', type='json',
                 auth="user")
     def process_picking_line(self, qty, picking_line_id, box_name,
                              packing_order_id, reason_id=False, cart_id=False):
@@ -477,7 +438,7 @@ product id: %s, supplier id: %s
         return {'status': 'ok',
                 'destination': destination.name}
 
-    @http.route('/inbound_screen/get_incomplete_reason',
+    @http.route('/rma_screen/get_incomplete_reason',
                 type='json',
                 auth="user")
     def get_incomplete_reason(self):
@@ -492,7 +453,7 @@ product id: %s, supplier id: %s
         return {'status': 'ok',
                 'reasons': reason_list}
 
-    @http.route('/inbound_screen/check_staging_package_empty',
+    @http.route('/rma_screen/check_staging_package_empty',
                 type='json',
                 auth="user")
     def check_staging_package_empty(self, barcode):
@@ -527,7 +488,7 @@ product id: %s, supplier id: %s
 
     # This method is used for both unordered product and product that were
     # ordered but came in with too many items
-    @http.route('/inbound_screen/create_picking_for_unordered_lines',
+    @http.route('/rma_screen/create_picking_for_unordered_lines',
                 type='json',
                 auth="user")
     def create_picking_for_unordered_lines(
@@ -619,23 +580,23 @@ product id: %s, supplier id: %s
             move.write({'packing_order_id': packing_order_id,
                         'reason_id': reason_id})
 
-    @http.route('/inbound_screen/create_packing_order', type='json', auth="user")
+    @http.route('/rma_screen/create_packing_order', type='json', auth="user")
     def create_packing_order(self, **kw):
         env = http.request.env
         packing_order = env['stock.packing.order'].create({})
         return {'status': 'ok',
-                'packing_reference':packing_order.name,
+                'packing_reference': packing_order.name,
                 'packing_id': packing_order.id,
                 }
 
-    @http.route('/inbound_screen/save_packing_note', type='json', auth='user')
+    @http.route('/rma_screen/save_packing_note', type='json', auth='user')
     def save_packing_note(self, packing_id, note, **kw):
         env = http.request.env
         packing_oder = env['stock.packing.order'].browse(int(packing_id))
         packing_oder.note = note
         return {'status': 'ok'}
 
-    @http.route('/inbound_screen/get_cart_list', type='json', auth='user')
+    @http.route('/rma_screen/get_cart_list', type='json', auth='user')
     def get_cart_list(self):
         env = http.request.env
         locations = env['stock.location']\
@@ -653,7 +614,7 @@ product id: %s, supplier id: %s
             'carts': carts,
         }
 
-    @http.route('/inbound_screen/get_damage_reasons', type='json', auth="user")
+    @http.route('/rma_screen/get_damage_reasons', type='json', auth="user")
     def get_damage_reasons(self):
         env = http.request.env
         damage_reasons_objects = env['stock.inbound.damage.reason'].search([])
@@ -671,7 +632,7 @@ product id: %s, supplier id: %s
                 'message': 'There are currently no Damage Reasons set.'
             }
 
-    @http.route('/inbound_screen/move_to_damaged', type='json', auth="user")
+    @http.route('/rma_screen/move_to_damaged', type='json', auth="user")
     def move_to_damaged(self, product_id, qty, reason, move_id, supplier_id):
         env = http.request.env
         product_id = int(product_id)
@@ -692,10 +653,5 @@ product id: %s, supplier id: %s
         move_scrap.with_context(active_ids=[move.id]).move_scrap()
 
         return {
-            'status': 'ok',
-            'scrap_line': {
-                'name': move_scrap.product_id.name,
-                'qty': qty,
-                'reason': reason,
-            }
+            'status': 'ok'
         }

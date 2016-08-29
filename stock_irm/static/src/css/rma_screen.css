@@ -1,0 +1,19 @@
+
+.claim-btn {
+    background-color: rgba(84, 128, 202, 0.80);
+    border-color: #427899;
+    color: #FFF;
+    margin-left: 1%;
+    margin-right: 1%;
+    width: 23%;
+    margin-bottom: 10px;
+}
+
+.selected-claim-btn{
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+}
+
+.claim-btn:hover, .claim-btn:focus{
+    color: #FFF;
+}
