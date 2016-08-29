@@ -22,16 +22,11 @@
 from openerp import http
 from openerp import exceptions
 from datetime import datetime
-from openerp.http import request
 
 
 class RMAScreenController(http.Controller):
-    @http.route('/rma_screen', type='http', auth="user")
+    @http.route('/rma_screen', type='http', auth='user')
     def rma_screen(self, **kw):
-        # claims = env['crm.claim'].search([('stage_id', '=', stage_new.id)])
-        #
-        # customers = claims.mapped('partner_id')
-
         env = http.request.env
         work_location = env.user.work_location_id
         return http.request.render('stock_irm.rma_screen', {
@@ -42,8 +37,8 @@ class RMAScreenController(http.Controller):
             'title': 'RMA',
         })
 
-    @http.route('/rma_screen/get_customers', type='json', auth="user")
-    def get_suppliers(self, search="",  **kw):
+    @http.route('/rma_screen/get_customers', type='json', auth='user')
+    def get_suppliers(self, search='',  **kw):
         env = http.request.env
         stages = env['crm.claim.stage'].search(
             ['|',
@@ -70,8 +65,8 @@ class RMAScreenController(http.Controller):
             'customers': inbound_customers,
         }
 
-    @http.route('/rma_screen/get_products', type='json', auth="user")
-    def get_products(self, supplier_id, search="", page=0,  **kw):
+    @http.route('/rma_screen/get_products', type='json', auth='user')
+    def get_products(self, customer, search='', page=0,  **kw):
         cr = http.request.cr
         products = list()
 
@@ -82,7 +77,7 @@ class RMAScreenController(http.Controller):
         search_offset = page * search_limit
         search = '%%%s%%' % search
 
-        cr.execute("""
+        cr.execute('''
 SELECT pp.id, pt.name
 FROM product_template AS pt
   JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
@@ -102,10 +97,10 @@ GROUP BY pt.name, pp.id
 ORDER BY pp.id
 LIMIT %s
 OFFSET %s
-""", [search, search, search, search, supplier_id, search_limit, search_offset])
+''', [search, search, search, search, supplier_id, search_limit, search_offset])
         products_results = cr.fetchall()
 
-        cr.execute("""
+        cr.execute('''
 SELECT count(*)
 FROM product_template AS pt
   JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
@@ -121,7 +116,7 @@ OR psi.product_code ilike %s)
 AND pt.sale_ok IS TRUE
 AND psi.name = rp.id
 AND rp.commercial_partner_id = %s
-""", [search, search, search, search, supplier_id])
+''', [search, search, search, search, supplier_id])
 
         products_count = cr.fetchall()
 
@@ -129,7 +124,7 @@ AND rp.commercial_partner_id = %s
             products.append({
                 'id': product[0],
                 'name': product[1],
-                'image': "/web/binary/image?model=product.product&id=%s&field=image" % product[0]
+                'image': '/web/binary/image?model=product.product&id=%s&field=image' % product[0]
             })
 
         results = {'status': 'ok',
@@ -138,7 +133,7 @@ AND rp.commercial_partner_id = %s
                    'products_count': products_count[0][0]}
         return results
 
-    @http.route('/rma_screen/get_product', type='json', auth="user")
+    @http.route('/rma_screen/get_product', type='json', auth='user')
     def get_product(self, id, supplier_id, **kw):
         env = http.request.env
 
@@ -162,10 +157,10 @@ AND rp.commercial_partner_id = %s
         if len(supplier_info) != 1:
             results = {
                 'status': 'error',
-                'message': """
+                'message': '''
 There is more or less than one supplier info for this product:
 product id: %s, supplier id: %s
-""" % (product.id, supplier_id)
+''' % (product.id, supplier_id)
             }
             return results
 
@@ -178,13 +173,13 @@ product id: %s, supplier id: %s
             'product': {
                 'id': product.id,
                 'name': product.name,
-                'description': product.description or "No description",
+                'description': product.description or 'No description',
                 'default_code': product.default_code,
                 'supplier_code': supplier_info.product_code or 'N/A',
                 'requires_unpack': requires_unpack,
                 'requires_relabel': requires_relabel,
                 'barcodes': barcodes,
-                'image': "/web/binary/image?model=product.product&id=%s&field=image" % product.id,
+                'image': '/web/binary/image?model=product.product&id=%s&field=image' % product.id,
             }
         }
         return results
@@ -218,18 +213,6 @@ product id: %s, supplier id: %s
             })
 
         return dest_package
-
-    def no_quantity_error(self, product, cart):
-        env = http.request.env
-
-        message = 'No quantity provided for "%s" in cart "%s"' \
-                      % (product.name, cart.name)
-
-        env.cr.rollback()
-        return {
-            'status': 'error',
-            'message': message
-        }
 
     @http.route('/rma_screen/search_customer_claims', type='json',
                 auth='user')
@@ -288,7 +271,7 @@ product id: %s, supplier id: %s
         env = http.request.env
 
         picking_type_id = env['stock.picking.type'].search([
-            ('is_receipts', '=', True)
+            ('is_rma_receipts', '=', True)
         ])
 
         if not picking_type_id:
@@ -316,13 +299,13 @@ product id: %s, supplier id: %s
 
         return picking_ids
 
-    @http.route('/rma_screen/change_user', type='http', auth="user")
+    @http.route('/rma_screen/change_user', type='http', auth='user')
     def change_user(self, **kw):
-        request.session.logout(keep_db=True)
-        request.session.authenticate(request.session.db, login=kw['login'],
+        http.request.session.logout(keep_db=True)
+        http.request.session.authenticate(request.session.db, login=kw['login'],
                                      password=kw['password'])
 
-    @http.route('/rma_screen/get_worklocations', type='json', auth="user")
+    @http.route('/rma_screen/get_worklocations', type='json', auth='user')
     def get_worklocation(self, **kw):
         env = http.request.env
         wklc = env['work_location']
@@ -341,8 +324,8 @@ product id: %s, supplier id: %s
         return {'status': 'ok',
                'worklocations': worklocations}
 
-    @http.route('/rma_screen/get_user', type='json', auth="user")
-    def get_user(self, barcode="",  **kw):
+    @http.route('/rma_screen/get_user', type='json', auth='user')
+    def get_user(self, barcode='',  **kw):
         env = http.request.env
         domain = []
 
@@ -358,12 +341,12 @@ product id: %s, supplier id: %s
                     'username': user.name,
                     'user_id': user.id,
                     'login': user.login,
-                    'image': "/web/binary/image?model=res.users&id=%s&field=image_medium" % user.id}
+                    'image': '/web/binary/image?model=res.users&id=%s&field=image_medium' % user.id}
         else:
-            return {"status": 'error'}
+            return {'status': 'error'}
 
     @http.route('/rma_screen/process_picking_line', type='json',
-                auth="user")
+                auth='user')
     def process_picking_line(self, qty, picking_line_id, box_name,
                              packing_order_id, reason_id=False, cart_id=False):
         env = http.request.env
@@ -438,103 +421,13 @@ product id: %s, supplier id: %s
         return {'status': 'ok',
                 'destination': destination.name}
 
-    @http.route('/rma_screen/get_incomplete_reason',
-                type='json',
-                auth="user")
-    def get_incomplete_reason(self):
-        env = http.request.env
-
-        reasons = env['stock.incomplete.reason'].search([])
-        reason_list = []
-        for reason in reasons:
-            reason_list.append({'name': reason.name,
-                                'id': reason.id})
-
-        return {'status': 'ok',
-                'reasons': reason_list}
-
-    @http.route('/rma_screen/check_staging_package_empty',
-                type='json',
-                auth="user")
-    def check_staging_package_empty(self, barcode):
-        env = http.request.env
-
-        staging_location = env.ref('stock_irm.stock_staging_location')
-
-        dest_box = env['stock.location'].search([
-            ('location_id', '=', staging_location.id),
-            ('name', '=', str(barcode))
-        ])
-
-        if len(dest_box) > 1:
-            message = 'There is already a box with that barcode on the staging location'
-
-            env.cr.rollback()
-            return {
-                'status': 'error',
-                'message': message
-            }
-
-        if not dest_box:
-            dest_box = env['stock.location'].sudo().create({
-                'location_id': staging_location.id,
-                'name': str(barcode),
-            })
-
-        return {
-            'status': "ok",
-            'dest_box_id': dest_box.id
-        }
-
-    # This method is used for both unordered product and product that were
-    # ordered but came in with too many items
-    @http.route('/rma_screen/create_picking_for_unordered_lines',
-                type='json',
-                auth="user")
-    def create_picking_for_unordered_lines(
-            self, extra_line, dest_box_id, supplier_id, box_name,
-            packing_order_id, reason_id, cart_id=False):
-        env = http.request.env
-
-        picking, move_line = self.create_picking(
-            supplier_id, extra_line['product_id'],
-            extra_line['quantity_already_scanned'],
-        )
-
-        result = picking.do_enter_transfer_details()
-        wizard_id = result['res_id']
-        my_wizard = env['stock.transfer_details'].browse(wizard_id)
-
-        dest_package = self.search_dest_package(box_name)
-
-        for wizard_line in my_wizard.item_ids:
-            wizard_line.result_package_id = dest_package.id
-            wizard_line.destinationloc_id = int(dest_box_id)
-
-        my_wizard.sudo().do_detailed_transfer()
-
-        dest_list = self.get_destinations(
-            move_line.move_dest_id.location_dest_id)
-
-        self.add_packing_order_on_move(picking, packing_order_id, reason_id)
-
-        if filter(lambda dest: dest['id'] == cart_id, dest_list):
-            destination_id = cart_id
-        else:
-            destination_id = dest_list[0]['id']
-
-        destination = self.move_to_destination(box_name, destination_id)
-
-        return {'status': 'ok',
-                'destination': destination['destination']}
-
-    def create_picking(self, supplier_id, product_id, quantity):
+    def create_picking(self, customer_id, product_id, quantity):
         env = http.request.env
 
         picking_type_id = self.get_receipt_picking_type()
 
         picking = env['stock.picking'].create({
-            'partner_id': int(supplier_id),
+            'partner_id': int(customer_id),
             'picking_type_id': picking_type_id.id,
         })
 
@@ -544,7 +437,7 @@ product id: %s, supplier id: %s
             'product_uom_qty': quantity,
             'picking_type_id': picking_type_id.id,
             'location_dest_id': picking_type_id.default_location_dest_id.id,
-            'location_id': env.ref('stock.stock_location_suppliers').id,
+            'location_id': env.ref('stock.stock_location_customers').id,
             'product_uom': product.uom_id.id,
             'name': 'automated picking - %s' % product.name,
             'picking_id': picking.id,
@@ -552,7 +445,6 @@ product id: %s, supplier id: %s
         picking.action_confirm()
 
         return picking, move_line
-
 
     def get_destinations(self, location):
         locations = location.search([
@@ -580,7 +472,7 @@ product id: %s, supplier id: %s
             move.write({'packing_order_id': packing_order_id,
                         'reason_id': reason_id})
 
-    @http.route('/rma_screen/create_packing_order', type='json', auth="user")
+    @http.route('/rma_screen/create_packing_order', type='json', auth='user')
     def create_packing_order(self, **kw):
         env = http.request.env
         packing_order = env['stock.packing.order'].create({})
@@ -614,33 +506,15 @@ product id: %s, supplier id: %s
             'carts': carts,
         }
 
-    @http.route('/rma_screen/get_damage_reasons', type='json', auth="user")
-    def get_damage_reasons(self):
-        env = http.request.env
-        damage_reasons_objects = env['stock.inbound.damage.reason'].search([])
-        damage_reasons = [str(damage_reason.reason)
-                          for damage_reason in damage_reasons_objects]
-        if damage_reasons:
-            return {
-                'status': 'ok',
-                'damage_reasons': damage_reasons
-            }
-        else:
-            return {
-                'status': 'error',
-                'error': 'Error',
-                'message': 'There are currently no Damage Reasons set.'
-            }
-
-    @http.route('/rma_screen/move_to_damaged', type='json', auth="user")
-    def move_to_damaged(self, product_id, qty, reason, move_id, supplier_id):
+    @http.route('/rma_screen/move_to_damaged', type='json', auth='user')
+    def move_to_damaged(self, product_id, qty, reason, move_id, customer_id):
         env = http.request.env
         product_id = int(product_id)
         move = env['stock.move'].browse(int(move_id))
         product = env['product.product'].browse(product_id)
 
         if not move_id:
-            picking, move = self.create_picking(supplier_id,
+            picking, move = self.create_picking(customer_id,
                                                 product_id, qty)
 
         scrap_obj = env['stock.move.scrap']
