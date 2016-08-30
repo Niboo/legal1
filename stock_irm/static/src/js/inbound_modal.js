@@ -391,14 +391,14 @@
         add_listener_on_cart_buttons: function () {
             var self = this;
             self.$footer.off('click.cart-select-button');
-            self.$footer.on('click.cart-select-button', '.cart', function (e) {
+            self.$footer.on('click.cart-select-button', '.cart a', function (e) {
                 var $this = $(this);
                 var cart = {
                     id: parseInt($this.attr('cart-id')),
                     name: $this.attr('cart-name'),
                 };
                 self.caller.set_cart(cart);
-                self.$footer.find('a.cart[is-selected="true"]').attr('is-selected', false);
+                self.$footer.find('.cart a[is-selected="true"]').attr('is-selected', false);
                 $this.attr('is-selected', true);
             });
         },
@@ -688,8 +688,8 @@
         },
         add_listener_on_cart_button: function () {
             var self = this;
-            self.$body.find('.cart').off('click');
-            self.$body.find('.cart').on('click', function (e) {
+            self.$body.find('.cart a').off('click');
+            self.$body.find('.cart a').on('click', function (e) {
                 var $this = $(this);
                 var cart = {
                     id: parseInt($this.attr('cart-id')),
