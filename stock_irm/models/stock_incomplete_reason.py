@@ -29,6 +29,7 @@ class StockMove(models.Model):
 
     reason_id = fields.Many2one('stock.incomplete.reason', 'Reason')
 
+
 class IncompleteReason(models.Model):
 
     _name = "stock.incomplete.reason"
