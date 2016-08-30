@@ -298,18 +298,12 @@ class InboundWaveController(http.Controller):
             dest_location = move.location_dest_id
             dest_location = self.get_real_destination_location(package,
                                                                dest_location)
-            location_position = '%s / %s / %s' % (
-                str(dest_location.posx),
-                str(dest_location.posy),
-                str(dest_location.posz))
-
             package_list.append({
                 'product_name': product.name,
                 'product_description': product.description
                                        or "No description",
                 'product_quantity': total_qty,
                 'location_name': dest_location.name,
-                'location_position': location_position,
                 'package_barcode': package.barcode,
                 'package_id': package.id,
                 'location_dest_barcode': dest_location.loc_barcode,
