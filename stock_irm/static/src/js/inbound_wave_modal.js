@@ -49,6 +49,7 @@
             self.title = 'Select Wave Template';
             self.block_modal = true;
             self.template = 'select_wave_template';
+            self.template_footer = 'select_wave_template_footer';
             self.wave_templates = wave_templates;
             self.caller = caller
         },
@@ -57,6 +58,7 @@
             self.$body = $(QWeb.render(self.template, {
                 wave_templates: self.wave_templates
             }));
+            self.$footer = $(QWeb.render(self.template_footer))
             this._super();
             self.add_listener_on_wave_template();
         },

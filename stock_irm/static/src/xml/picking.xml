@@ -46,6 +46,12 @@
         </div>
     </t>
 
+    <t t-name="select_wave_template_footer">
+        <a href="/stock_index" class="btn btn-success">
+            Exit
+        </a>
+    </t>
+
     <t t-name="change_user">
         <!-- cart selection modal -->
         <div class="row">

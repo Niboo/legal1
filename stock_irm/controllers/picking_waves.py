@@ -43,7 +43,7 @@ class InboundController(http.Controller):
             ('wave_type', '=', 'outbound')])
         for wave_template in wave_templates:
             wave_template_list.append({
-                'name': wave_template.name,
+                'name': wave_template.label,
                 'id': wave_template.id,
             })
 
