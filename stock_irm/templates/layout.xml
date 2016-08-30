@@ -43,7 +43,7 @@
         <template id="stock_irm.assets_index" name="Stock IRM assets for index">
             <link href="/stock_irm/static/src/css/index.css" rel="stylesheet"/>
             <script type="text/javascript" src="/stock_irm/static/src/js/index.js"></script>
-            <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css"/>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css"/>
         </template>
 
         <template id="stock_irm.assets_bandup" name="Stock IRM assets for bandup">
