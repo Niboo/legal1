@@ -173,6 +173,8 @@ class InboundWaveController(http.Controller):
 
         wave_template = env['wave.template'].browse(wave_template_id)
         picking_type = wave_template.picking_type_id
+        destinations_loc = picking_type.default_location_dest_id.\
+            _get_sublocations()
         cart_list = []
 
         carts = env['stock.location'].search([
@@ -180,14 +182,21 @@ class InboundWaveController(http.Controller):
         ])
 
         for cart in carts:
-            cart_list.append({
-                'name': cart.name,
-                'id': cart.id,
-            })
+            moves = env['stock.move'].search([
+                ('reserved_quant_ids.location_id', '=', cart.id)
+            ])
+
+            for move in moves:
+                if move.location_dest_id.id in destinations_loc:
+                    cart_list.append({
+                        'name': cart.name,
+                        'id': cart.id,
+                    })
+                    break
 
         return {'status': 'ok',
-            'carts': cart_list,
-            }
+                'carts': cart_list,
+                }
 
     @http.route('/inbound_wave/get_inbound_wave', type='json', auth="user")
     def get_inbound_wave(self, wave_template_id, **kw):

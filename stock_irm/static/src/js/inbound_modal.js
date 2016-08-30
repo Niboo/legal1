@@ -346,11 +346,14 @@
         start: function () {
             var self = this;
             self.session.rpc('/inbound_screen/get_incomplete_reason').then(function(data){
+                console.log(data.reasons);
+                console.log(self.uncomplete_and_unexpected_move_line);
+                console.log(self.caller.scrap_lines);
                 if(data.status == 'ok'){
                     self.$body = $(QWeb.render(self.template, {
                         reasons: data.reasons,
                         moves : self.uncomplete_and_unexpected_move_line,
-                        scrap_lines: self.caller.scrap_lines,
+                        scrap_lines: self.caller.scrap_lines || [],
                     }));
                     self.get_cart_list();
                 }
