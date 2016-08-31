@@ -89,6 +89,7 @@ FROM product_template AS pt
 
 WHERE (pt.name ilike %s
 OR pp.ean13 ilike %s
+OR pp.default_code ilike %s
 OR psitags.name ilike %s
 OR psi.product_code ilike %s)
 
@@ -99,7 +100,7 @@ GROUP BY pt.name, pp.id
 ORDER BY pp.id
 LIMIT %s
 OFFSET %s
-""", [search, search, search, search, supplier_id, search_limit, search_offset])
+""", [search, search, search, search, search, supplier_id, search_limit, search_offset])
         products_results = cr.fetchall()
 
         cr.execute("""
@@ -112,13 +113,14 @@ FROM product_template AS pt
 
 WHERE (pt.name ilike %s
 OR pp.ean13 ilike %s
+OR pp.default_code ilike %s
 OR psitags.name ilike %s
 OR psi.product_code ilike %s)
 
 AND pt.sale_ok IS TRUE
 AND psi.name = rp.id
 AND rp.commercial_partner_id = %s
-""", [search, search, search, search, supplier_id])
+""", [search, search, search, search, search, supplier_id])
 
         products_count = cr.fetchall()
 
