@@ -98,7 +98,7 @@ class InboundWaveController(http.Controller):
 
                 if is_end_package_needed:
                     end_package = self.search_dest_package(package.barcode, destination)
-                    end_package.inbound_wave_id = package.inbound_wave_id
+                    end_package.picking_dispatch_id = package.picking_dispatch_id
 
                 if not destination:
                     destination = picking.location_dest_id

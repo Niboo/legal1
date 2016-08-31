@@ -38,6 +38,10 @@ class PickingDispatch(models.Model):
                               compute="_compute_time",
                               store=True)
 
+    package_ids = fields.One2many('stock.quant.package',
+                                  "picking_dispatch_id",
+                                  "Packages")
+
     _sql_constraints = [
          ('end_time_correct',
          "CHECK(start_time <= end_time)",

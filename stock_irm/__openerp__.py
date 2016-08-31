@@ -54,7 +54,6 @@ Module
         'data/damaged_reason.xml',
         'security/ir.model.access.csv',
         'views/stock_quant_package.xml',
-        'views/inbound_wave.xml',
         'views/stock_incomplete_reason.xml',
         'views/picking_dispatch_view.xml',
     ],
