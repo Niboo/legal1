@@ -145,6 +145,7 @@
             }));
             $('#content').html($elem);
             self.add_listener_on_numpad();
+            self.add_listener_for_barcode();
             var $message = $(QWeb.render('info_package_barcode'));
             $('#info_message').html($message)
         },
@@ -174,6 +175,7 @@
                     modal.start("Location", self.current_location_dest_barcode);
                 }
             }
+            self.add_listener_for_barcode();
         },
         move_package: function(){
             var self = this;
