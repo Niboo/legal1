@@ -660,7 +660,7 @@
             </div>
             <div class="col-xs-4 formfield">
                 <label for="select_reason">Select quantity:</label>
-                <input type="number" id="qty_damaged" class="form-control"/>
+                <input type="number" id="qty_damaged" class="form-control" min="0"/>
             </div>
 
         </div>
@@ -669,6 +669,17 @@
     <t t-name="damaged_product_modal_footer">
         <a href="#" id="move_to_damaged" class="btn btn-warning">Move to "Damaged"</a>
         <a href="#" id="cancel" class="btn pull-left btn-default">Cancel</a>
+    </t>
+
+    <t t-name="incorrect_damaged_modal">
+        <div class="row">
+            <div class="col-xs-12">
+                <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>  Wrong quantity selected</b>
+                <a id="go_back_damaged" href="#" class="btn btn-lg btn-success">
+                    Go back
+                </a>
+            </div>
+        </div>
     </t>
 
 </templates>

@@ -346,9 +346,6 @@
         start: function () {
             var self = this;
             self.session.rpc('/inbound_screen/get_incomplete_reason').then(function(data){
-                console.log(data.reasons);
-                console.log(self.uncomplete_and_unexpected_move_line);
-                console.log(self.caller.scrap_lines);
                 if(data.status == 'ok'){
                     self.$body = $(QWeb.render(self.template, {
                         reasons: data.reasons,
@@ -627,7 +624,7 @@
 
     instance.stock_irm.modal.select_next_destination_modal = select_next_destination_modal;
 
-  var damage_modal = instance.stock_irm.modal.widget.extend({
+    var damage_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
             var self = this;
             self._super();
@@ -657,14 +654,48 @@
             self.$modal.find('#move_to_damaged').click(function(event){
                 var reason = self.$modal.find('#select_reason').val();
                 var quantity = self.$modal.find('#qty_damaged').val();
-                self.caller.parent.move_to_damaged(product_id, reason, quantity);
-                self.$modal.modal('hide');
+                // check if quantity is an integer
+                if (/^\+?(0|[1-9]\d*)$/.test(quantity)){
+                    self.caller.parent.move_to_damaged(product_id, reason, quantity);
+                    self.$modal.modal('hide');
 
+                }else{
+                    var modal = new instance.stock_irm.modal.damage_incorrect_number_modal();
+                    modal.start(self.caller, self.product_id, self.damage_reasons);
+                }
             });
         },
     });
 
     instance.stock_irm.modal.damage_modal = damage_modal;
+
+    var damage_incorrect_number_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            self._super();
+            self.body_template = 'incorrect_damaged_modal';
+            self.title = 'Please Select a valid quantity';
+            self.block_modal = true;
+        },
+        start: function (caller, product_id, damage_reasons) {
+            var self = this;
+            self.$body = $(QWeb.render(self.body_template, {
+            }));
+            self.caller = caller;
+            self.product_id = product_id;
+            self.damage_reasons = damage_reasons;
+            self._super();
+            self.add_listener_on_back();
+        },
+        add_listener_on_back: function(){
+            var self = this;
+            self.$modal.find('#go_back_damaged').click(function(event){
+                self.$modal.modal('hide');
+            });
+        },
+    });
+
+    instance.stock_irm.modal.damage_incorrect_number_modal = damage_incorrect_number_modal;
 
     var select_cart_modal = instance.stock_irm.modal.widget.extend({
         template: 'cart_result_body',
