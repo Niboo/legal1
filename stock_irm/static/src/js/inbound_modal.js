@@ -655,7 +655,7 @@
                 var reason = self.$modal.find('#select_reason').val();
                 var quantity = self.$modal.find('#qty_damaged').val();
                 // check if quantity is an integer
-                if (/^\+?(0|[1-9]\d*)$/.test(quantity)){
+                if (/^\+?([1-9]\d*)$/.test(quantity)){
                     self.caller.parent.move_to_damaged(product_id, reason, quantity);
                     self.$modal.modal('hide');
 
