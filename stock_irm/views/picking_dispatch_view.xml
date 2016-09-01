@@ -14,11 +14,6 @@
                             <field name="total_time" widget="float_time"/>
                         </group>
                     </page>
-                    <page name="packages" string="Packages">
-                        <group>
-                            <field name="package_ids"/>
-                        </group>
-                    </page>
                 </xpath>
             </field>
         </record>
