@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//    Author: Jérôme Guerriat
-//    Copyright 2015 Niboo SPRL
+//    Author: Tobias Zehntner
+//    Copyright 2016 Niboo SPRL
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU Affero General Public License as
@@ -31,24 +31,25 @@
             this._super();
             var self = this;
 
-            QWeb.add_template('/stock_irm/static/src/xml/select_package.xml', function(){
+            QWeb.add_template('/stock_irm/static/src/xml/outbound_select_package.xml', function(){
                 self.start();
             });
-            self.template = 'select_package_screen_layout';
+            self.template = 'outbound_select_package_layout';
             self.scanned_package_barcodes = [];
-            self.scanned_package_ids = [];
+            self.package_ids_to_scan = [];
+            self.cart_id;
         },
         start: function() {
             var self = this;
             self._super();
-            self.session.rpc('/select_package/get_carts').then(function (data) {
+            self.session.rpc('/outbound_select_package/get_carts').then(function (data) {
                 if (data.status == "ok") {
                     self.$elem = $(QWeb.render(self.template, {
                         carts: data.carts,
                     }));
                     $('#content').html(self.$elem);
-                    self.add_listener_on_numpad();
                     self.add_listener_on_cart();
+                    self.$elem.find('#manual-barcode-input').hide();
                 }
             });
         },
@@ -58,18 +59,34 @@
             self.$elem.find('#cart_list a').off('click.cart');
             self.$elem.find('#cart_list a').on('click.cart', function (event) {
                 var cart_id = $(event.currentTarget).attr('cart-id');
-                self.session.rpc('/select_package/move_to_cart', {
+                self.session.rpc('/outbound_select_package/get_package_ids', {
                     cart_id: cart_id,
-                    package_ids: self.scanned_package_ids,
-                }).then(function (data) {
-                    if (data.status == "ok") {
-                        var modal = new instance.stock_irm.modal.confirm_bandup_wave_modal();
-                        modal.start();
-                        window.setTimeout(function(){
-                            window.location.href = "/select_package";
-                        }, 3000);
+                }).then(function(data){
+                    if(data.status == "ok"){
+                        self.cart_id = cart_id
+                        self.package_ids_to_scan = data.package_ids;
+                        // disable cart buttons once one is selected
+                        self.$elem.find('#cart_list a').off('click.cart');
+
+                        for (i = 0; i < self.package_ids_to_scan.length; i++) {
+                            console.log(self.package_ids_to_scan[i])
+                            var $new_box = $(QWeb.render("package_result", {
+                                product_name: self.package_ids_to_scan[i].product.name,
+                                quantity: self.package_ids_to_scan[i].product.quantity,
+                                package_id: self.package_ids_to_scan[i].package.id,
+                                package_barcode: self.package_ids_to_scan[i].package.barcode,
+                                product_image: self.package_ids_to_scan[i].product.image,
+                                product_quantity: self.package_ids_to_scan[i].product.quantity,
+                            }));
+                            self.$elem.find('#package_list').append($new_box);
+                        }
+                        self.$elem.find('#manual-barcode-input').show();
+                        self.add_listener_on_numpad();
+                    } else {
+                        var modal = new instance.stock_irm.modal.exception_modal();
+                        modal.start(data.error, data.message);
                     }
-                })
+                });
             });
         },
         process_barcode: function(barcode){
@@ -77,24 +94,26 @@
             var true_barcode = barcode.replace(/[\s]*/g, '');
             // check if we didnt already scanned the package to avoid adding the same package twice
             if($.inArray(true_barcode, self.scanned_package_barcodes) == -1){
-                self.session.rpc('/select_package/get_package', {
+                self.session.rpc('/outbound_select_package/move_package_to_band_down', {
                     barcode: true_barcode,
+                    cart_id: self.cart_id,
                 }).then(function(data){
                     if(data.status == "ok"){
-                        self.scanned_package_barcodes.push(true_barcode);
-                        self.$elem.find('.btn-to-wave').show();
-                        self.$elem.find('#message_box').hide();
-                        self.scanned_package_ids.push(data.scanned_package.id);
-                        var $new_box = $(QWeb.render("package_result", {
-                            product_name: data.product.name,
-                            quantity: data.product.quantity,
-                            package_id: data.scanned_package.id,
-                            package_barcode: data.scanned_package.barcode,
-                            product_image: data.product.image,
-                            product_quantity: data.product.quantity,
-                        }));
-                        self.$elem.find('.btn-to-wave').show();
-                        self.$elem.find('#package_list').append($new_box);
+                        self.scanned_package_barcodes.push(data.barcode);
+
+                        // TODO Turn scanned package green
+                        // TODO remove package from self.package_ids_to_scan
+
+                        // If there are no more packages in this cart
+                        if (self.package_ids_to_scan.length == 0) {
+                            var modal = new instance.stock_irm.modal.confirm_bandup_wave_modal();
+                            // TODO set cart free
+                            modal.start();
+                            window.setTimeout(function () {
+                                window.location.href = "/outbound_select_package";
+                            }, 3000);
+                        }
+
                     } else {
                         var modal = new instance.stock_irm.modal.exception_modal();
                         modal.start(data.error, data.message);

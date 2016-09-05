@@ -28,12 +28,12 @@ class SelectPackageController(http.Controller):
         env = http.request.env
         current_user = env['res.users'].browse(http.request.uid)
 
-        return http.request.render('stock_irm.select_package_screen', {
+        return http.request.render('stock_irm.inbound_select_package', {
             'status': 'ok',
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
             'worklocation_id': current_user.work_location_id.id or 0,
-            'title': 'Select Package',
+            'title': 'Inbound Select Package',
         })
 
     @http.route('/select_package/get_package', type='json', auth='user')

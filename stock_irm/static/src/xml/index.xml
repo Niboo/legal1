@@ -14,12 +14,14 @@
                             </a>
                         </div>
                         <div class="col-md-4">
-                            <a id="goto_select_package" type="button" href="/select_package" class="btn btn-success goto-button bandup">Select Package<br/>
-                                <i class="fa fa-road big-icon" aria-hidden="true"></i>
+                            <a id="goto_select_package" type="button" href="/select_package" class="btn btn-success goto-button inbound-package">
+                                Inbound Select Package<br/>
+                                <i class="fa fa-archive big-icon" aria-hidden="true"></i>
                             </a>
                         </div>
                         <div class="col-md-4">
-                            <a id="goto_inbound_wave" type="button" href="/inbound_wave" class="btn btn-success goto-button bandup">Inbound Waves<br/>
+                            <a id="goto_inbound_wave" type="button" href="/inbound_wave" class="btn btn-success goto-button inbound-wave">
+                                Inbound Waves<br/>
                                 <i class="fa fa-road big-icon" aria-hidden="true"></i>
                             </a>
                         </div>
@@ -27,6 +29,12 @@
                             <a id="goto_picking_waves" type="button" href="/picking_waves" class="btn goto-button picking">
                                 Picking Waves<br/>
                                 <i class="fa fa-cart-arrow-down big-icon" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a id="goto_out_bound_select_package" type="button" href="/outbound_select_package" class="btn btn-success goto-button outbound-package">
+                                Outbound Select Package<br/>
+                                <i class="fa fa-archive big-icon" aria-hidden="true"></i>
                             </a>
                         </div>
                         <div class="col-md-4">

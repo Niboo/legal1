@@ -19,34 +19,44 @@
     background-color: rgba(52,179,228,1);
 }
 
-.goto-button.picking{
-    background-color: rgba(8, 121, 22, 0.8);
+.goto-button.inbound-package {
+    background-color: rgba(71, 120, 228, 0.8);
 }
-.goto-button.picking:hover{
-    background-color: rgba(8, 121, 22, 1);
+.goto-button.inbound-package:hover {
+    background-color: rgba(71, 120, 228, 1);
 }
 
+.goto-button.inbound-wave {
+    background-color: rgba(114, 86, 228, 0.8);
+}
+.goto-button.inbound-wave:hover {
+    background-color: rgba(114, 86, 228, 1);
+}
+
+.goto-button.picking{
+    background-color: rgba(22, 180, 47, 0.8);
+}
+.goto-button.picking:hover{
+    background-color: rgba(22, 180, 47, 1);
+}
+.goto-button.outbound-package {
+    background-color: rgba(172, 193, 66, 0.8);
+}
+.goto-button.outbound-package:hover {
+    background-color: rgba(172, 193, 66, 1);
+}
 .goto-button.inventory{
     background-color: rgba(202, 84, 84, 0.8)
 }
 .goto-button.inventory:hover{
     background-color: rgba(202, 84, 84, 1)
 }
-
 .goto-button.rma {
     background-color: rgba(240, 173, 78, 0.8);
 }
 .goto-button.rma:hover {
     background-color: rgba(240, 173, 78, 1);
 }
-
-.goto-button.bandup {
-    background-color: rgba(118, 138, 212, 0.8);
-}
-.goto-button.bandup:hover {
-    background-color: rgba(118, 138, 212, 1);
-}
-
 .big-icon {
     font-size: 8em !important;
 }

@@ -33,6 +33,8 @@ class StockPickingType(models.Model):
 
     is_band_up_to_bo_cart = fields.Boolean('Is Band Up to BO cart')
 
+    is_bo_cart_to_band_down = fields.Boolean('Is BO Cart to Band Down')
+
     @api.multi
     @api.constrains('is_receipts')
     def _check_single_inbound_receipt(self):

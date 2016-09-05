@@ -65,9 +65,15 @@
 
         </template>
 
-        <template id="stock_irm.assets_select_package" name="Stock IRM assets for select package">
+        <template id="stock_irm.assets_inbound_select_package" name="Stock IRM assets for inbound select package">
             <script type="text/javascript" src="/stock_irm/static/src/js/select_package_modal.js"></script>
-            <script type="text/javascript" src="/stock_irm/static/src/js/select_package.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_select_package.js"></script>
+            <link href="/stock_irm/static/src/css/select_package.css" rel="stylesheet"/>
+        </template>
+
+        <template id="stock_irm.assets_outbound_select_package" name="Stock IRM assets for outbound select package">
+            <script type="text/javascript" src="/stock_irm/static/src/js/select_package_modal.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/outbound_select_package.js"></script>
             <link href="/stock_irm/static/src/css/select_package.css" rel="stylesheet"/>
         </template>
 
@@ -92,8 +98,11 @@
                     <t t-if="title == 'Inbound Wave'">
                         <t t-call-assets="stock_irm.assets_inbound_wave" t-js="false"/>
                     </t>
-                    <t t-if="title == 'Select Package'">
-                        <t t-call-assets="stock_irm.assets_select_package" t-js="false"/>
+                    <t t-if="title == 'Inbound Select Package'">
+                        <t t-call-assets="stock_irm.assets_inbound_select_package" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Outbound Select Package'">
+                        <t t-call-assets="stock_irm.assets_outbound_select_package" t-js="false"/>
                     </t>
                 </head>
                 <body>
@@ -163,8 +172,11 @@
                     <t t-if="title == 'Inbound Wave'">
                         <t t-call-assets="stock_irm.assets_inbound_wave" t-css="false"/>
                     </t>
-                    <t t-if="title == 'Select Package'">
-                        <t t-call-assets="stock_irm.assets_select_package" t-css="false"/>
+                    <t t-if="title == 'Inbound Select Package'">
+                        <t t-call-assets="stock_irm.assets_inbound_select_package" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'Outbound Select Package'">
+                        <t t-call-assets="stock_irm.assets_outbound_select_package" t-css="false"/>
                     </t>
                 </body>
             </html>
@@ -193,7 +205,12 @@
             </t>
         </template>
         
-        <template id="stock_irm.select_package_screen" name="Select Package Screen">
+        <template id="stock_irm.inbound_select_package" name="Inbound Select Package">
+            <t t-call="stock_irm.layout">
+            </t>
+        </template>
+
+        <template id="stock_irm.outbound_select_package" name="Outbound Select Package">
             <t t-call="stock_irm.layout">
             </t>
         </template>

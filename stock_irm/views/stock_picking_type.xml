@@ -10,6 +10,7 @@
                     <field name="is_for_picking_wave"/>
                     <field name="is_receipts"/>
                     <field name="is_band_up_to_bo_cart"/>
+                    <field name="is_bo_cart_to_band_down"/>
                 </field>
             </field>
         </record>
