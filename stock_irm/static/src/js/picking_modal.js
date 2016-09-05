@@ -195,4 +195,40 @@
     });
 
     instance.stock_irm.modal.back_modal = back_modal;
+
+    var select_cart_modal = instance.stock_irm.modal.widget.extend({
+        template: 'cart_result_body',
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Select a cart';
+            self.block_modal = true;
+        },
+        start: function (caller, carts) {
+            var self = this;
+            self.caller = caller;
+            self.carts = carts;
+            self.$body = $(QWeb.render(self.template, {
+                carts: carts,
+            }));
+            self.footer_template = 'generic_confirm_button';
+            self._super();
+            self.add_listener_on_cart_button();
+        },
+        add_listener_on_cart_button: function () {
+            var self = this;
+            self.$body.find('.cart a').off('click');
+            self.$body.find('.cart a').on('click', function (e) {
+                self.caller.cart_id = parseInt($(this).attr('cart-id'));
+                self.$modal.modal('hide');
+                self.$modal.on('hidden.bs.modal', function () {
+                    self.caller.display_page();
+                    self.$modal.off();
+                    self.caller.add_listener_for_barcode();
+                });
+            })
+        }
+    });
+
+    instance.stock_irm.modal.select_cart_modal = select_cart_modal;
 })();

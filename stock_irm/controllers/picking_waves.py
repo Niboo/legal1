@@ -101,7 +101,7 @@ class InboundController(http.Controller):
     def create_picking(self, wave_template_id, **kw):
         env = http.request.env
 
-        inbound_wave = env['picking.dispatch'].create({
+        outbound_wave = env['picking.dispatch'].create({
             'picker_id': http.request.uid,
             'state': 'draft',
             'wave_template_id': wave_template_id,
@@ -115,7 +115,7 @@ class InboundController(http.Controller):
         while len(pickings) < 15:
             # search for a confirmed picking
             picking = env['stock.picking'].search([
-                ('picking_type_id', '=', inbound_wave.picking_type_id.id),
+                ('picking_type_id', '=', outbound_wave.picking_type_id.id),
                 '|', '|', '|',
                 ('state', '=', 'waiting'),
                 ('state', '=', 'partially_available'),
@@ -160,32 +160,32 @@ class InboundController(http.Controller):
 
             for move in picking.move_lines:
                 move.action_assign()
-                inbound_wave.move_ids += move
+                outbound_wave.move_ids += move
             pickings.append(picking)
 
         if not pickings:
-            inbound_wave.unlink()
+            outbound_wave.unlink()
             return {'status': 'empty'}
 
         picking_list = self.create_picking_info(pickings)
-        move_list = self.create_moves_info(inbound_wave)
+        move_list = self.create_moves_info(outbound_wave)
 
         if not move_list:
             return {'status': 'empty'}
 
-        results = {'status': 'ok',
-                   'move_list': move_list,
-                   'picking_list': picking_list,
-                   'wave_id': inbound_wave.id,
-                   'wave_name': inbound_wave.name
-                   }
-        return results
+        return {'status': 'ok',
+                'move_list': move_list,
+                'picking_list': picking_list,
+                'wave_id': outbound_wave.id,
+                'wave_name': outbound_wave.name
+                }
 
     @http.route('/picking_waves/validate_move', type='json', auth="user")
-    def validate_move(self, move_id, **kw):
+    def validate_move(self, move_id, cart_id, **kw):
         env = http.request.env
         move = env['stock.move'].browse(int(move_id))
-        move.action_done()
+        # move.action_done()
+        self.transfer_move(move, cart_id)
         picking = env['stock.picking'].browse(move.picking_id.id)
 
         percentage_complete = 100.0/len(picking.move_lines) \
@@ -227,10 +227,9 @@ class InboundController(http.Controller):
 
                 picking.move_lines[0].location_dest_id.location_id = new_loc
 
-        results = {
+        return {
             "status": "ok",
         }
-        return results
 
     def create_picking_info(self, pickings):
         picking_list = []
@@ -301,3 +300,50 @@ class InboundController(http.Controller):
 
         return {'status': 'ok',
                 'total_time': wave.total_time}
+
+    @http.route('/outbound_wave/get_carts', type='json', auth='user')
+    def get_carts(self, wave_id, **kw):
+        env = http.request.env
+        outbound_wave = env['picking.dispatch'].browse(wave_id)
+        destination = outbound_wave.picking_type_id.default_location_dest_id
+        carts = []
+        for cart in destination.child_ids:
+            carts.append({
+                'id': cart.id,
+                'name': cart.name,
+            })
+        if not carts:
+            return {'status': 'empty'}
+        return {
+            'status': 'ok',
+            'carts': carts,
+        }
+
+    def transfer_move(self, move, cart_id):
+        env = http.request.env
+        picking = move.picking_id
+
+        result = picking.do_enter_transfer_details()
+        wizard_id = result['res_id']
+        wizard = env['stock.transfer_details'].browse(wizard_id)
+        destination = env['stock.location'].browse(cart_id)
+
+        wizard.write({
+            'item_ids': [(5, False, False)],
+            'packop_ids': [(5, False, False)]
+        })
+
+        values = {
+            # 'package_id': package.id,
+            'product_id': move.product_id.id,
+            'quantity': move.product_uom_qty,
+            'sourceloc_id': move.location_id.id,
+            'destinationloc_id': destination.id,
+            'product_uom_id': move.product_id.uom_id.id
+        }
+
+        wizard.write({
+            'item_ids': [(0, False, values)]
+        })
+
+        wizard.do_detailed_transfer()

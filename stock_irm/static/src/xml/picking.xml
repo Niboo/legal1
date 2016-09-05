@@ -461,6 +461,33 @@
         <a href="#" id="continue_wave" class="btn btn-success continue"> Continue this wave </a>
     </t>
 
+    <t t-name="cart_result_body">
+        <div class="row">
+            <t t-foreach="carts" t-as="cart">
+                <div class="col-xs-3 cart">
+                    <a href="#" class="btn btn-lg btn-success "
+                       t-att-cart-id="cart.id"
+                       t-att-cart-name="cart.name">
+                        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="cart.name" />
+                    </a>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="exception_modal">
+        <div class="row">
+            <div class="col-xs-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10">
+                <h2><t t-esc="error"/></h2>
+                <p class="error-message">
+                    <t t-esc="message"/>
+                </p>
+            </div>
+        </div>
+    </t>
 
 </templates>
 

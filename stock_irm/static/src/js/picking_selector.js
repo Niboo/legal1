@@ -83,7 +83,7 @@
                                 self.pickings = data.picking_list;
                                 self.wave_id = data.wave_id;
                                 self.wave_name = data.wave_name;
-                                self.display_page();
+                                self.select_cart();
 
                                 // save the starting time, add the listener for barcode
                                 self.starting_time = new Date().getTime();
@@ -115,7 +115,7 @@
                         self.pickings = data.picking_list;
                         self.wave_id = data.wave_id;
                         self.wave_name = data.wave_name;
-                        self.display_page();
+                        self.select_cart();
 
                         // save the starting time, add the listener for barcode
                         self.starting_time = new Date().getTime();
@@ -245,7 +245,7 @@
             var current_move = self.move_list[self.current_move_index]
 
             if(is_product_barcode){
-                qty++
+                qty++;
                 $('#info').show();
                 $('#quantity_wave input').val(qty);
                 self.add_listener_on_quantity();
@@ -290,7 +290,8 @@
             var self = this;
             // right location scanned, validate the move
             self.session.rpc('/picking_waves/validate_move', {
-                'move_id': current_move.move_id,
+                cart_id: self.cart_id,
+                move_id: current_move.move_id,
             }).then(function(data){
                 var index = $.map(self.pickings, function(obj, index) {
                     if(obj.picking_id == data.picking_id) {
@@ -402,6 +403,24 @@
                 $(':focus').blur();
             })
         },
-        });
+        select_cart: function () {
+            var self = this;
+            self.session.rpc('/outbound_wave/get_carts', {
+                wave_id: self.wave_id,
+            }).then(function (data) {
+                if(data.status == 'ok'){
+                    var modal = new instance.stock_irm.modal.select_cart_modal();
+                    modal.start(self, data.carts);
+                } else {
+                    var modal = new instance.stock_irm.modal.exception_modal();
+                    if(data.status == 'empty'){
+                        modal.start('Error', 'No cart found');
+                    } else {
+                        modal.start('Error', 'Could not retrieve the cart list');
+                    }
+                }
+            });
+        },
+    });
     instance.picking_waves.picking_selector = new picking_selector();
 })();
