@@ -85,7 +85,6 @@ class InboundController(http.Controller):
         # assign wave
         selected_wave['state'] = 'assigned'
         selected_wave['picker_id'] = current_user.id
-        print selected_wave.id, selected_wave.state, current_user.name
         picking_list = self.create_picking_info(selected_wave.related_picking_ids)
 
         # sort the location by alphabetical name
@@ -127,6 +126,23 @@ class InboundController(http.Controller):
             ], order='priority_weight DESC, id', limit=1, offset=cpt)
             cpt += 1
 
+            procurement_group = picking.group_id
+            proc_orders = env['procurement.order'].search(
+                [('group_id','=',procurement_group.id)])
+
+            def get_ultimate_source():
+                sources = set()
+                for order in proc_orders:
+                    if order.ultimate_source_procurement_id:
+                        sources.add(order.ultimate_source_procurement_id)
+                return sources
+
+            sources_ids = [source.id for source in get_ultimate_source()]
+
+            moves = env['stock.move'].search(
+                [('procurement_id','in', sources_ids),
+                 ('state','!=','done')])
+
             if not picking:
                 # if no more picking is found, then exit the loop
                 break
@@ -134,9 +150,10 @@ class InboundController(http.Controller):
             # check if the selected picking is fully available, assign and treat
             # it if its the case
             is_fully_available = True
-            for move in picking.move_lines:
+            for move in moves:
                 if move.product_id.qty_available < move.product_qty:
                     is_fully_available = False
+                    break
 
             if not is_fully_available:
                 break
