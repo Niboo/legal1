@@ -90,12 +90,13 @@ class InboundController(http.Controller):
         # sort the location by alphabetical name
         move_list = self.create_moves_info(selected_wave)
 
-        results = {'status': 'ok', 'move_list': move_list,
-                   'picking_list': picking_list, 'wave_id': selected_wave.id,
-                   'wave_name': selected_wave.name
-
-                   }
-        return results
+        return {
+            'status': 'ok',
+            'move_list': move_list,
+            'picking_list': picking_list,
+            'wave_id': selected_wave.id,
+            'wave_name': selected_wave.name
+        }
 
     @http.route('/outbound_wave/create_picking', type='json', auth="user")
     def create_picking(self, wave_template_id, **kw):
@@ -181,11 +182,12 @@ class InboundController(http.Controller):
                 }
 
     @http.route('/picking_waves/validate_move', type='json', auth="user")
-    def validate_move(self, move_id, cart_id, **kw):
+    def validate_move(self, move_id, cart_id, box_barcode, **kw):
         env = http.request.env
         move = env['stock.move'].browse(int(move_id))
-        # move.action_done()
-        self.transfer_move(move, cart_id)
+        dest_package = self.search_dest_package(box_barcode)
+
+        self.transfer_move(move, cart_id, dest_package)
         picking = env['stock.picking'].browse(move.picking_id.id)
 
         percentage_complete = 100.0/len(picking.move_lines) \
@@ -241,6 +243,7 @@ class InboundController(http.Controller):
                 'picking_id': picking.id,
                 'progress_done': progress,
                 'picking_name': picking.name,
+                'box_barcode': False,
             })
         return picking_list
 
@@ -287,7 +290,6 @@ class InboundController(http.Controller):
                  'location_barcode': move.location_id.loc_barcode,
                  'location_dest_id': move.location_dest_id.id,
                  'location_dest_name': move.location_dest_id.name,
-                 'location_dest_barcode': move.picking_id.name
                  })
 
         return move_list
@@ -319,7 +321,7 @@ class InboundController(http.Controller):
             'carts': carts,
         }
 
-    def transfer_move(self, move, cart_id):
+    def transfer_move(self, move, cart_id, package):
         env = http.request.env
         picking = move.picking_id
 
@@ -334,7 +336,7 @@ class InboundController(http.Controller):
         })
 
         values = {
-            # 'package_id': package.id,
+            'package_id': package.id,
             'product_id': move.product_id.id,
             'quantity': move.product_uom_qty,
             'sourceloc_id': move.location_id.id,
@@ -347,3 +349,33 @@ class InboundController(http.Controller):
         })
 
         wizard.do_detailed_transfer()
+
+    @http.route('/outbound_wave/check_package_empty', type='json',
+                auth='user')
+    def check_package_empty(self, barcode, **kwargs):
+        env = http.request.env
+
+        dest_package = env['stock.quant.package'].search([
+            ('barcode', '=', str(barcode))
+        ])
+
+        if dest_package and (dest_package.quant_ids or
+                                 dest_package.children_ids):
+            return {'status': 'error'}
+
+        return {'status': 'ok'}
+
+    def search_dest_package(self, package_barcode):
+        env = http.request.env
+
+        dest_package = env['stock.quant.package'].search([
+            ('barcode', '=', str(package_barcode))
+        ])
+
+        if not dest_package:
+            dest_package = env['stock.quant.package'].create({
+                'name': str(package_barcode),
+                'barcode': str(package_barcode),
+            })
+
+        return dest_package

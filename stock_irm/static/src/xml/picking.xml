@@ -41,7 +41,11 @@
     <t t-name="select_wave_template">
         <div class="row">
             <t t-foreach="wave_templates" t-as="wave_template">
-                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-center"><a href="#" class="btn btn-primary template" t-att-id="wave_templates.indexOf(wave_template)"><t t-esc="wave_template.name"/> </a></div>
+                <div class="col-xs-6 text-center">
+                    <a href="#" class="btn btn-primary template" t-att-id="wave_templates.indexOf(wave_template)">
+                        <t t-esc="wave_template.name"/>
+                    </a>
+                </div>
             </t>
         </div>
     </t>
@@ -82,10 +86,10 @@
     <!-- ERROR MODALS -->
     <t t-name="print_error_message">
         <div class="row">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+            <div class="col-xs-2 text-center">
                  <span class='fa fa-times error-icon'></span>
             </div>
-            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+            <div class="col-xs-10">
                 <h2>You didn't scan the right <t t-esc="type"/></h2>
                 <t t-if="type == 'product'">
                     <p class="error-message">
@@ -107,10 +111,10 @@
 
     <t t-name="counter_error">
         <div class="row">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+            <div class="col-xs-2 text-center">
                  <span class='fa fa-times error-icon'></span>
             </div>
-            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+            <div class="col-xs-10">
                 <h2>You didn't select the right number of items</h2>
                 <p class="error-message">
                     Selected: <t t-esc="real"/><br/>
@@ -122,10 +126,10 @@
 
     <t t-name="printer_error">
         <div class="row">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+            <div class="col-xs-2 text-center">
                  <span class='fa fa-times error-icon'></span>
             </div>
-            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+            <div class="col-xs-10">
                 <h2><t t-esc="error"/></h2>
                 <p class="error-message">
                     <t t-esc="message"/>
@@ -138,29 +142,29 @@
         <div id="picking-layout">
             <div class="container">
                 <div class="row">
-                    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                    <div class="col-xs-2">
                         <div id="picking-list">
                             <t t-call="picking_list" />
                         </div>
                     </div>
-                    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                    <div class="col-xs-10">
                         <div id="product-list">
                             <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-xs-12">
                                     <div id="info_message">
 
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-xs-12">
                                     <div id="current_product">
                                         <t t-call="current_product" />
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="col-xs-12">
                                     <div id="next_products">
                                         <t t-call="next_products" />
                                     </div>
@@ -192,7 +196,7 @@
 
     <t t-name="picking_info">
         <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="col-xs-12">
                 <table class="table" id="picking-info-table">
                     <t t-foreach="products" t-as="product">
                         <tr>
@@ -209,17 +213,17 @@
 
     <t t-name="current_product">
         <div id="current-product-name-row" class="row">
-            <div id="current-product-img" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div id="current-product-img" class="col-xs-12 col-md-4">
                 <h3><span t-esc="location_name"/></h3>
                 <a href="#">
                     <img t-att-src="product.product_image" class="center-block img-responsive"/>
                 </a>
             </div>
-            <div id="current-product-description" class="col-xs-10 col-sm-10 col-md-5 col-lg-5">
+            <div id="current-product-description" class="col-xs-6 col-md-9 col-lg-5">
                 <h3><span t-esc="product.product_name"/></h3>
                 <span t-esc="product.product_description"/>
             </div>
-            <div id="current-product-buttons" class="col-xs-2 col-sm-2 col-md-3 col-lg-3 text-right">
+            <div id="current-product-buttons" class="col-xs-6 col-md-3 text-right">
                 <button id="manual-barcode-input" type="button" class="btn btn-info btn-large button-touch">
                     <i class="fa fa-barcode button-touch-icon" aria-hidden="true"></i>
                 </button>
@@ -318,15 +322,15 @@
         </div>
 
         <div class="row text-center" id="current-product-quantity-row">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <div class="col-xs-2">
                 <div id="expected_qty" class="form-control form-control-picking pull-left text-center">
                     <div t-esc="product.product_quantity"/>
                 </div>
             </div>
-            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
+            <div class="col-xs-1 text-center">
                 <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            <div class="col-xs-6">
                 <div class="input-group input-picking text-center">
                     <div id="quantity_wave" class="input-group input-picking text-center">
                          <span class="input-group-btn">
@@ -339,19 +343,19 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
+            <div class="col-xs-1 text-center">
                 <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
             </div>
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <div class="col-xs-2">
                 <div id="qty_in_box" class="form-control form-control-picking pull-right text-center">0</div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-left">
+            <div class="col-xs-6 text-left">
                 <h4><span t-esc="location_name"/></h4>
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right">
-                <h4><span t-esc="product.picking_name"/></h4>
+            <div class="col-xs-6 text-right">
+                <h4>Scan a Box</h4>
             </div>
         </div>
     </t>

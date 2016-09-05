@@ -148,6 +148,7 @@
         },
         display_page: function(){
             var self = this;
+            self.set_current_picking_index();
             self.$elem = $(QWeb.render('picking_layout', {
                 'wave_id': self.wave_id,
                 'pickings': self.pickings,
@@ -168,7 +169,7 @@
             $('#info_message').html($message)
 
             self.current_product_barcode = self.move_list[self.current_move_index]['product'].ean13;
-            self.current_destination_barcode = self.move_list[self.current_move_index].location_dest_barcode;
+            self.current_destination_barcode = self.pickings[self.current_picking_index].box_barcode;
         },
         add_listener_on_manual_input: function(){
             var self = this;
@@ -252,37 +253,38 @@
                 self.add_listener_on_keyboard_quantity();
                 self.change_background_on_quantity(qty);
 
-            }else if(is_destination_barcode){
+            }else{
                 // location scanned
                 var move_qty = current_move.product.product_quantity
                 var sum = self.qty_in_box + qty;
 
-                if(sum == move_qty){
-                    self.trigger_next_product(current_move);
-                }else if(sum < move_qty && sum != 0){
+                if(sum < move_qty && sum != 0){
                     // Update the quantity
                     var qty_to_take = move_qty - self.qty_in_box;
                     self.qty_in_box = sum;
                     self.$elem.find('#quantity_wave input').val(0);
                     self.$elem.find('#qty_in_box').text(self.qty_in_box);
                     self.$elem.find('#expected_qty').text(qty_to_take);
-                } else {
+                } else if(sum > move_qty){
                     // Not the expected quantity, display an error modal
                     var modal = new instance.stock_irm.modal.wrong_quantity_modal();
                     modal.start(sum, move_qty)
-                }
-            }else{
-                if(qty == 0){
-                    var modal = new instance.stock_irm.modal.error_modal('Product Error');
-                    modal.start('product', current_move.product.location_name, current_move.product.product_image)
-                } else if(qty == current_move.product.product_quantity){
-                    // good number of product, but not good location
-                    var modal = new instance.stock_irm.modal.error_modal('Location Error');
-                    modal.start('location', current_move.location_dest_name)
                 } else {
-                    // More product expected, but something else scanned
-                    var modal = new instance.stock_irm.modal.wrong_quantity_modal();
-                    modal.start(qty, current_move.product.product_quantity)
+                    if(is_destination_barcode){
+                        self.trigger_next_product(current_move);
+                    } else {
+                        self.session.rpc('/outbound_wave/check_package_empty', {
+                            barcode: barcode
+                        }).then(function (data) {
+                            if(data.status == 'ok'){
+                                self.pickings[self.current_picking_index].box_barcode = barcode;
+                                self.trigger_next_product(current_move);
+                            } else {
+                                var modal = new instance.stock_irm.modal.exception_modal();
+                                modal.start('Error', 'This box is already used for a different picking');
+                            }
+                        });
+                    }
                 }
             }
         },
@@ -290,8 +292,9 @@
             var self = this;
             // right location scanned, validate the move
             self.session.rpc('/picking_waves/validate_move', {
-                cart_id: self.cart_id,
                 move_id: current_move.move_id,
+                cart_id: self.cart_id,
+                box_barcode: self.pickings[self.current_picking_index].box_barcode,
             }).then(function(data){
                 var index = $.map(self.pickings, function(obj, index) {
                     if(obj.picking_id == data.picking_id) {
@@ -421,6 +424,14 @@
                 }
             });
         },
+        set_current_picking_index: function () {
+            var self = this;
+            for(var i in self.pickings){
+                if(self.pickings[i].picking_id == self.move_list[self.current_move_index].picking_id){
+                    self.current_picking_index = i;
+                }
+            }
+        }
     });
     instance.picking_waves.picking_selector = new picking_selector();
 })();
