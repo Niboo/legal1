@@ -31,7 +31,7 @@
             self._super('rma_product_picking');
             self.template = 'product_selector';
             self.customer_id = customer_id;
-            self.po_ids = claim_ids;
+            self.claim_ids = claim_ids;
             self.claim_move_lines = claim_move_lines;
             self.closed_boxes = [];
             self.session.rpc('/rma_screen/create_packing_order').then(function(data){
@@ -188,8 +188,8 @@
         },
         get_products: function(skip_product_clic){
             var self = this;
-            self.session.rpc('/inbound_screen/get_products', {
-                supplier_id: self.supplier_id,
+            self.session.rpc('/rma_screen/get_products', {
+                claim_move_lines: self.claim_move_lines,
                 search: self.search,
                 page: self.page - 1
             }).then(function(data){
@@ -217,16 +217,24 @@
         },
         go_to_product: function(product_id){
             var self = this;
-            var ProductPage = instance.stock_irm.inbound_product_page;
+            var ProductPage = instance.stock_irm.rma_product_page;
+            var lines_with_product = _.filter(self.claim_move_lines, function (line) {
+                return product_id == line.product_id
+            });
+            console.log(lines_with_product);
+            if(lines_with_product.length > 0){
+                self.product_page = new ProductPage(self, product_id);
+                self.product_page.start();
 
-            self.product_page = new ProductPage(self, product_id);
-            self.product_page.start();
+                // reorder the boxes so the one with the current product are at the top
+                var po_line_with_current_product = $.grep(self.claim_move_lines, function(a){ return a.product_id == product_id});
+                var po_line_without_current_product = $.grep(self.claim_move_lines, function(e){ return e.product_id != product_id});
 
-            // reorder the boxes so the one with the current product are at the top
-            var po_line_with_current_product = $.grep(self.claim_move_lines, function(a){ return a.product_id == product_id});
-            var po_line_without_current_product = $.grep(self.claim_move_lines, function(e){ return e.product_id != product_id});
-
-            self.claim_move_lines = po_line_with_current_product.concat(po_line_without_current_product);
+                self.claim_move_lines = po_line_with_current_product.concat(po_line_without_current_product);
+            } else {
+                var modal = new instance.stock_irm.modal.exception_modal()
+                modal.start('Error', 'Cannot add a product not in the Claim');
+            }
         },
         get_the_box: function(product, callback){
             var self = this;
@@ -347,7 +355,7 @@
                 if (move_quantity_left == qty) {
                     move_line.quantity_already_scanned += qty;
                     self.update_progress(move_line);
-                    var modal = new instance.stock_irm.modal.validate_po_line_modal();
+                    var modal = new instance.stock_irm.modal.validate_claim_line_modal();
                     modal.start(self, 0, move_line);
                     return
                 }
@@ -356,7 +364,7 @@
                     move_line.quantity_already_scanned += move_quantity_left;
                     qty -= move_quantity_left;
                     self.update_progress(move_line);
-                    var modal = new instance.stock_irm.modal.validate_po_line_modal();
+                    var modal = new instance.stock_irm.modal.validate_claim_line_modal();
                     window.setTimeout(function() {
                         modal.start(self, qty, move_line, product);
                     }, 500);

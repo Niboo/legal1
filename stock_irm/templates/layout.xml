@@ -81,6 +81,7 @@
             <script type="text/javascript" src="/stock_irm/static/src/js/rma_customer_selector.js"/>
             <script type="text/javascript" src="/stock_irm/static/src/js/rma_modal.js"/>
             <script type="text/javascript" src="/stock_irm/static/src/js/rma_product_picking.js"/>
+            <script type="text/javascript" src="/stock_irm/static/src/js/rma_product_page.js"/>
             <link href="/stock_irm/static/src/css/inbound.css" rel="stylesheet"/>
             <link href="/stock_irm/static/src/css/rma_screen.css" rel="stylesheet"/>
         </template>

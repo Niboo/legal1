@@ -620,6 +620,19 @@
         </div>
     </t>
 
+    <t t-name="validate_claim_line">
+        <div class="row">
+            <span class='fa fa-question-circle fa-5x space-10' style='color:green'></span><b style='font-size: 2em'>A claim line is now fullfilled</b>
+            <br/>
+            <t t-if="nb_product_more>0">
+                <span style='color:red'><b>There are <span t-esc="nb_product_more"/> extra items </b></span>
+            </t>
+            <t t-if="nb_product_more==0">
+                <span><b style='color:green'>The item count match the claim!</b></span>
+            </t>
+        </div>
+    </t>
+
     <t t-name="validate_po_line_footer">
         <a href="#" id="validate" class="btn btn-lg btn-success pull-right">Validate this line
             <t t-if="nb_product_more>0">

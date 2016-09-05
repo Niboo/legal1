@@ -45,7 +45,8 @@ class RMAScreenController(http.Controller):
              ('name', '=', 'New'),
              ('name', '=', 'In Progress')
              ])
-        claims = env['crm.claim'].search([('stage_id', 'in', stages.ids)])
+        claims = env['crm.claim'].search([('stage_id', 'in', stages.ids),
+                                          ('picking_ids', '!=', False)])
 
         customers = claims.mapped('partner_id')
 
@@ -65,124 +66,58 @@ class RMAScreenController(http.Controller):
             'customers': inbound_customers,
         }
 
+    def search_products(self, products_results, search):
+        search = search.lower()
+        products = []
+        for product in products_results.sorted(lambda p: p.id):
+            if product.default_code and search in product.default_code.lower()\
+                    or product.ean13 and search in product.ean13.lower():
+                products.append({
+                    'id': product.id,
+                    'name': product.name,
+                    'image': '/web/binary/image?model=product.product&id=%s&field=image' % product.id
+                })
+        return products
+
     @http.route('/rma_screen/get_products', type='json', auth='user')
-    def get_products(self, customer, search='', page=0,  **kw):
-        cr = http.request.cr
-        products = list()
-
-        if not search:
-            raise exceptions.ValidationError('You have to specify at least one character')
-
-        search_limit = 30
-        search_offset = page * search_limit
-        search = '%%%s%%' % search
-
-        cr.execute('''
-SELECT pp.id, pt.name
-FROM product_template AS pt
-  JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
-  JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id
-  LEFT JOIN xx_product_supplierinfo_tags AS psitags on psitags.res_id = psi.id,
-  res_partner AS rp
-
-WHERE (pt.name ilike %s
-OR pp.ean13 ilike %s
-OR psitags.name ilike %s
-OR psi.product_code ilike %s)
-
-AND pt.sale_ok IS TRUE
-AND psi.name = rp.id
-AND rp.commercial_partner_id = %s
-GROUP BY pt.name, pp.id
-ORDER BY pp.id
-LIMIT %s
-OFFSET %s
-''', [search, search, search, search, supplier_id, search_limit, search_offset])
-        products_results = cr.fetchall()
-
-        cr.execute('''
-SELECT count(*)
-FROM product_template AS pt
-  JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
-  JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id
-  LEFT JOIN xx_product_supplierinfo_tags AS psitags on psitags.res_id = psi.id,
-  res_partner AS rp
-
-WHERE (pt.name ilike %s
-OR pp.ean13 ilike %s
-OR psitags.name ilike %s
-OR psi.product_code ilike %s)
-
-AND pt.sale_ok IS TRUE
-AND psi.name = rp.id
-AND rp.commercial_partner_id = %s
-''', [search, search, search, search, supplier_id])
-
-        products_count = cr.fetchall()
-
-        for product in products_results:
-            products.append({
-                'id': product[0],
-                'name': product[1],
-                'image': '/web/binary/image?model=product.product&id=%s&field=image' % product[0]
-            })
-
-        results = {'status': 'ok',
-                   'search_limit': search_limit,
-                   'products': products,
-                   'products_count': products_count[0][0]}
-        return results
-
-    @http.route('/rma_screen/get_product', type='json', auth='user')
-    def get_product(self, id, supplier_id, **kw):
+    def get_products(self, claim_move_lines, search='', page=0,  **kw):
         env = http.request.env
 
-        if not id or not supplier_id:
+        if not search:
+            raise exceptions.ValidationError(
+                'You have to specify at least one character')
+
+        products_results = env['product.product']
+        for line in claim_move_lines:
+            products_results |= env['product.product'].browse(
+                int(line['product_id']))
+
+        return {
+            'status': 'ok',
+            'products': self.search_products(products_results, search),
+        }
+
+    @http.route('/rma_screen/get_product', type='json', auth='user')
+    def get_product(self, id, **kw):
+        env = http.request.env
+
+        if not id:
             print 'Problem'
 
         product = env['product.product'].browse(int(id))
 
-        supplier = env['res.partner'].browse(int(supplier_id))
-
-        # retrieve the partner and its child to search for supplier info
-        supplier_childs = supplier.child_ids
-
-        supplier_info = product.seller_ids.filtered(
-            lambda r: r.name.id == supplier.id or
-                      r.name.id in supplier_childs.ids)
-
-        requires_unpack = supplier_info.requires_unpack
-        requires_relabel = supplier_info.requires_relabel
-
-        if len(supplier_info) != 1:
-            results = {
-                'status': 'error',
-                'message': '''
-There is more or less than one supplier info for this product:
-product id: %s, supplier id: %s
-''' % (product.id, supplier_id)
-            }
-            return results
-
-        barcodes = supplier_info.xx_tag_ids.mapped('name')
-        if product.ean13:
-            barcodes.append(product.ean13)
-
-        results = {
+        return {
             'status': 'ok',
             'product': {
                 'id': product.id,
                 'name': product.name,
                 'description': product.description or 'No description',
                 'default_code': product.default_code,
-                'supplier_code': supplier_info.product_code or 'N/A',
-                'requires_unpack': requires_unpack,
-                'requires_relabel': requires_relabel,
-                'barcodes': barcodes,
+                'supplier_code': 'N/A',
+                'barcodes': [product.ean13 or ''],
                 'image': '/web/binary/image?model=product.product&id=%s&field=image' % product.id,
             }
         }
-        return results
 
     @http.route('/rma_screen/check_package_empty', type='json',
                 auth='user')
@@ -265,7 +200,7 @@ product id: %s, supplier id: %s
                 })
 
         return {'status': 'ok',
-                'po_move_lines': lines}
+                'claim_move_lines': lines}
 
     def get_receipt_picking_type(self):
         env = http.request.env

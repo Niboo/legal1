@@ -258,7 +258,7 @@ product id: %s, supplier id: %s
 
         lines = []
 
-        pickings = claims.mapped('picking_ids').filtered(
+        pickings = purchase_orders.mapped('picking_ids').filtered(
             lambda r: r.state == 'assigned')
         pickings = pickings.sorted(key=lambda pick: (pick.min_date, pick.id))
         for picking in pickings:
@@ -408,7 +408,7 @@ product id: %s, supplier id: %s
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
 
-        destination = self.process_transfer(qty, picking_line, box_name)
+        destination = self.r(qty, picking_line, box_name)
 
         picking_line.write({'packing_order_id': packing_order_id,
                             'reason_id': reason_id})

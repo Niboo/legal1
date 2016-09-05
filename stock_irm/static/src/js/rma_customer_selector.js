@@ -81,7 +81,7 @@
                 if(data.status == 'ok'){
                     self.claim_move_lines = data.claim_move_lines;
                     var ProductPicking = instance.stock_irm.rma_product_picking;
-                    self.product_picking = new ProductPicking(self.customer_id, self.selected_claims, self.claim_move_lines);
+                    self.product_picking = new ProductPicking(self.customer_id, self.claim_ids, self.claim_move_lines);
                     self.product_picking.start();
                     self.$nav.find('#back').show();
                     self.$nav.find('#search').show();
