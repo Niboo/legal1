@@ -28,8 +28,6 @@ class StockQuantPackage(models.Model):
     _inherit = "stock.quant.package"
 
     barcode = fields.Char("Barcode")
-    picking_dispatch_id = fields.Many2one('picking.dispatch',
-                                          'Picking Dispatch')
 
     _sql_constraints = [
         ('package_barcode_unique',
