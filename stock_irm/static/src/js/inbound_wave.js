@@ -151,9 +151,10 @@
         },
         process_barcode: function(barcode){
             var self = this;
+            var true_barcode = barcode.replace(/[\s]*/g, '');
 
             if(self.step == 'package'){
-                if(barcode == self.current_package_barcode){
+                if(true_barcode == self.current_package_barcode) {
                     $('#pack_barcode').hide();
                     self.step = 'location';
                     var $message = $(QWeb.render('info_location_barcode'));
@@ -164,7 +165,7 @@
                     modal.start("Package", self.current_package_barcode);
                 }
             }else{
-                if(barcode == self.current_location_dest_barcode){
+                if(true_barcode == self.current_location_dest_barcode){
                     $('#current_product').hide("slide",{direction:'left', backgroundColor: "green"}, 400, function(){
                         self.move_package();
                         var $message = $(QWeb.render('info_package_barcode'));
