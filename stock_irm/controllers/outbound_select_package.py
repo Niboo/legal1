@@ -60,19 +60,19 @@ class OutboundSelectPackageController(http.Controller):
 
         # TODO move package to band down
 
-        # packages = env['stock.quant.package'].browse(package_ids)
-        # for package in packages:
-        #     quant = package.quant_ids[0]
-        #     picking = quant.reservation_id.picking_id
-        #
-        #     wizard_id = picking.do_enter_transfer_details()['res_id']
-        #     wizard = env['stock.transfer_details'].browse(wizard_id)
-        #     for packop in wizard.packop_ids:
-        #         if packop.package_id != package:
-        #             packop.unlink()
-        #             continue
-        #         packop.destinationloc_id = int(cart_id)
-        #     wizard.sudo().do_detailed_transfer()
+
+        quant = scanned_package.quant_ids[0]
+        picking = quant.reservation_id.picking_id
+
+        wizard_id = picking.do_enter_transfer_details()['res_id']
+        wizard = env['stock.transfer_details'].browse(wizard_id)
+        dest_id = picking.location_dest_id
+        for packop in wizard.packop_ids:
+            if packop.package_id != scanned_package:
+                packop.unlink()
+                continue
+            packop.destinationloc_id = dest_id.id
+        wizard.sudo().do_detailed_transfer()
 
         return {'status': 'ok',
                 'id': scanned_package.id,
@@ -85,7 +85,7 @@ class OutboundSelectPackageController(http.Controller):
         package_ids = env['stock.quant.package'].search(
             [('location_id', '=', int(cart.id))]
         )
-        # TODO only show carts that contain packages (so they will be removed automatically when a cart is finished)
+
         if not package_ids:
             return {
                 'status': 'error',
@@ -133,11 +133,16 @@ class OutboundSelectPackageController(http.Controller):
         carts = env['stock.location'].search(
             [('location_id', 'in', sub_locations)])
 
+        # Only return carts that contain packages
         for cart in carts:
-            cart_list.append({
-                'name': cart.name,
-                'id': cart.id,
-            })
+            package_ids = env['stock.quant.package'].search(
+                [('location_id', '=', int(cart.id))]
+            )
+            if package_ids:
+                cart_list.append({
+                    'name': cart.name,
+                    'id': cart.id,
+                })
 
         return {'status': 'ok',
                 'carts': cart_list,

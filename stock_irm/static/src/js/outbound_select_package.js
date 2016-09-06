@@ -69,7 +69,6 @@
                         self.$elem.find('#cart_list a').off('click.cart');
 
                         for (i = 0; i < self.package_ids_to_scan.length; i++) {
-                            console.log(self.package_ids_to_scan[i])
                             var $new_box = $(QWeb.render("package_result", {
                                 product_name: self.package_ids_to_scan[i].product.name,
                                 quantity: self.package_ids_to_scan[i].product.quantity,
@@ -100,9 +99,14 @@
                 }).then(function(data){
                     if(data.status == "ok"){
                         self.scanned_package_barcodes.push(data.barcode);
+                        self.package_ids_to_scan.splice(
+                            self.package_ids_to_scan.map(function(object) {
+                                return object.package.barcode; })
+                            .indexOf(data.barcode),1);
 
-                        // TODO Turn scanned package green
-                        // TODO remove package from self.package_ids_to_scan
+                        // Grey out scanned package on the screen
+                        var box_div = 'div[data-package-id="' + data.id + '"]';
+                        self.$elem.find(box_div).animate({opacity: '0.4'});
 
                         // If there are no more packages in this cart
                         if (self.package_ids_to_scan.length == 0) {
