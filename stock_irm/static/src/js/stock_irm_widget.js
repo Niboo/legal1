@@ -308,6 +308,7 @@
                 'new_work_location_id': self.worklocation.id,
             }).then(function(data){
                 self.printer_ip = data.printer_ip;
+                self.proxy = data.proxy;
             });
         },
     });

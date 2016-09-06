@@ -26,3 +26,14 @@ class PrintingPrinter(models.Model):
     _inherit = 'printing.printer'
 
     ip_adress = fields.Char("IP adress")
+    xx_proxy_id = fields.Many2one(
+        comodel_name='printing.proxy',
+        string='Print proxy',
+    )
+
+class PrintingProxy(models.Model):
+    _name = 'printing.proxy'
+    _description = 'Proxy for Printing from https to http'
+
+    name = fields.Char(string='Name',required=True)
+    proxy_address = fields.Char(string='Proxy Address',required=True)

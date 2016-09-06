@@ -354,6 +354,7 @@ product id: %s, supplier id: %s
         WorkLocationPrinter = env['work_location_printer']
         label_printer_type = env.ref('stock_irm.label_printer_type')
         printer_ip = False
+        proxy_id = False
 
         user = env['res.users'].browse(request.uid)
 
@@ -362,10 +363,16 @@ product id: %s, supplier id: %s
              ('work_location_id', '=', user.work_location_id.id)])
 
         if work_location_printer.printing_printer_id:
-            printer_ip = work_location_printer.printing_printer_id.ip_adress
+            p_id = work_location_printer.printing_printer_id
+            printer_ip = p_id.ip_adress
+            if p_id.xx_proxy_id:
+                proxy_id = p_id.xx_proxy_id.proxy_address
 
-        return{'status': 'ok',
-                   'printer_ip': printer_ip}
+        return {
+            'status': 'ok',
+            'printer_ip': printer_ip,
+            'proxy': proxy_id,
+        }
 
     @http.route('/inbound_screen/get_worklocation_printers',
                 type='json',
@@ -376,8 +383,11 @@ product id: %s, supplier id: %s
 
         printers = []
         for line in wklc.browse(int(location_id)).work_location_printer_ids:
-            printers.append({'id':line.printing_printer_id.id,
-                             'ip_adress':line.printing_printer_id.ip_adress})
+            printers.append({
+                'id':line.printing_printer_id.id,
+                'ip_adress':line.printing_printer_id.ip_adress,
+                'proxy':line.printing_printer_id.xx_proxy_id.proxy_address or False,
+            })
         return {'status': 'ok',
                    'printers': printers}
 
