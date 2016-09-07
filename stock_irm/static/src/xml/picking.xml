@@ -302,7 +302,8 @@
                 <h4><span t-esc="location_name"/></h4>
             </div>
             <div class="col-xs-6 text-right">
-                <h4>Scan a Box</h4>
+                <h4 t-if="! location_barcode">Scan a Box</h4>
+                <h4 t-if="location_barcode" ><span t-esc="location_barcode"/></h4>
             </div>
         </div>
     </t>

@@ -101,10 +101,9 @@
         add_listener_on_create_picking: function(){
             var self = this;
             self.$elem.find('#create-wave').click(function(event){
-
                 self.session.rpc('/outbound_wave/create_picking', {
                     wave_template_id: self.wave_template.id,
-                    selected_packages: self.selected_package_ids,
+                    selected_package_ids: self.selected_package_ids,
                 }).then(function(data){
                     self.allow_scan_package = false;
                     self.$nav.find('#back').show();
@@ -156,6 +155,7 @@
             self.$elem = $(QWeb.render('picking_layout', {
                 'wave_id': self.wave_id,
                 'pickings': self.pickings,
+                'location_barcode': self.pickings[self.current_picking_index].box_barcode,
                 'product': self.move_list[self.current_move_index]['product'],
                 'location_name': self.move_list[self.current_move_index].product.location_name,
                 'moves': self.move_list.slice(
@@ -282,8 +282,13 @@
                         var modal = new instance.stock_irm.modal.wrong_quantity_modal();
                         modal.start(sum, move_qty)
                     } else {
-                        if (is_destination_barcode) {
-                            self.trigger_next_product(current_move);
+                        if (self.current_destination_barcode){
+                            if (is_destination_barcode) {
+                                self.trigger_next_product(current_move);
+                            } else {
+                                var modal = new instance.stock_irm.modal.error_modal('Wrong box');
+                                modal.start('location', self.current_destination_barcode)
+                            }
                         } else {
                             self.session.rpc('/outbound_wave/check_package_empty', {
                                 barcode: barcode

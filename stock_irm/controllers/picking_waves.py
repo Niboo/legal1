@@ -100,7 +100,7 @@ class InboundController(http.Controller):
         }
 
     @http.route('/outbound_wave/create_picking', type='json', auth="user")
-    def create_picking(self, wave_template_id, selected_packages, **kw):
+    def create_picking(self, wave_template_id, selected_package_ids=[], **kw):
         env = http.request.env
         wave_template = env['wave.template'].browse(int(wave_template_id))
 
@@ -111,32 +111,26 @@ class InboundController(http.Controller):
             'start_time': datetime.now()
         })
 
-        # retrieve the pickings with that type
-        pickings = []
-        packages = False
-
-        if selected_packages:
-            packages = env['stock.quant.package'].browse(selected_packages)
-
+        if selected_package_ids:
+            packages = env['stock.quant.package'].browse(selected_package_ids)
             for package in packages:
+                move = package.quant_ids[0].reservation_id
+                moves = self.find_counterpart_moves(move.picking_id)
+                outbound_wave.move_ids += moves
 
-                for quant in package.quant_ids:
-                    if quant.reservation_id.picking_id:
-                        picking = quant.reservation_id.picking_id
+        # retrieve the pickings with that type
+        pickings = outbound_wave.related_picking_ids
+        for picking in pickings:
+            picking.action_assign()
 
-                        for move in picking.move_lines:
-                            if move.state == 'confirmed':
-                                outbound_wave.move_ids += move
-                                if picking not in pickings:
-                                    pickings.append(picking)
-
+        picking_type = outbound_wave.picking_type_id
         cpt = 0
         max_pickings = wave_template.max_pickings_to_do
 
         while len(pickings) < max_pickings:
             # search for a confirmed picking
             picking = env['stock.picking'].search([
-                ('picking_type_id', '=', outbound_wave.picking_type_id.id),
+                ('picking_type_id', '=', picking_type.id),
                 '|', '|', '|',
                 ('state', '=', 'waiting'),
                 ('state', '=', 'partially_available'),
@@ -144,9 +138,9 @@ class InboundController(http.Controller):
                 # also take the "assigned" ones, since they may have been begon
                 # in another wave
                 ('state', '=', 'assigned'),
-                ('id', 'not in', packages and packages.ids or False),
+                ('move_lines.location_id', '=', picking_type.default_location_src_id.id),
+                ('id', 'not in', pickings.ids)
             ], order='priority_weight DESC, id', limit=1, offset=cpt)
-            cpt += 1
 
 
             procurement_group = picking.group_id
@@ -170,8 +164,8 @@ class InboundController(http.Controller):
                 # if no more picking is found, then exit the loop
                 break
 
-                # check if the selected picking is fully available, assign and treat
-                # it if its the case
+            # check if the selected picking is fully available, assign and treat
+            # it if its the case
             is_fully_available = True
             for move in moves:
                 if move.product_id.qty_available < move.product_qty:
@@ -184,7 +178,7 @@ class InboundController(http.Controller):
             for move in picking.move_lines:
                 move.action_assign()
                 outbound_wave.move_ids += move
-            pickings.append(picking)
+            pickings += picking
 
         if not pickings:
             outbound_wave.unlink()
@@ -208,6 +202,11 @@ class InboundController(http.Controller):
         env = http.request.env
         move = env['stock.move'].browse(int(move_id))
         dest_package = self.search_dest_package(box_barcode)
+
+        counterparts_moves = self.find_counterpart_moves(move.picking_id)
+        for counterpart_move in counterparts_moves:
+            if counterpart_move.state != 'done':
+                self.transfer_move(counterpart_move, cart_id, dest_package)
 
         self.transfer_move(move, cart_id, dest_package)
         picking = env['stock.picking'].browse(move.picking_id.id)
@@ -261,13 +260,26 @@ class InboundController(http.Controller):
             picking_size = len(picking.move_lines.filtered(lambda r: r.state == 'done'))
             progress = 100 / len(picking.move_lines) * picking_size
 
+            package = self.find_counterpart_package(picking)
             picking_list.append({
                 'picking_id': picking.id,
                 'progress_done': progress,
                 'picking_name': picking.name,
-                'box_barcode': False,
+                'box_barcode': package and package.barcode or False,
             })
         return picking_list
+
+    def find_counterpart_moves(self, picking):
+        env = http.request.env
+        moves = env['stock.move'].search([('group_id','=',picking.group_id.id),
+                                          ('picking_id.id','!=',picking.id),
+                                          ('picking_type_id','=',picking.picking_type_id.id)])
+        return moves
+
+    def find_counterpart_package(self, picking):
+        moves = self.find_counterpart_moves(picking)
+        if moves and moves.reserved_quant_ids:
+            return moves[0].reserved_quant_ids[0].package_id
 
     def create_moves_info(self, wave_id):
         stock_moves = wave_id.move_ids
@@ -275,7 +287,6 @@ class InboundController(http.Controller):
         env = http.request.env
 
         def find_origin_location(to_treat_move):
-            parent_location = to_treat_move.location_id.location_id
             sub_locations = to_treat_move.location_id._get_sublocations()
 
             putaway_strategy = env['stock.product.putaway.strategy'].search([
@@ -309,7 +320,6 @@ class InboundController(http.Controller):
                      'location_id': move.location_id.id,
                      'location_name': product_location.name,
                  },
-                 'location_barcode': move.location_id.loc_barcode,
                  'location_dest_id': move.location_dest_id.id,
                  'location_dest_name': move.location_dest_id.name,
                  })
