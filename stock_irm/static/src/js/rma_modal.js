@@ -278,8 +278,12 @@
                     cart_id: self.caller.cart.id,
                 }).then(function(data){
                     if (data.status == 'ok'){
-                        var modal = new instance.stock_irm.modal.select_next_destination_modal();
-                        modal.start(self.caller, data.destination, self.nb_product_more, self.move_line, self.product);
+                        self.$modal.modal('hide');
+                        self.$modal.on('hidden.bs.modal', function () {
+                            self.$modal.off();
+                            self.caller.destroy();
+                            self.caller.start();
+                        })
                     }
                 });
             })
@@ -287,5 +291,81 @@
     });
 
     instance.stock_irm.modal.validate_claim_line_modal = validate_claim_line_modal;
+
+    var confirm_note_modal = instance.stock_irm.modal.widget.extend({
+        init: function (caller) {
+            var self = this;
+            this._super();
+            self.title = 'Confirm Inbound Picking';
+            self.block_modal = true;
+            self.template = 'packing_order_note';
+            self.footer_template = 'packing_order_note_footer';
+            self.caller = caller;
+        },
+        start: function () {
+            var self = this;
+            self.$body = $(QWeb.render(self.template));
+            self.$footer = $(QWeb.render(self.footer_template));
+
+            self._super();
+            self.add_listener_on_confirm_note();
+        },
+        add_listener_on_confirm_note: function(){
+            var self = this;
+            self.$modal.find('#confirm_note').click(function(event){
+                var note = self.$modal.find('#packing_note').val();
+                self.caller.confirm(note);
+            })
+        },
+    });
+
+    instance.stock_irm.modal.confirm_note_modal = confirm_note_modal;
+
+    var confirmed_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Picking Confirmed!';
+            self.block_modal = true;
+        },
+        start: function () {
+            var self = this;
+            self.$body = "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Wait for redirection...</b>";
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.confirmed_modal = confirmed_modal;
+
+
+    var box_already_used = instance.stock_irm.modal.widget.extend({
+        init: function (caller, move_line, callback, message) {
+            var self = this;
+            this._super(caller);
+            self.title = 'Box already used';
+            self.block_modal = true;
+            self.footer_template = 'select_another_box_footer_modal';
+            self.message = message;
+            self.move_line = move_line;
+            self.callback = callback;
+        },
+        start: function (show_cancel) {
+            var self = this;
+            self.$footer = $(QWeb.render(self.footer_template));
+            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>"+self.message+"</b>";
+            this._super();
+            self.add_listener_on_select_another(show_cancel);
+        },
+        add_listener_on_select_another: function(show_cancel){
+            var self = this;
+            self.$modal.find('#select_another').off('click.another');
+            self.$modal.find('#select_another').on('click.another', function(event){
+                var modal = new instance.stock_irm.modal.box_barcode_modal(self.caller, self.move_line, self.callback);
+                modal.start(show_cancel);
+            });
+        },
+    });
+
+    instance.stock_irm.modal.box_already_used = box_already_used;
 
 })();

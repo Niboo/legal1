@@ -77,7 +77,6 @@
 
     instance.stock_irm.modal.select_wave_template = select_wave_template;
 
-
     var barcode_error_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
             var self = this;

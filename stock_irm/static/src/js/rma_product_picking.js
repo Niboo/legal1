@@ -147,34 +147,16 @@
                 self.go_to_product(product_id);
             })
         },
-        confirm_po_move: function(){
+        confirm_claim_move: function(){
             var self = this;
-            var uncomplete_and_unexpected_move_line = _.filter(self.claim_move_lines, function(move) {
-                // Filter the lines that have not been scanned at all
-                if(move.quantity_already_scanned == 0){
-                    return false;
-                }
-
-                // Filter move that are completed
-                if (move.quantity_already_scanned == move.quantity) {
-                    return false;
-                }
-                return true;
-            });
-
-            if(uncomplete_and_unexpected_move_line.length > 0) {
-                var modal = new instance.stock_irm.modal.confirm_move_modal(self, self.supplier_id, uncomplete_and_unexpected_move_line);
-                modal.start();
-            } else {
-                var modal = new instance.stock_irm.modal.confirm_note_modal(self);
-                modal.start();
-            }
+            var modal = new instance.stock_irm.modal.confirm_note_modal(self);
+            modal.start();
         },
         add_listener_on_confirm_button: function(){
             var self = this;
             self.$nav.off('click.confirm');
             self.$nav.on('click.confirm', '#confirm a', function(event){
-                self.confirm_po_move();
+                self.confirm_claim_move();
             });
         },
         add_listener_on_back_button: function(){
@@ -221,7 +203,6 @@
             var lines_with_product = _.filter(self.claim_move_lines, function (line) {
                 return product_id == line.product_id
             });
-            console.log(lines_with_product);
             if(lines_with_product.length > 0){
                 self.product_page = new ProductPage(self, product_id);
                 self.product_page.start();
@@ -241,9 +222,6 @@
 
             // Get the lines to treat for this product
             self.product_move_lines = _.filter(self.claim_move_lines, function(claim_move_line) {
-                if(claim_move_line.quantity_already_scanned == claim_move_line.quantity) {
-                    return false;
-                }
                 return claim_move_line.product_id == product.id;
             });
 
@@ -344,32 +322,11 @@
             var self = this;
 
             if(!move_line.is_new) {
-                var move_quantity_left = move_line.quantity - move_line.quantity_already_scanned
-                if (move_quantity_left > qty) {
-                    move_line.quantity_already_scanned += qty;
-                    self.update_progress(move_line);
-                    self.start();
-                    return
-                }
-
-                if (move_quantity_left == qty) {
-                    move_line.quantity_already_scanned += qty;
-                    self.update_progress(move_line);
-                    var modal = new instance.stock_irm.modal.validate_claim_line_modal();
-                    modal.start(self, 0, move_line);
-                    return
-                }
-
-                if (move_quantity_left < qty) {
-                    move_line.quantity_already_scanned += move_quantity_left;
-                    qty -= move_quantity_left;
-                    self.update_progress(move_line);
-                    var modal = new instance.stock_irm.modal.validate_claim_line_modal();
-                    window.setTimeout(function() {
-                        modal.start(self, qty, move_line, product);
-                    }, 500);
-                    return
-                }
+                move_line.quantity_already_scanned += qty;
+                self.update_progress(move_line);
+                var modal = new instance.stock_irm.modal.validate_claim_line_modal();
+                modal.start(self, 0, move_line);
+                return
             } else {
                 move_line.quantity_already_scanned += qty;
                 self.update_progress(move_line);

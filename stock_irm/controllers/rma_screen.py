@@ -38,7 +38,7 @@ class RMAScreenController(http.Controller):
         })
 
     @http.route('/rma_screen/get_customers', type='json', auth='user')
-    def get_suppliers(self, search='',  **kw):
+    def get_customers(self, search='',  **kw):
         env = http.request.env
         stages = env['crm.claim.stage'].search(
             ['|',
@@ -46,7 +46,8 @@ class RMAScreenController(http.Controller):
              ('name', '=', 'In Progress')
              ])
         claims = env['crm.claim'].search([('stage_id', 'in', stages.ids),
-                                          ('picking_ids', '!=', False)])
+                                          ('picking_ids', '!=', False),
+                                          ('picking_ids.state','=','assigned')])
 
         customers = claims.mapped('partner_id')
 
@@ -167,8 +168,10 @@ class RMAScreenController(http.Controller):
 
         claims = []
         for claim in crm_claims:
-            claims.append({'name': claim.code,
-                           'id': claim.id, })
+            if claim.picking_ids.filtered(
+                lambda picking: picking.state == 'assigned'):
+                claims.append({'name': claim.code,
+                               'id': claim.id, })
 
         return {'status': 'ok',
                 'claims': claims}
@@ -185,9 +188,7 @@ class RMAScreenController(http.Controller):
 
         lines = []
         for picking in pickings:
-            for move_line in picking.move_lines.filtered(
-                    lambda r: r.state == 'assigned'):
-
+            for move_line in picking.move_lines:
                 lines.append({
                     'product_id': move_line.product_id.id,
                     'quantity': move_line.product_qty,
@@ -201,6 +202,24 @@ class RMAScreenController(http.Controller):
 
         return {'status': 'ok',
                 'claim_move_lines': lines}
+
+    @http.route('/rma_screen/get_damage_reasons', type='json', auth="user")
+    def get_damage_reasons(self):
+        env = http.request.env
+        damage_reasons_objects = env['stock.inbound.damage.reason'].search([])
+        damage_reasons = [str(damage_reason.reason)
+                          for damage_reason in damage_reasons_objects]
+        if damage_reasons:
+            return {
+                'status': 'ok',
+                'damage_reasons': damage_reasons
+            }
+        else:
+            return {
+                'status': 'error',
+                'error': 'Error',
+                'message': 'There are currently no Damage Reasons set.'
+            }
 
     def get_receipt_picking_type(self):
         env = http.request.env
@@ -292,21 +311,22 @@ class RMAScreenController(http.Controller):
         picking_line.write({'packing_order_id': packing_order_id,
                             'reason_id': reason_id})
 
-        dest_list = self.get_destinations(destination)
+        # dest_list = self.get_destinations(destination)
+        #
+        # if filter(lambda dest: dest['id'] == cart_id, dest_list):
+        #     destination_id = cart_id
+        # else:
+        #     destination_id = dest_list[0]['id']
+        #
+        # destination = self.move_to_destination(box_name, destination_id)
 
-        if filter(lambda dest: dest['id'] == cart_id, dest_list):
-            destination_id = cart_id
-        else:
-            destination_id = dest_list[0]['id']
-
-        destination = self.move_to_destination(box_name, destination_id)
-
-        return {'status': 'ok',
-                'destination': destination['destination']}
+        return {'status': 'ok',}
+                # 'destination': destination['destination']}
 
     def process_transfer(self, qty, picking_line, box_name):
         env = http.request.env
         picking = picking_line.picking_id
+        picking_line.product_uom_qty = qty
 
         result = picking.do_enter_transfer_details()
         wizard_id = result['res_id']

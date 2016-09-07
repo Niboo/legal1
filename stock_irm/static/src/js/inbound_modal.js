@@ -204,33 +204,33 @@
 
     instance.stock_irm.modal.box_barcode_modal = box_barcode_modal;
 
-    var box_already_used = instance.stock_irm.modal.widget.extend({
-        init: function (caller, move_line, callback, message) {
-            var self = this;
-            this._super(caller);
-            self.title = 'Box already used';
-            self.block_modal = true;
-            self.footer_template = 'select_another_box_footer_modal';
-            self.message = message;
-            self.move_line = move_line;
-            self.callback = callback;
-        },
-        start: function (show_cancel) {
-            var self = this;
-            self.$footer = $(QWeb.render(self.footer_template));
-            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>"+self.message+"</b>";
-            this._super();
-            self.add_listener_on_select_another(show_cancel);
-        },
-        add_listener_on_select_another: function(show_cancel){
-            var self = this;
-            self.$modal.find('#select_another').off('click.another');
-            self.$modal.find('#select_another').on('click.another', function(event){
-                var modal = new instance.stock_irm.modal.box_barcode_modal(self.caller, self.move_line, self.callback);
-                modal.start(show_cancel);
-            });
-        },
-    });
+        var box_already_used = instance.stock_irm.modal.widget.extend({
+            init: function (caller, move_line, callback, message) {
+                var self = this;
+                this._super(caller);
+                self.title = 'Box already used';
+                self.block_modal = true;
+                self.footer_template = 'select_another_box_footer_modal';
+                self.message = message;
+                self.move_line = move_line;
+                self.callback = callback;
+            },
+            start: function (show_cancel) {
+                var self = this;
+                self.$footer = $(QWeb.render(self.footer_template));
+                self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>"+self.message+"</b>";
+                this._super();
+                self.add_listener_on_select_another(show_cancel);
+            },
+            add_listener_on_select_another: function(show_cancel){
+                var self = this;
+                self.$modal.find('#select_another').off('click.another');
+                self.$modal.find('#select_another').on('click.another', function(event){
+                    var modal = new instance.stock_irm.modal.box_barcode_modal(self.caller, self.move_line, self.callback);
+                    modal.start(show_cancel);
+                });
+            },
+        });
 
     instance.stock_irm.modal.box_already_used = box_already_used;
 
