@@ -44,6 +44,7 @@ class OutboundSelectPackageController(http.Controller):
         scanned_package = env['stock.quant.package'].search(
             [('barcode', '=', str(barcode))]
         )
+
         if not scanned_package:
             return {
                 'status': 'error',
@@ -56,7 +57,6 @@ class OutboundSelectPackageController(http.Controller):
                 'error': 'Error',
                 'message': 'The scanned package is not in the chosen cart.',
             }
-
 
         # TODO move package to band down
 

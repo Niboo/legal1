@@ -231,4 +231,53 @@
     });
 
     instance.stock_irm.modal.select_cart_modal = select_cart_modal;
+
+    var package_not_found = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.body_template = 'package_not_found_modal';
+            self.title = "Package Not Found";
+        },
+        start: function () {
+            var self = this;
+            self.$body = $(QWeb.render(self.body_template));
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.package_not_found = package_not_found;
+
+    var scan_product_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.body_template = 'scan_product_modal';
+            self.title = "Scan product first!";
+        },
+        start: function () {
+            var self = this;
+            self.$body = $(QWeb.render(self.body_template));
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.scan_product_modal = scan_product_modal;
+
+    var already_scanned_box = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.body_template = 'already_scanned_box';
+            self.title = "Box already scanned";
+        },
+        start: function () {
+            var self = this;
+            self.$body = $(QWeb.render(self.body_template));
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.already_scanned_box = already_scanned_box;
+
 })();

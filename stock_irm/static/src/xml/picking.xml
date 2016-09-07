@@ -10,7 +10,7 @@
                 </div>
             </div>
             <t t-if="waves.length">
-                <div class="row ">
+                <div id="unfinished_waves" class="row">
                     <br/>
                     <h3 class="text-center">Or pick a wave that was not completed</h3>
                     <br/>
@@ -23,6 +23,34 @@
                     </t>
                 </div>
             </t>
+            <div class="row ">
+                <br/>
+                <h3 id="selected_packages" class="text-center">Or scan begon packages</h3>
+                <br/>
+                <div id="packages-list" class="col-md-12 package-div">
+
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="begon_package">
+        <div class="col-md-2">
+            <a href="#" class="btn btn-lg btn-success package " t-att-package-id="package.id" t-att-package-name="package.name">
+                <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> <t t-esc="package.name" />
+            </a>
+        </div>
+    </t>
+
+    <t t-name="package_not_found_modal">
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <h2>The scanned package was not found in the system or is not in your location</h2>
+            </div>
+
         </div>
     </t>
 
@@ -490,6 +518,30 @@
                     <t t-esc="message"/>
                 </p>
             </div>
+        </div>
+    </t>
+
+    <t t-name="scan_product_modal">
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <h2>Please scan the product first!</h2>
+            </div>
+
+        </div>
+    </t>
+
+    <t t-name="already_scanned_box">
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <h2>You already scanned this package</h2>
+            </div>
+
         </div>
     </t>
 

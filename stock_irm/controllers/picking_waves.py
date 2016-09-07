@@ -22,6 +22,7 @@
 from openerp import http
 from datetime import datetime
 
+
 class InboundController(http.Controller):
     @http.route('/picking_waves', type='http', auth="user")
     def picking_waves(self, **kw):
@@ -99,8 +100,9 @@ class InboundController(http.Controller):
         }
 
     @http.route('/outbound_wave/create_picking', type='json', auth="user")
-    def create_picking(self, wave_template_id, **kw):
+    def create_picking(self, wave_template_id, selected_packages, **kw):
         env = http.request.env
+        wave_template = env['wave.template'].browse(int(wave_template_id))
 
         outbound_wave = env['picking.dispatch'].create({
             'picker_id': http.request.uid,
@@ -111,9 +113,27 @@ class InboundController(http.Controller):
 
         # retrieve the pickings with that type
         pickings = []
+        packages = False
+
+        if selected_packages:
+            packages = env['stock.quant.package'].browse(selected_packages)
+
+            for package in packages:
+
+                for quant in package.quant_ids:
+                    if quant.reservation_id.picking_id:
+                        picking = quant.reservation_id.picking_id
+
+                        for move in picking.move_lines:
+                            if move.state == 'confirmed':
+                                outbound_wave.move_ids += move
+                                if picking not in pickings:
+                                    pickings.append(picking)
 
         cpt = 0
-        while len(pickings) < 15:
+        max_pickings = wave_template.max_pickings_to_do
+
+        while len(pickings) < max_pickings:
             # search for a confirmed picking
             picking = env['stock.picking'].search([
                 ('picking_type_id', '=', outbound_wave.picking_type_id.id),
@@ -124,12 +144,14 @@ class InboundController(http.Controller):
                 # also take the "assigned" ones, since they may have been begon
                 # in another wave
                 ('state', '=', 'assigned'),
+                ('id', 'not in', packages and packages.ids or False),
             ], order='priority_weight DESC, id', limit=1, offset=cpt)
             cpt += 1
 
+
             procurement_group = picking.group_id
             proc_orders = env['procurement.order'].search(
-                [('group_id','=',procurement_group.id)])
+                [('group_id', '=', procurement_group.id)])
 
             def get_ultimate_source():
                 sources = set()
@@ -141,15 +163,15 @@ class InboundController(http.Controller):
             sources_ids = [source.id for source in get_ultimate_source()]
 
             moves = env['stock.move'].search(
-                [('procurement_id','in', sources_ids),
-                 ('state','!=','done')])
+                [('procurement_id', 'in', sources_ids),
+                 ('state', '!=', 'done')])
 
             if not picking:
                 # if no more picking is found, then exit the loop
                 break
 
-            # check if the selected picking is fully available, assign and treat
-            # it if its the case
+                # check if the selected picking is fully available, assign and treat
+                # it if its the case
             is_fully_available = True
             for move in moves:
                 if move.product_id.qty_available < move.product_qty:
@@ -336,7 +358,7 @@ class InboundController(http.Controller):
         })
 
         values = {
-            'package_id': package.id,
+            'result_package_id': package.id,
             'product_id': move.product_id.id,
             'quantity': move.product_uom_qty,
             'sourceloc_id': move.location_id.id,
@@ -379,3 +401,22 @@ class InboundController(http.Controller):
             })
 
         return dest_package
+
+    @http.route('/outbound_wave/get_package', type='json', auth='user')
+    def get_package(self, package_barcode, wave_template_id, **kw):
+        env = http.request.env
+
+        package = env['stock.quant.package'].search([
+            ('barcode', '=', package_barcode)
+        ])
+
+        if package:
+            return {
+                'status': 'ok',
+                'id': package.id,
+                'name': package.name,
+            }
+
+        return {
+            'status': 'error',
+        }

@@ -39,11 +39,15 @@
         start: function() {
             var self = this;
             self._super();
+            self.allow_scan_package = true;
+            self.selected_package_ids = [];
+            self.product_scanned = false
 
             self.session.rpc('/outbound_wave/get_wave_template', {}).then(function (data) {
                 if (data.status == "ok") {
                     var modal = new instance.stock_irm.modal.select_wave_template(self, data.wave_templates);
                     modal.start();
+                    self.add_listener_for_barcode();
                 }
             });
         },
@@ -72,7 +76,7 @@
                             'wave_id': wave_id,
                         }).then(function(data){
                             self.$nav.find('#back').show();
-
+                            self.allow_scan_package = false;
 
                             if(data.status == "empty"){
                                 self.$elem = $(QWeb.render('picking_empty', {}));
@@ -87,7 +91,6 @@
 
                                 // save the starting time, add the listener for barcode
                                 self.starting_time = new Date().getTime();
-                                self.add_listener_for_barcode();
                             }
                         });
                     })
@@ -99,9 +102,10 @@
             self.$elem.find('#create-wave').click(function(event){
 
                 self.session.rpc('/outbound_wave/create_picking', {
-                    wave_template_id: self.wave_template.id
+                    wave_template_id: self.wave_template.id,
+                    selected_packages: self.selected_package_ids,
                 }).then(function(data){
-
+                    self.allow_scan_package = false;
                     self.$nav.find('#back').show();
                     self.add_listener_on_back_button();
 
@@ -119,7 +123,6 @@
 
                         // save the starting time, add the listener for barcode
                         self.starting_time = new Date().getTime();
-                        self.add_listener_for_barcode();
                     }
                 });
             })
@@ -237,56 +240,93 @@
         },
         process_barcode: function(barcode){
             var self = this;
+            barcode = barcode.replace(/[\s]*/g, '');
 
-            // check if the barcode scanned is the barcode we needed
-            var is_product_barcode = barcode.replace(/[\s]*/g, '') == self.current_product_barcode;
-            var is_destination_barcode = barcode.replace(/[\s]*/g, '') == self.current_destination_barcode;
-
-            var qty = parseInt($('#quantity_wave input').val());
-            var current_move = self.move_list[self.current_move_index]
-
-            if(is_product_barcode){
-                qty++;
-                $('#info').show();
-                $('#quantity_wave input').val(qty);
-                self.add_listener_on_quantity();
-                self.add_listener_on_keyboard_quantity();
-                self.change_background_on_quantity(qty);
-
+            if(self.allow_scan_package){
+                self.add_package(barcode);
             }else{
-                // location scanned
-                var move_qty = current_move.product.product_quantity
-                var sum = self.qty_in_box + qty;
+                // check if the barcode scanned is the barcode we needed
+                var is_product_barcode = barcode == self.current_product_barcode;
+                var is_destination_barcode = barcode == self.current_destination_barcode;
 
-                if(sum < move_qty && sum != 0){
-                    // Update the quantity
-                    var qty_to_take = move_qty - self.qty_in_box;
-                    self.qty_in_box = sum;
-                    self.$elem.find('#quantity_wave input').val(0);
-                    self.$elem.find('#qty_in_box').text(self.qty_in_box);
-                    self.$elem.find('#expected_qty').text(qty_to_take);
-                } else if(sum > move_qty){
-                    // Not the expected quantity, display an error modal
-                    var modal = new instance.stock_irm.modal.wrong_quantity_modal();
-                    modal.start(sum, move_qty)
-                } else {
-                    if(is_destination_barcode){
-                        self.trigger_next_product(current_move);
+                var qty = parseInt($('#quantity_wave input').val());
+                var current_move = self.move_list[self.current_move_index];
+                if(is_product_barcode){
+                    qty++;
+                    $('#info').show();
+                    $('#quantity_wave input').val(qty);
+                    self.add_listener_on_quantity();
+                    self.add_listener_on_keyboard_quantity();
+                    self.change_background_on_quantity(qty);
+                    self.product_scanned = true;
+                }else {
+                    if(!self.product_scanned){
+                        // display an error in case the product is not scanned...
+                        var modal = new instance.stock_irm.modal.scan_product_modal();
+                        modal.start()
+                    }
+                    // location may be scanned
+                    var move_qty = current_move.product.product_quantity;
+                    var sum = self.qty_in_box + qty;
+
+                    if (sum < move_qty) {
+                        // Update the quantity
+                        var qty_to_take = move_qty - self.qty_in_box;
+                        self.qty_in_box = sum;
+                        self.$elem.find('#quantity_wave input').val(0);
+                        self.$elem.find('#qty_in_box').text(self.qty_in_box);
+                        self.$elem.find('#expected_qty').text(qty_to_take);
+                    } else if (sum > move_qty) {
+                        // Not the expected quantity, display an error modal
+                        var modal = new instance.stock_irm.modal.wrong_quantity_modal();
+                        modal.start(sum, move_qty)
                     } else {
-                        self.session.rpc('/outbound_wave/check_package_empty', {
-                            barcode: barcode
-                        }).then(function (data) {
-                            if(data.status == 'ok'){
-                                self.pickings[self.current_picking_index].box_barcode = barcode;
-                                self.trigger_next_product(current_move);
-                            } else {
-                                var modal = new instance.stock_irm.modal.exception_modal();
-                                modal.start('Error', 'This box is already used for a different picking');
-                            }
-                        });
+                        if (is_destination_barcode) {
+                            self.trigger_next_product(current_move);
+                        } else {
+                            self.session.rpc('/outbound_wave/check_package_empty', {
+                                barcode: barcode
+                            }).then(function (data) {
+                                if (data.status == 'ok') {
+                                    self.pickings[self.current_picking_index].box_barcode = barcode;
+                                    self.trigger_next_product(current_move);
+                                } else {
+                                    var modal = new instance.stock_irm.modal.exception_modal();
+                                    modal.start('Error', 'This box is already used for a different picking');
+                                }
+                            });
+                        }
                     }
                 }
             }
+        },
+        add_package: function(barcode){
+            var self = this;
+
+            self.session.rpc('/outbound_wave/get_package', {
+                'package_barcode': barcode,
+                'wave_template_id': self.wave_template.id,
+            }).then(function(data){
+                if(data.status=='ok'){
+                    self.$elem.find('#unfinished_waves').hide();
+                    self.$elem.find('#selected_packages').html('Selected Packages:');
+                    self.$elem.find('#create-wave').html('<span>Create a picking wave including:</span>')
+                    var $package = $(QWeb.render('begon_package', {
+                        package:data
+                    }));
+
+                    if($.inArray(data.id, self.selected_package_ids) == -1){
+                        self.selected_package_ids.push(data.id);
+                        self.$elem.find('#packages-list').append($package);
+                    }else{
+                        var modal = new instance.stock_irm.modal.already_scanned_box();
+                        modal.start();
+                    }
+                }else{
+                    var modal = new instance.stock_irm.modal.package_not_found();
+                    modal.start();
+                }
+            });
         },
         trigger_next_product: function(current_move){
             var self = this;
@@ -305,6 +345,7 @@
                 $("#"+data.picking_id).css({"width":data.progress_done+'%'});
                 self.qty_in_box = 0;
             });
+            self.product_scanned = false;
 
             // HAPPY FLOW! Go to the next product
             self.current_move_index++;
