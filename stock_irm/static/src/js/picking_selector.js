@@ -68,6 +68,7 @@
                     }));
                     $('#content').html(self.$elem);
                     self.add_listener_on_create_picking();
+                    self.add_listener_on_manual_input()
 
                     self.$elem.find('.wave-div a').click(function(event){
 

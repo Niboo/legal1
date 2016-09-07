@@ -9,6 +9,23 @@
                     <span>Create a picking wave</span>
                 </div>
             </div>
+
+            <div class="row ">
+                <br/>
+                <h3 id="selected_packages" class="text-center">Or scan begon packages</h3>
+                <br/>
+                <div class="col-xs-9 col-md-9">
+
+                </div>
+                <div class="col-xs-2 col-md-2 text-right">
+                    <t t-call="numpad" />
+                </div>
+
+                <div id="packages-list" class="col-md-12 package-div">
+
+                </div>
+            </div>
+
             <t t-if="waves.length">
                 <div id="unfinished_waves" class="row">
                     <br/>
@@ -23,14 +40,6 @@
                     </t>
                 </div>
             </t>
-            <div class="row ">
-                <br/>
-                <h3 id="selected_packages" class="text-center">Or scan begon packages</h3>
-                <br/>
-                <div id="packages-list" class="col-md-12 package-div">
-
-                </div>
-            </div>
         </div>
     </t>
 
@@ -252,97 +261,7 @@
                 <span t-esc="product.product_description"/>
             </div>
             <div id="current-product-buttons" class="col-xs-6 col-md-3 text-right">
-                <button id="manual-barcode-input" type="button" class="btn btn-info btn-large button-touch">
-                    <i class="fa fa-barcode button-touch-icon" aria-hidden="true"></i>
-                </button>
-                <div class="num-pad">
-                    <input id="manual-barcode" type="text" class="form-control text-center numpad-control-picking"/>
-
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>1</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>2</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>3</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>4</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>5</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>6</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>7</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>8</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>9</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>C</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>0</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="circle">
-                        <div class="num">
-                            <div>
-                                <span>Enter</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <t t-call="numpad" />
                 <button id="skip-picking-line" type="button" class="btn btn-danger btn-large button-touch">
                     <i class="fa fa-minus-circle button-touch-icon" aria-hidden="true"></i>
                 </button>
@@ -384,6 +303,100 @@
             </div>
             <div class="col-xs-6 text-right">
                 <h4>Scan a Box</h4>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="numpad">
+        <button id="manual-barcode-input" type="button" class="btn btn-info btn-large button-touch">
+            <i class="fa fa-barcode button-touch-icon" aria-hidden="true"></i>
+        </button>
+        <div class="num-pad">
+            <input id="manual-barcode" type="text" class="form-control text-center numpad-control-picking"/>
+
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>2</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>3</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>4</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>5</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>6</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>7</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>8</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>9</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>C</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>Enter</span>
+                    </div>
+                </div>
             </div>
         </div>
     </t>
