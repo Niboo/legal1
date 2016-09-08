@@ -36,11 +36,11 @@ class OutboundSelectPackageController(http.Controller):
             'title': 'Outbound Select Package',
         })
 
-    @http.route('/outbound_select_package/move_package_to_band_down', auth='user', type='json')
-    def move_package_to_band_down(self, barcode, cart_id):
+    @http.route('/outbound_select_package/process_package', auth='user', type='json')
+    def process_package(self, barcode):
         env = http.request.env
 
-        cart = env['stock.location'].browse(cart_id)
+        # cart = env['stock.location'].browse(cart_id)
         scanned_package = env['stock.quant.package'].search(
             [('barcode', '=', str(barcode))]
         )
@@ -51,18 +51,28 @@ class OutboundSelectPackageController(http.Controller):
                 'error': 'Error',
                 'message': 'The scanned package could not be found.',
             }
-        if not scanned_package.location_id.id == int(cart.id):
+
+        bo_cart_to_band_down = env['stock.picking.type'].search(
+            [('is_bo_cart_to_band_down', '=', True)], limit=1)
+
+        bo_cart_upstairs = bo_cart_to_band_down.default_location_src_id
+
+        if scanned_package.location_id not in bo_cart_upstairs.child_ids:
             return {
                 'status': 'error',
                 'error': 'Error',
-                'message': 'The scanned package is not in the chosen cart.',
+                'message': 'The scanned package is not in an upstairs cart.',
             }
-
-        # TODO move package to band down
-
 
         quant = scanned_package.quant_ids[0]
         picking = quant.reservation_id.picking_id
+        procurement_group = picking.group_id
+        if not procurement_group.is_sale_order_complete:
+            return {
+                'status': 'error',
+                'error': 'Incomplete Sale Order',
+                'message': 'The sale order is incomplete',
+            }
 
         wizard_id = picking.do_enter_transfer_details()['res_id']
         wizard = env['stock.transfer_details'].browse(wizard_id)
@@ -119,31 +129,4 @@ class OutboundSelectPackageController(http.Controller):
 
         return {'status': 'ok',
                 'package_ids': package_list,
-                }
-
-    @http.route('/outbound_select_package/get_carts', auth='user', type='json')
-    def get_carts(self):
-        env = http.request.env
-        picking_type = env['stock.picking.type'].search(
-            [('is_bo_cart_to_band_down', '=', True)], limit=1)
-        location = picking_type.default_location_src_id
-        sub_locations = location._get_sublocations()
-        cart_list = []
-
-        carts = env['stock.location'].search(
-            [('location_id', 'in', sub_locations)])
-
-        # Only return carts that contain packages
-        for cart in carts:
-            package_ids = env['stock.quant.package'].search(
-                [('location_id', '=', int(cart.id))]
-            )
-            if package_ids:
-                cart_list.append({
-                    'name': cart.name,
-                    'id': cart.id,
-                })
-
-        return {'status': 'ok',
-                'carts': cart_list,
                 }

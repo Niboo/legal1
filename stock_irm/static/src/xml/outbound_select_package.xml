@@ -5,20 +5,8 @@
         <div class="container">
             <div id="results" class="scan-row">
                 <div class="row">
-                    <div class="col-xs-6 text-center">
-                        <h1>Select a cart</h1>
-                        <div id="cart_list" class="row">
-                            <t t-if="carts.length">
-                                <t t-foreach="carts" t-as="cart">
-                                    <a href="#" class="btn btn-lg btn-success cart " t-att-cart-id="cart.id" t-att-cart-name="cart.name">
-                                        <span class="glyphicon glyphicon-list-alt" aria-hidden="true"  /> <t t-esc="cart.name"/>
-                                    </a>
-                                </t>
-                            </t>
-                        </div>
-                    </div>
-                    <div class="col-xs-6 text-center">
-                        <div id="message_box"><h1>Then, scan boxes</h1></div>
+                    <div class="col-xs-12 text-center">
+                        <div id="message_box"><h1>Scan boxes</h1></div>
                         <div id="package_list" class="row"/>
                     </div>
                 </div>
@@ -53,7 +41,6 @@
     </t>
 
     <t t-name="worklocation_result">
-        <!-- cart selection modal -->
         <div class="row">
             <t t-foreach="worklocations" t-as="worklocation">
                 <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
@@ -61,11 +48,9 @@
                 </a>
             </t>
         </div>
-
     </t>
 
     <t t-name="change_user">
-        <!-- cart selection modal -->
         <div class="row">
             <div class="col-md-3" />
             <div class="col-md-6" >
@@ -205,10 +190,10 @@
 
     <t t-name="exception_modal">
         <div class="row">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+            <div class="col-xs-2 text-center">
                 <span class='fa fa-times error-icon'></span>
             </div>
-            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+            <div class="col-xs-10">
                 <h2>
                     <t t-esc="error"/>
                 </h2>
