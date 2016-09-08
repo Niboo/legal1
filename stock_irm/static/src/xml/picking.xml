@@ -12,12 +12,12 @@
 
             <div class="row ">
                 <br/>
-                <h3 id="selected_packages" class="text-center">Or scan begon packages</h3>
+                <h3 id="selected_packages" class="text-center">Or scan already started packages</h3>
                 <br/>
-                <div class="col-xs-9 col-md-9">
+                <div class="col-xs-9">
 
                 </div>
-                <div class="col-xs-2 col-md-2 text-right">
+                <div class="col-xs-2 text-right">
                     <t t-call="numpad" />
                 </div>
 
@@ -44,7 +44,7 @@
     </t>
 
     <t t-name="begon_package">
-        <div class="col-md-2">
+        <div class="col-xs-2">
             <a href="#" class="btn btn-lg btn-success package " t-att-package-id="package.id" t-att-package-name="package.name">
                 <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> <t t-esc="package.name" />
             </a>
@@ -53,10 +53,10 @@
 
     <t t-name="package_not_found_modal">
         <div class="row">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+            <div class="col-xs-2 text-center">
                  <span class='fa fa-times error-icon'></span>
             </div>
-            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+            <div class="col-xs-10">
                 <h2>The scanned package was not found in the system or is not in your location</h2>
             </div>
 
@@ -537,10 +537,10 @@
 
     <t t-name="scan_product_modal">
         <div class="row">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+            <div class="col-xs-2 text-center">
                  <span class='fa fa-times error-icon'></span>
             </div>
-            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+            <div class="col-xs-10">
                 <h2>Please scan the product first!</h2>
             </div>
 
@@ -549,10 +549,10 @@
 
     <t t-name="already_scanned_box">
         <div class="row">
-            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+            <div class="col-xs-2 text-center">
                  <span class='fa fa-times error-icon'></span>
             </div>
-            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+            <div class="col-xs-10 ">
                 <h2>You already scanned this package</h2>
             </div>
 
