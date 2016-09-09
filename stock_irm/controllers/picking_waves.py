@@ -120,6 +120,7 @@ class InboundController(http.Controller):
 
         # retrieve the pickings with that type
         pickings = outbound_wave.related_picking_ids
+        excluded_picking_ids = []
         for picking in pickings:
             picking.action_assign()
 
@@ -139,7 +140,9 @@ class InboundController(http.Controller):
                 # in another wave
                 ('state', '=', 'assigned'),
                 ('move_lines.location_id', '=', picking_type.default_location_src_id.id),
-                ('id', 'not in', pickings.ids)
+                ('move_lines.dispatch_id', '=', False),
+                ('id', 'not in', pickings.ids),
+                ('id', 'not in', excluded_picking_ids)
             ], order='priority_weight DESC, id', limit=1, offset=cpt)
 
 
@@ -164,6 +167,14 @@ class InboundController(http.Controller):
                 # if no more picking is found, then exit the loop
                 break
 
+            counterpart_picking = picking.search(
+                [('group_id','=',picking.group_id.id),
+                ('state','in',['done']),
+                ('picking_type_id', '!=', picking.picking_type_id.id)])
+            if counterpart_picking:
+                excluded_picking_ids.append(picking.id)
+                continue
+
             # check if the selected picking is fully available, assign and treat
             # it if its the case
             is_fully_available = True
@@ -173,7 +184,8 @@ class InboundController(http.Controller):
                     break
 
             if not is_fully_available:
-                break
+                excluded_picking_ids.append(picking.id)
+                continue
 
             for move in picking.move_lines:
                 move.action_assign()
@@ -197,6 +209,31 @@ class InboundController(http.Controller):
                 'wave_name': outbound_wave.name
                 }
 
+    def transfer_package(self, move, package, cart_id):
+        env = http.request.env
+
+        picking = move.picking_id
+        wizard_id = picking.do_enter_transfer_details()['res_id']
+        wizard = env['stock.transfer_details'].browse(wizard_id)
+
+        wizard.write({
+            'item_ids': [(5, False, False)],
+            'packop_ids': [(5, False, False)]
+        })
+
+        # then create a new wizard item
+        wizard_values = {
+            'package_id': package.id,
+            'destinationloc_id': cart_id,
+            'sourceloc_id': package.location_id.id,
+        }
+
+        wizard.write({
+            'packop_ids': [(0, False, wizard_values)]
+        })
+
+        wizard.sudo().do_detailed_transfer()
+
     @http.route('/picking_waves/validate_move', type='json', auth="user")
     def validate_move(self, move_id, cart_id, box_barcode, **kw):
         env = http.request.env
@@ -206,7 +243,8 @@ class InboundController(http.Controller):
         counterparts_moves = self.find_counterpart_moves(move.picking_id)
         for counterpart_move in counterparts_moves:
             if counterpart_move.state != 'done':
-                self.transfer_move(counterpart_move, cart_id, dest_package)
+                self.transfer_package(counterpart_move, dest_package, cart_id)
+
 
         self.transfer_move(move, cart_id, dest_package)
         picking = env['stock.picking'].browse(move.picking_id.id)
@@ -278,7 +316,7 @@ class InboundController(http.Controller):
 
     def find_counterpart_package(self, picking):
         moves = self.find_counterpart_moves(picking)
-        if moves and moves.reserved_quant_ids:
+        if moves and moves[0].reserved_quant_ids:
             return moves[0].reserved_quant_ids[0].package_id
 
     def create_moves_info(self, wave_id):
@@ -354,6 +392,7 @@ class InboundController(http.Controller):
             'status': 'ok',
             'carts': carts,
         }
+
 
     def transfer_move(self, move, cart_id, package):
         env = http.request.env

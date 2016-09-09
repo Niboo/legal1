@@ -83,6 +83,7 @@ class OutboundSelectPackageController(http.Controller):
         wizard_values = {
             'package_id': scanned_package.id,
             'destinationloc_id': destination.id,
+            'sourceloc_id': scanned_package.location_id.id,
         }
 
         wizard.write({
