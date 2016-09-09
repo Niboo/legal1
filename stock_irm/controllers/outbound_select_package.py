@@ -67,7 +67,7 @@ class OutboundSelectPackageController(http.Controller):
         quant = scanned_package.quant_ids[0]
         picking = quant.reservation_id.picking_id
         procurement_group = picking.group_id
-        procurement_group.write({'procurement_ids': False})
+        procurement_group._procurement_order_state()
         is_complete = procurement_group.is_sale_order_complete
 
         wizard_id = picking.do_enter_transfer_details()['res_id']
