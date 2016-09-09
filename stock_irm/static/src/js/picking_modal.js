@@ -89,7 +89,7 @@
             var self = this;
             self.pickings = pickings;
             self.$body = "<i class='fa fa-check fa-5x' style='color:green'></i>" +"<b style='font-size: 2em'>Wait for redirection...</b>";
-            self.$footer = "<b style='font-size: 3em;'>Time to complete: </b><b class='time-complete'>"+time+" minutes</b>";
+            self.$footer = "<b style='font-size: 3em;'>Time to complete: </b><b class='time-complete'>"+ (Math.round(time * 100) / 100) +" minutes</b>";
             this._super();
 
             window.setTimeout(function(){

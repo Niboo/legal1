@@ -293,7 +293,7 @@
                                 self.trigger_next_product(current_move);
                             } else {
                                 var modal = new instance.stock_irm.modal.error_modal('Wrong box');
-                                modal.start('location', self.current_destination_barcode)
+                                modal.start('box', self.current_destination_barcode)
                             }
                         } else {
                             self.session.rpc('/outbound_wave/check_package_empty', {

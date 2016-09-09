@@ -179,15 +179,6 @@
         </div>
     </t>
 
-    <t t-name="info_location_barcode">
-        <div class="alert alert-success fade in info-prompt">
-            <b>Please scan the location or enter its location manually by clicking on</b>
-            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
-                <i class="fa fa-barcode" aria-hidden="true"></i>
-            </button>
-        </div>
-    </t>
-
     <t t-name="exception_modal">
         <div class="row">
             <div class="col-xs-2 text-center">

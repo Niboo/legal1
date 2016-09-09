@@ -139,7 +139,7 @@
                 </t>
                 <t t-if="type== 'location'">
                     <p class="error-message">
-                        You should put your item in the location <b><t t-esc="dest_location"/></b>.
+                        You should put your item in the box <b><t t-esc="dest_location"/></b>.
                     </p>
                 </t>
             </div>
@@ -303,7 +303,7 @@
             </div>
             <div class="col-xs-6 text-right">
                 <h4 t-if="! location_barcode">Scan a Box</h4>
-                <h4 t-if="location_barcode" ><span t-esc="location_barcode"/></h4>
+                <h4 t-if="location_barcode">Please, put the product in box <span t-esc="location_barcode"/></h4>
             </div>
         </div>
     </t>
@@ -462,7 +462,7 @@
 
     <t t-name="info_location_barcode">
         <div class="alert alert-success fade in info-prompt">
-            <b>Please scan the location or enter its location manually by clicking on</b>
+            <b>Please scan the box or enter its barcode manually by clicking on</b>
             <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
                 <i class="fa fa-barcode" aria-hidden="true"></i>
             </button>
