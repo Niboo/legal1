@@ -61,7 +61,7 @@ class OutboundSelectPackageController(http.Controller):
             return {
                 'status': 'error',
                 'error': 'Error',
-                'message': 'The scanned package is not in an upstairs cart.',
+                'message': 'The scanned package should not be on banddown.',
             }
 
         quant = scanned_package.quant_ids[0]
