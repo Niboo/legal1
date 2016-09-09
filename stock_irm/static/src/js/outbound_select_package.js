@@ -52,25 +52,13 @@
                     barcode: true_barcode,
                 }).then(function(data){
                     if(data.status == "ok"){
-                        self.scanned_package_barcodes.push(data.barcode);
-                        self.package_ids_to_scan.splice(
-                            self.package_ids_to_scan.map(function(object) {
-                                return object.package.barcode; })
-                            .indexOf(data.barcode),1);
-
-                        // Grey out scanned package on the screen
-                        var box_div = 'div[data-package-id="' + data.id + '"]';
-                        self.$elem.find(box_div).animate({opacity: '0.4'});
-
-                        // If there are no more packages in this cart
-                        if (self.package_ids_to_scan.length == 0) {
-                            var modal = new instance.stock_irm.modal.confirm_bandup_wave_modal();
-                            modal.start();
-                            window.setTimeout(function () {
-                                window.location.href = "/outbound_select_package";
-                            }, 3000);
+                        if(data.is_complete){
+                            var modal = new instance.stock_irm.modal.complete_modal();
+                            modal.start(data.error, data.message);
+                        } else {
+                            var modal = new instance.stock_irm.modal.incomplete_modal();
+                            modal.start(data.error, data.message);
                         }
-
                     } else {
                         var modal = new instance.stock_irm.modal.exception_modal();
                         modal.start(data.error, data.message);

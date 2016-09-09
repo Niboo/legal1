@@ -67,12 +67,7 @@ class OutboundSelectPackageController(http.Controller):
         quant = scanned_package.quant_ids[0]
         picking = quant.reservation_id.picking_id
         procurement_group = picking.group_id
-        if not procurement_group.is_sale_order_complete:
-            return {
-                'status': 'error',
-                'error': 'Incomplete Sale Order',
-                'message': 'The sale order is incomplete',
-            }
+        is_complete = procurement_group.is_sale_order_complete
 
         wizard_id = picking.do_enter_transfer_details()['res_id']
         wizard = env['stock.transfer_details'].browse(wizard_id)
@@ -86,7 +81,8 @@ class OutboundSelectPackageController(http.Controller):
 
         return {'status': 'ok',
                 'id': scanned_package.id,
-                'barcode': scanned_package.barcode,}
+                'barcode': scanned_package.barcode,
+                'is_complete': is_complete}
 
     @http.route('/outbound_select_package/get_package_ids', auth='user', type='json')
     def get_package_ids(self, cart_id):

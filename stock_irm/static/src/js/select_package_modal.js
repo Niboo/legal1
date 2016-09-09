@@ -58,4 +58,38 @@
 
     instance.stock_irm.modal.barcode_error_modal = barcode_error_modal;
 
+    var complete_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Box is complete';
+            self.block_modal = true;
+        },
+        start: function (barcode_type, barcode) {
+            var self = this;
+            self.$body = "<i class='fa fa-check fa-10x' style='color:red'></i><b style='font-size: 2em'>Put the box in the output zone.</b>";
+            self.$footer = "<a href='#' class='btn btn-lg btn-success'>Continue</a>";
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.complete_modal = complete_modal;
+
+    var incomplete_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Box is incomplete';
+            self.block_modal = true;
+        },
+        start: function (barcode_type, barcode) {
+            var self = this;
+            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>Let the box be handled by the picker.</b>";
+            self.$footer = "<a href='#' class='btn btn-lg btn-success'>Continue</a>";
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.incomplete_modal = incomplete_modal;
+
 })();
