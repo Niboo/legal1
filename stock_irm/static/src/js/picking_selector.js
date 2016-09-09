@@ -188,14 +188,20 @@
 
             $("#skip-picking-line").off('click.skip');
             $("#skip-picking-line").on('click.skip', function (event) {
-                self.current_move_index++;
-                $("#current_product").animate({opacity: '0.4', backgroundColor: "red"}, 200);
-                $('#current_product').hide("slide",{direction:'right', backgroundColor: "red"}, 400, function(){
-                    if(self.current_move_index >= self.move_list.length){
-                        // No more products
-                        self.validate_wave();
-                    }else{
-                        self.display_page();
+                self.session.rpc('/outbound_wave/cancel_move', {
+                    move_id: self.move_list[self.current_move_index].move_id
+                }).then(function (data) {
+                    if(data.status="ok"){
+                        self.current_move_index++;
+                        $("#current_product").animate({opacity: '0.4', backgroundColor: "red"}, 200);
+                        $('#current_product').hide("slide",{direction:'right', backgroundColor: "red"}, 400, function(){
+                            if(self.current_move_index >= self.move_list.length){
+                                // No more products
+                                self.validate_wave();
+                            }else{
+                                self.display_page();
+                            }
+                        });
                     }
                 });
             });

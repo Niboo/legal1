@@ -430,3 +430,19 @@ class InboundController(http.Controller):
         return {
             'status': 'error',
         }
+
+    @http.route('/outbound_wave/cancel_move', type='json', auth='user')
+    def cancel_move(self, move_id, **kw):
+        env = http.request.env
+
+        # remove the move from the dispatch wave and unreserve moves
+        move = env['stock.move'].search([
+            ('id', '=', int(move_id))
+        ])
+
+        move.reserved_quant_ids.quants_unreserve(move)
+        move.dispatch_id = False
+
+        return {
+            'status': 'ok',
+        }
