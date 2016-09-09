@@ -91,26 +91,31 @@
             self.$body = "<i class='fa fa-check fa-5x' style='color:green'></i>" +"<b style='font-size: 2em'>Wait for redirection...</b>";
             self.$footer = "<b style='font-size: 3em;'>Time to complete: </b><b class='time-complete'>"+time+" minutes</b>";
             this._super();
+
             window.setTimeout(function(){
-                var to_outputs = [];
-                var to_temps = [];
-
-                $.each(self.pickings, function(key, value){
-                    if(value['progress_done']<100){
-                        to_temps.push(value);
-                    } else {
-                        to_outputs.push(value);
-                    }
-                });
-
-                self.$modal.modal('hide');
-                self.$elem = $(QWeb.render("wave_done", {
-                    to_outputs: to_outputs,
-                    to_temps: to_temps,
-                }));
-                $('#content').html(self.$elem);
-                self.caller.add_listener_on_endbox();
+                window.location.href = "/picking_waves";
             }, 3000);
+
+            //window.setTimeout(function(){
+            //    var to_outputs = [];
+            //    var to_temps = [];
+            //
+            //    $.each(self.pickings, function(key, value){
+            //        if(value['progress_done']<100){
+            //            to_temps.push(value);
+            //        } else {
+            //            to_outputs.push(value);
+            //        }
+            //    });
+            //
+            //    self.$modal.modal('hide');
+            //    self.$elem = $(QWeb.render("wave_done", {
+            //        to_outputs: to_outputs,
+            //        to_temps: to_temps,
+            //    }));
+            //    $('#content').html(self.$elem);
+            //    self.caller.add_listener_on_endbox();
+            //}, 3000);
 
         },
     });
