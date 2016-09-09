@@ -72,12 +72,23 @@ class OutboundSelectPackageController(http.Controller):
 
         wizard_id = picking.do_enter_transfer_details()['res_id']
         wizard = env['stock.transfer_details'].browse(wizard_id)
-        dest_id = picking.location_dest_id
-        for packop in wizard.packop_ids:
-            if packop.package_id != scanned_package:
-                packop.unlink()
-                continue
-            packop.destinationloc_id = dest_id.id
+        destination = picking.location_dest_id
+
+        wizard.write({
+            'item_ids': [(5, False, False)],
+            'packop_ids': [(5, False, False)]
+        })
+
+        # then create a new wizard item
+        wizard_values = {
+            'package_id': scanned_package.id,
+            'destinationloc_id': destination.id,
+        }
+
+        wizard.write({
+            'packop_ids': [(0, False, wizard_values)]
+        })
+
         wizard.sudo().do_detailed_transfer()
 
         if is_complete:
