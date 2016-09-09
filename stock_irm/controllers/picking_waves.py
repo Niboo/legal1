@@ -302,6 +302,8 @@ class InboundController(http.Controller):
 
         for move in sorted_moves:
             product_location = find_origin_location(move)
+            if move.state == 'done':
+                continue
 
             move_list.append(
                 {'picking_id': move.picking_id.id,
