@@ -278,11 +278,8 @@
 
                     if (sum < move_qty) {
                         // Update the quantity
-                        var qty_to_take = move_qty - self.qty_in_box;
-                        self.qty_in_box = sum;
-                        self.$elem.find('#quantity_wave input').val(0);
-                        self.$elem.find('#qty_in_box').text(self.qty_in_box);
-                        self.$elem.find('#expected_qty').text(qty_to_take);
+                        var modal = new instance.stock_irm.modal.wrong_quantity_modal();
+                        modal.start(sum, move_qty)
                     } else if (sum > move_qty) {
                         // Not the expected quantity, display an error modal
                         var modal = new instance.stock_irm.modal.wrong_quantity_modal();
