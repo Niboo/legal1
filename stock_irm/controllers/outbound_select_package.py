@@ -36,7 +36,8 @@ class OutboundSelectPackageController(http.Controller):
             'title': 'Outbound Select Package',
         })
 
-    @http.route('/outbound_select_package/process_package', auth='user', type='json')
+    @http.route('/outbound_select_package/process_package', auth='user',
+                type='json')
     def process_package(self, barcode):
         env = http.request.env
 
@@ -57,7 +58,8 @@ class OutboundSelectPackageController(http.Controller):
 
         bo_cart_upstairs = bo_cart_to_band_down.default_location_src_id
 
-        if scanned_package.location_id not in bo_cart_upstairs.child_ids:
+        if scanned_package.location_id not in bo_cart_upstairs.child_ids\
+                and scanned_package.location_id.name == 'Output':
             return {
                 'status': 'error',
                 'error': 'Error',

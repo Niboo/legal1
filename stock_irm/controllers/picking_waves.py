@@ -167,11 +167,21 @@ class InboundController(http.Controller):
                 # if no more picking is found, then exit the loop
                 break
 
-            counterpart_picking = picking.search(
-                [('group_id','=',picking.group_id.id),
-                ('state','in',['done']),
-                ('picking_type_id', '!=', picking.picking_type_id.id)])
-            if counterpart_picking:
+            source_moves = env['stock.move'].search(
+                [('procurement_id', 'in', sources_ids)])
+            is_combined = False
+            for move in source_moves:
+                if move.picking_id.picking_type_id != picking.picking_type_id:
+                    is_combined = True
+                    break
+
+            same_level_picking = picking.search(
+                [('group_id', '=', picking.group_id.id),
+                 ('state', '!=','done'),
+                 ('picking_type_id', '=', picking.picking_type_id.id),
+                 ('id', '!=', picking.id)])
+
+            if is_combined and same_level_picking:
                 excluded_picking_ids.append(picking.id)
                 continue
 
@@ -179,7 +189,14 @@ class InboundController(http.Controller):
             # it if its the case
             is_fully_available = True
             for move in moves:
-                if move.product_id.qty_available < move.product_qty:
+                location = self.find_origin_location(move)
+                quants = env['stock.quant'].search(
+                    [('location_id','=',location.id),
+                     ('product_id','=',move.product_id.id),
+                     ('reservation_id','=',False)])
+                qty_in_stock = sum([quant.qty for quant in quants])
+
+                if qty_in_stock < move.product_qty:
                     is_fully_available = False
                     break
 
@@ -187,8 +204,10 @@ class InboundController(http.Controller):
                 excluded_picking_ids.append(picking.id)
                 continue
 
-            for move in picking.move_lines:
+            for move in moves:
                 move.action_assign()
+
+            for move in picking.move_lines:
                 outbound_wave.move_ids += move
             pickings += picking
 
@@ -315,31 +334,37 @@ class InboundController(http.Controller):
         return moves
 
     def find_counterpart_package(self, picking):
-        moves = self.find_counterpart_moves(picking)
-        if moves and moves[0].reserved_quant_ids:
-            return moves[0].reserved_quant_ids[0].package_id
+        env = http.request.env
+        domain = ['cancel', 'done']
+        moves = env['stock.move'].search([('group_id','=',picking.group_id.id),
+                                  ('picking_id.state', 'not in', domain)])
+
+        for move in moves:
+            if move.reserved_quant_ids \
+                    and move.reserved_quant_ids[0].package_id:
+                return move.reserved_quant_ids[0].package_id
+
+    def find_origin_location(self, to_treat_move):
+        env = http.request.env
+        sub_locations = to_treat_move.location_id._get_sublocations()
+
+        putaway_strategy = env['stock.product.putaway.strategy'].search([
+            ('product_product_id', '=', to_treat_move.product_id.id),
+            ('fixed_location_id.id', 'in', sub_locations)])
+        return putaway_strategy.fixed_location_id or to_treat_move.location_id
 
     def create_moves_info(self, wave_id):
         stock_moves = wave_id.move_ids
         move_list = []
-        env = http.request.env
-
-        def find_origin_location(to_treat_move):
-            sub_locations = to_treat_move.location_id._get_sublocations()
-
-            putaway_strategy = env['stock.product.putaway.strategy'].search([
-                ('product_product_id', '=', to_treat_move.product_id.id),
-                ('fixed_location_id.id', 'in', sub_locations)])
-            return putaway_strategy.fixed_location_id or to_treat_move.location_id
 
         def sort_by_origin_location(to_treat_move):
-            return (find_origin_location(to_treat_move).name,
+            return (self.find_origin_location(to_treat_move).name,
                     to_treat_move.product_id.id)
 
         sorted_moves = sorted(stock_moves, key=sort_by_origin_location)
 
         for move in sorted_moves:
-            product_location = find_origin_location(move)
+            product_location = self.find_origin_location(move)
             if move.state == 'done':
                 continue
 
