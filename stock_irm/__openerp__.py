@@ -38,6 +38,7 @@ Module
         'stock_weight_reservation',
         'stock_putaway_product',
         'picking_dispatch_multiwave',
+        'procurement_track_sale',
     ],
     'data': [
         'views/res_partner.xml',
