@@ -285,4 +285,40 @@
 
     instance.stock_irm.modal.already_scanned_box = already_scanned_box;
 
+    var update_stock_modal = instance.stock_irm.modal.widget.extend({
+        init: function (caller) {
+            this._super(caller);
+            this.body_template = 'update_stock_body';
+            this.footer_template = 'update_stock_footer';
+            this.block_modal = false;
+        },
+        start: function (current_stock, product_name) {
+            this.$body = $(QWeb.render(this.body_template, {'current_stock': current_stock}));
+            this.$footer = $(QWeb.render(this.footer_template));
+            this.title = 'Update Stock: ' + product_name;
+            this.add_listener_on_submit();
+            this._super();
+        },
+        add_listener_on_submit: function () {
+            var self = this;
+            self.$footer.off('click.submit_update_stock');
+            self.$footer.on('click.submit_update_stock', '.odw-submit-button', function (e) {
+                $(this).prop('disabled', true);
+                self.caller.update_stock(parseInt(self.$body.find('input[name="new-stock-amount"]').val()));
+            });
+        },
+        success: function (product_name, new_quantity) {
+            var self = this;
+            self.$body.html(QWeb.render('update_successful_body', {
+                product_name: product_name,
+                new_quantity: new_quantity,
+            }));
+            setTimeout(function () {
+                self.$modal.modal('hide');
+            }, 3000);
+        },
+    });
+
+    instance.stock_irm.modal.update_stock_modal = update_stock_modal;
+
 })();

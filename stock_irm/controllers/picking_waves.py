@@ -512,3 +512,27 @@ class InboundController(http.Controller):
         return {
             'status': 'ok',
         }
+
+    @http.route('/outbound_wave/get_stock_amount', type='json', auth='user')
+    def get_stock_amount(self, product_id, **kw):
+        env = http.request.env
+        product = env['product.product'].browse(product_id)
+        return {
+            'status': 'ok',
+            'current_stock': product.qty_available,
+        }
+
+    @http.route('/outbound_wave/update_stock', type='json', auth='user')
+    def update_stock(self, product_id, location_id, new_amount, **kw):
+        env = http.request.env
+        stock_change = env['stock.change.product.qty'].create({
+            'product_id': product_id,
+            'location_id': location_id,
+            'new_quantity': new_amount,
+        })
+        stock_change.change_product_qty()
+        product = env['product.product'].browse(product_id)
+        return {
+            'status': 'ok',
+            'new_quantity': product.qty_available,
+        }

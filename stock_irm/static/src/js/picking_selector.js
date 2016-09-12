@@ -68,7 +68,7 @@
                     }));
                     $('#content').html(self.$elem);
                     self.add_listener_on_create_picking();
-                    self.add_listener_on_manual_input()
+                    self.add_listener_on_manual_input();
 
                     self.$elem.find('.wave-div a').click(function(event){
 
@@ -169,6 +169,7 @@
             self.add_listener_on_manual_input();
             self.add_listener_on_skip_picking();
             self.add_listener_on_picking_list();
+            self.add_listener_on_update_stock();
             var $message = $(QWeb.render('info_first_barcode'));
             $('#info_message').html($message)
 
@@ -481,7 +482,35 @@
                     self.current_picking_index = i;
                 }
             }
-        }
+        },
+        add_listener_on_update_stock: function () {
+            var self = this;
+            self.$elem.off('click.update_stock');
+            self.$elem.on('click.update_stock', '.odw-update-stock-quantity', function (e) {
+                self.session.rpc('/outbound_wave/get_stock_amount', {
+                    product_id: self.move_list[self.current_move_index].product.product_id,
+                }).then(function (data) {
+                    if(data.status == 'ok'){
+                        var product_name = self.move_list[self.current_move_index].product.product_name;
+                        self.update_stock_modal = new instance.stock_irm.modal.update_stock_modal(self);
+                        self.update_stock_modal.start(data.current_stock, product_name);
+                    }
+                });
+            });
+        },
+        update_stock: function (new_amount) {
+            var self = this;
+            self.session.rpc('/outbound_wave/update_stock', {
+                product_id: self.move_list[self.current_move_index].product.product_id,
+                location_id: self.move_list[self.current_move_index].product.location_id,
+                new_amount: new_amount,
+            }).then(function (data) {
+                if(data.status == 'ok'){
+                    var product_name = self.move_list[self.current_move_index].product.product_name;
+                    self.update_stock_modal.success(product_name, data.new_quantity);
+                }
+            })
+        },
     });
     instance.picking_waves.picking_selector = new picking_selector();
 })();

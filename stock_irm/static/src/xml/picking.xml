@@ -265,6 +265,9 @@
                 <button id="skip-picking-line" type="button" class="btn btn-danger btn-large button-touch">
                     <i class="fa fa-minus-circle button-touch-icon" aria-hidden="true"></i>
                 </button>
+                <button class="odw-update-stock-quantity btn btn-warning btn-large button-touch" title="Update Stock">
+                    <i class="fa fa-pencil-square-o button-touch-icon"/>
+                </button>
             </div>
         </div>
 
@@ -559,5 +562,31 @@
         </div>
     </t>
 
-</templates>
+    <t t-name="update_stock_body">
+        <div class="row">
+            <div class="col-xs-12">
+                <b>Current Stock: </b><t t-esc="current_stock"/>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label for="stock_amount">New Stock Amount</label>
+                    <input type="number" class="form-control" name="new-stock-amount" min="0"/>
+                </div>
+            </div>
+        </div>
+    </t>
 
+    <t t-name="update_stock_footer">
+        <div class="pull-right">
+            <button class="btn btn-success odw-submit-button">
+                Update Stock
+            </button>
+        </div>
+    </t>
+
+    <t t-name="update_successful_body">
+        <div class="col-xs-12">
+            <div class="alert alert-success" role="alert"><i class="fa fa-check"/> <t t-esc="product_name"/>'s new quantity is <t t-esc="new_quantity"/></div>
+        </div>
+    </t>
+</templates>
