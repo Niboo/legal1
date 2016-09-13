@@ -31,22 +31,3 @@ class StockLocation(models.Model):
     is_inbound_cart = fields.Boolean('Is an inbound cart', default=False)
     is_bandup_location = fields.Boolean('Is a Bandup Location', default=False)
     is_damaged_location = fields.Boolean('Is the Damaged Products Location', default=False)
-
-    @api.multi
-    @api.constrains('is_inbound_cart', 'is_bandup_location',
-                    'is_damaged_location')
-    def check_damaged_location(self):
-        other_damaged_locations = self.env['stock.location']\
-            .search([('is_damaged_location', '=', True),
-                     ('id', '!=', self.id)])
-        for location in self:
-            if location.is_damaged_location:
-                if location.is_inbound_cart or location.is_bandup_location:
-                    raise Warning('Damaged Location cannot be cart or '
-                                  'Bandup location')
-                elif other_damaged_locations:
-                    message = ''.join(
-                        ['%s ' % loc.name for loc in other_damaged_locations])
-                    raise Warning(
-                        'There can only be one Damaged Products Location. '
-                        'Currently it is set to %s' % message)

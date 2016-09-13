@@ -41,6 +41,8 @@ class OutboundSelectPackageController(http.Controller):
     def process_package(self, barcode):
         env = http.request.env
 
+        unpack = False
+
         # cart = env['stock.location'].browse(cart_id)
         scanned_package = env['stock.quant.package'].search(
             [('barcode', '=', str(barcode))]
@@ -58,13 +60,20 @@ class OutboundSelectPackageController(http.Controller):
 
         bo_cart_upstairs = bo_cart_to_band_down.default_location_src_id
 
-        if scanned_package.location_id not in bo_cart_upstairs.child_ids\
-                and scanned_package.location_id.name == 'Output':
+        current_location = scanned_package.location_id
+
+        if current_location not in bo_cart_upstairs.child_ids\
+                and current_location.name != 'Output'\
+                and current_location.location_id.name != 'Output':
             return {
                 'status': 'error',
                 'error': 'Error',
                 'message': 'The scanned package should not be on banddown.',
             }
+
+        if current_location.name == 'Output'\
+                or current_location.location_id.name == 'Output':
+            unpack = True
 
         quant = scanned_package.quant_ids[0]
         picking = quant.reservation_id.picking_id
@@ -94,7 +103,10 @@ class OutboundSelectPackageController(http.Controller):
 
         wizard.sudo().do_detailed_transfer()
 
-        if is_complete:
+        if unpack:
+            scanned_package.unpack()
+
+        if is_complete and not unpack:
             scanned_package.auto_move_pack()
 
         return {'status': 'ok',
