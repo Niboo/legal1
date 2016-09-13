@@ -190,7 +190,8 @@ class InboundController(http.Controller):
             is_fully_available = True
             for move in moves:
                 location = self.find_origin_location(move)
-                self.get_location_qty(location, move.product_id, True)
+                qty_in_stock = self.get_location_qty(location,
+                                                     move.product_id, True)
 
                 if qty_in_stock < move.product_qty:
                     is_fully_available = False
