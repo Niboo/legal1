@@ -489,6 +489,7 @@
             self.$elem.on('click.update_stock', '.odw-update-stock-quantity', function (e) {
                 self.session.rpc('/outbound_wave/get_stock_amount', {
                     product_id: self.move_list[self.current_move_index].product.product_id,
+                    location_id: self.move_list[self.current_move_index].product.location_id,
                 }).then(function (data) {
                     if(data.status == 'ok'){
                         var product_name = self.move_list[self.current_move_index].product.product_name;

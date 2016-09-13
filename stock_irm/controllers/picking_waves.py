@@ -190,11 +190,7 @@ class InboundController(http.Controller):
             is_fully_available = True
             for move in moves:
                 location = self.find_origin_location(move)
-                quants = env['stock.quant'].search(
-                    [('location_id','=',location.id),
-                     ('product_id','=',move.product_id.id),
-                     ('reservation_id','=',False)])
-                qty_in_stock = sum([quant.qty for quant in quants])
+                self.get_location_qty(location, move.product_id, True)
 
                 if qty_in_stock < move.product_qty:
                     is_fully_available = False
@@ -227,6 +223,18 @@ class InboundController(http.Controller):
                 'wave_id': outbound_wave.id,
                 'wave_name': outbound_wave.name
                 }
+
+    def get_location_qty(self, location, product, exclude_reservation=False):
+        env = http.request.env
+
+        domain = [('location_id', '=', location.id),
+             ('product_id', '=', product.id)]
+
+        if exclude_reservation:
+            domain.append(('reservation_id', '=', False))
+
+        quants = env['stock.quant'].search(domain)
+        return sum([quant.qty for quant in quants])
 
     def transfer_package(self, move, package, cart_id):
         env = http.request.env
@@ -382,7 +390,7 @@ class InboundController(http.Controller):
                      "/web/binary/image?model=product.product&id=%s&field=image"
                      % move.product_id.id,
                      'ean13': move.product_id.default_code,
-                     'location_id': move.location_id.id,
+                     'location_id': product_location.id,
                      'location_name': product_location.name,
                  },
                  'location_dest_id': move.location_dest_id.id,
@@ -514,12 +522,16 @@ class InboundController(http.Controller):
         }
 
     @http.route('/outbound_wave/get_stock_amount', type='json', auth='user')
-    def get_stock_amount(self, product_id, **kw):
+    def get_stock_amount(self, product_id, location_id, **kw):
         env = http.request.env
         product = env['product.product'].browse(product_id)
+        location = env['stock.location'].browse(location_id)
+
+        qty_available = self.get_location_qty(location, product)
+
         return {
             'status': 'ok',
-            'current_stock': product.qty_available,
+            'current_stock': qty_available,
         }
 
     @http.route('/outbound_wave/update_stock', type='json', auth='user')
@@ -531,8 +543,13 @@ class InboundController(http.Controller):
             'new_quantity': new_amount,
         })
         stock_change.change_product_qty()
+
         product = env['product.product'].browse(product_id)
+        location = env['stock.location'].browse(location_id)
+
+        qty_available = self.get_location_qty(location, product)
+
         return {
             'status': 'ok',
-            'new_quantity': product.qty_available,
+            'new_quantity': qty_available,
         }
