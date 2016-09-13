@@ -72,6 +72,7 @@
             self.session.rpc('/inbound_screen/get_printer_ip').then(function(data){
                 if(data.status == 'ok'){
                     self.printer_ip = data.printer_ip;
+                    self.proxy = data.proxy;
                 }
             });
         },
@@ -390,7 +391,10 @@
         print_label: function(product_name, barcode, quantity){
             if(this.printer_ip){
                 try {
-                    url = 'http://' + this.printer_ip + '/printer/wfmprint';
+                    if (this.proxy)
+                        url = this.proxy + this.printer_ip + '/printer/wfmprint';
+                    else
+                        url = 'http://' + this.printer_ip + '/printer/wfmprint';
                     return $.ajax(url, {
                         dataType: 'xml',
                         data: {

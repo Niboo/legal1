@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
                 <field name="name" position="after">
                     <field name="ip_adress"/>
+                    <field name="xx_proxy_id"/>
                 </field>
             </field>
         </record>
@@ -19,6 +20,7 @@
             <field name="arch" type="xml">
                 <field name="uri" position="after">
                     <field name="ip_adress"/>
+                    <field name="xx_proxy_id"/>
                 </field>
             </field>
         </record>
