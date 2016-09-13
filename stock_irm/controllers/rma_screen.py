@@ -40,12 +40,11 @@ class RMAScreenController(http.Controller):
     @http.route('/rma_screen/get_customers', type='json', auth='user')
     def get_customers(self, search='',  **kw):
         env = http.request.env
-        stages = env['crm.claim.stage'].search(
-            ['|',
-             ('name', '=', 'New'),
-             ('name', '=', 'In Progress')
-             ])
-        claims = env['crm.claim'].search([('stage_id', 'in', stages.ids),
+        stage_new = env.ref('crm_claim.stage_claim1')
+        stage_in_progress = env.ref('crm_claim.stage_claim5')
+        stages = [stage_new.id, stage_in_progress.id]
+
+        claims = env['crm.claim'].sudo().search([('stage_id', 'in', stages),
                                           ('picking_ids', '!=', False),
                                           ('picking_ids.state','=','assigned')])
 
@@ -155,15 +154,13 @@ class RMAScreenController(http.Controller):
     def search_customer_claims(self, customer_id):
         env = http.request.env
 
-        stages = env['crm.claim.stage'].search(
-            ['|',
-             ('name', '=', 'New'),
-             ('name', '=', 'In Progress')
-             ])
+        stage_new = env.ref('crm_claim.stage_claim1')
+        stage_in_progress = env.ref('crm_claim.stage_claim5')
+        stages = [stage_new.id, stage_in_progress.id]
 
-        crm_claims = env['crm.claim'].search([
+        crm_claims = env['crm.claim'].sudo().search([
             ('partner_id', '=', int(customer_id)),
-            ('stage_id', 'in', stages.ids),
+            ('stage_id', 'in', stages),
         ])
 
         claims = []
@@ -180,7 +177,7 @@ class RMAScreenController(http.Controller):
                 auth='user')
     def get_claim_move_lines(self, claim_ids=False):
         env = http.request.env
-        claims = env['crm.claim'].browse(claim_ids)
+        claims = env['crm.claim'].sudo().browse(claim_ids)
 
         pickings = claims.mapped('picking_ids').filtered(
             lambda r: r.state == 'assigned')

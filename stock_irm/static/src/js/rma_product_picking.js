@@ -344,7 +344,7 @@
                     var modal = new instance.stock_irm.modal.confirmed_modal();
                     modal.start();
                     window.setTimeout(function(){
-                        window.location.href = "/inbound_screen";
+                        window.location.href = "/rma_screen";
                     }, 2000);
                 } else {
                     var modal = new instance.stock_irm.modal.exception_modal();

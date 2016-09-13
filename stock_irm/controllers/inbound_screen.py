@@ -353,7 +353,7 @@ product id: %s, supplier id: %s
         WorkLocationPrinter = env['work_location_printer']
         label_printer_type = env.ref('stock_irm.label_printer_type')
         printer_ip = False
-        proxy_id = False
+        proxy_address = False
 
         user = env['res.users'].browse(request.uid)
 
@@ -365,7 +365,7 @@ product id: %s, supplier id: %s
             printer = work_location_printer.printing_printer_id
             printer_ip = printer.ip_adress
             if printer.xx_proxy_id:
-                proxy_address = p_id.xx_proxy_id.proxy_address
+                proxy_address = printer.xx_proxy_id.proxy_address
 
         return {
             'status': 'ok',
