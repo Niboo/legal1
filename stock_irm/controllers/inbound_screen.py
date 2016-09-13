@@ -362,15 +362,15 @@ product id: %s, supplier id: %s
              ('work_location_id', '=', user.work_location_id.id)])
 
         if work_location_printer.printing_printer_id:
-            p_id = work_location_printer.printing_printer_id
-            printer_ip = p_id.ip_adress
-            if p_id.xx_proxy_id:
-                proxy_id = p_id.xx_proxy_id.proxy_address
+            printer = work_location_printer.printing_printer_id
+            printer_ip = printer.ip_adress
+            if printer.xx_proxy_id:
+                proxy_address = p_id.xx_proxy_id.proxy_address
 
         return {
             'status': 'ok',
             'printer_ip': printer_ip,
-            'proxy': proxy_id,
+            'proxy': proxy_address,
         }
 
     @http.route('/inbound_screen/get_worklocation_printers',
@@ -382,13 +382,14 @@ product id: %s, supplier id: %s
 
         printers = []
         for line in wklc.browse(int(location_id)).work_location_printer_ids:
+            printer = line.printing_printer_id
             printers.append({
-                'id':line.printing_printer_id.id,
-                'ip_adress':line.printing_printer_id.ip_adress,
-                'proxy':line.printing_printer_id.xx_proxy_id.proxy_address or False,
+                'id': printer.id,
+                'ip_adress': printer.ip_adress,
+                'proxy': printer.xx_proxy_id.proxy_address or False,
             })
         return {'status': 'ok',
-                   'printers': printers}
+                'printers': printers}
 
     @http.route('/inbound_screen/get_user', type='json', auth="user")
     def get_user(self, barcode="",  **kw):
@@ -403,11 +404,13 @@ product id: %s, supplier id: %s
         )
 
         if user:
+            user_image = "/web/binary/image?model=res.users&" \
+                         "id=%s&field=image_medium" % user.id
             return {'status': 'ok',
                     'username': user.name,
                     'user_id': user.id,
                     'login': user.login,
-                    'image': "/web/binary/image?model=res.users&id=%s&field=image_medium" % user.id}
+                    'image': user_image}
         else:
             return {"status": 'error'}
 
