@@ -513,16 +513,16 @@ class InboundController(http.Controller):
         env = http.request.env
 
         # remove the move from the dispatch wave and unreserve moves
-        move = env['stock.move'].search([
-            ('id', '=', int(move_id))
-        ])
+        move = env['stock.move'].browse(move_id)
+        wave_id = move.dispatch_id.id
+        moves = move.picking_id.move_lines
 
-        move.reserved_quant_ids.quants_unreserve(move)
-        move.dispatch_id = False
+        for move in moves:
+            if move.state != 'done':
+                move.reserved_quant_ids.quants_unreserve(move)
+                move.dispatch_id = False
 
-        return {
-            'status': 'ok',
-        }
+        return self.get_wave(wave_id)
 
     @http.route('/outbound_wave/get_stock_amount', type='json', auth='user')
     def get_stock_amount(self, product_id, location_id, **kw):

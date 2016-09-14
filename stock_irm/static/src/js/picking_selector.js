@@ -196,13 +196,14 @@
                 move_id: self.move_list[self.current_move_index].move_id
             }).then(function (data) {
                 if(data.status="ok"){
-                    self.current_move_index++;
                     $("#current_product").animate({opacity: '0.4', backgroundColor: "red"}, 200);
                     $('#current_product').hide("slide",{direction:'right', backgroundColor: "red"}, 400, function(){
-                        if(self.current_move_index >= self.move_list.length){
-                            // No more products
+                        if(data.picking_list.length == 0){
                             self.validate_wave();
-                        }else{
+                        } else {
+                            self.move_list = data.move_list;
+                            self.current_move_index = 0;
+                            self.pickings = data.picking_list;
                             self.display_page();
                         }
                     });
