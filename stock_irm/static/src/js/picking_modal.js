@@ -95,28 +95,6 @@
             window.setTimeout(function(){
                 window.location.href = "/picking_waves";
             }, 3000);
-
-            //window.setTimeout(function(){
-            //    var to_outputs = [];
-            //    var to_temps = [];
-            //
-            //    $.each(self.pickings, function(key, value){
-            //        if(value['progress_done']<100){
-            //            to_temps.push(value);
-            //        } else {
-            //            to_outputs.push(value);
-            //        }
-            //    });
-            //
-            //    self.$modal.modal('hide');
-            //    self.$elem = $(QWeb.render("wave_done", {
-            //        to_outputs: to_outputs,
-            //        to_temps: to_temps,
-            //    }));
-            //    $('#content').html(self.$elem);
-            //    self.caller.add_listener_on_endbox();
-            //}, 3000);
-
         },
     });
 
@@ -307,7 +285,7 @@
                 self.caller.update_stock(parseInt(self.$body.find('input[name="new-stock-amount"]').val()));
             });
         },
-        success: function (product_name, new_quantity) {
+        success: function (product_name, new_quantity, cancel) {
             var self = this;
             self.$body.html(QWeb.render('update_successful_body', {
                 product_name: product_name,
@@ -316,6 +294,13 @@
             setTimeout(function () {
                 self.$modal.modal('hide');
             }, 3000);
+            self.$modal.on('hidden.bs.modal', function () {
+                self.$modal.off();
+                if(cancel){
+                    self.caller.cancel_move();
+                }
+
+            });
         },
     });
 

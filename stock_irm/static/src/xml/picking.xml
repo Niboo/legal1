@@ -302,7 +302,7 @@
         </div>
         <div class="row">
             <div class="col-xs-6 text-left">
-                <h4><span t-esc="location_name"/></h4>
+                <h4><span t-esc="product.location_name"/> (<span t-esc="product.qty_available" /> items in stock)</h4>
             </div>
             <div class="col-xs-6 text-right">
                 <h4 t-if="! location_barcode">Scan a Box</h4>

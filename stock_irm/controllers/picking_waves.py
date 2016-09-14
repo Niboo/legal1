@@ -377,6 +377,8 @@ class InboundController(http.Controller):
             if move.state == 'done':
                 continue
 
+            qty_available = self.get_location_qty(product_location,
+                                                  move.product_id)
             move_list.append(
                 {'picking_id': move.picking_id.id,
                  'picking_name': move.picking_id.name,
@@ -393,6 +395,7 @@ class InboundController(http.Controller):
                      'ean13': move.product_id.default_code,
                      'location_id': product_location.id,
                      'location_name': product_location.name,
+                     'qty_available': qty_available,
                  },
                  'location_dest_id': move.location_dest_id.id,
                  'location_dest_name': move.location_dest_id.name,
@@ -426,7 +429,6 @@ class InboundController(http.Controller):
             'status': 'ok',
             'carts': carts,
         }
-
 
     def transfer_move(self, move, cart_id, package):
         env = http.request.env

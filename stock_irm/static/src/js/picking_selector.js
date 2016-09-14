@@ -157,7 +157,6 @@
                 'pickings': self.pickings,
                 'location_barcode': self.pickings[self.current_picking_index].box_barcode,
                 'product': self.move_list[self.current_move_index]['product'],
-                'location_name': self.move_list[self.current_move_index].product.location_name,
                 'moves': self.move_list.slice(
                     self.current_move_index + 1,
                     self.current_move_index + 6)
@@ -184,27 +183,30 @@
             });
         },
         add_listener_on_skip_picking: function(){
-
             var self = this;
 
             $("#skip-picking-line").off('click.skip');
             $("#skip-picking-line").on('click.skip', function (event) {
-                self.session.rpc('/outbound_wave/cancel_move', {
-                    move_id: self.move_list[self.current_move_index].move_id
-                }).then(function (data) {
-                    if(data.status="ok"){
-                        self.current_move_index++;
-                        $("#current_product").animate({opacity: '0.4', backgroundColor: "red"}, 200);
-                        $('#current_product').hide("slide",{direction:'right', backgroundColor: "red"}, 400, function(){
-                            if(self.current_move_index >= self.move_list.length){
-                                // No more products
-                                self.validate_wave();
-                            }else{
-                                self.display_page();
-                            }
-                        });
-                    }
-                });
+                self.cancel_move();
+            });
+        },
+        cancel_move: function(){
+            var self = this;
+            self.session.rpc('/outbound_wave/cancel_move', {
+                move_id: self.move_list[self.current_move_index].move_id
+            }).then(function (data) {
+                if(data.status="ok"){
+                    self.current_move_index++;
+                    $("#current_product").animate({opacity: '0.4', backgroundColor: "red"}, 200);
+                    $('#current_product').hide("slide",{direction:'right', backgroundColor: "red"}, 400, function(){
+                        if(self.current_move_index >= self.move_list.length){
+                            // No more products
+                            self.validate_wave();
+                        }else{
+                            self.display_page();
+                        }
+                    });
+                }
             });
         },
         add_listener_on_numpad: function(){
@@ -507,8 +509,13 @@
                 new_amount: new_amount,
             }).then(function (data) {
                 if(data.status == 'ok'){
+                    var product_qty = self.move_list[self.current_move_index].product.product_quantity
+                    var cancel = false
+                    if(data.new_quantity < product_qty){
+                        cancel = true;
+                    }
                     var product_name = self.move_list[self.current_move_index].product.product_name;
-                    self.update_stock_modal.success(product_name, data.new_quantity);
+                    self.update_stock_modal.success(product_name, data.new_quantity, cancel);
                 }
             })
         },
