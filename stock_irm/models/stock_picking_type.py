@@ -37,6 +37,8 @@ class StockPickingType(models.Model):
 
     is_bo_cart_to_band_down = fields.Boolean('Is BO Cart to Band Down')
 
+    is_output_to_customer = fields.Boolean('Is an output to customer', default=False)
+
     @api.multi
     @api.constrains('is_receipts')
     def _check_single_inbound_receipt(self):

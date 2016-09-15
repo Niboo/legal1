@@ -58,21 +58,24 @@ class OutboundSelectPackageController(http.Controller):
         bo_cart_to_band_down = env['stock.picking.type'].search(
             [('is_bo_cart_to_band_down', '=', True)], limit=1)
 
+        output_to_customer = env['stock.picking.type'].search(
+            [('is_output_to_customer', '=', True)], limit=1)
+
         bo_cart_upstairs = bo_cart_to_band_down.default_location_src_id
+
+        output_default_loc = output_to_customer.default_location_src_id
 
         current_location = scanned_package.location_id
 
         if current_location not in bo_cart_upstairs.child_ids\
-                and current_location.name != 'Output'\
-                and current_location.location_id.name != 'Output':
+                and current_location not in output_default_loc.child_ids:
             return {
                 'status': 'error',
                 'error': 'Error',
                 'message': 'The scanned package should not be on banddown.',
             }
 
-        if current_location.name == 'Output'\
-                or current_location.location_id.name == 'Output':
+        if current_location in output_default_loc.child_ids:
             unpack = True
 
         quant = scanned_package.quant_ids[0]
