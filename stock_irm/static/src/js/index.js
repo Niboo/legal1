@@ -46,7 +46,11 @@
                         is_wh_user: data.is_wh_user,
                     }));
                     $('#content').html(self.$elem);
+                } else {
+                    self.display_error('Error', 'Could not retrieve credentials');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
 

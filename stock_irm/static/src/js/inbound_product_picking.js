@@ -42,7 +42,11 @@
                     $elem.html(data.packing_reference);
                     $elem.attr('data-id', data.packing_id);
                     self.$nav.find('#packing-order-li').show();
+                } else {
+                    self.display_error('Error', 'Could not create a packing order');
                 }
+            }, function (data) {
+                self.request_error(data);
             });
 
         },
@@ -73,7 +77,11 @@
                 if(data.status == 'ok'){
                     self.printer_ip = data.printer_ip;
                     self.proxy = data.proxy;
+                } else {
+
                 }
+            }, function (data) {
+                self.request_error(data);
             });
         },
         refresh: function(){
@@ -299,9 +307,8 @@
                     }
                     self.scrap_lines.push(data.scrap_line);
                 }
-            }).fail(function(data){
-                var modal = new instance.stock_irm.modal.exception_modal();
-                modal.start(data.data.arguments[0], data.data.arguments[1]);
+            }, function(data){
+                self.request_error(data);
             });
         },
         set_box: function(box, move_line, callback) {
@@ -383,9 +390,10 @@
                         window.location.href = "/inbound_screen";
                     }, 2000);
                 } else {
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start('Error', 'Packing note could not be saved');
+                    self.display_error('Error', 'Packing note could not be saved');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         print_label: function(product_name, barcode, quantity){
@@ -436,9 +444,10 @@
                     var modal = new instance.stock_irm.modal.select_cart_modal(block_modal);
                     modal.start(self, data.carts);
                 } else {
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start('Error', 'Could not retrieve the cart list');
+                    self.display_error('Error', 'Could not retrieve the cart list');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         set_cart: function (cart) {

@@ -49,7 +49,11 @@
                     $('#content').html(self.$elem);
                     self.add_listener_on_numpad();
                     self.add_listener_on_cart();
+                } else {
+                    self.display_error('Error', 'Could not retrieve carts');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         add_listener_on_cart: function(){
@@ -68,8 +72,12 @@
                         window.setTimeout(function(){
                             window.location.href = "/select_package";
                         }, 3000);
+                    } else {
+                        self.display_error('Error', 'Could not move packages to cart');
                     }
-                })
+                }, function(data){
+                    self.request_error(data);
+                });
             });
         },
         process_barcode: function(barcode){
@@ -97,9 +105,10 @@
                         self.$elem.find('.btn-to-wave').show();
                         self.$elem.find('#package_list').append($new_box);
                     } else {
-                        var modal = new instance.stock_irm.modal.exception_modal();
-                        modal.start(data.error, data.message);
+                        self.display_error(data.error, data.message);
                     }
+                }, function(data){
+                    self.request_error(data);
                 });
             }
         },

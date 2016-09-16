@@ -44,7 +44,11 @@
                 if (data.status == "ok") {
                     var modal = new instance.stock_irm.modal.select_wave_template(self, data.wave_templates);
                     modal.start();
+                } else {
+                    self.display_error('Error', 'Could not retrieve wave templates');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         add_listener_on_existing_waves: function() {
@@ -63,8 +67,12 @@
                         self.current_location_dest_barcode = current_package.location_dest_barcode;
                         self.step = 'package';
                         self.display();
+                    } else {
+                        self.display_error('Error', 'Could not load the wave');
                     }
-                })
+                }, function(data){
+                    self.request_error(data);
+                });
             });
         },
         get_carts_and_waves: function(wave_template){
@@ -90,9 +98,17 @@
                             self.add_listener_on_existing_waves();
                             self.add_listener_on_carts();
                             self.add_listener_on_numpad();
+                        } else {
+                            self.display_error('Error', 'Could not retrieve carts');
                         }
+                    }, function(data){
+                        self.request_error(data);
                     });
+                } else {
+                    self.display_error('Error', 'Could not retrieve inbound wave');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         add_listener_on_carts: function(){
@@ -113,8 +129,12 @@
                         self.current_location_dest_barcode = current_package.location_dest_barcode;
                         self.step = 'package';
                         self.display();
+                    } else {
+                        self.display_error('Error', 'Could not retrieve package list');
                     }
-                })
+                }, function(data){
+                    self.request_error(data);
+                });
             });
         },
         add_listener_on_numpad: function(){
@@ -201,12 +221,10 @@
                     }
 
                 } else {
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start(data.error, data.message);
+                    self.display_error(data.error, data.message);
                 }
-            }).fail(function (data) {
-                var modal = new instance.stock_irm.modal.exception_modal();
-                modal.start(data.data.arguments[0], data.data.arguments[1]);
+            }, function(data){
+                self.request_error(data);
             });
         }
     });

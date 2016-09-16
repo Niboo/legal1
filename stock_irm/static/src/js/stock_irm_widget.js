@@ -311,6 +311,13 @@
                 self.proxy = data.proxy;
             });
         },
+        display_error: function (error, message) {
+            var modal = new exception_modal();
+            modal.start(error, message);
+        },
+        request_error: function (data) {
+            this.display_error(data.data.arguments[0], data.data.arguments[1]);
+        },
     });
 
     instance.stock_irm.widget = stock_irm_widget

@@ -170,7 +170,9 @@
                             var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
                             error_modal.start(show_cancel);
                         }
-                    })
+                    }, function (data) {
+                        self.request_error(data);
+                    });
                 } else {
                     var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
                     error_modal.start(show_cancel);
@@ -353,7 +355,11 @@
                         scrap_lines: self.caller.scrap_lines || [],
                     }));
                     self.get_cart_list();
+                } else {
+                    self.display_error('Error', 'Could not retrieve incomplete reasons');
                 }
+            }, function (data) {
+                self.request_error(data);
             });
         },
         get_cart_list: function () {
@@ -367,7 +373,11 @@
                     self.add_listener_on_validate();
                     self.add_listener_on_finish();
                     self.add_listener_on_cart_buttons();
+                } else {
+                    self.display_error('Error', 'Could not retrieve carts');
                 }
+            }, function (data) {
+                self.request_error(data);
             });
         },
         add_listener_on_validate: function(){
@@ -421,12 +431,13 @@
                 cart_id: self.caller.cart.id,
             }).then(function(data){
                 if (data.status != 'ok'){
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start(data.error, data.message);
+                    self.display_error(data.error, data.message);
                 } else {
                     move.state = 'done';
                     self.validate_line($button, data.destination);
                 }
+            }, function (data) {
+                self.request_error(data);
             });
         },
         confirm_unexpected_move: function($button, move, reason_id){
@@ -441,12 +452,13 @@
                 cart_id: self.caller.cart.id,
             }).then(function (data) {
                 if (data.status != 'ok') {
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start(data.error, data.message);
+                    self.display_error(data.error, data.message);
                 } else {
                     move.state = 'done';
                     self.validate_line($button, data.destination);
                 }
+            }, function (data) {
+                self.request_error(data);
             });
         },
 
@@ -573,7 +585,11 @@
                     if (data.status == 'ok'){
                         var modal = new instance.stock_irm.modal.select_next_destination_modal();
                         modal.start(self.caller, data.destination, self.nb_product_more, self.move_line, self.product);
+                    } else {
+                        self.display_error('Error', 'Could not get printer IP');
                     }
+                }, function (data) {
+                    self.request_error(data);
                 });
             })
         },

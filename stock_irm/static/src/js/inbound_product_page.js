@@ -266,9 +266,10 @@
                     if (data.status == 'ok') {
                         self.damage_reasons = data.damage_reasons;
                     } else {
-                        var modal = new instance.stock_irm.modal.exception_modal();
-                        modal.start(data.error, data.message);
+                        self.display_error(data.error, data.message);
                     }
+                }, function (data) {
+                    self.request_error(data);
                 });
         },
         destroy: function(){

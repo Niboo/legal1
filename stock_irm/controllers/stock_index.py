@@ -44,7 +44,8 @@ class StockIndex(http.Controller):
         is_wh_manager = current_user.id in env.ref('stock.group_stock_manager').users.ids
         is_wh_user = current_user.id in env.ref('stock.group_stock_user').users.ids
 
-        results = {'is_wh_manager': is_wh_manager,
-                   'is_wh_user': is_wh_user,
-                   'status':'ok'}
-        return results
+        return {
+            'is_wh_manager': is_wh_manager,
+            'is_wh_user': is_wh_user,
+            'status': 'ok',
+        }

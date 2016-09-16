@@ -60,9 +60,10 @@
                             var modal = new instance.stock_irm.modal.purchase_order_modal(self);
                             modal.start(data.orders);
                         } else {
-                            var modal = new instance.stock_irm.modal.exception_modal();
-                            modal.start(data.error, data.message);
+                            self.display_error(data.error, data.message);
                         }
+                    }, function(data){
+                        self.request_error(data);
                     });
 
                 }else{
