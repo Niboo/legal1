@@ -32,6 +32,8 @@ class InboundController(http.Controller):
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
             'title': 'Picking Waves',
+            'user_email': current_user.partner_id.email,
+
         })
 
     @http.route('/outbound_wave/get_wave_template', type='json', auth='user')

@@ -21,6 +21,7 @@
 
 from openerp import http
 
+
 class StockIndex(http.Controller):
 
     @http.route('/stock_index', type='http', auth="user")
@@ -32,6 +33,7 @@ class StockIndex(http.Controller):
             'worklocation_name': current_user.work_location_id.name,
             'worklocation_id': current_user.work_location_id.id or 0,
             'title': 'Index',
+            'user_email': current_user.partner_id.email,
         })
 
     @http.route('/index/get_credentials', type='json', auth="user")

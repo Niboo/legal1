@@ -41,6 +41,7 @@ class InboundController(http.Controller):
             'worklocation_id': current_user.work_location_id.id or 0,
             'work_location_staging_id': current_user.work_location_id.staging_location_id.id,
             'title': 'Inbound',
+            'user_email': current_user.partner_id.email,
         })
 
     @http.route('/inbound_screen/get_suppliers', type='json', auth="user")

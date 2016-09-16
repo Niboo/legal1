@@ -35,6 +35,7 @@ class RMAScreenController(http.Controller):
             'worklocation_id': work_location.id or 0,
             'work_location_staging_id': work_location.staging_location_id.id,
             'title': 'RMA',
+            'user_email': env.user.partner_id.email,
         })
 
     @http.route('/rma_screen/get_customers', type='json', auth='user')

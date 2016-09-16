@@ -195,44 +195,92 @@
                     </t>
                 </body>
             </html>
-
-
         </template>
 
 
         <template id="stock_irm.inbound_screen" name="Inbound Screen">
-            <t t-call="stock_irm.layout">
+            <t t-if="user_mail">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_mail">
+                <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.picking_waves" name="Picking Waves">
-            <t t-call="stock_irm.layout">
+            <t t-if="user_mail">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_mail">
+                <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.bandup_screen" name="Bandup Screen">
-            <t t-call="stock_irm.layout">
+            <t t-if="user_mail">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_mail">
+                <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.inbound_wave_screen" name="Inbound Wave">
-            <t t-call="stock_irm.layout">
+            <t t-if="user_mail">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_mail">
+                <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
         
         <template id="stock_irm.inbound_select_package" name="Inbound Select Package">
-            <t t-call="stock_irm.layout">
+            <t t-if="user_mail">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_mail">
+                <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.outbound_select_package" name="Outbound Select Package">
-            <t t-call="stock_irm.layout">
+            <t t-if="user_mail">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_mail">
+                <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.rma_screen" name="RMA Screen">
-            <t t-call="stock_irm.layout">
+            <t t-if="user_mail">
+                <t t-call="stock_irm.layout"></t>
             </t>
+            <t t-if="not user_mail">
+                <t t-call="stock_irm.error_layout"></t>
+            </t>
+        </template>
+
+        <template id="stock_irm.error_layout" name="Stock IRM Header">
+            <html lang="en">
+                <head>
+                    <meta charset="UTF-8"/>
+                    <title t-esc="Error" />
+                    <t t-call="stock_irm.assets"></t>
+                </head>
+                <body>
+                    <div class="row">
+                        <div class="col-xs-12 text-center alert alert-warning">
+                             <span class='fa fa-times error-email'>Please set an email address on the current partner</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="alert alert-success text-center">
+                          <span class="fa fa-4 fa-arrow-circle-right"><strong><a href="/web"> Goback in Odoo</a></strong></span>
+                        </div>
+                    </div>
+                </body>
+            </html>
         </template>
     </data>
 </openerp>

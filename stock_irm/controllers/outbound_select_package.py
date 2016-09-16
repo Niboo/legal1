@@ -34,6 +34,8 @@ class OutboundSelectPackageController(http.Controller):
             'worklocation_name': current_user.work_location_id.name,
             'worklocation_id': current_user.work_location_id.id or 0,
             'title': 'Outbound Select Package',
+            'user_email': current_user.partner_id.email,
+
         })
 
     @http.route('/outbound_select_package/process_package', auth='user',

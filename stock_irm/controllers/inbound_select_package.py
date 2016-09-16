@@ -34,6 +34,7 @@ class SelectPackageController(http.Controller):
             'worklocation_name': current_user.work_location_id.name,
             'worklocation_id': current_user.work_location_id.id or 0,
             'title': 'Inbound Select Package',
+            'user_email': current_user.partner_id.email,
         })
 
     @http.route('/select_package/get_package', type='json', auth='user')
