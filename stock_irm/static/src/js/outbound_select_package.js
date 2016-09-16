@@ -54,7 +54,7 @@
                     if(data.status == "ok"){
                         if(data.is_complete){
                             var modal = new instance.stock_irm.modal.complete_modal();
-                            modal.start(data.error, data.message);
+                            modal.start();
                         } else {
                             var modal = new instance.stock_irm.modal.incomplete_modal();
                             modal.start(data.error, data.message);

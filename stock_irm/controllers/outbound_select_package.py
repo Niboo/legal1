@@ -113,8 +113,6 @@ class OutboundSelectPackageController(http.Controller):
             scanned_package.auto_move_pack()
 
         return {'status': 'ok',
-                'id': scanned_package.id,
-                'barcode': scanned_package.barcode,
                 'is_complete': is_complete}
 
     @http.route('/outbound_select_package/get_package_ids', auth='user', type='json')
