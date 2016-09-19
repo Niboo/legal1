@@ -48,9 +48,12 @@
             var true_barcode = barcode.replace(/[\s]*/g, '');
             // check if we didnt already scanned the package to avoid adding the same package twice
             if($.inArray(true_barcode, self.scanned_package_barcodes) == -1){
+                var current_modal = new instance.stock_irm.modal.in_progress_modal();
+                current_modal.start();
                 self.session.rpc('/outbound_select_package/process_package', {
                     barcode: true_barcode,
                 }).then(function(data){
+                    current_modal.$modal.modal('hide');
                     if(data.status == "ok"){
                         if(data.is_complete){
                             var modal = new instance.stock_irm.modal.complete_modal();

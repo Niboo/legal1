@@ -92,4 +92,20 @@
 
     instance.stock_irm.modal.incomplete_modal = incomplete_modal;
 
+    var in_progress_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'In progress';
+            self.block_modal = true;
+        },
+        start: function (barcode_type, barcode) {
+            var self = this;
+            self.$body = "<i class='fa fa-spinner fa-pulse fa-3x fa-fw' style='color:grey;text-align:middle;font-size:2em;'></i><b style='font-size: 2em;margin-left:1em;'>Getting packages...</b>";
+            this._super();
+        },
+    });
+
+    instance.stock_irm.modal.in_progress_modal = in_progress_modal;
+
 })();
