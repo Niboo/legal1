@@ -78,7 +78,7 @@
                     self.printer_ip = data.printer_ip;
                     self.proxy = data.proxy;
                 } else {
-
+                    self.display_error('Error', 'Could not retrieve printer IP');
                 }
             }, function (data) {
                 self.request_error(data);
