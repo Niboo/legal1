@@ -236,8 +236,13 @@
                 if(value=="C"){
                    self.$elem.find('#manual-barcode').val("");
                 }else if(value=="Enter"){
-                    self.process_barcode(self.$elem.find('#manual-barcode').val());
-                    self.$elem.find('#manual-barcode').val("");
+                    var barcode = self.$elem.find('#manual-barcode').val()
+                    if (barcode === ''){
+                        self.display_error('Error', 'Barcode cannot be empty');
+                    } else {
+                        self.process_barcode(barcode);
+                        self.$elem.find('#manual-barcode').val("");
+                    }
 
                 }else{
                     self.$elem.find('#manual-barcode').val(self.$elem.find('#manual-barcode').val()+value);
@@ -257,7 +262,11 @@
                     setTimeout(function(){
                         if (chars.length >= 6) {
                             var barcode = chars.join("");
-                            self.process_barcode(barcode)
+                            if(barcode === ''){
+                                self.display_error('Error', 'Barcode cannot be empty');
+                            } else {
+                                self.process_barcode(barcode)
+                            }
                         }
                         chars = [];
                         pressed = false;
