@@ -199,64 +199,64 @@
 
 
         <template id="stock_irm.inbound_screen" name="Inbound Screen">
-            <t t-if="user_mail">
+            <t t-if="user_email">
                 <t t-call="stock_irm.layout"></t>
             </t>
-            <t t-if="not user_mail">
+            <t t-if="not user_email">
                 <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.picking_waves" name="Picking Waves">
-            <t t-if="user_mail">
+            <t t-if="user_email">
                 <t t-call="stock_irm.layout"></t>
             </t>
-            <t t-if="not user_mail">
+            <t t-if="not user_email">
                 <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.bandup_screen" name="Bandup Screen">
-            <t t-if="user_mail">
+            <t t-if="user_email">
                 <t t-call="stock_irm.layout"></t>
             </t>
-            <t t-if="not user_mail">
+            <t t-if="not user_email">
                 <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.inbound_wave_screen" name="Inbound Wave">
-            <t t-if="user_mail">
+            <t t-if="user_email">
                 <t t-call="stock_irm.layout"></t>
             </t>
-            <t t-if="not user_mail">
+            <t t-if="not user_email">
                 <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
         
         <template id="stock_irm.inbound_select_package" name="Inbound Select Package">
-            <t t-if="user_mail">
+            <t t-if="user_email">
                 <t t-call="stock_irm.layout"></t>
             </t>
-            <t t-if="not user_mail">
+            <t t-if="not user_email">
                 <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.outbound_select_package" name="Outbound Select Package">
-            <t t-if="user_mail">
+            <t t-if="user_email">
                 <t t-call="stock_irm.layout"></t>
             </t>
-            <t t-if="not user_mail">
+            <t t-if="not user_email">
                 <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
 
         <template id="stock_irm.rma_screen" name="RMA Screen">
-            <t t-if="user_mail">
+            <t t-if="user_email">
                 <t t-call="stock_irm.layout"></t>
             </t>
-            <t t-if="not user_mail">
+            <t t-if="not user_email">
                 <t t-call="stock_irm.error_layout"></t>
             </t>
         </template>
