@@ -66,6 +66,7 @@
                         self.display_error(data.error, data.message);
                     }
                 }, function(data){
+                    current_modal.$modal.modal('hide');
                     self.request_error(data);
                 });
             }

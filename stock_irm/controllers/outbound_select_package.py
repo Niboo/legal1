@@ -70,14 +70,17 @@ class OutboundSelectPackageController(http.Controller):
         current_location = scanned_package.location_id
 
         if current_location not in bo_cart_upstairs.child_ids\
-                and current_location not in output_default_loc.child_ids:
+                and current_location not in output_default_loc.child_ids\
+                and current_location != output_default_loc\
+                and current_location != bo_cart_upstairs:
             return {
                 'status': 'error',
                 'error': 'Error',
                 'message': 'The scanned package should not be on banddown.',
             }
 
-        if current_location in output_default_loc.child_ids:
+        if current_location in output_default_loc.child_ids \
+                or current_location == output_default_loc:
             unpack = True
 
         quant = scanned_package.quant_ids[0]
