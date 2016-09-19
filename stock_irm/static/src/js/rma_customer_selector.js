@@ -60,9 +60,10 @@
                             var modal = new instance.stock_irm.modal.crm_claim_modal(self);
                             modal.start(data.claims);
                         } else {
-                            var modal = new instance.stock_irm.modal.exception_modal();
-                            modal.start(data.error, data.message);
+                            self.display_error(data.error, data.message);
                         }
+                    }, function(data){
+                        self.request_error(data);
                     });
 
                 }else{
@@ -86,7 +87,11 @@
                     self.$nav.find('#back').show();
                     self.$nav.find('#search').show();
                     self.$nav.find('#confirm').show();
+                } else {
+                    self.display_error('Error', 'Could not retrieve claim lines');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         get_customers: function(search){
@@ -101,7 +106,11 @@
                     }));
                     self.$elem.find('#results').html($result);
                     self.add_listener_on_customer();
+                } else {
+                    self.display_error('Error', 'Could not retrieve customers');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
 

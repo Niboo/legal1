@@ -48,7 +48,11 @@
                     var modal = new instance.stock_irm.modal.select_wave_template(self, data.wave_templates);
                     modal.start();
                     self.add_listener_for_barcode();
+                } else {
+                    self.display_error('Error', 'Could not retrieve waves');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         get_waves: function(wave_template){
@@ -79,23 +83,28 @@
                             self.$nav.find('#back').show();
                             self.allow_scan_package = false;
 
-                            if(data.status == "empty"){
-                                self.$elem = $(QWeb.render('picking_empty', {}));
-                                $('#content').html(self.$elem);
-                            } else {
+                            if(data.status == 'ok'){
                                 self.move_list = data.move_list;
                                 self.current_move_index = 0;
                                 self.pickings = data.picking_list;
                                 self.wave_id = data.wave_id;
                                 self.wave_name = data.wave_name;
                                 self.select_cart();
-
                                 // save the starting time, add the listener for barcode
                                 self.starting_time = new Date().getTime();
+                            } else {
+                                self.$elem = $(QWeb.render('picking_empty', {}));
+                                $('#content').html(self.$elem);
                             }
+                        }, function(data){
+                            self.request_error(data);
                         });
                     })
+                } else {
+                    self.display_error('Error', 'Could not retrieve outbound wave');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         add_listener_on_create_picking: function(){
@@ -112,7 +121,7 @@
                     if(data.status == "empty"){
                         self.$elem = $(QWeb.render('picking_empty', {}));
                         $('#content').html(self.$elem);
-                    } else {
+                    } else if(data.status == 'ok') {
 
                         self.move_list = data.move_list;
                         self.current_move_index = 0;
@@ -123,7 +132,11 @@
 
                         // save the starting time, add the listener for barcode
                         self.starting_time = new Date().getTime();
+                    } else {
+                        self.display_error('Error', 'Could not create a picking');
                     }
+                }, function(data){
+                    self.request_error(data);
                 });
             })
         },
@@ -207,7 +220,11 @@
                             self.display_page();
                         }
                     });
+                } else {
+                    self.display_error('Error', 'Could not cancel this move');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         add_listener_on_numpad: function(){
@@ -304,9 +321,10 @@
                                     self.pickings[self.current_picking_index].box_barcode = barcode;
                                     self.trigger_next_product(current_move);
                                 } else {
-                                    var modal = new instance.stock_irm.modal.exception_modal();
-                                    modal.start('Error', 'This box is already used for a different picking');
+                                    self.display_error('Error', 'This box is already used for a different picking');
                                 }
+                            }, function(data){
+                                self.request_error(data);
                             });
                         }
                     }
@@ -339,6 +357,8 @@
                     var modal = new instance.stock_irm.modal.package_not_found();
                     modal.start();
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         trigger_next_product: function(current_move){
@@ -476,6 +496,8 @@
                         modal.start('Error', 'Could not retrieve the cart list');
                     }
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         set_current_picking_index: function () {
@@ -498,7 +520,11 @@
                         var product_name = self.move_list[self.current_move_index].product.product_name;
                         self.update_stock_modal = new instance.stock_irm.modal.update_stock_modal(self);
                         self.update_stock_modal.start(data.current_stock, product_name);
+                    } else {
+                        self.display_error('Error', 'Could not get stock amount');
                     }
+                }, function(data){
+                    self.request_error(data);
                 });
             });
         },
@@ -517,8 +543,12 @@
                     }
                     var product_name = self.move_list[self.current_move_index].product.product_name;
                     self.update_stock_modal.success(product_name, data.new_quantity, cancel);
+                } else {
+                   self.display_error('Error', 'Stock could not be updated');
                 }
-            })
+            }, function(data){
+                self.request_error(data);
+            });
         },
     });
     instance.picking_waves.picking_selector = new picking_selector();

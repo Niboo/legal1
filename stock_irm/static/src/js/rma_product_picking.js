@@ -42,7 +42,11 @@
                     $elem.html(data.packing_reference);
                     $elem.attr('data-id', data.packing_id);
                     self.$nav.find('#packing-order-li').show();
+                } else {
+                    self.display_error('Error', 'Could not create a packing order');
                 }
+            }, function(data){
+                self.request_error(data);
             });
 
         },
@@ -72,7 +76,11 @@
             self.session.rpc('/inbound_screen/get_printer_ip').then(function(data){
                 if(data.status == 'ok'){
                     self.printer_ip = data.printer_ip;
+                } else {
+                    self.display_error('Error', 'Could not retrieve printer IP');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         refresh: function(){
@@ -275,18 +283,16 @@
                 move_id: self.current_move_line.id,
                 supplier_id: self.supplier_id,
             }).then(function(data){
-                if (data.status != 'ok'){
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start(data.error, data.message);
-                } else {
+                if (data.status == 'ok'){
                     if(self.scrap_lines === undefined){
                         self.scrap_lines = [];
                     }
                     self.scrap_lines.push(data.scrap_line);
+                } else {
+                    self.display_error(data.error, data.message);
                 }
-            }).fail(function(data){
-                var modal = new instance.stock_irm.modal.exception_modal();
-                modal.start(data.data.arguments[0], data.data.arguments[1]);
+            }, function(data){
+                self.request_error(data);
             });
         },
         set_box: function(box, move_line, callback) {
@@ -347,9 +353,10 @@
                         window.location.href = "/rma_screen";
                     }, 2000);
                 } else {
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start('Error', 'Packing note could not be saved');
+                    self.display_error('Error', 'Packing note could not be saved');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         print_label: function(product_name, barcode, quantity){
@@ -397,9 +404,10 @@
                     var modal = new instance.stock_irm.modal.select_cart_modal(block_modal);
                     modal.start(self, data.carts);
                 } else {
-                    var modal = new instance.stock_irm.modal.exception_modal();
-                    modal.start('Error', 'Could not retrieve the cart list');
+                    self.display_error('Error', 'Could not retrieve the cart list');
                 }
+            }, function(data){
+                self.request_error(data);
             });
         },
         set_cart: function (cart) {

@@ -48,14 +48,19 @@
             self.session.rpc('/rma_screen/get_product', {
                 id: self.id,
             }).then(function(data){
+                if(data.status == 'ok'){
+                    self.product = data.product;
+                    self.barcodes = data.product.barcodes;
 
-                self.product = data.product;
-                self.barcodes = data.product.barcodes;
-
-                self.display();
-                self.parent.print_label(self.product.name, self.barcodes[0] , 1)
-                self.nb_already_printed += 1;
-            })
+                    self.display();
+                    self.parent.print_label(self.product.name, self.barcodes[0] , 1)
+                    self.nb_already_printed += 1;
+                } else {
+                    self.display_error('Error', 'Could not get product information');
+                }
+            }, function(data){
+                self.request_error(data);
+            });
         },
         display: function(){
             var self = this;
@@ -265,9 +270,10 @@
                     if (data.status == 'ok') {
                         self.damage_reasons = data.damage_reasons;
                     } else {
-                        var modal = new instance.stock_irm.modal.exception_modal();
-                        modal.start(data.error, data.message);
+                        self.display_error(data.error, data.message);
                     }
+                }, function(data){
+                    self.request_error(data);
                 });
         },
         destroy: function(){

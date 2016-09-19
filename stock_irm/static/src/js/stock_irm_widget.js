@@ -119,7 +119,11 @@
                                     self.$modal.find('#login').val(data.login);
                                     self.$modal.find('#login-image').html("<img src='"+data.image+"'/>");
                                     self.$modal.find('#login-image').show();
+                                } else {
+                                    self.display_error('Error', 'Could not retrieve user')
                                 }
+                            }, function(data){
+                                self.request_error(data);
                             });
                         }
                         chars = [];

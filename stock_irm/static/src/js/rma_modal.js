@@ -205,7 +205,9 @@
                             var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
                             error_modal.start(show_cancel);
                         }
-                    })
+                    }, function(data){
+                        self.request_error(data);
+                    });
                 } else {
                     var error_modal = new instance.stock_irm.modal.box_already_used(self.caller, self.move_line, self.callback, "This box is already used elsewhere");
                     error_modal.start(show_cancel);
@@ -285,7 +287,11 @@
                             var modal = new instance.stock_irm.modal.select_next_destination_modal();
                             modal.start(self.caller, data.destination, self.move_line, self.product);
                         })
+                    } else {
+                        self.display_error('Error', 'Could not process this picking line');
                     }
+                }, function(data){
+                    self.request_error(data);
                 });
             })
         },
