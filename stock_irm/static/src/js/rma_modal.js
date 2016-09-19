@@ -261,6 +261,7 @@
                 nb_product_more: nb_product_more
             }));
             self.caller = caller;
+            console.log(self.caller);
             self.move_line = move_line;
             self.product = product;
             self._super();
@@ -281,8 +282,8 @@
                         self.$modal.modal('hide');
                         self.$modal.on('hidden.bs.modal', function () {
                             self.$modal.off();
-                            self.caller.destroy();
-                            self.caller.start();
+                            var modal = new instance.stock_irm.modal.select_next_destination_modal();
+                            modal.start(self.caller, data.destination, self.move_line, self.product);
                         })
                     }
                 });
@@ -291,6 +292,46 @@
     });
 
     instance.stock_irm.modal.validate_claim_line_modal = validate_claim_line_modal;
+
+    var select_next_destination_modal = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'Destination of this package';
+            self.template = 'select_next_destination';
+            self.block_modal = true;
+        },
+        start: function (caller, destination, move_line, product) {
+            var self = this;
+            self.$body = $(QWeb.render(self.template, {
+                destination: destination
+            }));
+            self.$footer = $(QWeb.render('select_next_destination_footer'));
+            self.caller = caller;
+            self.move_line = move_line;
+            self.product = product;
+
+            self._super();
+            self.add_listener_on_confirm(move_line);
+        },
+        add_listener_on_confirm: function(move){
+            var self = this;
+
+            self.$modal.find('#confirm_next_destination').off('click.destination');
+            self.$modal.find('#confirm_next_destination').on('click.destination', function (event) {
+                console.log(self.caller);
+                self.$modal.modal('hide');
+                self.caller.destroy();
+                self.caller.start();
+            })
+        },
+        do_after_set_box: function(box, move_line){
+            var self = this;
+            self.caller.add_product(self.product, self.leftover, move_line);
+        },
+    });
+
+    instance.stock_irm.modal.select_next_destination_modal = select_next_destination_modal;
 
     var confirm_note_modal = instance.stock_irm.modal.widget.extend({
         init: function (caller) {

@@ -71,7 +71,8 @@ class RMAScreenController(http.Controller):
         products = []
         for product in products_results.sorted(lambda p: p.id):
             if product.default_code and search in product.default_code.lower()\
-                    or product.ean13 and search in product.ean13.lower():
+                    or product.ean13 and search in product.ean13.lower() \
+                    or product.name and search in product.name.lower():
                 products.append({
                     'id': product.id,
                     'name': product.name,
@@ -303,22 +304,35 @@ class RMAScreenController(http.Controller):
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
 
-        destination = self.process_transfer(qty, picking_line, box_name)
+        self.process_transfer(qty, picking_line, box_name)
 
         picking_line.write({'packing_order_id': packing_order_id,
                             'reason_id': reason_id})
 
-        # dest_list = self.get_destinations(destination)
-        #
-        # if filter(lambda dest: dest['id'] == cart_id, dest_list):
-        #     destination_id = cart_id
-        # else:
-        #     destination_id = dest_list[0]['id']
-        #
-        # destination = self.move_to_destination(box_name, destination_id)
+        claim_domain = [('picking_ids','in',[picking_line.picking_id.id])]
+        claim = env['crm.claim'].search(claim_domain)
 
-        return {'status': 'ok',}
-                # 'destination': destination['destination']}
+        domain = [('picking_id.group_id', '=', claim.group_id.id),
+                  ('product_id','=',picking_line.product_id.id),
+                  ('picking_id.state','in',['confirmed', 'assigned'])]
+
+        move = env['stock.move'].search(domain)
+
+        if move:
+            destination = move.location_dest_id
+            move.action_assign()
+
+        dest_list = self.get_destinations(destination)
+
+        if filter(lambda dest: dest['id'] == cart_id, dest_list):
+            destination_id = cart_id
+        else:
+            destination_id = dest_list[0]['id']
+
+        destination = self.move_to_destination(box_name, destination_id)
+
+        return {'status': 'ok',
+                'destination': destination['destination']}
 
     def process_transfer(self, qty, picking_line, box_name):
         env = http.request.env
@@ -347,8 +361,6 @@ class RMAScreenController(http.Controller):
         unwanted_lines.unlink()
 
         my_wizard.sudo().do_detailed_transfer()
-
-        return picking_line.move_dest_id.location_dest_id
 
     def transfer_to_next_location(self, package, destination_id=False):
         env = http.request.env
