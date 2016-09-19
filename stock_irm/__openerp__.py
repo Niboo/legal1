@@ -39,6 +39,7 @@ Module
         'stock_putaway_product',
         'picking_dispatch_multiwave',
         'procurement_track_sale',
+        'odw_report_delivery',
     ],
     'data': [
         'views/res_partner.xml',
@@ -57,6 +58,7 @@ Module
         'views/stock_quant_package.xml',
         'views/stock_incomplete_reason.xml',
         'views/picking_dispatch_view.xml',
+        'reports/stockpicking.xml',
     ],
     'qweb': [
     ],
