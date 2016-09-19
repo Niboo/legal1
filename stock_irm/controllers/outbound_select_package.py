@@ -87,7 +87,8 @@ class OutboundSelectPackageController(http.Controller):
         is_complete = procurement_group.is_sale_order_complete
 
         if picking.picking_type_id.id == output_to_customer.id:
-            picking.do_print_picking()
+            env['report'].print_document(
+                picking, 'odw_report_delivery.report_delivery_master')
 
         wizard_id = picking.do_enter_transfer_details()['res_id']
         wizard = env['stock.transfer_details'].browse(wizard_id)
