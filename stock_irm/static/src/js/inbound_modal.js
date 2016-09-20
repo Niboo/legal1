@@ -171,6 +171,8 @@
                             error_modal.start(show_cancel);
                         }
                     }, function (data) {
+                        self.$modal.modal('hide');
+                        self.caller.start()
                         self.request_error(data);
                     });
                 } else {

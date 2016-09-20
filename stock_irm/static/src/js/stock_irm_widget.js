@@ -68,6 +68,14 @@
             }
 
         },
+        request_error: function (data) {
+            var self = this;
+            self.display_error(data.data.arguments[0], data.data.arguments[1]);
+        },
+        display_error: function (error, message) {
+            var modal = new exception_modal();
+            modal.start(error, message);
+        },
     });
 
     instance.stock_irm.modal.widget = inbound_modal
