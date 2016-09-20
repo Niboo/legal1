@@ -155,8 +155,11 @@
             if (show_cancel == true) {
                 self.add_listener_on_cancel();
             }
+            $(self.$modal).on('shown.bs.modal', function (e) {
+                self.$modal.find('#box_barcode').focus();
+                self.$modal.on();
+            });
             self.$modal.find('#box_barcode').focus();
-            self.$modal.on();
         },
         confirm_box: function(show_cancel){
             var self = this;
