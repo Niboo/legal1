@@ -26,11 +26,12 @@
     var QWeb = instance.qweb;
 
     var picking_modal = instance.stock_irm.modal.widget.extend({
-        init: function (title) {
+        init: function (caller, title) {
             var self = this;
             this._super();
             self.body_template = 'picking_info';
             self.title = title;
+            self.caller = caller;
         },
         start: function (products) {
             var self = this;
@@ -38,6 +39,15 @@
                 'products': products,
             }));
             this._super();
+            self.add_listener_on_close_modal();
+        },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
+
         }
     });
 
@@ -101,11 +111,12 @@
     instance.stock_irm.modal.end_wave_modal = end_wave_modal;
 
     var wrong_quantity_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller) {
             var self = this;
             this._super();
             self.body_template = 'counter_error';
             self.title = 'Item Count Error';
+            self.caller = caller;
         },
         start: function (real, expected) {
             var self = this;
@@ -114,17 +125,27 @@
                 'expected': expected
             }));
             this._super();
+            self.add_listener_on_close_modal();
+        },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
+
         },
     });
 
     instance.stock_irm.modal.wrong_quantity_modal = wrong_quantity_modal;
 
     var error_modal = instance.stock_irm.modal.widget.extend({
-        init: function (title) {
+        init: function (caller, title) {
             var self = this;
             this._super();
             self.body_template = 'print_error_message';
             self.title = title;
+            self.caller = caller;
         },
         start: function (type, location, image) {
             var self = this;
@@ -142,6 +163,15 @@
             }
 
             this._super();
+            self.add_listener_on_close_modal();
+        },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
+
         },
     });
 
@@ -240,32 +270,52 @@
     instance.stock_irm.modal.package_not_found = package_not_found;
 
     var scan_product_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller) {
             var self = this;
             this._super();
             self.body_template = 'scan_product_modal';
             self.title = "Scan product first!";
+            self.caller = caller;
         },
         start: function () {
             var self = this;
             self.$body = $(QWeb.render(self.body_template));
             this._super();
+            self.add_listener_on_close_modal();
+        },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
+
         },
     });
 
     instance.stock_irm.modal.scan_product_modal = scan_product_modal;
 
     var already_scanned_box = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller) {
             var self = this;
             this._super();
             self.body_template = 'already_scanned_box';
             self.title = "Box already scanned";
+            self.caller = caller;
         },
         start: function () {
             var self = this;
             self.$body = $(QWeb.render(self.body_template));
             this._super();
+            self.add_listener_on_close_modal();
+        },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
+
         },
     });
 

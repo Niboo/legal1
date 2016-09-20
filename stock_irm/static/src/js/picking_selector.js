@@ -299,7 +299,7 @@
                 }else {
                     if(!self.product_scanned){
                         // display an error in case the product is not scanned...
-                        var modal = new instance.stock_irm.modal.scan_product_modal();
+                        var modal = new instance.stock_irm.modal.scan_product_modal(self);
                         modal.start()
                     }
                     // location may be scanned
@@ -308,18 +308,18 @@
 
                     if (sum < move_qty) {
                         // Update the quantity
-                        var modal = new instance.stock_irm.modal.wrong_quantity_modal();
+                        var modal = new instance.stock_irm.modal.wrong_quantity_modal(self);
                         modal.start(sum, move_qty)
                     } else if (sum > move_qty) {
                         // Not the expected quantity, display an error modal
-                        var modal = new instance.stock_irm.modal.wrong_quantity_modal();
+                        var modal = new instance.stock_irm.modal.wrong_quantity_modal(self);
                         modal.start(sum, move_qty)
                     } else {
                         if (self.current_destination_barcode){
                             if (is_destination_barcode) {
                                 self.trigger_next_product(current_move);
                             } else {
-                                var modal = new instance.stock_irm.modal.error_modal('Wrong box');
+                                var modal = new instance.stock_irm.modal.error_modal(self, 'Wrong box');
                                 modal.start('box', self.current_destination_barcode)
                             }
                         } else {
@@ -359,7 +359,7 @@
                         self.selected_package_ids.push(data.id);
                         self.$elem.find('#packages-list').append($package);
                     }else{
-                        var modal = new instance.stock_irm.modal.already_scanned_box();
+                        var modal = new instance.stock_irm.modal.already_scanned_box(self);
                         modal.start();
                     }
                 }else{
@@ -473,7 +473,7 @@
                     return a.picking_id == picking_id;
                 });
 
-                var modal = new instance.stock_irm.modal.picking_modal(current_picking[0].picking_name);
+                var modal = new instance.stock_irm.modal.picking_modal(self, current_picking[0].picking_name);
                 modal.start(current_picking);
             })
         },
