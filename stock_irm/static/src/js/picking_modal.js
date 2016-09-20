@@ -216,16 +216,24 @@
     instance.stock_irm.modal.select_cart_modal = select_cart_modal;
 
     var package_not_found = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller) {
             var self = this;
-            this._super();
+            this._super(caller);
             self.body_template = 'package_not_found_modal';
             self.title = "Package Not Found";
+            self.add_listener_on_close_modal();
         },
         start: function () {
             var self = this;
             self.$body = $(QWeb.render(self.body_template));
             this._super();
+        },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
         },
     });
 

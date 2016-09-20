@@ -363,7 +363,7 @@
                         modal.start();
                     }
                 }else{
-                    var modal = new instance.stock_irm.modal.package_not_found();
+                    var modal = new instance.stock_irm.modal.package_not_found(self);
                     modal.start();
                 }
             }, function(data){

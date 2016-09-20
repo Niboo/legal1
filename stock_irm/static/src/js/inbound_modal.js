@@ -105,6 +105,14 @@
             self.$body = $(QWeb.render(self.body_template));
             this._super();
             self.add_listener_on_modal_print_button();
+            self.add_listener_on_close_modal();
+        },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
         },
         add_listener_on_modal_print_button: function(){
             var self = this;
@@ -147,10 +155,8 @@
             if (show_cancel == true) {
                 self.add_listener_on_cancel();
             }
-            $(self.$modal).on('shown.bs.modal', function (e) {
-                self.$modal.find('#box_barcode').focus();
-                self.$modal.on();
-            });
+            self.$modal.find('#box_barcode').focus();
+            self.$modal.on();
         },
         confirm_box: function(show_cancel){
             var self = this;
@@ -660,6 +666,14 @@
             self._super();
             self.add_listener_on_cancel_button();
             self.add_listener_on_move_to_damaged_button(product_id);
+            self.add_listener_on_close_modal();
+        },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
         },
         add_listener_on_cancel_button: function(){
             var self = this;
