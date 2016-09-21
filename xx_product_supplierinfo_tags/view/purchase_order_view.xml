@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        
+        <record id="purchase_order_order_line_search" model="ir.ui.view">
+            <field name="name">purchase.order.order.line.search</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="arch" type="xml">
+                  <xpath expr="//form/sheet/notebook/page[@string='Products']/field[@name='order_line']/tree/field[@name='product_id']" position="attributes">
+                           <attribute name="context">{'is_order_line_search':True}</attribute>
+                  </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>
