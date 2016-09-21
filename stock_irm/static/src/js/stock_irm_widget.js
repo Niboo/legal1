@@ -74,7 +74,7 @@
         },
         display_error: function (error, message) {
             var modal = new exception_modal();
-            modal.start(error, message);
+            modal.start(this, error, message);
         },
     });
 
@@ -87,14 +87,27 @@
             self.title = 'Print Error';
             this._super();
         },
-        start: function (error, message) {
+        start: function (caller, error, message) {
             var self = this;
+            self.caller = caller;
             self.$body = $(QWeb.render(self.body_template, {
                 'error': error,
                 'message': message,
             }));
             this._super();
+            if(self.caller != undefined) {
+                self.add_listener_on_close_modal();
+            }
         },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                if (self.caller.add_listener_for_barcode) {
+                    self.caller.add_listener_for_barcode();
+                }
+            })
+        }
     });
 
     instance.stock_irm.modal.exception_modal = exception_modal;
@@ -325,7 +338,7 @@
         },
         display_error: function (error, message) {
             var modal = new exception_modal();
-            modal.start(error, message);
+            modal.start(this, error, message);
         },
         request_error: function (data) {
             this.display_error(data.data.arguments[0], data.data.arguments[1]);

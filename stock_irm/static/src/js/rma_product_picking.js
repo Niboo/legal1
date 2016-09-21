@@ -221,7 +221,7 @@
 
                 self.claim_move_lines = po_line_with_current_product.concat(po_line_without_current_product);
             } else {
-                var modal = new instance.stock_irm.modal.exception_modal()
+                var modal = new instance.stock_irm.modal.exception_modal(this);
                 modal.start('Error', 'Cannot add a product not in the Claim');
             }
         },

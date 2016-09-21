@@ -498,7 +498,7 @@
                     var modal = new instance.stock_irm.modal.select_cart_modal();
                     modal.start(self, data.carts);
                 } else {
-                    var modal = new instance.stock_irm.modal.exception_modal();
+                    var modal = new instance.stock_irm.modal.exception_modal(this);
                     if(data.status == 'empty'){
                         modal.start('Error', 'No cart found');
                     } else {

@@ -186,6 +186,7 @@
                 self.$modal.find('#box_barcode').focus();
                 self.$modal.on();
             });
+            self.$modal.find('#box_barcode').focus();
         },
         confirm_box: function(show_cancel){
             var self = this;
