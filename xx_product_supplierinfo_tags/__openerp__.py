@@ -4,6 +4,7 @@
     "depends": [
         "product",
         "stock",
+        "sale",
         "product_manufacturer",
         "xx_tags",
     ],
@@ -14,6 +15,7 @@
     "data": [
         "security/ir.model.access.csv",
         "view/tags_view.xml",
+        "view/sale_order_view.xml"
     ],
     "demo": [
         "demo/product_supplierinfo.yml"],
