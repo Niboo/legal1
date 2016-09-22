@@ -73,6 +73,7 @@
             self.display_error(data.data.arguments[0], data.data.arguments[1]);
         },
         display_error: function (error, message) {
+            var self = this;
             var modal = new exception_modal();
             modal.start(self, error, message);
         },
@@ -337,6 +338,7 @@
             });
         },
         display_error: function (error, message) {
+            var self = this;
             var modal = new exception_modal();
             modal.start(self, error, message);
         },

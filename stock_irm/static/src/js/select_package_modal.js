@@ -59,35 +59,54 @@
     instance.stock_irm.modal.barcode_error_modal = barcode_error_modal;
 
     var complete_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller) {
             var self = this;
             this._super();
             self.title = 'Box is complete';
             self.block_modal = false;
+            self.caller = caller;
         },
-        start: function (barcode_type, barcode) {
+        start: function () {
             var self = this;
             self.$body = "<i class='fa fa-check fa-10x' style='color:green'></i><b style='font-size: 2em'>Put the box in the output zone.</b>";
             // self.$footer = "<a href='#' class='btn btn-lg btn-success'>Continue</a>";
             this._super();
+            self.add_listener_on_close_modal();
         },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
+        }
     });
 
     instance.stock_irm.modal.complete_modal = complete_modal;
 
     var incomplete_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller) {
             var self = this;
             this._super();
             self.title = 'Box is incomplete';
             self.block_modal = false;
+            self.caller = caller;
         },
         start: function (barcode_type, barcode) {
             var self = this;
             self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>Let the box be handled by the picker.</b>";
             // self.$footer = "<a href='#' class='btn btn-lg btn-success'>Continue</a>";
             this._super();
+            self.add_listener_on_close_modal();
         },
+        add_listener_on_close_modal: function(){
+            var self = this;
+            self.$modal.off('hidden.bs.modal');
+            self.$modal.on('hidden.bs.modal', function () {
+                self.caller.add_listener_for_barcode();
+            })
+
+        }
     });
 
     instance.stock_irm.modal.incomplete_modal = incomplete_modal;

@@ -56,10 +56,10 @@
                     current_modal.$modal.modal('hide');
                     if(data.status == "ok"){
                         if(data.is_complete){
-                            var modal = new instance.stock_irm.modal.complete_modal();
+                            var modal = new instance.stock_irm.modal.complete_modal(self);
                             modal.start();
                         } else {
-                            var modal = new instance.stock_irm.modal.incomplete_modal();
+                            var modal = new instance.stock_irm.modal.incomplete_modal(self);
                             modal.start(data.error, data.message);
                         }
                     } else {
