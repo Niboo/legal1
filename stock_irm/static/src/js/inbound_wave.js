@@ -68,7 +68,7 @@
                         self.step = 'package';
                         self.display();
                     } else {
-                        self.display_error('Error', 'Could not load the wave');
+                        self.display_error('Error', 'Could not load the wave.');
                     }
                 }, function(data){
                     self.request_error(data);

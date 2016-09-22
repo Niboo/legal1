@@ -292,6 +292,12 @@ class InboundWaveController(http.Controller):
         inbound_wave['picker_id'] = current_user.id
 
         for move in inbound_wave.move_ids:
+
+            if not move.reserved_quant_ids:
+                return {
+                    'status': 'error',
+                }
+
             package = move.reserved_quant_ids \
                       and move.reserved_quant_ids[0].package_id
             quant = package.quant_ids
