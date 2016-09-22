@@ -280,6 +280,9 @@ class InboundWaveController(http.Controller):
 
         for move in inbound_wave.move_ids:
 
+            if move.state == 'done':
+                continue
+
             if not move.reserved_quant_ids:
                 raise Exception("No reserved quants. Please check the backend")
 
