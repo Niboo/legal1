@@ -292,7 +292,8 @@ class InboundWaveController(http.Controller):
         inbound_wave['picker_id'] = current_user.id
 
         for move in inbound_wave.move_ids:
-            package = move.reserved_quant_ids[0].package_id
+            package = move.reserved_quant_ids \
+                      and move.reserved_quant_ids[0].package_id
             quant = package.quant_ids
             product = quant.product_id
             total_qty = quant.qty
