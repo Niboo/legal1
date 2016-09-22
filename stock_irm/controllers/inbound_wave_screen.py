@@ -294,9 +294,7 @@ class InboundWaveController(http.Controller):
         for move in inbound_wave.move_ids:
 
             if not move.reserved_quant_ids:
-                return {
-                    'status': 'error',
-                }
+                raise Exception("No reserved quants. Please check the backend")
 
             package = move.reserved_quant_ids \
                       and move.reserved_quant_ids[0].package_id
