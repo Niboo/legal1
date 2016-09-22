@@ -67,39 +67,30 @@ class InboundWaveController(http.Controller):
 
         try:
             package = env['stock.quant.package'].browse(package_id)
-            self.transfer_package(package, False)
+            self.transfer_package(package)
             return {'status': 'ok'}
         except BaseException as e:
             return {'status': 'error',
                     'error': type(e).__name__,
                     'message': str(e)}
 
-    def transfer_package(self, package, is_end_package_needed=True):
+    def transfer_package(self, package):
         env = http.request.env
 
         destination = False
         end_package = False
 
         for quant in package.quant_ids:
-            picking = quant.reservation_id.picking_id
+            move = quant.reservation_id
+            picking = move.picking_id
 
             result = picking.do_enter_transfer_details()
             wizard_id = result['res_id']
             wizard = env['stock.transfer_details'].browse(wizard_id)
 
             if not destination:
-                item = wizard.item_ids.filtered(lambda r: r.package_id == package)
-                packop = wizard.packop_ids.filtered(lambda r: r.package_id == package)
-
-                destination = item and item.destinationloc_id or packop.destinationloc_id
-
-                if destination.is_bandup_location == False \
-                        and is_end_package_needed == True:
-                    raise Exception("The location %s is not a bandup location."
-                                    % destination.name)
-
-                if is_end_package_needed:
-                    end_package = self.search_dest_package(package.barcode, destination)
+                destination = self.get_real_destination_location(
+                    package, move.location_dest_id)
 
                 if not destination:
                     destination = picking.location_dest_id
@@ -119,10 +110,6 @@ class InboundWaveController(http.Controller):
                     'destinationloc_id': destination.id,
                     'product_uom_id': quant.product_id.uom_id.id
                 }
-
-            if is_end_package_needed:
-                # we shouldnt delete the end package in the last operation
-                wizard_values['result_package_id'] = end_package.id,
 
             wizard.write({
                 'item_ids': [(0, False, wizard_values)]
