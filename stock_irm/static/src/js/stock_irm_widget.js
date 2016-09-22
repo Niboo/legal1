@@ -74,7 +74,7 @@
         },
         display_error: function (error, message) {
             var modal = new exception_modal();
-            modal.start(this, error, message);
+            modal.start(self, error, message);
         },
     });
 
@@ -338,7 +338,7 @@
         },
         display_error: function (error, message) {
             var modal = new exception_modal();
-            modal.start(this, error, message);
+            modal.start(self, error, message);
         },
         request_error: function (data) {
             this.display_error(data.data.arguments[0], data.data.arguments[1]);

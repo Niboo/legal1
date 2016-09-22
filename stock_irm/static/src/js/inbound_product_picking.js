@@ -299,7 +299,7 @@
                 supplier_id: self.supplier_id,
             }).then(function(data){
                 if (data.status != 'ok'){
-                    var modal = new instance.stock_irm.modal.exception_modal(this);
+                    var modal = new instance.stock_irm.modal.exception_modal(self);
                     modal.start(data.error, data.message);
                 } else {
                     if(self.scrap_lines === undefined){
