@@ -111,6 +111,7 @@ class SelectPackageController(http.Controller):
     def move_to_cart(self, package_ids, cart_id, **kw):
         env = http.request.env
 
+        package_ids = list(set(package_ids))
         packages = env['stock.quant.package'].browse(package_ids)
         for package in packages:
             quant = package.quant_ids[0]
@@ -118,6 +119,9 @@ class SelectPackageController(http.Controller):
 
             wizard_id = picking.do_enter_transfer_details()['res_id']
             wizard = env['stock.transfer_details'].browse(wizard_id)
+
+            wizard.item_ids.unlink()
+
             for packop in wizard.packop_ids:
                 if packop.package_id != package:
                     packop.unlink()
