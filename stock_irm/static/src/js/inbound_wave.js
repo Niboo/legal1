@@ -130,7 +130,7 @@
                         self.step = 'package';
                         self.display();
                     } else {
-                        self.display_error('Error', 'Could not retrieve package list');
+                        self.display_error(data.error, data.message);
                     }
                 }, function(data){
                     self.request_error(data);
