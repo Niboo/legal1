@@ -67,6 +67,7 @@
 
             $('#content').html(self.$elem);
             self.search = '';
+            self.$nav.find('#confirm').show();
             self.add_listener_on_search();
             self.add_listener_on_confirm_button();
             self.add_listener_on_cart_select_button();
@@ -87,6 +88,7 @@
         refresh: function(){
             var self = this;
             $('#content').html(self.$elem);
+            self.$nav.find('#confirm').show();
             self.add_listener_on_search();
             self.add_listener_on_product();
             self.add_listener_on_more();
@@ -174,9 +176,11 @@
             if(uncomplete_and_unexpected_move_line.length > 0) {
                 var modal = new instance.stock_irm.modal.confirm_move_modal(self, self.supplier_id, uncomplete_and_unexpected_move_line);
                 modal.start();
-            } else {
+            } else if (self.po_move_lines.length > 0) {
                 var modal = new instance.stock_irm.modal.confirm_note_modal(self);
                 modal.start();
+            } else {
+                self.display_error('Error', 'Please scan a product first.');
             }
         },
         add_listener_on_confirm_button: function(){

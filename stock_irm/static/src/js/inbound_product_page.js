@@ -42,6 +42,7 @@
             this._super();
             var self = this;
             self.get_product();
+            self.$nav.find('#confirm').hide();
         },
         get_product: function(){
             var self = this;
@@ -235,13 +236,6 @@
                 var modal = new instance.stock_irm.modal.going_back_modal();
                 modal.start(self, qty, product_image);
             })
-        },
-        add_listener_on_confirm_button: function(){
-            var self = this;
-            self.$nav.off('click.confirm');
-            self.$nav.on('click.confirm', '#confirm a', function(event){
-                self.confirm_po_move();
-            });
         },
         add_listener_on_close_box: function(){
             var self = this
