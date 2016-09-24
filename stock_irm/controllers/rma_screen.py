@@ -117,6 +117,7 @@ class RMAScreenController(http.Controller):
                 'default_code': product.default_code,
                 'supplier_code': 'N/A',
                 'barcodes': [product.ean13 or ''],
+                'barcode_to_print': product.default_code or product.ean13,
                 'image': '/web/binary/image?model=product.product&id=%s&field=image' % product.id,
             }
         }

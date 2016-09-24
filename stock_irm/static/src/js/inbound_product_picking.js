@@ -397,6 +397,10 @@
             });
         },
         print_label: function(product_name, barcode, quantity){
+            if(barcode === undefined && barcode ==''){
+                console.log("No barcode are defined on the product");
+                return;
+            }
             if(this.printer_ip){
                 try {
                     if (this.proxy)

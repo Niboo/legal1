@@ -183,6 +183,7 @@ product id: %s, supplier id: %s
                 'requires_unpack': requires_unpack,
                 'requires_relabel': requires_relabel,
                 'barcodes': barcodes,
+                'barcode_to_print': product.default_code or product.ean13,
                 'image': "/web/binary/image?model=product.product&id=%s&field=image" % product.id,
             }
         }

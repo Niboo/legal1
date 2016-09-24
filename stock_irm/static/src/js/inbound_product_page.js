@@ -52,9 +52,10 @@
 
                 self.product = data.product;
                 self.barcodes = data.product.barcodes;
+                self.barcode_to_print = data.product.barcode_to_print;
 
                 self.display();
-                self.parent.print_label(self.product.name, self.barcodes[0] , 1)
+                self.parent.print_label(self.product.name, self.barcode_to_print, 1)
                 self.nb_already_printed += 1;
             })
         },
@@ -191,7 +192,7 @@
         },
         print_missing_labels: function(){
             var self = this;
-            self.parent.print_label(self.product.name, self.barcodes[0], self.quantity_to_print);
+            self.parent.print_label(self.product.name, self.barcode_to_print, self.quantity_to_print);
             self.nb_already_printed += self.quantity_to_print;
 
             $('#already_printed_quantity').val(self.nb_already_printed);
@@ -298,7 +299,7 @@
                 self.$elem.find('#quantity input').get(0).value = qty;
 
                 // print the label each time we scan again
-                self.parent.print_label(self.product.name, self.product.barcodes[0], 1)
+                self.parent.print_label(self.product.name, self.barcode_to_print, 1)
                 self.nb_already_printed += 1;
                 $('#already_printed_quantity').val(self.nb_already_printed);
             }
