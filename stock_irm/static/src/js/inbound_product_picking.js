@@ -413,7 +413,7 @@
                             'dev': "E",
                             'oname': "DYNAPPS",
                             'otype': "ZPL",
-                            "FN11": product_name,
+                            "FN11": '',
                             "FN12": barcode,
                             "PQ": quantity
                         },
