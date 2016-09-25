@@ -41,14 +41,20 @@
         start: function() {
             var self = this;
             self._super();
+
+            self.$change_cart = self.$nav.find('#change-cart');
+            self.$change_cart.show();
+
+            if(self.cart === undefined){
+                self.get_carts(true);
+            }
+        },
+        get_carts: function (block_modal) {
+            var self = this;
             self.session.rpc('/select_package/get_carts').then(function (data) {
-                if (data.status == "ok") {
-                    self.$elem = $(QWeb.render(self.template, {
-                        carts: data.carts,
-                    }));
-                    $('#content').html(self.$elem);
-                    self.add_listener_on_numpad();
-                    self.add_listener_on_cart();
+                if(data.status == 'ok'){
+                    var modal = new instance.stock_irm.modal.select_cart_modal(block_modal);
+                    modal.start(self, data.carts);
                 } else {
                     self.display_error('Error', 'Could not retrieve carts');
                 }
@@ -56,28 +62,30 @@
                 self.request_error(data);
             });
         },
-        add_listener_on_cart: function(){
+        set_cart: function (cart) {
             var self = this;
+            self.cart = cart;
+            self.$change_cart.html(QWeb.render('cart_navbar_item', {'cart': self.cart}));
 
-            self.$elem.find('#cart_list a').off('click.cart');
-            self.$elem.find('#cart_list a').on('click.cart', function (event) {
-                var cart_id = $(event.currentTarget).attr('cart-id');
-                self.session.rpc('/select_package/move_to_cart', {
-                    cart_id: cart_id,
-                    package_ids: self.scanned_package_ids,
-                }).then(function (data) {
-                    if (data.status == "ok") {
-                        var modal = new instance.stock_irm.modal.confirm_bandup_wave_modal();
-                        modal.start();
-                        window.setTimeout(function(){
-                            window.location.href = "/select_package";
-                        }, 3000);
-                    } else {
-                        self.display_error('Error', 'Could not move packages to cart');
-                    }
-                }, function(data){
-                    self.request_error(data);
-                });
+            self.$elem = $(QWeb.render(self.template));
+            $('#content').html(self.$elem);
+            self.add_listener_on_numpad();
+        },
+        move_to_cart: function(package){
+            var self = this;
+            self.session.rpc('/select_package/move_to_cart', {
+                cart_id: self.cart.id,
+                package_id: package.id,
+            }).then(function (data) {
+                if (data.status == "ok") {
+                    var $package_ribbon = self.$elem.find('.ok_ribbon[data-package-id="' + package.id + '"]');
+                    $package_ribbon.append(self.cart.name);
+                    $package_ribbon.removeClass('hidden');
+                } else {
+                    self.display_error('Error', 'Could not move packages to cart');
+                }
+            }, function(data){
+                self.request_error(data);
             });
         },
         process_barcode: function(barcode){
@@ -104,6 +112,7 @@
                         }));
                         self.$elem.find('.btn-to-wave').show();
                         self.$elem.find('#package_list').append($new_box);
+                        self.move_to_cart(data.scanned_package);
                     } else {
                         self.display_error(data.error, data.message);
                     }

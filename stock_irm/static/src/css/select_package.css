@@ -59,3 +59,12 @@
     margin-top: 10px;
     width: 90%;
 }
+
+.ok_ribbon{
+    position:relative;
+    bottom:160px;
+    background-color:green;
+    color:white;
+    font-size:3em;"
+}
+

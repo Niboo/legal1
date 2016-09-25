@@ -108,26 +108,25 @@ class SelectPackageController(http.Controller):
         }
 
     @http.route('/select_package/move_to_cart', auth='user', type='json')
-    def move_to_cart(self, package_ids, cart_id, **kw):
+    def move_to_cart(self, package_id, cart_id, **kw):
         env = http.request.env
 
-        package_ids = list(set(package_ids))
-        packages = env['stock.quant.package'].browse(package_ids)
-        for package in packages:
-            quant = package.quant_ids[0]
-            picking = quant.reservation_id.picking_id
+        package = env['stock.quant.package'].browse(package_id)
 
-            wizard_id = picking.do_enter_transfer_details()['res_id']
-            wizard = env['stock.transfer_details'].browse(wizard_id)
+        quant = package.quant_ids[0]
+        picking = quant.reservation_id.picking_id
 
-            wizard.item_ids.unlink()
+        wizard_id = picking.do_enter_transfer_details()['res_id']
+        wizard = env['stock.transfer_details'].browse(wizard_id)
 
-            for packop in wizard.packop_ids:
-                if packop.package_id != package:
-                    packop.unlink()
-                    continue
-                packop.destinationloc_id = int(cart_id)
-            wizard.sudo().do_detailed_transfer()
+        wizard.item_ids.unlink()
+
+        for packop in wizard.packop_ids:
+            if packop.package_id != package:
+                packop.unlink()
+                continue
+            packop.destinationloc_id = int(cart_id)
+        wizard.sudo().do_detailed_transfer()
 
         return {'status': 'ok'}
 
