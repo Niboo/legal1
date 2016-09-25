@@ -82,8 +82,8 @@
             self.add_listener_on_quantity();
             self.add_listener_on_label_quantity();
             self.add_listener_on_print_button();
-            self.add_listener_on_close_box();
             self.add_listener_on_move_to_damaged_button();
+            self.add_listener_on_close_box();
         },
         add_listener_on_valid_button: function(){
             var self = this;
@@ -244,12 +244,23 @@
             });
         },
         add_listener_on_close_box: function(){
-            var self = this;
+            var self = this
+
             self.$elem.off('click.closebox');
-            self.$elem.on('click.closebox', '.close-box-icon', function(event){
-                var box_barcode = $(event.currentTarget).attr('box-barcode');
-                var modal = new instance.stock_irm.modal.close_box_modal();
-                modal.start(self, box_barcode);
+            self.$elem.on('click.closebox', '#rack', function(event){
+                var move_line = self.parent.current_move_line;
+                var qty = parseInt(self.$elem.find('#quantity input').get(0).value);
+                var total_qty = move_line.quantity_already_scanned + qty;
+
+                if(total_qty == 0){
+                    return;
+                }
+
+                if(move_line.quantity > total_qty || move_line.is_new){
+                    var modal = new instance.stock_irm.modal.close_box_modal(self.parent, self.parent.current_move_line, total_qty);
+                    modal.start();
+                    return;
+                }
             })
         },
         add_listener_on_move_to_damaged_button: function(){
@@ -312,32 +323,6 @@
                 return false;
             } else {
                 return true;
-            }
-        },
-
-        close_box: function(box_barcode){
-            var self = this;
-            self.parent.closed_boxes.push(box_barcode);
-            var modal = new instance.stock_irm.modal.box_barcode_modal(self);
-            modal.start();
-
-            var $result = $(QWeb.render("rack_button", {
-                name: self.parent.current_cart.name,
-                index: self.parent.current_cart.box_index
-            }));
-            $('#rack').html($result);
-
-            self.display();
-        },
-        close_box_if_no_more_product: function(product_id){
-            var self = this;
-            // this method is called when a PO line is validated.
-            // It closes the current box if the current product is not needed anymore on the selected PO's
-            // This way, extra product won't be added in the same box
-            var po_line = $.grep(self.parent.purchase_order_lines, function(e){ return e.product_id == product_id && e.progress_done != 100.0; })[0];
-
-            if(!po_line){
-                self.parent.closed_boxes.push(self.parent.current_package_barcode);
             }
         },
     });

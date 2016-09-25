@@ -447,23 +447,19 @@ product id: %s, supplier id: %s
         result = picking.do_enter_transfer_details()
         wizard_id = result['res_id']
         my_wizard = env['stock.transfer_details'].browse(wizard_id)
-        my_wizard_items = my_wizard.item_ids
+        my_wizard.item_ids.unlink()
 
         dest_package = self.search_dest_package(box_name)
 
-        for wizard_line in my_wizard_items:
-            if wizard_line.product_id == picking_line.product_id:
-                # find a line we can validate
-                wizard_line.result_package_id = dest_package.id
-                wizard_line.quantity = qty
-                needed_line = wizard_line
-                break
-
-        # unlink all other lines (since we only transfer one line at a time)
-        unwanted_lines = my_wizard_items.filtered(
-            lambda r: r.id != needed_line.id)
-
-        unwanted_lines.unlink()
+        my_wizard.item_ids.create({
+            'result_package_id': dest_package.id,
+            'quantity': qty,
+            'product_id': picking_line.product_id.id,
+            'destinationloc_id': picking_line.location_dest_id.id,
+            'sourceloc_id': picking_line.location_id.id,
+            'product_uom_id': picking_line.product_id.uom_id.id,
+            'transfer_id': my_wizard.id,
+        })
 
         my_wizard.sudo().do_detailed_transfer()
 
@@ -547,7 +543,7 @@ product id: %s, supplier id: %s
                 auth="user")
     def create_picking_for_unordered_lines(
             self, extra_line, dest_box_id, supplier_id, box_name,
-            packing_order_id, reason_id, cart_id=False):
+            packing_order_id, reason_id=False, cart_id=False):
         env = http.request.env
 
         picking, move_line = self.create_picking(
@@ -629,7 +625,7 @@ product id: %s, supplier id: %s
 
         return locations_list
 
-    def add_packing_order_on_move(self, picking, packing_order_id, reason_id):
+    def add_packing_order_on_move(self, picking, packing_order_id, reason_id = False):
         for move in picking.move_lines:
             move.write({'packing_order_id': packing_order_id,
                         'reason_id': reason_id})

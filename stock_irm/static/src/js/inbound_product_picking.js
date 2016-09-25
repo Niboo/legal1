@@ -365,9 +365,7 @@
                     qty -= move_quantity_left;
                     self.update_progress(move_line);
                     var modal = new instance.stock_irm.modal.validate_po_line_modal();
-                    window.setTimeout(function() {
-                        modal.start(self, qty, move_line, product);
-                    }, 500);
+                    modal.start(self, qty, move_line, product);
                     return
                 }
             } else {

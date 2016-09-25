@@ -514,20 +514,23 @@
     instance.stock_irm.modal.confirm_note_modal = confirm_note_modal;
 
     var close_box_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
+        init: function (caller, move_line, qty) {
             var self = this;
             this._super();
             self.title = 'Close Current Box';
             self.block_modal = false;
             self.template = 'propose_close_box';
             self.footer_template = 'propose_close_box_footer';
+            self.caller = caller;
+            self.move_line = move_line;
+            self.packing_order_id = $('#packing-order-ref').attr('data-id');
+            self.staging_id = $('#change-worklocation').attr('data-staging-id');
+            self.qty = qty;
         },
-        start: function (caller, box_barcode) {
+        start: function () {
             var self = this;
             self.$body = $(QWeb.render(self.template));
             self.$footer = $(QWeb.render(self.footer_template));
-            self.box_barcode = box_barcode;
-            self.caller = caller;
 
             self._super();
             self.add_listener_on_close_box();
@@ -546,10 +549,64 @@
 
             self.$modal.find('#close').off('click.close');
             self.$modal.find('#close').on('click.close', function (event) {
-                self.caller.close_box(self.box_barcode)
-                self.$modal.modal('hide');
+                if(self.move_line.is_new){
+                    self.close_unexpected_move();
+                } else {
+                    self.close_picking_move();
+                }
             });
-
+        },
+        close_picking_move: function(){
+            var self = this;
+            self.session.rpc('/inbound_screen/process_picking_line', {
+                qty: self.qty,
+                picking_line_id: self.move_line.id,
+                box_name: self.move_line.box,
+                packing_order_id: self.packing_order_id,
+                cart_id: self.caller.cart.id,
+            }).then(function(data){
+                if (data.status == 'ok'){
+                    self.$modal.modal('hide');
+                    self.$modal.on('hidden.bs.modal', function () {
+                        self.move_line.quantity -= self.qty;
+                        self.move_line.quantity_already_scanned = 0;
+                        self.move_line.box = undefined;
+                        var modal = new instance.stock_irm.modal.select_next_destination_modal();
+                        modal.start(self.caller, data.destination, 0, self.move_line, self.product);
+                        self.$modal.off();
+                    })
+                } else {
+                    self.display_error('Error', data.message);
+                }
+            }, function (data) {
+                self.request_error(data);
+            });
+        },
+        close_unexpected_move: function(){
+            var self = this;
+            self.move_line.quantity_already_scanned = self.qty;
+            self.session.rpc('/inbound_screen/create_picking_for_unordered_lines', {
+                extra_line: self.move_line,
+                dest_box_id: self.staging_id,
+                supplier_id: self.caller.supplier_id,
+                box_name: self.move_line.box,
+                packing_order_id: self.packing_order_id,
+                cart_id: self.caller.cart.id,
+            }).then(function (data) {
+                if (data.status != 'ok') {
+                    self.display_error(data.error, data.message);
+                } else {
+                    self.$modal.modal('hide');
+                    self.$modal.on('hidden.bs.modal', function () {
+                        self.caller.set_box_free(self.move_line);
+                        var modal = new instance.stock_irm.modal.select_next_destination_modal();
+                        modal.start(self.caller, data.destination, 0, self.move_line, self.product);
+                        self.$modal.off();
+                    })
+                }
+            }, function (data) {
+                self.request_error(data);
+            });
         },
     });
 
@@ -597,7 +654,7 @@
                         var modal = new instance.stock_irm.modal.select_next_destination_modal();
                         modal.start(self.caller, data.destination, self.nb_product_more, self.move_line, self.product);
                     } else {
-                        self.display_error('Error', 'Could not get printer IP');
+                        self.display_error('Error', data.message);
                     }
                 }, function (data) {
                     self.request_error(data);
