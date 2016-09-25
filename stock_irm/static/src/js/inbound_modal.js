@@ -445,6 +445,7 @@
                     self.display_error(data.error, data.message);
                 } else {
                     move.state = 'done';
+                    self.refresh_move_lines(data.po_move_lines, data.from_picking_id);
                     self.validate_line($button, data.destination);
                 }
             }, function (data) {
@@ -472,7 +473,29 @@
                 self.request_error(data);
             });
         },
-
+        refresh_move_lines: function(lines, picking_from_id){
+            var self = this;
+            _.each(lines, function(line){
+                var concerned_move_lines = _.filter(self.uncomplete_and_unexpected_move_line, function(move_line){
+                    if(move_line.picking_id != picking_from_id){
+                        return false;
+                    }
+                    if(move_line.product_id != line.product_id){
+                        return false;
+                    }
+                    if(move_line.qty != line.qty){
+                        return false;
+                    }
+                    return true;
+                });
+                if(concerned_move_lines.length > 0){
+                    var concerned_move_line = concerned_move_lines[0];
+                    concerned_move_line.id = line.id;
+                    concerned_move_line.picking_id = line.picking_id;
+                    concerned_move_line.picking_name = line.picking_name;
+                }
+            });
+        },
         add_listener_on_finish: function(){
             var self = this;
             self.$modal.find('#finish').click(function(event){
@@ -571,6 +594,7 @@
                         self.move_line.quantity -= self.qty;
                         self.move_line.quantity_already_scanned = 0;
                         self.move_line.box = undefined;
+                        self.caller.refresh_move_lines(data.po_move_lines, data.from_picking_id);
                         var modal = new instance.stock_irm.modal.select_next_destination_modal();
                         modal.start(self.caller, data.destination, 0, self.move_line, self.product);
                         self.$modal.off();
@@ -651,6 +675,7 @@
                     cart_id: self.caller.cart.id,
                 }).then(function(data){
                     if (data.status == 'ok'){
+                        self.caller.refresh_move_lines(data.po_move_lines, data.from_picking_id);
                         var modal = new instance.stock_irm.modal.select_next_destination_modal();
                         modal.start(self.caller, data.destination, self.nb_product_more, self.move_line, self.product);
                     } else {

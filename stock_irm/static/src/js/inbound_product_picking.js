@@ -466,6 +466,29 @@
                 self.get_carts(false);
             });
         },
+        refresh_move_lines: function(lines, picking_from_id){
+            var self = this;
+            _.each(lines, function(line){
+                var concerned_move_lines = _.filter(self.po_move_lines, function(po_move_line){
+                    if(po_move_line.picking_id != picking_from_id){
+                        return false;
+                    }
+                    if(po_move_line.product_id != line.product_id){
+                        return false;
+                    }
+                    if(po_move_line.qty != line.qty){
+                        return false;
+                    }
+                    return true;
+                });
+                if(concerned_move_lines.length > 0){
+                    var concerned_move_line = concerned_move_lines[0];
+                    concerned_move_line.id = line.id;
+                    concerned_move_line.picking_id = line.picking_id;
+                    concerned_move_line.picking_name = line.picking_name;
+                }
+            });
+        },
     });
 
     instance.stock_irm.inbound_product_picking = inbound_product_picking;

@@ -258,28 +258,36 @@ product id: %s, supplier id: %s
         env = http.request.env
         purchase_orders = env['purchase.order'].browse(purchase_order_ids)
 
-        lines = []
+
 
         pickings = purchase_orders.mapped('picking_ids').filtered(
             lambda r: r.state == 'assigned')
         pickings = pickings.sorted(key=lambda pick: (pick.min_date, pick.id))
-        for picking in pickings:
-            for move_line in picking.move_lines.filtered(
-                    lambda r: r.state == 'assigned'):
 
-                lines.append({
-                    'product_id': move_line.product_id.id,
-                    'quantity': move_line.product_qty,
-                    'id': move_line.id,
-                    'picking_name': picking.name,
-                    'product_name': move_line.product_id.name[0:20],
-                    'progress_done': 0,
-                    'quantity_already_scanned': 0,
-                    'is_new': False,
-                })
+        lines = []
+        for picking in pickings:
+            lines.extend(self.prepare_picking_lines(picking))
 
         return {'status': 'ok',
                 'po_move_lines': lines}
+
+    def prepare_picking_lines(self, picking):
+        lines = []
+        for move_line in picking.move_lines.filtered(
+                lambda r: r.state == 'assigned'):
+
+            lines.append({
+                'product_id': move_line.product_id.id,
+                'quantity': move_line.product_qty,
+                'id': move_line.id,
+                'picking_name': picking.name,
+                'picking_id': picking.id,
+                'product_name': move_line.product_id.name[0:20],
+                'progress_done': 0,
+                'quantity_already_scanned': 0,
+                'is_new': False,
+            })
+        return lines
 
     def get_receipt_picking_type(self):
         env = http.request.env
@@ -423,7 +431,9 @@ product id: %s, supplier id: %s
         env = http.request.env
         picking_line = env['stock.move'].browse(int(picking_line_id))
 
-        destination = self.process_transfer(qty, picking_line, box_name)
+        destination, bo = self.process_transfer(qty, picking_line, box_name)
+
+        env.cr.commit()
 
         picking_line.write({'packing_order_id': packing_order_id,
                             'reason_id': reason_id})
@@ -437,8 +447,11 @@ product id: %s, supplier id: %s
 
         destination = self.move_to_destination(box_name, destination_id)
 
+        lines = self.prepare_picking_lines(bo)
         return {'status': 'ok',
-                'destination': destination['destination']}
+                'destination': destination['destination'],
+                'po_move_lines': lines,
+                'from_picking_id': bo.backorder_id.id}
 
     def process_transfer(self, qty, picking_line, box_name):
         env = http.request.env
@@ -463,7 +476,9 @@ product id: %s, supplier id: %s
 
         my_wizard.sudo().do_detailed_transfer()
 
-        return picking_line.move_dest_id.location_dest_id
+        bo = env['stock.picking'].search([('backorder_id','=',picking.id)])
+
+        return picking_line.move_dest_id.location_dest_id, bo
 
     def transfer_to_next_location(self, package, destination_id=False):
         env = http.request.env
@@ -472,6 +487,8 @@ product id: %s, supplier id: %s
 
             wizard_id = picking.do_enter_transfer_details()['res_id']
             wizard = env['stock.transfer_details'].browse(wizard_id)
+
+            wizard.item_ids.unlink()
 
             if destination_id:
                 for packop in wizard.packop_ids:
@@ -550,6 +567,7 @@ product id: %s, supplier id: %s
             supplier_id, extra_line['product_id'],
             extra_line['quantity_already_scanned'],
         )
+        env.cr.commit()
 
         result = picking.do_enter_transfer_details()
         wizard_id = result['res_id']
@@ -562,6 +580,7 @@ product id: %s, supplier id: %s
             wizard_line.destinationloc_id = int(dest_box_id)
 
         my_wizard.sudo().do_detailed_transfer()
+        env.cr.commit()
 
         dest_list = self.get_destinations(
             move_line.move_dest_id.location_dest_id)
