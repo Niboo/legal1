@@ -395,7 +395,7 @@
             var self = this;
             self.$modal.find('.validate').click(function(event){
                 var $button = $(event.currentTarget);
-                $button.attr('disabled', 'disabled');
+                $button.attr('disabled', true);
                 var id = $button.attr('id');
                 var reason_id = $button.parents('tr').find('select').val();
 
@@ -443,6 +443,7 @@
                 cart_id: self.caller.cart.id,
             }).then(function(data){
                 if (data.status != 'ok'){
+                    $button.attr('disabled', false);
                     self.display_error(data.error, data.message);
                 } else {
                     move.state = 'done';
@@ -450,6 +451,7 @@
                     self.validate_line($button, data.destination);
                 }
             }, function (data) {
+                $button.attr('disabled', false);
                 self.request_error(data);
             });
         },
@@ -465,12 +467,14 @@
                 cart_id: self.caller.cart.id,
             }).then(function (data) {
                 if (data.status != 'ok') {
+                    $button.attr('disabled', false);
                     self.display_error(data.error, data.message);
                 } else {
                     move.state = 'done';
                     self.validate_line($button, data.destination);
                 }
             }, function (data) {
+                $button.attr('disabled', false);
                 self.request_error(data);
             });
         },
@@ -570,9 +574,10 @@
         },
         add_listener_on_close_box: function(){
             var self = this;
-
-            self.$modal.find('#close').off('click.close');
-            self.$modal.find('#close').on('click.close', function (event) {
+            var $close = self.$modal.find('#close');
+            $close.off('click.close');
+            $close.on('click.close', function (event) {
+                $close.attr('disabled', true);
                 if(self.move_line.is_new){
                     self.close_unexpected_move();
                 } else {
@@ -582,6 +587,7 @@
         },
         close_picking_move: function(){
             var self = this;
+            var $close = self.$modal.find('#close');
             self.session.rpc('/inbound_screen/process_picking_line', {
                 qty: self.qty,
                 picking_line_id: self.move_line.id,
@@ -601,9 +607,11 @@
                         self.$modal.off();
                     })
                 } else {
+                    $close.attr('disabled', false);
                     self.display_error('Error', data.message);
                 }
             }, function (data) {
+                $close.attr('disabled', false);
                 self.request_error(data);
             });
         },
@@ -666,8 +674,10 @@
         },
         add_listener_on_validate: function(){
             var self = this;
-            self.$modal.find('#validate').off('click.validate');
-            self.$modal.find('#validate').on('click.validate', function (event) {
+            var $validate = self.$modal.find('#validate');
+            $validate.off('click.validate');
+            $validate.on('click.validate', function (event) {
+                $validate.attr('disabled', true);
                 self.session.rpc('/inbound_screen/process_picking_line', {
                     qty: self.move_line.quantity_already_scanned,
                     picking_line_id: self.move_line.id,
@@ -680,9 +690,11 @@
                         var modal = new instance.stock_irm.modal.select_next_destination_modal();
                         modal.start(self.caller, data.destination, self.nb_product_more, self.move_line, self.product);
                     } else {
+                        $validate.attr('disabled', false);
                         self.display_error('Error', data.message);
                     }
                 }, function (data) {
+                    $validate.attr('disabled', false);
                     self.request_error(data);
                 });
             })
@@ -715,8 +727,9 @@
         },
         add_listener_on_confirm: function(move){
             var self = this;
-            self.$modal.find('#confirm_next_destination').off('click.destination');
-            self.$modal.find('#confirm_next_destination').on('click.destination', function (event) {
+            var $next_destination = self.$modal.find('#confirm_next_destination');
+            $next_destination.off('click.destination');
+            $next_destination.on('click.destination', function (event) {
                 if (self.leftover == 0) {
                     self.$modal.modal('hide');
                     self.caller.destroy();
