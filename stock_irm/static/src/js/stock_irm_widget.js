@@ -258,7 +258,7 @@
                         }
                         chars = [];
                         pressed = false;
-                    },200);
+                    },350);
                 }
                 pressed = true;
             });
