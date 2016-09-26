@@ -243,11 +243,17 @@
             var chars = [];
             $(document).off('keypress.barcode');
             $(document).on('keypress.barcode', function(e) {
-                chars.push(String.fromCharCode(e.which));
+                chars.push(e.which);
                 if (pressed == false) {
                     setTimeout(function(){
                         if (chars.length >= 6) {
-                            var barcode = chars.join("");
+                            var barcode = "";
+                            for(var i in chars){
+                                barcode += String.fromCharCode(chars[i])
+                                if(chars[i] == 13){
+                                    break;
+                                }
+                            }
                             self.process_barcode(barcode)
                         }
                         chars = [];
