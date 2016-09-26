@@ -395,6 +395,7 @@
             var self = this;
             self.$modal.find('.validate').click(function(event){
                 var $button = $(event.currentTarget);
+                $button.attr('disabled', 'disabled');
                 var id = $button.attr('id');
                 var reason_id = $button.parents('tr').find('select').val();
 
