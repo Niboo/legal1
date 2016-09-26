@@ -182,7 +182,7 @@
                     $("#current_product").animate({backgroundColor: "#dff0d8"}, 200);
                 }else{
                     var modal = new instance.stock_irm.modal.barcode_error_modal();
-                    modal.start("Package", self.current_package_barcode);
+                    modal.start("Package", self.current_package_barcode, true_barcode);
                 }
             }else{
                 if(true_barcode == self.current_location_dest_barcode){
@@ -193,7 +193,7 @@
                     });
                 }else{
                     var modal = new instance.stock_irm.modal.barcode_error_modal();
-                    modal.start("Location", self.current_location_dest_barcode);
+                    modal.start("Location", self.current_location_dest_barcode, true_barcode);
                 }
             }
             self.add_listener_for_barcode();

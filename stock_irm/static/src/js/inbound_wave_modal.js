@@ -84,9 +84,9 @@
             self.title = 'Barcode Error';
             self.block_modal = false;
         },
-        start: function (barcode_type, barcode) {
+        start: function (barcode_type, barcode, true_barcode) {
             var self = this;
-            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>Please scan the "+barcode_type+" with barcode "+barcode+".</b>";
+            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>Please scan the "+barcode_type+" with barcode "+barcode+".</b><br/>barcode scanned : -" + true_barcode + "-";
             this._super();
         },
     });
