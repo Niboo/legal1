@@ -482,19 +482,33 @@ product id: %s, supplier id: %s
 
     def transfer_to_next_location(self, package, destination_id=False):
         env = http.request.env
-        for quant in package.quant_ids:
-            picking = quant.reservation_id.picking_id
 
-            wizard_id = picking.do_enter_transfer_details()['res_id']
-            wizard = env['stock.transfer_details'].browse(wizard_id)
+        quant = package.quant_ids[0]
+        picking = quant.reservation_id.picking_id
 
-            wizard.item_ids.unlink()
+        self.check_destination(picking, destination_id)
 
-            if destination_id:
-                for packop in wizard.packop_ids:
-                    packop.destinationloc_id = int(destination_id)
+        wizard_id = picking.do_enter_transfer_details()['res_id']
+        wizard = env['stock.transfer_details'].browse(wizard_id)
 
-            wizard.sudo().do_detailed_transfer()
+        wizard.packop_ids.unlink()
+        wizard.item_ids.unlink()
+
+        wizard.packop_ids.create({
+            'package_id': package.id,
+            'sourceloc_id': package.location_id.id,
+            'destinationloc_id': int(destination_id),
+        })
+
+        wizard.sudo().do_detailed_transfer()
+
+    def check_destination(self, picking, destination_id):
+        dest_locations = picking.picking_type_id.default_location_dest_id
+        dest_locations += dest_locations._get_sublocations()
+
+        if destination_id not in dest_locations.ids:
+            raise exceptions.Warning('The location selected is not a correct '
+                                     'location for this move.')
 
     def move_to_destination(self, box_name, destination_id, **kw):
         env = http.request.env

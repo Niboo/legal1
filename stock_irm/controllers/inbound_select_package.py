@@ -20,6 +20,7 @@
 ##############################################################################
 
 from openerp import http
+from openerp import exceptions
 
 
 class SelectPackageController(http.Controller):
@@ -116,19 +117,31 @@ class SelectPackageController(http.Controller):
         quant = package.quant_ids[0]
         picking = quant.reservation_id.picking_id
 
+        self.check_destination(picking, cart_id)
+
         wizard_id = picking.do_enter_transfer_details()['res_id']
         wizard = env['stock.transfer_details'].browse(wizard_id)
 
+        wizard.packop_ids.unlink()
         wizard.item_ids.unlink()
 
-        for packop in wizard.packop_ids:
-            if packop.package_id != package:
-                packop.unlink()
-                continue
-            packop.destinationloc_id = int(cart_id)
+        wizard.packop_ids.create({
+            'package_id': package.id,
+            'sourceloc_id': package.location_id.id,
+            'destinationloc_id': int(cart_id),
+        })
+
         wizard.sudo().do_detailed_transfer()
 
         return {'status': 'ok'}
+
+    def check_destination(self, picking, destination_id):
+        dest_locations = picking.picking_type_id.default_location_dest_id
+        dest_locations += dest_locations._get_sublocations()
+
+        if destination_id not in dest_locations.ids:
+            raise exceptions.Warning('The location selected is not a correct '
+                                     'location for this move.')
 
     @http.route('/select_package/get_carts', auth='user', type='json')
     def get_carts(self):
