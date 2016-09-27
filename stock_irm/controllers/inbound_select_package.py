@@ -125,10 +125,14 @@ class SelectPackageController(http.Controller):
         wizard.packop_ids.unlink()
         wizard.item_ids.unlink()
 
-        wizard.packop_ids.create({
+        line = {
             'package_id': package.id,
             'sourceloc_id': package.location_id.id,
             'destinationloc_id': int(cart_id),
+        }
+
+        wizard.write({
+            'packop_ids': [(0, False, line)]
         })
 
         wizard.sudo().do_detailed_transfer()
@@ -136,10 +140,11 @@ class SelectPackageController(http.Controller):
         return {'status': 'ok'}
 
     def check_destination(self, picking, destination_id):
-        dest_locations = picking.picking_type_id.default_location_dest_id
-        dest_locations += dest_locations._get_sublocations()
+        dest_location = picking.picking_type_id.default_location_dest_id
+        dest_locations_list = [dest_location.id]
+        dest_locations_list.extend(dest_location._get_sublocations())
 
-        if destination_id not in dest_locations.ids:
+        if destination_id not in dest_locations_list:
             raise exceptions.Warning('The location selected is not a correct '
                                      'location for this move.')
 

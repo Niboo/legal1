@@ -464,14 +464,17 @@ product id: %s, supplier id: %s
 
         dest_package = self.search_dest_package(box_name)
 
-        my_wizard.item_ids.create({
+        line = {
             'result_package_id': dest_package.id,
             'quantity': qty,
             'product_id': picking_line.product_id.id,
             'destinationloc_id': picking_line.location_dest_id.id,
             'sourceloc_id': picking_line.location_id.id,
             'product_uom_id': picking_line.product_id.uom_id.id,
-            'transfer_id': my_wizard.id,
+        }
+
+        my_wizard.write({
+            'item_ids': [(0, False, line)]
         })
 
         my_wizard.sudo().do_detailed_transfer()
@@ -494,19 +497,24 @@ product id: %s, supplier id: %s
         wizard.packop_ids.unlink()
         wizard.item_ids.unlink()
 
-        wizard.packop_ids.create({
+        line = {
             'package_id': package.id,
             'sourceloc_id': package.location_id.id,
             'destinationloc_id': int(destination_id),
+        }
+
+        wizard.write({
+            'packop_ids': [(0, False, line)]
         })
 
         wizard.sudo().do_detailed_transfer()
 
     def check_destination(self, picking, destination_id):
-        dest_locations = picking.picking_type_id.default_location_dest_id
-        dest_locations += dest_locations._get_sublocations()
+        dest_location = picking.picking_type_id.default_location_dest_id
+        dest_locations_list = [dest_location.id]
+        dest_locations_list.extend(dest_location._get_sublocations())
 
-        if destination_id not in dest_locations.ids:
+        if destination_id not in dest_locations_list:
             raise exceptions.Warning('The location selected is not a correct '
                                      'location for this move.')
 
