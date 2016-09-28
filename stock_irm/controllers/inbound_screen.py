@@ -493,9 +493,6 @@ product id: %s, supplier id: %s
         wizard_id = picking.do_enter_transfer_details()['res_id']
         wizard = env['stock.transfer_details'].browse(wizard_id)
 
-        wizard.packop_ids.unlink()
-        wizard.item_ids.unlink()
-
         line = {
             'package_id': package.id,
             'sourceloc_id': package.location_id.id,
@@ -503,7 +500,8 @@ product id: %s, supplier id: %s
         }
 
         wizard.write({
-            'packop_ids': [(0, False, line)]
+            'item_ids': [(5,0,0)],
+            'packop_ids': [(5,0,0)(0, False, line)]
         })
 
         wizard.sudo().do_detailed_transfer()
