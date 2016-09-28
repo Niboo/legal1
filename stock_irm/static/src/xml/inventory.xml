@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <t t-name="inventory_layout">
+        <div class="container">
+            <div id="results" class="scan-row">
+                <div class="row">
+                    <div class="col-xs-12 text-center">
+                        <div id="message_box"><h1>test message</h1></div>
+                        <div id="inventory_location">
+                            <t t-call="current_location"/>
+                        </div>
+                        <div id="inventory_product">
+                            <t t-call="current_product"/>
+                        </div>
+                        <div id="inventory_quantity">
+                            <t t-call="quantity"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="bottom-div">
+            <div class="row">
+                <div class="col-xs-2 numpad-above">
+                    <t t-call="numpad"/>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="current_location">
+        <div class="row">
+            <h3><span t-esc="location_name"/></h3>
+        </div>
+    </t>
+
+    <t t-name="current_product">
+        <div id="current-product-name-row" class="row">
+            <div id="current-product-img" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <a href="#">
+                    <img t-att-src="product.image" class="center-block img-responsive"/>
+                </a>
+            </div>
+            <div id="current-product-description" class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                <h3><span t-esc="product.name"/></h3>
+                <span t-esc="product.description"/>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="inventory_quantity">
+        <div class="row">
+            <div class="col-md-3">
+                <h4>Quantity in Location</h4>
+            </div>
+            <div class="col-md-2">
+                <h4>Confirm</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div id="quantity" class="input-group">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                    </span>
+                    <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <div id="label-ok">
+                    <span>
+                        <button class="btn btn-default" text="255" id="ok_button" data-dir="valid"><span class="glyphicon glyphicon-ok"></span></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="worklocation_result">
+        <!-- cart selection modal -->
+        <div class="row">
+            <t t-foreach="worklocations" t-as="worklocation">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
+                </a>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="change_user">
+        <!-- cart selection modal -->
+        <div class="row">
+            <div class="col-md-3" />
+            <div class="col-md-6" >
+                <form class="oe_login_form" role="form" method="post" _lpchecked="1">
+                    <div id="login-image" style="display:none"></div>
+                    <div class="form-group">
+                        <label for="login" class="control-label">Email</label>
+                        <input id="login" type="text" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control-label">Password</label>
+                        <input id="password" type="password" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" />
+        </div>
+    </t>
+
+    <t t-name="change_user_footer">
+        <a id="modal_changer_user_button" href="#" class="btn btn-success">
+            Change User
+        </a>
+    </t>
+
+    <t t-name="exception_modal">
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+                <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <h2><t t-esc="error"/></h2>
+                <p class="error-message">
+                    <t t-esc="message"/>
+                </p>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="numpad">
+        <button id="manual-barcode-input" type="button" class="btn btn-info button-touch">
+            <i class="fa fa-barcode button-touch-icon" aria-hidden="true"></i>
+        </button>
+        <div class="num-pad">
+            <input id="manual-barcode" type="text" class="form-control text-center numpad-control-picking"/>
+
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>2</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>3</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>4</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>5</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>6</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>7</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>8</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>9</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>C</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>Enter</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

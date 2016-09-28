@@ -38,8 +38,8 @@
                             </a>
                         </div>
                         <div class="col-md-4">
-                            <a id="goto_create_inventory" type="button" href="#" class="btn goto-button inventory">
-                                My Inventories<br/>
+                            <a id="goto_create_inventory" type="button" href="/inventory_update" class="btn goto-button inventory">
+                                Update Inventory<br/>
                                 <i class="fa fa-cubes big-icon" aria-hidden="true"></i>
                             </a>
                             <!-- Keep it just in case :)-->

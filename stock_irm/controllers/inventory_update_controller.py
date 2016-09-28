@@ -29,7 +29,7 @@ class InventoryUpdateController(http.Controller):
         env = http.request.env
         current_user = env['res.users'].browse(http.request.uid)
 
-        return http.request.render('inventory_update.inventory_update_screen', {
+        return http.request.render('stock_irm.inventory_update_screen', {
             'status': 'ok',
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
