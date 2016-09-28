@@ -501,7 +501,7 @@ product id: %s, supplier id: %s
 
         wizard.write({
             'item_ids': [(5,0,0)],
-            'packop_ids': [(5,0,0)(0, False, line)]
+            'packop_ids': [(5,0,0),(0, False, line)]
         })
 
         wizard.sudo().do_detailed_transfer()
