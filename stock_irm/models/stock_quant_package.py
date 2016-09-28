@@ -27,6 +27,8 @@ class StockQuantPackage(models.Model):
 
     _inherit = "stock.quant.package"
 
+    _parent_store = False
+
     barcode = fields.Char("Barcode")
 
     _sql_constraints = [
