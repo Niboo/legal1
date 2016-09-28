@@ -34,7 +34,7 @@ class InventoryUpdateController(http.Controller):
             'user_name': current_user.partner_id.name,
             'worklocation_name': current_user.work_location_id.name,
             'worklocation_id': current_user.work_location_id.id or 0,
-            'title': 'Inventory Update',
+            'title': 'Inventory',
             'user_email': current_user.partner_id.email,
         })
 
@@ -42,9 +42,10 @@ class InventoryUpdateController(http.Controller):
     def get_location(self, barcode, **kw):
         env = http.request.env
 
+        print barcode
         # retrieve the scanned location
         location = env['stock.location'].search(
-            [('barcode', '=', barcode)]
+            [('loc_barcode', '=', barcode)]
         )
 
         if not location:
@@ -54,6 +55,7 @@ class InventoryUpdateController(http.Controller):
             }
 
         return {
+            'status': 'ok',
             'location_id': location.id,
             'location_name': location.name,
         }

@@ -6,15 +6,11 @@
             <div id="results" class="scan-row">
                 <div class="row">
                     <div class="col-xs-12 text-center">
-                        <div id="message_box"><h1>test message</h1></div>
-                        <div id="inventory_location">
-                            <t t-call="current_location"/>
+                        <div id="message_box" class="alert alert-warning info-prompt">
+                            <h1>Please scan the location</h1>
                         </div>
-                        <div id="inventory_product">
-                            <t t-call="current_product"/>
-                        </div>
-                        <div id="inventory_quantity">
-                            <t t-call="quantity"/>
+                        <div id="">
+
                         </div>
                     </div>
                 </div>

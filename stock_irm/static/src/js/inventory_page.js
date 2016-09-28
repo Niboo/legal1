@@ -35,10 +35,16 @@
             QWeb.add_template('/stock_irm/static/src/xml/inventory.xml', function(){
                 self.start();
             });
+
+
         },
         start: function() {
             var self = this;
+            console.log("start")
             self._super();
+            self.$elem = $(QWeb.render(self.template));
+            $('#content').html(self.$elem);
+
             self.add_listener_for_barcode();
             self.add_listener_on_numpad();
         },
@@ -65,11 +71,14 @@
             barcode = barcode.replace(/[\s]*/g, '');
 
             if(!self.location_id){
+                console.log("apres")
+
                 self.session.rpc('/inventory_update/get_location', {
                     'barcode': barcode
                 }).then(function(data){
                     if(data.status == "ok"){
                         self.location_id = data.location_id;
+                        self.$elem.find('#message_box').switchClass("alert-warning", "alert-info", 100)
                     }else{
                         var modal = new instance.stock_irm.modal.not_found_modal();
                         modal.start(data.message);
