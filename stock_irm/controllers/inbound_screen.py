@@ -460,7 +460,6 @@ product id: %s, supplier id: %s
         result = picking.do_enter_transfer_details()
         wizard_id = result['res_id']
         my_wizard = env['stock.transfer_details'].browse(wizard_id)
-        my_wizard.item_ids.unlink()
 
         dest_package = self.search_dest_package(box_name)
 
@@ -474,7 +473,7 @@ product id: %s, supplier id: %s
         }
 
         my_wizard.write({
-            'item_ids': [(0, False, line)]
+            'item_ids': [(5,0,0),(0, False, line)]
         })
 
         my_wizard.sudo().do_detailed_transfer()

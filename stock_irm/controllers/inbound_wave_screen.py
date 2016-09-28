@@ -288,7 +288,7 @@ class InboundWaveController(http.Controller):
 
             package = move.reserved_quant_ids \
                       and move.reserved_quant_ids[0].package_id
-            quant = package.quant_ids
+            quant = package.quant_ids[0]
             product = quant.product_id
             total_qty = quant.qty
             dest_location = move.location_dest_id
