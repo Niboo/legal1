@@ -89,6 +89,8 @@
         <template id="stock_irm.assets_inventory" name="Stock IRM assets for Inventory">
             <script type="text/javascript" src="/stock_irm/static/src/js/inventory_page.js"></script>
             <script type="text/javascript" src="/stock_irm/static/src/js/inventory_modal.js"></script>
+            <script type="text/javascript" src="/web/static/lib/jquery.ui//js/jquery-ui-1.9.1.custom.js"></script>
+
             <link href="/stock_irm/static/src/css/inventory.css" rel="stylesheet"/>
         </template>
 

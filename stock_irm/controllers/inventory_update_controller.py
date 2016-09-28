@@ -42,7 +42,6 @@ class InventoryUpdateController(http.Controller):
     def get_location(self, barcode, **kw):
         env = http.request.env
 
-        print barcode
         # retrieve the scanned location
         location = env['stock.location'].search(
             [('loc_barcode', '=', barcode)]
@@ -89,8 +88,8 @@ class InventoryUpdateController(http.Controller):
     @http.route('/inventory_update/update_product_quantity',
                 type='json', auth='user')
     def update_product_quantity(self, location_id, product_id, quantity, **kw):
+        env = http.request.env
         try:
-            env = http.request.env
             wizard = env['stock.change.product.qty'].create({
                 'location_id': int(location_id),
                 'product_id': int(product_id),

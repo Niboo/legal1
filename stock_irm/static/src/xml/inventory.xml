@@ -7,11 +7,27 @@
                 <div class="row">
                     <div class="col-xs-12 text-center">
                         <div id="message_box" class="alert alert-warning info-prompt">
-                            <h1>Please scan the location</h1>
+                            <h1 id="message">Please scan the location</h1>
                         </div>
                         <div id="">
 
                         </div>
+                        <div id="quantity_box" class="col-md-3" style="display:none;">
+                            <div id="quantity" class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                                </span>
+                                <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                                </span>
+                            </div>
+                        </div>
+                        <a href="#" id="validate" class="col-md-3 btn btn-lg btn-success pull-right">Validate this line
+                            <t t-if="nb_product_more>0">
+                                <span>and create an extra box</span>
+                            </t>
+                        </a>
                     </div>
                 </div>
             </div>

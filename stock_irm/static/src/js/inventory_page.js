@@ -40,7 +40,6 @@
         },
         start: function() {
             var self = this;
-            console.log("start")
             self._super();
             self.$elem = $(QWeb.render(self.template));
             $('#content').html(self.$elem);
@@ -71,14 +70,13 @@
             barcode = barcode.replace(/[\s]*/g, '');
 
             if(!self.location_id){
-                console.log("apres")
-
                 self.session.rpc('/inventory_update/get_location', {
                     'barcode': barcode
                 }).then(function(data){
                     if(data.status == "ok"){
                         self.location_id = data.location_id;
                         self.$elem.find('#message_box').switchClass("alert-warning", "alert-info", 100)
+                        self.$elem.find('#message').html('Please scan the product')
                     }else{
                         var modal = new instance.stock_irm.modal.not_found_modal();
                         modal.start(data.message);
@@ -89,7 +87,12 @@
                     'barcode': barcode
                 }).then(function(data){
                     if(data.status == "ok"){
-                        self.product_id = data.product_id;
+                        self.product_id = data.product.id;
+                        self.$elem.find('#message_box').switchClass("alert-info", "alert-success", 100)
+                        self.$elem.find('#message').html('Please select the quantity')
+                        self.$elem.find('#quantity_box').show();
+                        self.add_listener_on_quantity();
+                        self.add_listener_on_validate();
                     }else{
                         var modal = new instance.stock_irm.modal.not_found_modal();
                         modal.start(data.message);
@@ -97,6 +100,60 @@
                 });
             }
         },
+
+        add_listener_on_quantity: function(){
+            var self = this;
+            self.$elem.find('#quantity button').click(function(event){
+                var qty = parseInt($('#quantity input').val());
+
+                if($(event.currentTarget).attr('data-dir') == 'up'){
+                    qty++;
+                } else if ($(event.currentTarget).attr('data-dir') == 'dwn'){
+                    if(qty > 0){
+                        qty--;
+                    }
+                }
+                $('#quantity input').val(qty);
+                // force to lose focus to avoid adding +1 when scanning another product
+                $(':focus').blur()
+            });
+
+            self.$elem.find('#quantity_to_print').keyup(function(event){
+                $('#quantity_to_print').val(event.currentTarget.value);
+                self.quantity_to_print = parseInt(event.currentTarget.value);
+                self.color_printed_labels(self.quantity_to_print);
+            })
+        },
+
+        add_listener_on_validate: function(){
+            var self = this;
+            self.$elem.find('#validate').click(function(event){
+                var qty = parseInt(self.$elem.find('#input_quantity').val());
+                console.log(self.product_id)
+                console.log(self.location_id)
+                console.log(qty)
+
+                self.session.rpc('/inventory_update/update_product_quantity', {
+                    'product_id': self.product_id,
+                    'location_id': self.location_id,
+                    'quantity': qty,
+                }).then(function(data){
+                    if(data.status == "ok"){
+                        var modal = new instance.stock_irm.modal.confirm_update_modal();
+                        modal.start();
+                        window.setTimeout(function(){
+                            window.location.href = "/inventory_update";
+                        }, 3000);
+                    }else{
+                        //var modal = new instance.stock_irm.modal.not_found_modal();
+                        //modal.start(data.message);
+                    }
+                });
+            })
+
+        }
+
+
     });
 
     instance.stock_irm.inventory_page = new inventory_page();

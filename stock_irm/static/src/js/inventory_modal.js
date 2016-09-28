@@ -64,5 +64,27 @@
 
     instance.stock_irm.modal.confirm_update_modal = confirm_update_modal;
 
+    var error_modal_inventory = instance.stock_irm.modal.widget.extend({
+        init: function () {
+            var self = this;
+            this._super();
+            self.title = 'An error occured';
+            self.block_modal = false;
+        },
+        start: function (message) {
+            var self = this;
+            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>"+message+"</b>";
+            this._super();
+            self.add_listener_on_close();
+        },
+        add_listener_on_close: function(){
+            var self = this;
+            self.$modal.find('#close').click(function(event){
+                self.$modal.modal('hide');
+            })
+        },
+    });
+
+    instance.stock_irm.modal.error_modal_inventory = error_modal_inventory;
 
 })();
