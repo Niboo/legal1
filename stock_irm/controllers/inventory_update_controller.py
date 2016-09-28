@@ -66,6 +66,12 @@ class InventoryUpdateController(http.Controller):
             ('default_code', '=', barcode)
         ])
 
+        if not product:
+            return {
+                'status': 'error',
+                'message': "No product has been found with this barcode"
+            }
+
         return {
             'status': 'ok',
             'product': {
