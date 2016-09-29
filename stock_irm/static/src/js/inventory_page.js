@@ -31,6 +31,7 @@
             var self = this;
             self.location_id = false;
             self.product_id = false;
+            self.go_to_product = false;
             self.template = 'inventory_layout';
             QWeb.add_template('/stock_irm/static/src/xml/inventory.xml', function(){
                 self.start();
@@ -76,13 +77,22 @@
                     if(data.status == "ok"){
                         self.$elem.find('#location_info').html("<h2>"+data.location_name+"</h2>")
                         self.location_id = data.location_id;
-                        self.$elem.find('#message_box').switchClass("alert-warning", "alert-info", 100)
-                        self.$elem.find('#message').html('Please scan the product')
+                        self.product_id = data.product.id;
+                        self.go_to_product = true;
+                        self.$elem.find('#message_box').switchClass("alert-warning", "alert-info", 100);
+                        self.$elem.find('#message').html('Select quantity or scan product in this location');
+                        self.$elem.find('#quantity_box').show();
+                        self.$elem.find('#product_info').html($(QWeb.render('product_info', {
+                            product: data.product
+                        })));
+                        self.$elem.find('#input_quantity').val("0");
+                        self.add_listener_on_quantity();
+                        self.add_listener_on_validate();
                     }else{
                         self.display_error('Error', data.message);
                     }
                 });
-            }else if(!self.product_id){
+            }else if(!self.product_id || self.go_to_product){
                 self.session.rpc('/inventory_update/get_product', {
                     'barcode': barcode
                 }).then(function(data){
@@ -94,8 +104,7 @@
                         self.$elem.find('#product_info').html($(QWeb.render('product_info', {
                             product: data.product
                         })));
-                        self.add_listener_on_quantity();
-                        self.add_listener_on_validate();
+                        self.$elem.find('#input_quantity').val("1");
                     }else{
                         self.display_error('Error', data.message);
                     }
@@ -144,7 +153,7 @@
                         modal.start();
                         window.setTimeout(function(){
                             window.location.href = "/inventory_update";
-                        }, 3000);
+                        }, 1500);
                     }
                 });
             })

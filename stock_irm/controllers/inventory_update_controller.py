@@ -53,16 +53,30 @@ class InventoryUpdateController(http.Controller):
                 'message': "No location has been found with this barcode"
             }
 
-        if len(location) > 2:
+        if len(location) > 1:
             return {
                 'status': 'error',
                 'message': "More than one location has been found with this barcode"
             }
 
+        putaway_strategy_ids = env['stock.product.putaway.strategy'].search([
+            ('fixed_location_id.id', '=', location.id)])
+
+        # if there are several strategies with this location, take the first one
+        product = putaway_strategy_ids[0].product_product_id
+
         return {
             'status': 'ok',
             'location_id': location.id,
             'location_name': location.name,
+            'product': {
+                'id': product.id,
+                'name': product.name,
+                'description': product.description or 'No description',
+                'default_code': product.default_code,
+                'barcodes': [product.ean13 or ''],
+                'image': '/web/binary/image?model=product.product&id=%s&field=image' % product.id,
+            }
         }
 
     @http.route('/inventory_update/get_product', type='json', auth='user')
