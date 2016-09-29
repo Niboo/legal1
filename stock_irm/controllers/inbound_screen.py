@@ -84,8 +84,7 @@ SELECT pp.id, pt.name
 FROM product_template AS pt
   JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
   JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id
-  LEFT JOIN xx_product_supplierinfo_tags AS psitags on psitags.res_id = psi.id,
-  res_partner AS rp
+  LEFT JOIN xx_product_supplierinfo_tags AS psitags on psitags.res_id = psi.id
 
 WHERE (pt.name ilike %s
 OR pp.ean13 ilike %s
@@ -94,8 +93,7 @@ OR psitags.name ilike %s
 OR psi.product_code ilike %s)
 
 AND pt.sale_ok IS TRUE
-AND psi.name = rp.id
-AND rp.commercial_partner_id = %s
+AND psi.name = %s
 GROUP BY pt.name, pp.id
 ORDER BY pp.id
 LIMIT %s
@@ -108,8 +106,7 @@ SELECT count(*)
 FROM product_template AS pt
   JOIN product_product AS pp ON pp.product_tmpl_id = pt.id
   JOIN product_supplierinfo AS psi ON pt.id = psi.product_tmpl_id
-  LEFT JOIN xx_product_supplierinfo_tags AS psitags on psitags.res_id = psi.id,
-  res_partner AS rp
+  LEFT JOIN xx_product_supplierinfo_tags AS psitags on psitags.res_id = psi.id
 
 WHERE (pt.name ilike %s
 OR pp.ean13 ilike %s
@@ -118,8 +115,7 @@ OR psitags.name ilike %s
 OR psi.product_code ilike %s)
 
 AND pt.sale_ok IS TRUE
-AND psi.name = rp.id
-AND rp.commercial_partner_id = %s
+AND psi.name = %s
 """, [search, search, search, search, search, supplier_id])
 
         products_count = cr.fetchall()
@@ -152,11 +148,7 @@ AND rp.commercial_partner_id = %s
         supplier_childs = supplier.child_ids
 
         supplier_info = product.seller_ids.filtered(
-            lambda r: r.name.id == supplier.id or
-                      r.name.id in supplier_childs.ids)
-
-        requires_unpack = supplier_info.requires_unpack
-        requires_relabel = supplier_info.requires_relabel
+            lambda r: r.name.id == supplier.id)
 
         if len(supplier_info) != 1:
             results = {
@@ -167,6 +159,9 @@ product id: %s, supplier id: %s
 """ % (product.id, supplier_id)
             }
             return results
+
+        requires_unpack = supplier_info.requires_unpack
+        requires_relabel = supplier_info.requires_relabel
 
         barcodes = supplier_info.xx_tag_ids.mapped('name')
         if product.ean13:
@@ -238,8 +233,7 @@ product id: %s, supplier id: %s
         supplier = env['res.partner'].search([('id', '=', int(supplier))])
 
         purchase_orders = env['purchase.order'].search([
-            ('partner_id.commercial_partner_id', '=',
-             supplier.commercial_partner_id.id),
+            ('partner_id', '=', supplier.id),
             ('state', '=', 'approved'),
             ('shipped', '=', False),
         ], order="date_order ASC")
