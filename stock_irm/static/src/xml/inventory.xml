@@ -13,28 +13,32 @@
                     </div>
                 </div>
                 <div class="row" id="current_product">
-                    <div class="col-xs-3">
-                        <div id="location_info">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="location_info">
 
+                            </div>
                         </div>
                     </div>
-                    <div class="col-xs-6">
-                        <div id="product_info">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-8">
+                            <div id="product_info">
 
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-xs-3">
-                        <div id="quantity_box" style="display:none;">
-                             <div id="quantity" class="input-group">
-                                 <span class="input-group-btn">
-                                     <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-                                 </span>
-                                 <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
-                                 <span class="input-group-btn">
-                                     <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-                                 </span>
-                             </div>
-                         </div>
+                        <div class="col-xs-12 col-sm-4">
+                            <div id="quantity_box" style="display:none;">
+                                <div id="quantity" class="input-group">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                                    </span>
+                                    <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

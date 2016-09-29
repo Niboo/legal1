@@ -43,6 +43,9 @@ html, body {
 {
     width: 70px;
 }
+#input_quantity {
+    min-width: 80px;
+}
 
 #quantity .btn, #label-quantity .btn, #label-printed .btn, #label-ok .btn
 {
