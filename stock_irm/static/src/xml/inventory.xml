@@ -4,38 +4,51 @@
     <t t-name="inventory_layout">
         <div class="container">
             <div id="results" class="scan-row">
+
                 <div class="row">
                     <div class="col-xs-12 text-center">
                         <div id="message_box" class="alert alert-warning info-prompt">
                             <h1 id="message">Please scan the location</h1>
                         </div>
-                        <div id="">
-
-                        </div>
-                        <div id="quantity_box" class="col-md-3" style="display:none;">
-                            <div id="quantity" class="input-group">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-                                </span>
-                                <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-                                </span>
-                            </div>
-                        </div>
-                        <a href="#" id="validate" class="col-md-3 btn btn-lg btn-success pull-right">Validate this line
-                            <t t-if="nb_product_more>0">
-                                <span>and create an extra box</span>
-                            </t>
-                        </a>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div id="bottom-div">
-            <div class="row">
-                <div class="col-xs-2 numpad-above">
-                    <t t-call="numpad"/>
+                <div class="row">
+                    <div id="bottom-div">
+                        <div class="row">
+                            <div class="col-xs-2 numpad-above">
+                                <t t-call="numpad"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3">
+                        <div id="location_info">
+
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div id="product_info">
+
+                        </div>
+                    </div>
+                    <div class="col-xs-3">
+                        <div id="quantity_box" style="display:none;">
+                             <div id="quantity" class="input-group">
+                                 <span class="input-group-btn">
+                                     <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                                 </span>
+                                 <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
+                                 <span class="input-group-btn">
+                                     <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                                 </span>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <a href="#" id="validate" style="display:none; margin-top: 25px;" class="col-md-3 btn btn-lg btn-success pull-right"><h3>Update inventory</h3></a>
                 </div>
             </div>
         </div>
@@ -143,6 +156,7 @@
             </div>
         </div>
     </t>
+
 
     <t t-name="numpad">
         <button id="manual-barcode-input" type="button" class="btn btn-info button-touch">

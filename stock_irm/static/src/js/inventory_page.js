@@ -74,12 +74,12 @@
                     'barcode': barcode
                 }).then(function(data){
                     if(data.status == "ok"){
+                        self.$elem.find('#location_info').html("<h2>"+data.location_name+"</h2>")
                         self.location_id = data.location_id;
                         self.$elem.find('#message_box').switchClass("alert-warning", "alert-info", 100)
                         self.$elem.find('#message').html('Please scan the product')
                     }else{
-                        var modal = new instance.stock_irm.modal.not_found_modal();
-                        modal.start(data.message);
+                        self.display_error('Error', data.message);
                     }
                 });
             }else if(!self.product_id){
@@ -88,14 +88,15 @@
                 }).then(function(data){
                     if(data.status == "ok"){
                         self.product_id = data.product.id;
-                        self.$elem.find('#message_box').switchClass("alert-info", "alert-success", 100)
-                        self.$elem.find('#message').html('Please select the quantity')
+                        self.$elem.find('#message_box').switchClass("alert-info", "alert-success", 100);
+                        self.$elem.find('#message').html('Please select the quantity');
                         self.$elem.find('#quantity_box').show();
+                        console.log(data.product.image)
+                        self.$elem.find('#product_info').html('<img id="product_image" src="'+data.product.image+'" class="center-block img-responsive medium-image"/>');
                         self.add_listener_on_quantity();
                         self.add_listener_on_validate();
                     }else{
-                        var modal = new instance.stock_irm.modal.not_found_modal();
-                        modal.start(data.message);
+                        self.display_error('Error', data.message);
                     }
                 });
             }
@@ -127,11 +128,10 @@
 
         add_listener_on_validate: function(){
             var self = this;
+            self.$elem.find('#validate').show();
             self.$elem.find('#validate').click(function(event){
                 var qty = parseInt(self.$elem.find('#input_quantity').val());
-                console.log(self.product_id)
-                console.log(self.location_id)
-                console.log(qty)
+
 
                 self.session.rpc('/inventory_update/update_product_quantity', {
                     'product_id': self.product_id,
@@ -144,9 +144,6 @@
                         window.setTimeout(function(){
                             window.location.href = "/inventory_update";
                         }, 3000);
-                    }else{
-                        //var modal = new instance.stock_irm.modal.not_found_modal();
-                        //modal.start(data.message);
                     }
                 });
             })

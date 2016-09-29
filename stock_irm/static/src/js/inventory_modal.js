@@ -25,29 +25,6 @@
         _lt = instance._lt;
     var QWeb = instance.qweb;
 
-    var not_found_modal = instance.stock_irm.modal.widget.extend({
-        init: function () {
-            var self = this;
-            this._super();
-            self.title = 'Barcode not found';
-            self.block_modal = false;
-        },
-        start: function (message) {
-            var self = this;
-            self.$body = "<i class='fa fa-times fa-10x' style='color:red'></i><b style='font-size: 2em'>"+message+"</b>";
-            this._super();
-            self.add_listener_on_close();
-        },
-        add_listener_on_close: function(){
-            var self = this;
-            self.$modal.find('#close').click(function(event){
-                self.$modal.modal('hide');
-            })
-        },
-    });
-
-    instance.stock_irm.modal.not_found_modal = not_found_modal;
-
     var confirm_update_modal = instance.stock_irm.modal.widget.extend({
         init: function () {
             var self = this;

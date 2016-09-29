@@ -53,6 +53,12 @@ class InventoryUpdateController(http.Controller):
                 'message': "No location has been found with this barcode"
             }
 
+        if len(location) > 2:
+            return {
+                'status': 'error',
+                'message': "More than one location has been found with this barcode"
+            }
+
         return {
             'status': 'ok',
             'location_id': location.id,
@@ -71,6 +77,12 @@ class InventoryUpdateController(http.Controller):
             return {
                 'status': 'error',
                 'message': "No product has been found with this barcode"
+            }
+
+        if len(product) > 2:
+            return {
+                'status': 'error',
+                'message': "More than one product has been found with this barcode"
             }
 
         return {
