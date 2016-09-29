@@ -44,7 +44,7 @@ class InventoryUpdateController(http.Controller):
 
         # retrieve the scanned location
         location = env['stock.location'].search(
-            [('loc_barcode', '=', barcode)]
+            [('name', '=', barcode)]
         )
 
         if not location:

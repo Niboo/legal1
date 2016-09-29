@@ -1,3 +1,36 @@
+/* Layout */
+html, body {
+    background-color: #f1f1f1;
+    width: 100%;
+    height: 100%;
+}
+
+
+#current_product {
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    min-height: 350px;
+}
+#bottom-div {
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+    padding: 30px;
+    background-color: white;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+.numpad-above .num-pad{
+    left: 25%;
+    bottom: 80px;
+}
+.alert-row {
+    padding-left:0px;
+    padding-right:0px;
+}
+
 #quantity .btn, #quantity .btn, #quantity input,
 #label-quantity .btn, #label-quantity input,
 #label-printed .btn,
@@ -21,21 +54,9 @@
 }
 
 .medium-image{
-    height:50%;
+    height:300px;
 }
 
 .fa-10x {
   font-size: 10em;
-}
-
-#bottom-div {
-    position: fixed;
-    width: 100%;
-    bottom: 0px;
-    padding: 30px;
-    background-color: white;
-}
-.numpad-above .num-pad{
-    left: 25%;
-    bottom: 80px;
 }

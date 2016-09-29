@@ -6,22 +6,13 @@
             <div id="results" class="scan-row">
 
                 <div class="row">
-                    <div class="col-xs-12 text-center">
+                    <div class="col-xs-12 text-center alert-row">
                         <div id="message_box" class="alert alert-warning info-prompt">
                             <h1 id="message">Please scan the location</h1>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div id="bottom-div">
-                        <div class="row">
-                            <div class="col-xs-2 numpad-above">
-                                <t t-call="numpad"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
+                <div class="row" id="current_product">
                     <div class="col-xs-3">
                         <div id="location_info">
 
@@ -46,61 +37,30 @@
                          </div>
                     </div>
                 </div>
-
-                <div class="row">
-                    <a href="#" id="validate" style="display:none; margin-top: 25px;" class="col-md-3 btn btn-lg btn-success pull-right"><h3>Update inventory</h3></a>
+            </div>
+        </div>
+        <div class="row">
+            <div id="bottom-div">
+                <div class="row" id="bottom-row">
+                    <div class="col-xs-2 numpad-above">
+                        <t t-call="numpad"/>
+                    </div>
+                    <div class="col-xs-2 pull-right">
+                        <a href="#" id="validate" style="display:none;" class="col-md-3 btn btn-success button-touch pull-right"><h3>Update</h3></a>
+                    </div>
                 </div>
             </div>
         </div>
     </t>
 
-    <t t-name="current_location">
+    <t t-name="product_info">
         <div class="row">
-            <h3><span t-esc="location_name"/></h3>
-        </div>
-    </t>
-
-    <t t-name="current_product">
-        <div id="current-product-name-row" class="row">
-            <div id="current-product-img" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                <a href="#">
-                    <img t-att-src="product.image" class="center-block img-responsive"/>
-                </a>
+            <div class="col-xs-6">
+                <img id="product_image" t-att-src="product.image" class="center-block img-responsive medium-image"/>
             </div>
-            <div id="current-product-description" class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+            <div class="col-xs-6">
                 <h3><span t-esc="product.name"/></h3>
-                <span t-esc="product.description"/>
-            </div>
-        </div>
-    </t>
-
-    <t t-name="inventory_quantity">
-        <div class="row">
-            <div class="col-md-3">
-                <h4>Quantity in Location</h4>
-            </div>
-            <div class="col-md-2">
-                <h4>Confirm</h4>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3">
-                <div id="quantity" class="input-group">
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
-                    </span>
-                    <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
-                    </span>
-                </div>
-            </div>
-            <div class="col-md-1">
-                <div id="label-ok">
-                    <span>
-                        <button class="btn btn-default" text="255" id="ok_button" data-dir="valid"><span class="glyphicon glyphicon-ok"></span></button>
-                    </span>
-                </div>
+                <p><span t-esc="product.description"/></p>
             </div>
         </div>
     </t>

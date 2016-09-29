@@ -91,8 +91,9 @@
                         self.$elem.find('#message_box').switchClass("alert-info", "alert-success", 100);
                         self.$elem.find('#message').html('Please select the quantity');
                         self.$elem.find('#quantity_box').show();
-                        console.log(data.product.image)
-                        self.$elem.find('#product_info').html('<img id="product_image" src="'+data.product.image+'" class="center-block img-responsive medium-image"/>');
+                        self.$elem.find('#product_info').html($(QWeb.render('product_info', {
+                            product: data.product
+                        })));
                         self.add_listener_on_quantity();
                         self.add_listener_on_validate();
                     }else{
