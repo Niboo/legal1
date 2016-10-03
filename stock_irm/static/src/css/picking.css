@@ -1,0 +1,220 @@
+/* WAVE SCREEN */
+
+/* Layout */
+html, body {
+    background-color: #f1f1f1;
+    width: 100%;
+    height: 100%;
+}
+.navbar {
+    position: fixed;
+    width: 100%;
+    z-index: 500;
+}
+
+
+/* Pull nav-bar button left */
+#wave-id-li {
+    margin-left: -15px;
+}
+#content {
+    top: 70px;
+    position: relative;
+}
+#picking-list {
+    position: fixed;
+    top: 70px;
+    width: 14%;
+}
+#product-list {
+    position: relative;
+}
+#current_product {
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+#current-product-name-row {
+    min-height: 300px;
+}
+#current-product-quantity-row {
+    min-height: 110px;
+}
+
+/* Picking Waves Progress Bar*/
+/* Overwrite template.css */
+.picking_progress {
+    background-color: rgba(255,148,148,1.0);
+    font-size: 1em;
+    height: 40px;
+}
+.list-group-item {
+    background-color: #f1f1f1;
+    padding: 5px;
+}
+.progress {
+    margin: 0px;
+}
+.progress-bar {
+    -webkit-box-shadow: inset 0 0px 0 rgba(0, 0, 0, 0);
+    box-shadow: inset 0 0px 0 rgba(0, 0, 0, 0);
+}
+/* Overwrite template.css */
+.picking_done {
+    background-color: rgba(159,204,135,1.0);
+}
+#picking-name {
+    padding: 5px;
+    padding-top: 7px;
+    position: absolute;
+    color: #fff;
+    font-size: 18px;
+}
+
+/* Product */
+
+/* Current Product */
+.input-picking {
+    min-width: 150px;
+    margin-right: auto;
+    margin-left: auto;
+}
+#quantity_wave .btn, #quantity_wave .btn, #quantity_wave input,
+#label-quantity .btn, #label-quantity input,
+#label-printed .btn, #label-printed .btn,
+#label-printed input
+{
+    height: 100px;
+    width: 100px;
+}
+.form-control-picking {
+    font-size: 4em;
+    height: 100px;
+    padding: 0px;
+    min-width: 50px;
+    max-width: 150px;
+    line-height: 1.8;
+}
+/*.buttons-product {*/
+    /*font-size: 5em;*/
+    /*width: 150px;*/
+    /*margin-bottom: 15px;*/
+/*}*/
+.current-product-buttons {
+    padding-top: 15px;
+}
+#next-product-img, #picking-product-img {
+    max-width: 100px;
+}
+#current-product-img {
+    max-width: 500px;
+}
+#current-product-img h3, #current-product-description h3 {
+    margin-top: 0px;
+}
+.buttons-icons-quantity {
+    line-height: 2.8;
+}
+#quantity-input-value {
+ min-width: 150px;
+}
+
+/* Next Products */
+#next-products-table td, #picking-info-table td {
+    height: 100px;
+    border: 0px;
+    vertical-align: middle;
+}
+#next-products-table tr, #picking-info-table tr {
+    border-top: 1px solid #ddd;
+}
+#next-products-table tr:first-child, #picking-info-table tr:first-child {
+    border-top: 0px;
+}
+#next-product-img {
+    padding-left: 0px;
+}
+
+/* SELECT WAVE SCREEN */
+
+.a_picking{
+    border: 0px;
+    padding: 0px 0px;
+}
+
+#create-wave{
+    position: relative;
+    text-align: center;
+    font-size: 3em;
+    background-color: #d9534f;
+    color: #fff;
+    width:50%;
+    margin:0 auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-radius: 5px;
+}
+
+#create-wave:hover{
+    background-color: #c9433f;
+    color: #fff;
+    cursor: hand;
+}
+
+#current_picking{
+    text-align: center;
+    background-color: #d9534f;
+    color: #fff;
+    width:50%;
+    margin:0 auto;
+}
+
+#current_picking:hover{
+    background-color: #c9433f;
+    color: #fff;
+    cursor: hand;
+}
+
+#choose-wave{
+    text-align: center;
+    font-size: 5em;
+    background-color: #d98e53;
+    color: #fff;
+    width:50%;
+    margin:0 auto;
+}
+
+#choose-wave:hover{
+    background-color: #d98e53;
+    color: #fff;
+    cursor: hand;
+}
+
+.img-300{
+    max-width: 300px;
+    max-height: 300px;
+}
+
+.fa-5x {
+  font-size: 5em;
+}
+
+.wave-row{
+    width: 50%;
+}
+
+.wave-div{
+    margin-top: 10px;
+}
+
+.time-complete{
+    text-align:center;
+    color:red;
+    font-size: 3em;
+}
+
+.end-box{
+   margin: 2% 4% 2% 4%;
+   height: 100px;
+}

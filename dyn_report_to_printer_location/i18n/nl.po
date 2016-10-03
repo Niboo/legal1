@@ -1,0 +1,155 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* dyn_report_to_printer_location
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-12-15 15:00+0000\n"
+"PO-Revision-Date: 2015-12-15 15:00+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,create_uid:0
+#: field:work_location,create_uid:0
+#: field:work_location_printer,create_uid:0
+msgid "Created by"
+msgstr "Created by"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,create_date:0
+#: field:work_location,create_date:0
+#: field:work_location_printer,create_date:0
+msgid "Created on"
+msgstr "Created on"
+
+#. module: dyn_report_to_printer_location
+#: field:work_location,user_id:0
+msgid "Current/Last User"
+msgstr "Huidige/laatste gebruiker"
+
+#. module: dyn_report_to_printer_location
+#: field:work_location_printer,printing_printer_id:0
+msgid "Default Printer"
+msgstr "Standaardprinter"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,display_name:0
+#: field:work_location,display_name:0
+#: field:work_location_printer,display_name:0
+msgid "Display Name"
+msgstr "Weergavenaam"
+
+#. module: dyn_report_to_printer_location
+#: field:ir.actions.report.xml,document_type_id:0
+#: model:ir.model,name:dyn_report_to_printer_location.model_document_type
+#: field:work_location_printer,document_type_id:0
+msgid "Document Type"
+msgstr "Documenttype"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,id:0
+#: field:work_location,id:0
+#: field:work_location_printer,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,__last_update:0
+#: field:work_location,__last_update:0
+#: field:work_location_printer,__last_update:0
+msgid "Last Modified on"
+msgstr "Last Modified on"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,write_uid:0
+#: field:work_location,write_uid:0
+#: field:work_location_printer,write_uid:0
+msgid "Last Updated by"
+msgstr "Last Updated by"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,write_date:0
+#: field:work_location,write_date:0
+#: field:work_location_printer,write_date:0
+msgid "Last Updated on"
+msgstr "Last Updated on"
+
+#. module: dyn_report_to_printer_location
+#: field:document_type,name:0
+#: field:work_location,name:0
+msgid "Name"
+msgstr "Naam"
+
+#. module: dyn_report_to_printer_location
+#: model:ir.model,name:dyn_report_to_printer_location.model_printing_action
+msgid "Print Job Action"
+msgstr "Actie printjob"
+
+#. module: dyn_report_to_printer_location
+#: model:ir.model,name:dyn_report_to_printer_location.model_printing_printer
+msgid "Printer"
+msgstr "Printer"
+
+#. module: dyn_report_to_printer_location
+#: model:ir.model,name:dyn_report_to_printer_location.model_work_location_printer
+#: field:work_location,work_location_printer_ids:0
+msgid "Printers"
+msgstr "Printers"
+
+#. module: dyn_report_to_printer_location
+#: field:work_location_printer,printing_action:0
+msgid "Printing action"
+msgstr "Printactie"
+
+#. module: dyn_report_to_printer_location
+#: model:ir.model,name:dyn_report_to_printer_location.model_printing_report_xml_action
+msgid "Report Printing Actions"
+msgstr "Printacties rapporten"
+
+#. module: dyn_report_to_printer_location
+#: field:res.users,reset_work_location:0
+msgid "Reset work location upon login"
+msgstr "Werklocatie resetten bij elke login"
+
+#. module: dyn_report_to_printer_location
+#: help:res.users,reset_work_location:0
+msgid "Reset work location upon login, and prevent printing of any documents until the work location is reconfigured for the current session"
+msgstr "Bij het inloggen wordt de werklocatie leeggemaakt, en het printen van documenten wordt pas weer mogelijk als er voor de sessie een werklocatie wordt ingesteld"
+
+#. module: dyn_report_to_printer_location
+#: sql_constraint:work_location:0
+msgid "User must be unique!"
+msgstr "De medewerker moet uniek zijn"
+
+#. module: dyn_report_to_printer_location
+#: model:ir.model,name:dyn_report_to_printer_location.model_res_users
+msgid "Users"
+msgstr "Gebruikers"
+
+#. module: dyn_report_to_printer_location
+#: model:ir.model,name:dyn_report_to_printer_location.model_work_location
+#: field:res.users,work_location_id:0
+#: view:work_location:dyn_report_to_printer_location.work_location_form_view
+#: field:work_location_printer,work_location_id:0
+msgid "Work Location"
+msgstr "Werklocatie"
+
+#. module: dyn_report_to_printer_location
+#: sql_constraint:res.users:0
+msgid "Work Location must be unique!"
+msgstr "De werklocatie moet uniek zijn"
+
+#. module: dyn_report_to_printer_location
+#: model:ir.actions.act_window,name:dyn_report_to_printer_location.action_work_location_tree_view
+#: model:ir.ui.menu,name:dyn_report_to_printer_location.work_location_menu
+#: view:work_location:dyn_report_to_printer_location.work_location_tree_view
+msgid "Work Locations"
+msgstr "Werklocaties"
+

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <!-- Supplier templates-->
+    <t t-name="go_index">
+        <div class="container">
+            <div id="results" class="scan-row">
+                <t t-if="is_wh_user">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <a id="goto_inbound_screen" type="button" href="/inbound_screen" class="btn goto-button inbound">
+                                Inbound<br/>
+                                <i class="fa fa-truck big-icon" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a id="goto_select_package" type="button" href="/select_package" class="btn btn-success goto-button inbound-package">
+                                Inbound Select Package<br/>
+                                <i class="fa fa-archive big-icon" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a id="goto_inbound_wave" type="button" href="/inbound_wave" class="btn btn-success goto-button inbound-wave">
+                                Inbound Waves<br/>
+                                <i class="fa fa-road big-icon" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a id="goto_picking_waves" type="button" href="/picking_waves" class="btn goto-button picking">
+                                Picking Waves<br/>
+                                <i class="fa fa-cart-arrow-down big-icon" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a id="goto_out_bound_select_package" type="button" href="/outbound_select_package" class="btn btn-success goto-button outbound-package">
+                                Outbound Select Package<br/>
+                                <i class="fa fa-archive big-icon" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a id="goto_create_inventory" type="button" href="/inventory_update" class="btn goto-button inventory">
+                                Update Inventory<br/>
+                                <i class="fa fa-cubes big-icon" aria-hidden="true"></i>
+                            </a>
+                            <!-- Keep it just in case :)-->
+                            <!-- <br/> -->
+                            <!--<t t-if="is_wh_manager">-->
+                                <!--<a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Create Inventory Screen</a><br/>-->
+                                <!--<a id="goto_create_inventory" type="button" href="#" class="btn btn-success goto-button">Validate Inventory Screen</a><br/>-->
+                            <!--</t>-->
+                        </div>
+                        <div class="col-md-4">
+                            <a id="goto_rma" type="button" href="/rma_screen" class="btn goto-button rma">
+                                RMA<br/>
+                                <i class="fa fa-share-square big-icon" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+        </div>
+    </t>
+
+    <t t-name="worklocation_result">
+        <!-- cart selection modal -->
+        <div class="row">
+            <t t-foreach="worklocations" t-as="worklocation">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
+                </a>
+            </t>
+        </div>
+
+    </t>
+
+    <t t-name="change_user">
+        <!-- cart selection modal -->
+        <div class="row">
+            <div class="col-md-3" />
+            <div class="col-md-6" >
+                <form class="oe_login_form" role="form" method="post" _lpchecked="1">
+                    <div id="login-image" style="display:none"></div>
+                    <div class="form-group">
+                        <label for="login" class="control-label">Email</label>
+                        <input id="login" type="text" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control-label">Password</label>
+                        <input id="password" type="password" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" />
+        </div>
+    </t>
+
+    <t t-name="change_user_footer">
+        <a id="modal_changer_user_button" href="#" class="btn btn-success">
+            Change User
+        </a>
+    </t>
+
+    <t t-name="go_back">
+        <a href="#" id="close_wave" class="btn btn-danger pull-left goback"> Go Back </a>
+        <a href="#" id="continue_wave" class="btn btn-success continue"> Continue this wave </a>
+    </t>
+
+</templates>
+

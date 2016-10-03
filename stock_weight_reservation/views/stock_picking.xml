@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_picking_form">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="priority_weight"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="pick_tree_weight" model="ir.ui.view">
+            <field name="name">Add weight reference to picking tree view</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.vpicktree" />
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                    <field name="priority_weight" />
+                </field>
+            </field>
+        </record>
+
+    </data>
+</openerp>

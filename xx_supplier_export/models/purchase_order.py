@@ -27,7 +27,7 @@ import codecs
 from base64 import b64encode
 from openerp import models, api
 from openerp.tools.safe_eval import safe_eval
-
+import unicodedata
 
 class UnicodeWriter:
     """
@@ -67,12 +67,56 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     @api.multi
+    def display_csv(self):
+        display_csv_obj = self.env['display.csv.wizard']
+        form_view_id = self.env['ir.model.data'].get_object_reference('xx_supplier_export', 'form_view_display_csv_wizard')[1]
+        csv_template = self.partner_id.purchase_csv_template
+        if not csv_template or not self.order_line:
+            return False
+        csv_data =""
+        if self.partner_id.purchase_csv_header:
+            header =  safe_eval(self.partner_id.purchase_csv_header, {
+                            'order': self})
+            for header_element in header:
+                csv_data += (header_element and str(header_element) or " ") + ","
+            csv_data += "\n"
+        for line in self.order_line:
+            data = safe_eval(csv_template, {
+                    'order': self,
+                    'line': line,
+                    'seller': self.env['product.supplierinfo'].search(
+                        [('name', '=', self.partner_id.id),
+                         ('product_tmpl_id', '=',
+                          line.product_id.product_tmpl_id.id)],
+                        limit=1)
+                })
+
+            for element in data:
+                element = unicodedata.normalize('NFKD', unicode(element)).encode('ascii','ignore')
+                csv_data += (element or " ") + ","
+            csv_data += "\n"
+            
+        res_id = display_csv_obj.create({'csv_data':csv_data}).id
+        return {
+            'name': "CSV Data",
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_id': res_id,
+            'res_model': 'display.csv.wizard',
+            'views': [(form_view_id, 'form')],
+            'target': 'new',
+            'context': self._context,
+        }
+        
+    @api.multi
     def get_csv_export(self):
         """ Generate the CSV export for the current order based on the
         csv template field on the supplier.
 
         @returns tuple (filename, base64 encoded file)
         """
+        
         self.ensure_one()
         csv_template = self.partner_id.purchase_csv_template
         if not csv_template or not self.order_line:

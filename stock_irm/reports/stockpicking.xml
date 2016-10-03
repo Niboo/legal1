@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="report_delivery" inherit_id="odw_report_delivery.report_delivery">
+            <xpath expr="//div[1]/div[1]/div[1]" position="inside">
+                <div t-if="o.move_lines and o.move_lines.quant_ids and o.move_lines.quant_ids.package_id"
+                     class="row" style="padding-left: 15px; padding-right: 15px;">
+                    <span><strong>Box number:</strong></span>
+                    <span t-field="o.move_lines.quant_ids.package_id.name"/>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</openerp>

@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<openerp>
+    <data>
+
+        <template id="stock_irm.assets" name="Stock IRM assets">
+            <script type="text/javascript" src="/web/static/lib/underscore/underscore.js"></script>
+            <script type="text/javascript" src="/web/static/lib/underscore.string/lib/underscore.string.js"></script>
+            <script type="text/javascript" src="/web/static/lib/datejs/globalization/en-US.js"></script>
+
+            <!-- jQuery stuff -->
+            <script type="text/javascript" src="/web/static/lib/jquery/jquery.js"></script>
+
+            <script type="text/javascript" src="/web/static/lib/qweb/qweb2.js"></script>
+            <script type="text/javascript" src="/web/static/src/js/openerpframework.js"></script>
+
+            <!--BOOTSTRAP-->
+            <link id="bootstrap_css" rel='stylesheet' href='/web/static/lib/bootstrap/css/bootstrap.css' />
+            <script type="text/javascript" src="/web/static/lib/bootstrap/js/bootstrap.js"></script>
+
+            <link rel="stylesheet" href="/web/static/lib/fontawesome/css/font-awesome.css"/>
+
+            <!--STOCK IRM-->
+            <link href="/stock_irm/static/src/css/template.css" rel="stylesheet"/>
+            <script type="text/javascript" src="/stock_irm/static/src/js/stock_irm_widget.js"></script>
+
+        </template>
+
+        <template id="stock_irm.assets_picking" name="Stock IRM assets for Picking">
+            <script type="text/javascript" src="/stock_irm/static/src/js/picking_modal.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/picking_selector.js"></script>
+            <script type="text/javascript" src="/web/static/lib/jquery.ui//js/jquery-ui-1.9.1.custom.js"></script>
+            <link href="/stock_irm/static/src/css/picking.css" rel="stylesheet"/>
+        </template>
+
+        <template id="stock_irm.assets_inbound" name="Stock IRM assets for Inbound">
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_supplier_selector.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_modal.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_picking.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_product_page.js"></script>
+            <link href="/stock_irm/static/src/css/inbound.css" rel="stylesheet"/>
+        </template>
+
+        <template id="stock_irm.assets_index" name="Stock IRM assets for index">
+            <link href="/stock_irm/static/src/css/index.css" rel="stylesheet"/>
+            <script type="text/javascript" src="/stock_irm/static/src/js/index.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css"/>
+        </template>
+
+        <template id="stock_irm.assets_bandup" name="Stock IRM assets for bandup">
+            <script type="text/javascript" src="/stock_irm/static/src/js/bandup_modal.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/bandup_package.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/bandup_waves.js"></script>
+            <script type="text/javascript" src="/web/static/lib/jquery.ui//js/jquery-ui-1.9.1.custom.js"></script>
+
+            <link href="/stock_irm/static/src/css/bandup.css" rel="stylesheet"/>
+
+        </template>
+
+        <template id="stock_irm.assets_inbound_wave" name="Stock IRM assets for inbound wave">
+            <script type="text/javascript" src="/web/static/lib/jquery.ui//js/jquery-ui-1.9.1.custom.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_wave.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_wave_modal.js"></script>
+
+            <link href="/stock_irm/static/src/css/inbound_wave.css" rel="stylesheet"/>
+
+        </template>
+
+        <template id="stock_irm.assets_inbound_select_package" name="Stock IRM assets for inbound select package">
+            <script type="text/javascript" src="/stock_irm/static/src/js/select_package_modal.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inbound_select_package.js"></script>
+            <link href="/stock_irm/static/src/css/select_package.css" rel="stylesheet"/>
+        </template>
+
+        <template id="stock_irm.assets_outbound_select_package" name="Stock IRM assets for outbound select package">
+            <script type="text/javascript" src="/stock_irm/static/src/js/select_package_modal.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/outbound_select_package.js"></script>
+            <link href="/stock_irm/static/src/css/select_package.css" rel="stylesheet"/>
+        </template>
+
+        <template id="stock_irm.assets_rma_screen" name="Stock IRM assets for RMA Screen">
+            <script type="text/javascript" src="/stock_irm/static/src/js/rma_customer_selector.js"/>
+            <script type="text/javascript" src="/stock_irm/static/src/js/rma_modal.js"/>
+            <script type="text/javascript" src="/stock_irm/static/src/js/rma_product_picking.js"/>
+            <script type="text/javascript" src="/stock_irm/static/src/js/rma_product_page.js"/>
+            <link href="/stock_irm/static/src/css/inbound.css" rel="stylesheet"/>
+            <link href="/stock_irm/static/src/css/rma_screen.css" rel="stylesheet"/>
+        </template>
+
+        <template id="stock_irm.assets_inventory" name="Stock IRM assets for Inventory">
+            <script type="text/javascript" src="/stock_irm/static/src/js/inventory_page.js"></script>
+            <script type="text/javascript" src="/stock_irm/static/src/js/inventory_modal.js"></script>
+            <script type="text/javascript" src="/web/static/lib/jquery.ui//js/jquery-ui-1.9.1.custom.js"></script>
+
+            <link href="/stock_irm/static/src/css/inventory.css" rel="stylesheet"/>
+        </template>
+
+
+        <template id="stock_irm.layout" name="Stock IRM Header">
+            <html lang="en">
+                <head>
+                    <meta charset="UTF-8"/>
+                    <title t-esc="title" />
+                    <t t-call-assets="stock_irm.assets" t-js="false"/>
+                    <t t-if="title == 'Inbound'">
+                        <t t-call-assets="stock_irm.assets_inbound" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Picking Waves'">
+                        <t t-call-assets="stock_irm.assets_picking" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Index'">
+                        <t t-call-assets="stock_irm.assets_index" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Bandup'">
+                        <t t-call-assets="stock_irm.assets_bandup" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Inbound Wave'">
+                        <t t-call-assets="stock_irm.assets_inbound_wave" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Inbound Select Package'">
+                        <t t-call-assets="stock_irm.assets_inbound_select_package" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Outbound Select Package'">
+                        <t t-call-assets="stock_irm.assets_outbound_select_package" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'RMA'">
+                        <t t-call-assets="stock_irm.assets_rma_screen" t-js="false"/>
+                    </t>
+                    <t t-if="title == 'Inventory'">
+                        <t t-call-assets="stock_irm.assets_inventory" t-js="false"/>
+                    </t>
+                </head>
+                <body>
+                    <div class="modal fade" id="modalWindow" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" />
+                                </div>
+                                <div class="modal-body" />
+                                <div class="modal-footer" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="blockedModalWindow" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" />
+                                </div>
+                                <div class="modal-body" />
+                                <div class="modal-footer" />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <nav id="navbar" class="navbar navbar-default">
+                            <div class="collapse navbar-collapse">
+                                <ul class="nav navbar-nav navbar-left">
+                                    <li id="back" style="display:none;"><a href="#"><span class="glyphicon glyphicon-chevron-left" /></a></li>
+                                    <li id="wave-id-li" style="display:none;" class="navbar-default"><a href="#"><span id="wave-id"/></a></li>
+                                    <li id="packing-order-li" style="display:none;" class="navbar-default"><a href="#"><span id="packing-order-ref"/></a></li>
+                                    <li id="change-cart" style="display:none;"><a href="#"><span class="glyphicon glyphicon-inbox" aria-hidden="true"/> No Cart Selected</a></li>
+                                    <!--<li role="separator" class="divider" />-->
+                                </ul>
+                                <ul class="nav navbar-nav navbar-center">
+                                    <li id="fullscreen"><a href="#"><i class="fa fa-arrows-alt" aria-hidden="true"></i></a></li>
+                                    <li id="change-user"><a href="#"><span class="glyphicon glyphicon-user"/> <t t-esc="user_name"/></a></li>
+                                    <li id="change-worklocation" t-att-data-staging-id="work_location_staging_id" t-att-data-id="worklocation_id" ><a href="#"><span class="glyphicon glyphicon-cog"/> <t t-esc="worklocation_name"/></a></li>
+                                    <li id="stock_index"><a href="/stock_index"><i class="fa fa-th-large" aria-hidden="true"></i></a></li>
+                                    <li id="exit"><a href="/"><i class="fa fa-external-link" aria-hidden="true"></i></a></li>
+                                </ul>
+                                <ul class="nav navbar-nav navbar-right">
+                                    <li id="search" style="display:none;"><a href="#"><span class="glyphicon glyphicon-search" /> Search</a></li>
+                                    <li id="confirm" style="display:none;" class="navbar-ok"><a href="#"><span class="glyphicon glyphicon-ok" /> Confirm</a></li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+
+                    <div id="content">
+                        <t t-raw="0"/>
+                    </div>
+                    <t t-call-assets="stock_irm.assets" t-css="false"/>
+                    <t t-if="title == 'Inbound'">
+                        <t t-call-assets="stock_irm.assets_inbound" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'Picking Waves'">
+                        <t t-call-assets="stock_irm.assets_picking" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'Index'">
+                        <t t-call-assets="stock_irm.assets_index" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'Bandup'">
+                        <t t-call-assets="stock_irm.assets_bandup" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'Inbound Wave'">
+                        <t t-call-assets="stock_irm.assets_inbound_wave" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'Inbound Select Package'">
+                        <t t-call-assets="stock_irm.assets_inbound_select_package" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'Outbound Select Package'">
+                        <t t-call-assets="stock_irm.assets_outbound_select_package" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'RMA'">
+                        <t t-call-assets="stock_irm.assets_rma_screen" t-css="false"/>
+                    </t>
+                    <t t-if="title == 'Inventory'">
+                        <t t-call-assets="stock_irm.assets_inventory" t-css="false"/>
+                    </t>
+                </body>
+            </html>
+        </template>
+
+
+        <template id="stock_irm.inbound_screen" name="Inbound Screen">
+            <t t-if="user_email">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_email">
+                <t t-call="stock_irm.error_layout"></t>
+            </t>
+        </template>
+
+        <template id="stock_irm.picking_waves" name="Picking Waves">
+            <t t-if="user_email">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_email">
+                <t t-call="stock_irm.error_layout"></t>
+            </t>
+        </template>
+
+        <template id="stock_irm.bandup_screen" name="Bandup Screen">
+            <t t-if="user_email">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_email">
+                <t t-call="stock_irm.error_layout"></t>
+            </t>
+        </template>
+
+        <template id="stock_irm.inbound_wave_screen" name="Inbound Wave">
+            <t t-if="user_email">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_email">
+                <t t-call="stock_irm.error_layout"></t>
+            </t>
+        </template>
+        
+        <template id="stock_irm.inbound_select_package" name="Inbound Select Package">
+            <t t-if="user_email">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_email">
+                <t t-call="stock_irm.error_layout"></t>
+            </t>
+        </template>
+
+        <template id="stock_irm.outbound_select_package" name="Outbound Select Package">
+            <t t-if="user_email">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_email">
+                <t t-call="stock_irm.error_layout"></t>
+            </t>
+        </template>
+
+        <template id="stock_irm.rma_screen" name="RMA Screen">
+            <t t-if="user_email">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_email">
+                <t t-call="stock_irm.error_layout"></t>
+            </t>
+        </template>
+
+        <template id="stock_irm.inventory_update_screen" name="Inventory">
+            <t t-if="user_email">
+                <t t-call="stock_irm.layout"></t>
+            </t>
+            <t t-if="not user_email">
+                <t t-call="stock_irm.error_layout"></t>
+            </t>
+        </template>
+
+        <template id="stock_irm.error_layout" name="Stock IRM Header">
+            <html lang="en">
+                <head>
+                    <meta charset="UTF-8"/>
+                    <title t-esc="Error" />
+                    <t t-call="stock_irm.assets"></t>
+                </head>
+                <body>
+                    <div class="row">
+                        <div class="col-xs-12 text-center alert alert-warning">
+                             <span class='fa fa-times error-email'>Please set an email address on the current partner</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="alert alert-success text-center">
+                          <span class="fa fa-4 fa-arrow-circle-right"><strong><a href="/web"> Goback in Odoo</a></strong></span>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        </template>
+    </data>
+</openerp>

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <t t-name="outbound_select_package_layout">
+        <div class="container">
+            <div id="results" class="scan-row">
+                <div class="row">
+                    <div class="col-xs-12 text-center">
+                        <div id="message_box"><h1>Scan boxes</h1></div>
+                        <div id="package_list" class="row"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="bottom-div">
+            <div class="row">
+                <div class="col-xs-2 numpad-above">
+                    <t t-call="numpad"/>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="package_result">
+        <div class="col-xs-2">
+            <div id="box" t-att-data-package-id="package_id">
+                <div class="square-label">
+                    <span class="barcode-info"><span t-esc="package_barcode"/></span>
+                </div>
+                <a href="#" class="thumbnail" t-att-data-package-id="package_id" t-att-data-package-barcode="package_barcode">
+                    <div class="square" t-att-style="'background-image:url(\'' + product_image + '\');'"></div>
+                </a>
+                <div class="square-label">
+                    <span t-esc="product_name"/>
+                </div>
+                <div class="square-label">
+                    <span class="quantity-info">Quantity: <span t-esc="product_quantity"/></span>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="worklocation_result">
+        <div class="row">
+            <t t-foreach="worklocations" t-as="worklocation">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
+                </a>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="change_user">
+        <div class="row">
+            <div class="col-md-3" />
+            <div class="col-md-6" >
+                <form class="oe_login_form" role="form" method="post" _lpchecked="1">
+                    <div id="login-image" style="display:none"></div>
+                    <div class="form-group">
+                        <label for="login" class="control-label">Email</label>
+                        <input id="login" type="text" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control-label">Password</label>
+                        <input id="password" type="password" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" />
+        </div>
+    </t>
+
+    <t t-name="change_user_footer">
+        <a id="modal_changer_user_button" href="#" class="btn btn-success">
+            Change User
+        </a>
+    </t>
+
+    <t t-name="numpad">
+        <button id="manual-barcode-input" type="button" class="btn btn-info button-touch">
+            <i class="fa fa-barcode button-touch-icon" aria-hidden="true"></i>
+        </button>
+        <div class="num-pad">
+            <input id="manual-barcode" type="text" class="form-control text-center numpad-control-picking"/>
+
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>2</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>3</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>4</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>5</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>6</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>7</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>8</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>9</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>C</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>Enter</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="info_package_barcode">
+        <div class="alert alert-warning fade in info-prompt">
+            <b>Scan the package or enter its barcode manually by clicking on </b>
+            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="exception_modal">
+        <div class="row">
+            <div class="col-xs-2 text-center">
+                <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10">
+                <h2>
+                    <t t-esc="error"/>
+                </h2>
+                <p class="error-message">
+                    <t t-esc="message"/>
+                </p>
+            </div>
+        </div>
+    </t>
+
+</templates>

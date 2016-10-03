@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <!-- Supplier templates-->
+    <t t-name="go_picking">
+        <div class="container">
+            <div id="results" class="scan-row">
+                <div id="create-wave" class="row">
+                    <span>Create a picking wave</span>
+                </div>
+            </div>
+
+            <div class="row ">
+                <br/>
+                <h3 id="selected_packages" class="text-center">Or scan already started packages</h3>
+                <br/>
+                <div class="col-xs-9">
+
+                </div>
+                <div class="col-xs-2 text-right">
+                    <t t-call="numpad" />
+                </div>
+
+                <div id="packages-list" class="col-md-12 package-div">
+
+                </div>
+            </div>
+
+            <t t-if="waves.length">
+                <div id="unfinished_waves" class="row">
+                    <br/>
+                    <h3 class="text-center">Or pick a wave that was not completed</h3>
+                    <br/>
+                    <t t-foreach="waves" t-as="wave">
+                        <div class="col-md-3 wave-div">
+                            <a href="#" class="btn btn-lg btn-success wave " t-att-wave-id="wave.id" t-att-wave-name="wave.name">
+                                <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> <t t-esc="wave.name" />
+                            </a>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="begon_package">
+        <div class="col-xs-2">
+            <a href="#" class="btn btn-lg btn-success package " t-att-package-id="package.id" t-att-package-name="package.name">
+                <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> <t t-esc="package.name" />
+            </a>
+        </div>
+    </t>
+
+    <t t-name="package_not_found_modal">
+        <div class="row">
+            <div class="col-xs-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10">
+                <h2>The scanned package was not found in the system or is not in your location</h2>
+            </div>
+
+        </div>
+    </t>
+
+    <t t-name="worklocation_result">
+        <!-- cart selection modal -->
+        <div class="row">
+            <t t-foreach="worklocations" t-as="worklocation">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
+                </a>
+            </t>
+        </div>
+
+    </t>
+
+    <t t-name="select_wave_template">
+        <div class="row">
+            <t t-foreach="wave_templates" t-as="wave_template">
+                <div class="col-xs-6 text-center">
+                    <a href="#" class="btn btn-primary template" t-att-id="wave_templates.indexOf(wave_template)">
+                        <t t-esc="wave_template.name"/>
+                    </a>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="select_wave_template_footer">
+        <a href="/stock_index" class="btn btn-success">
+            Exit
+        </a>
+    </t>
+
+    <t t-name="change_user">
+        <!-- cart selection modal -->
+        <div class="row">
+            <div class="col-md-3" />
+            <div class="col-md-6" >
+                <form class="oe_login_form" role="form" method="post" _lpchecked="1">
+                    <div id="login-image" style="display:none"></div>
+                    <div class="form-group">
+                        <label for="login" class="control-label">Email</label>
+                        <input id="login" type="text" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control-label">Password</label>
+                        <input id="password" type="password" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" />
+        </div>
+    </t>
+
+    <t t-name="change_user_footer">
+        <a id="modal_changer_user_button" href="#" class="btn btn-success">
+            Change User
+        </a>
+    </t>
+
+    <!-- ERROR MODALS -->
+    <t t-name="print_error_message">
+        <div class="row">
+            <div class="col-xs-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10">
+                <h2>You didn't scan the right <t t-esc="type"/></h2>
+                <t t-if="type == 'product'">
+                    <p class="error-message">
+                        You should scan the following product, found in location <b><t t-esc="location"/></b>:
+                    </p>
+                    <br/>
+                    <a href="#">
+                        <img t-att-src="image" class="img-responsive img-300" />
+                    </a>
+                </t>
+                <t t-if="type== 'location'">
+                    <p class="error-message">
+                        You should put your item in the box <b><t t-esc="dest_location"/></b>.
+                    </p>
+                </t>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="counter_error">
+        <div class="row">
+            <div class="col-xs-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10">
+                <h2>You didn't select the right number of items</h2>
+                <p class="error-message">
+                    Selected: <t t-esc="real"/><br/>
+                    Expected: <b><t t-esc="expected"/></b>
+                </p>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="printer_error">
+        <div class="row">
+            <div class="col-xs-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10">
+                <h2><t t-esc="error"/></h2>
+                <p class="error-message">
+                    <t t-esc="message"/>
+                </p>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="picking_layout">
+        <div id="picking-layout">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-2">
+                        <div id="picking-list">
+                            <t t-call="picking_list" />
+                        </div>
+                    </div>
+                    <div class="col-xs-10">
+                        <div id="product-list">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div id="info_message">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div id="current_product">
+                                        <t t-call="current_product" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div id="next_products">
+                                        <t t-call="next_products" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="picking_list">
+        <ul class="list-group">
+            <t t-foreach="pickings" t-as="picking">
+                <li class="list-group-item">
+                    <a href="#" t-att-data-id="picking_id">
+                        <div class="progress picking_progress" id="picking-progress-bar">
+                            <div t-att-id="picking.picking_id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+picking.progress_done+'%;'"/>
+                            <div  id="picking-name">
+                                <span t-esc="picking.picking_name"/>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            </t>
+        </ul>
+    </t>
+
+    <t t-name="picking_info">
+        <div class="row">
+            <div class="col-xs-12">
+                <table class="table" id="picking-info-table">
+                    <t t-foreach="products" t-as="product">
+                        <tr>
+                            <td id="picking-product-img"><a href="#"><img t-att-src="product.product.product_image" class="center-block img-responsive"/></a></td>
+                            <td><span t-esc="product.product.product_name"/></td>
+                            <td><div class="form-control text-center"><span t-esc="product.product.location_name"/></div></td>
+                            <td><span t-esc="product.product.product_quantity"/></td>
+                        </tr>
+                    </t>
+                </table>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="current_product">
+        <div id="current-product-name-row" class="row">
+            <div id="current-product-img" class="col-xs-12 col-md-4">
+                <h3><span t-esc="location_name"/></h3>
+                <a href="#">
+                    <img t-att-src="product.product_image" class="center-block img-responsive"/>
+                </a>
+            </div>
+            <div id="current-product-description" class="col-xs-6 col-md-9 col-lg-5">
+                <h3><span t-esc="product.product_name"/></h3>
+                <span t-esc="product.product_description"/>
+            </div>
+            <div id="current-product-buttons" class="col-xs-6 col-md-3 text-right">
+                <t t-call="numpad" />
+                <button id="skip-picking-line" type="button" class="btn btn-danger btn-large button-touch">
+                    <i class="fa fa-minus-circle button-touch-icon" aria-hidden="true"></i>
+                </button>
+                <button class="odw-update-stock-quantity btn btn-warning btn-large button-touch" title="Update Stock">
+                    <i class="fa fa-pencil-square-o button-touch-icon"/>
+                </button>
+            </div>
+        </div>
+
+        <div class="row text-center" id="current-product-quantity-row">
+            <div class="col-xs-2">
+                <div id="expected_qty" class="form-control form-control-picking pull-left text-center">
+                    <div t-esc="product.product_quantity"/>
+                </div>
+            </div>
+            <div class="col-xs-1 text-center">
+                <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
+            </div>
+            <div class="col-xs-6">
+                <div class="input-group input-picking text-center">
+                    <div id="quantity_wave" class="input-group input-picking text-center">
+                         <span class="input-group-btn">
+                             <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                         </span>
+                         <input id="quantity-input-value" type="text" class="form-control text-center form-control-picking" value="0"/>
+                         <span class="input-group-btn">
+                            <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                         </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-1 text-center">
+                <h3><i class="fa fa-arrow-right buttons-icons-quantity" aria-hidden="true"></i></h3>
+            </div>
+            <div class="col-xs-2">
+                <div id="qty_in_box" class="form-control form-control-picking pull-right text-center">0</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6 text-left">
+                <h4><span t-esc="product.location_name"/> (<span t-esc="product.qty_available" /> items in stock)</h4>
+            </div>
+            <div class="col-xs-6 text-right">
+                <h4 t-if="! location_barcode">Scan a Box</h4>
+                <h4 t-if="location_barcode">Please, put the product in box <span t-esc="location_barcode"/></h4>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="numpad">
+        <button id="manual-barcode-input" type="button" class="btn btn-info btn-large button-touch">
+            <i class="fa fa-barcode button-touch-icon" aria-hidden="true"></i>
+        </button>
+        <div class="num-pad">
+            <input id="manual-barcode" type="text" class="form-control text-center numpad-control-picking"/>
+
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>2</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>3</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>4</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>5</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>6</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>7</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>8</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>9</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>C</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="circle">
+                <div class="num">
+                    <div>
+                        <span>Enter</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="next_products">
+        <table class="table" id="next-products-table">
+            <t t-foreach="moves" t-as="move">
+                <tr>
+                    <td id="next-product-img"><a href="#"><img t-att-src="product.product_image" class="center-block img-responsive"/></a></td>
+                    <td><span t-esc="move.product.product_name"/></td>
+                    <td><div class="form-control text-center"><span t-esc="move.product.location_name"/></div></td>
+                    <td><span t-esc="move.product.product_quantity"/></td>
+                    <td><i class="fa fa-arrow-right" aria-hidden="true"></i></td>
+                    <td><span t-esc="move.picking_name"/></td>
+                </tr>
+            </t>
+        </table>
+    </t>
+
+    <t t-name="picking_empty">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="no-picking-found" class="text-center">
+                        <hr/>
+                        <h2>No pickings were found!</h2>
+                        <hr/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="select_wave">
+        <!-- wave selection modal -->
+        <div class="row">
+            <t t-foreach="waves" t-as="wave">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-worklocation-id="wave.id" t-att-worklocation-name="wave.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span><t t-esc="wave.name" />
+                </a>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="info_first_barcode">
+        <div class="alert alert-warning fade in info-prompt">
+            <b>Scan the product or enter the barcode manually by clicking on </b>
+            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="info_more_barcode">
+        <div class="alert alert-info fade in info-prompt">
+            <b>Scan more products or enter the barcode manually by clicking on</b>
+            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="info_location_barcode">
+        <div class="alert alert-success fade in info-prompt">
+            <b>Please scan the box or enter its barcode manually by clicking on</b>
+            <button id="manual-barcode-input" type="button" class="btn btn-info" disabled="1">
+                <i class="fa fa-barcode" aria-hidden="true"></i>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="info_too_much_barcode">
+        <div class="alert alert-danger fade in info-prompt">
+            <b>You have selected too many products!</b>
+        </div>
+    </t>
+
+    <t t-name="wave_done">
+        <t t-if="to_outputs.length">
+            <br/>
+                <h3 class="text-center">To Output:</h3>
+            <br/>
+            <div class="row">
+                <t t-foreach="to_outputs" t-as="to_out">
+                    <a href="#" class="btn end-box btn-lg btn-warning col-md3" t-att-picking-id="to_out.picking_id" t-att-picking-name="to_out.picking_name">
+                        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="to_out.picking_name" />
+                    </a>
+                </t>
+            </div>
+        </t>
+        <t t-if="to_temps.length">
+            <br/>
+                <h3 class="text-center">To temporary location:</h3>
+            <br/>
+            <div class="row">
+                <t t-foreach="to_temps" t-as="to_temp">
+                    <a href="#" class="btn end-box btn-lg btn-warning col-md3" t-att-picking-id="to_temp.picking_id" t-att-picking-name="to_temp.picking_name">
+                        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="to_temp.picking_name" />
+                    </a>
+                </t>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="go_back">
+        <a href="#" id="close" class="btn btn-danger pull-left goback"> Go Back </a>
+        <a href="#" id="continue_wave" class="btn btn-success continue"> Continue this wave </a>
+    </t>
+
+    <t t-name="cart_result_body">
+        <div class="row">
+            <t t-foreach="carts" t-as="cart">
+                <div class="col-xs-3 cart">
+                    <a href="#" class="btn btn-lg btn-success "
+                       t-att-cart-id="cart.id"
+                       t-att-cart-name="cart.name">
+                        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="cart.name" />
+                    </a>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="exception_modal">
+        <div class="row">
+            <div class="col-xs-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10">
+                <h2><t t-esc="error"/></h2>
+                <p class="error-message">
+                    <t t-esc="message"/>
+                </p>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="scan_product_modal">
+        <div class="row">
+            <div class="col-xs-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10">
+                <h2>Please scan the product first!</h2>
+            </div>
+
+        </div>
+    </t>
+
+    <t t-name="already_scanned_box">
+        <div class="row">
+            <div class="col-xs-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 ">
+                <h2>You already scanned this package</h2>
+            </div>
+
+        </div>
+    </t>
+
+    <t t-name="update_stock_body">
+        <div class="row">
+            <div class="col-xs-12">
+                <b>Current Stock: </b><t t-esc="current_stock"/>
+            </div>
+            <div class="col-xs-6">
+                <div class="form-group">
+                    <label for="stock_amount">New Stock Amount</label>
+                    <input type="number" class="form-control" name="new-stock-amount" min="0"/>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="update_stock_footer">
+        <div class="pull-right">
+            <button class="btn btn-success odw-submit-button">
+                Update Stock
+            </button>
+        </div>
+    </t>
+
+    <t t-name="update_successful_body">
+        <div class="col-xs-12">
+            <div class="alert alert-success" role="alert"><i class="fa fa-check"/> <t t-esc="product_name"/>'s new quantity is <t t-esc="new_quantity"/></div>
+        </div>
+    </t>
+</templates>

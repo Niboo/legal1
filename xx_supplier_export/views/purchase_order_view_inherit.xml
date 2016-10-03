@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="purchase_order_form_view_inherit_display_csv" model="ir.ui.view">
+            <field name="name">purchase.order.form.view.display.csv</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="arch" type="xml">
+	 			<xpath expr="//form/header/field[@name='state']" position="before">
+	 			    <button name="display_csv" type="object" string="Display CSV"/>
+				</xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

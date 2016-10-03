@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <!-- Supplier templates-->
+    <t t-name="supplier_selector">
+        <t t-call="partner_selector">
+            <t t-set="title" t-value="'supplier'"/>
+        </t>
+    </t>
+
+    <t t-name="customer_selector">
+        <t t-call="partner_selector">
+            <t t-set="title" t-value="'customer'"/>
+        </t>
+    </t>
+
+    <t t-name="partner_selector">
+        <div class="container">
+            <div class="search-row row">
+                <div class="col-xs-12">
+                    <div id="custom-search-input">
+                        <div class="input-group col-xs-12">
+                            <input type="text" id="search_bar" class="form-control input-lg" t-att-placeholder="'Search for a ' + title" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-info btn-lg" type="button">
+                                    <i class="glyphicon glyphicon-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h2>Select the <t t-esc="title"/></h2>
+            <div id="results" class="result-row"></div>
+        </div>
+    </t>
+
+    <t t-name="supplier_result">
+        <t t-foreach="suppliers" t-as="supplier">
+            <div class="col-xs-2">
+                <a href="#" class="thumbnail" t-att-data-id="supplier.id">
+                    <div class="square" t-att-style="'background-image:url(\'/web/binary/image?model=res.partner&amp;id=' + supplier.id + '&amp;field=image' + '\');'"></div>
+                </a>
+                <div class="square-label">
+                    <span t-esc="supplier.name"/>
+                </div>
+            </div>
+        </t>
+    </t>
+
+    <!-- products template -->
+    <t t-name="product_selector">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2" id="po-lines-list">
+                    <t t-call="inbound_line_list"></t>
+                </div>
+                <div class="col-md-10">
+                    <div class="search-row row">
+                        <div class="col-md-12">
+                            <div id="custom-search-input">
+                                <div class="input-group col-md-12">
+                                    <input type="text" id="search_bar" class="form-control input-lg" placeholder="Search for a product" />
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-info btn-lg" type="button">
+                                            <i class="glyphicon glyphicon-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div id="results" class="scan-row">
+                        <div class="col-md-12">
+                            <div class="text-center"><h1>Scan a product</h1></div>
+                            <img src="/stock_irm/static/img/scan.jpg" class="center-block img-responsive" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="product_result">
+        <t t-foreach="products" t-as="product">
+            <div class="col-xs-2">
+                <a href="#" class="thumbnail" t-att-data-id="product.id">
+                    <div class="square" t-att-style="'background-image:url(\'' + product.image + '\');'"></div>
+                </a>
+                <div class="square-label">
+                    <span t-esc="product.name"/>
+                </div>
+            </div>
+        </t>
+        <t t-if="!products.length">
+            <div class="col-xs-2">
+                <b>No matching product found</b>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="cart_result">
+        <div class="tags">
+            <label>
+                <input type="checkbox" id="display-all-cart" />
+                Display carts in usage
+            </label>
+        </div>
+        <!-- cart selection modal -->
+        <t t-call="cart_result_body"/>
+    </t>
+
+    <t t-name="cart_result_body">
+        <div class="row">
+            <t t-foreach="carts" t-as="cart">
+                <div class="col-md-3 cart">
+                    <a href="#" class="btn btn-lg btn-success "
+                       t-att-cart-id="cart.id"
+                       t-att-cart-name="cart.name"
+                       t-att-is-selected="current_cart !== undefined &amp;&amp; cart.id == current_cart.id">
+                        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="cart.name" />
+                    </a>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="worklocation_result">
+        <!-- cart selection modal -->
+        <div class="row">
+            <t t-foreach="worklocations" t-as="worklocation">
+                <a href="#" class="btn btn-lg btn-success worklocation col-md-3" t-att-staging-id="worklocation.work_location_staging_id" t-att-worklocation-id="worklocation.id" t-att-worklocation-name="worklocation.name">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="worklocation.name" />
+                </a>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="print_error_message">
+        <!-- cart selection modal -->
+        <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>  You didn't print enough labels</b>
+        <a id="modal_print_button" href="#" class="btn btn-lg btn-success">
+            Print missing labels
+        </a>
+    </t>
+
+    <t t-name="no_cart_message">
+        <!-- cart selection modal -->
+        <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>No carts could be found. <br/> Please contact the warehouse manager</b>
+    </t>
+
+    <t t-name="change_user">
+        <!-- cart selection modal -->
+        <div class="row">
+            <div class="col-md-3" />
+            <div class="col-md-6" >
+                <form class="oe_login_form" role="form" method="post" _lpchecked="1">
+                    <div id="login-image" style="display:none"></div>
+                    <div class="form-group">
+                        <label for="login" class="control-label">Email</label>
+                        <input id="login" type="text" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control-label">Password</label>
+                        <input id="password" type="password" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3" />
+        </div>
+    </t>
+
+    <t t-name="change_user_footer">
+        <a id="modal_changer_user_button" href="#" class="btn btn-success">
+            Change User
+        </a>
+    </t>
+
+    <t t-name="result_more">
+        <div class="text-center col-xs-12 col-md-12">
+            <a href="#" id="more" role="button" class="btn btn-primary btn-lg">More...</a>
+        </div>
+    </t>
+
+    <t t-name="inbound_line_list">
+        <ul class="list-group" t-if="po_lines">
+            <t t-foreach="po_lines" t-as="picking_name">
+                <li class="list-group-item">
+                    <t t-call="display_lines"></t>
+                </li>
+            </t>
+        </ul>
+    </t>
+
+    <t t-name="display_lines">
+        <ul class="list-group">
+            <p t-esc="picking_name"/>
+            <t t-foreach="po_lines[picking_name]" t-as="po_line">
+                <li class="list-group-item">
+                    <a href="#" style="pointer-events: none; cursor: default;">
+                        <div class="progress picking_progress" id="picking-progress-bar">
+                            <div t-att-id="po_line.id" class="progress-bar picking_done" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" t-att-style="'width: '+po_line.progress_done+'%;'"/>
+                            <div id="picking-name">
+                                <span><t t-esc="po_line.product_name"/> - <t t-esc="po_line.quantity_already_scanned"/> / <t t-esc="po_line.quantity"/></span>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            </t>
+        </ul>
+    </t>
+
+    <t t-name="current_package">
+        <div>
+            <t t-if="first_item_box.is_new==true">
+                <li class='list-group-item fa fa-2x fa-dropbox list-boxes current-package extra-line'>
+                    <span t-esc="first_item_box.barcode"/>
+                    <span class='fa fa-times close-box-icon pull-right' t-att-box-barcode="first_item_box.barcode"></span>
+                </li>
+            </t>
+            <t t-if="first_item_box.is_new==false">
+                <li class='list-group-item fa fa-2x fa-dropbox list-boxes current-package'>
+                    <span t-esc="first_item_box.barcode"/>
+                    <span class='fa fa-times close-box-icon pull-right' t-att-box-barcode="first_item_box.barcode"></span>
+                </li>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="open_package">
+        <t t-if="first_item_box.is_new==true">
+            <li class='list-group-item fa fa-2x fa-dropbox list-boxes package-open extra-line'>
+                <span t-esc="first_item_box.barcode"/>
+                <span class='fa fa-times close-box-icon pull-right' t-att-box-barcode="first_item_box.barcode"></span>
+            </li>
+        </t>
+        <t t-if="first_item_box.is_new==false">
+            <li class='list-group-item fa fa-2x fa-dropbox list-boxes package-open'>
+                <span t-esc="first_item_box.barcode"/>
+                <span class='fa fa-times close-box-icon pull-right' t-att-box-barcode="first_item_box.barcode"></span>
+            </li>
+        </t>
+    </t>
+
+    <t t-name="closed_package">
+        <t t-if="first_item_box.is_new==true">
+            <li class='list-group-item fa fa-2x fa-dropbox list-boxes package-closed extra-line'>
+                <span t-esc="first_item_box.barcode"/>
+            </li>
+        </t>
+        <t t-if="first_item_box.is_new==false">
+            <li class='list-group-item fa fa-2x fa-dropbox list-boxes package-closed'>
+                <span t-esc="first_item_box.barcode"/>
+            </li>
+        </t>
+    </t>
+
+    <t t-name="purchase_move_list">
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+            <div id="po-lines-list">
+                <t t-call="inbound_line_list" />
+            </div>
+        </div>
+    </t>
+
+    <t t-name="product_page">
+        <div class="container page">
+            <div class="row">
+                <div class="col-md-2" id="po-lines-list">
+                    <t t-call="inbound_line_list"></t>
+                </div>
+                <div class="col-md-10">
+                    <div id='product_row'>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <img id="product_image" t-att-src="product.image" class="center-block img-responsive"/>
+                                </div>
+                                <div class="col-md-12">
+                                    <button id="mark_damaged_button" type="button" class="btn btn-danger btn-large button-touch">
+                                        <i class="fa fa-chain-broken button-icon" aria-hidden="true"></i> Mark damaged
+                                    </button>
+                                </div>
+                            </div>
+                            <t t-if="product.requires_unpack or product.requires_relabel">
+                                <div class="row">
+                                    <t t-if="product.requires_unpack">
+                                        <div class="col-md-12">
+                                            <div class="alert alert-warning info-prompt">
+                                                <i class="fa fa-sign-out info-prompt-icon" aria-hidden="true"></i> Requires unpacking
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <t t-if="product.requires_relabel">
+                                        <div class="col-md-12">
+                                            <div class="alert alert-warning info-prompt">
+                                                <i class="fa fa-tags info-prompt-icon" aria-hidden="true"></i> Requires re-labelling
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h1 id="product-name"><t t-esc="product.name"/></h1>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12" id="product_description">
+                                    <h3><t t-esc="product.description"/></h3>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <h4>Product code:</h4>
+                                </div>
+                                <div class="col-md-3">
+                                    <h4><t t-esc="product.default_code"/></h4>
+                                </div>
+                                <div class="col-md-3">
+                                    <h4>Supplier code:</h4>
+                                </div>
+                                <div class="col-md-3">
+                                    <h4><t t-esc="product.supplier_code"/></h4>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <hr/>
+                                    <h4>Barcodes</h4>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div id="barcodes">
+                                    <div class="col-md-2">
+                                        <img class="img-responsive" src="/stock_irm/static/img/barcode.png" />
+                                    </div>
+                                    <div class="col-md-5 tags">
+                                        <ul class="list-group">
+                                            <t t-foreach="barcodes" t-as="barcode">
+                                                <li class="list-group-item"><t t-esc="barcode"/></li>
+                                            </t>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <div id='qty_row'>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h4>Put in box:</h4>
+                    </div>
+                    <div class="col-md-3">
+                        <h4>Quantity to add:</h4>
+                    </div>
+                    <div class="col-md-2">
+                        <h4>Extra labels to print:</h4>
+                    </div>
+                    <div class="col-md-2">
+                        <h4>Already printed:</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <div id="rack" data-target='#cartSelectionModal'>
+                            <span>Select a box</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div id="quantity" class="input-group">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                            </span>
+                            <input id="input_quantity" type="text" class="form-control text-center" value="1"/>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div id="label-quantity" class="input-group">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" data-dir="dwn"><span class="glyphicon glyphicon-minus"></span></button>
+                            </span>
+                            <input id="quantity_to_print" type="text" class="form-control text-center" value="0"/>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" data-dir="up"><span class="glyphicon glyphicon-plus"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div id="label-printed" class="input-group">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" text="255" id="print_button" data-dir="print"><span class="glyphicon glyphicon-print"></span></button>
+                            </span>
+                            <input id="already_printed_quantity" type="text" class="form-control text-center" value="1" readonly="1"/>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div id="label-ok">
+                            <span>
+                                <button class="btn btn-default" text="255" id="ok_button" data-dir="valid"><span class="glyphicon glyphicon-ok"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="go_back">
+        <div class="row">
+            <div class="col-md-6">
+                <a href="#" id="close" class="btn btn-danger pull-left goback"> Go Back </a>
+            </div>
+            <div class="col-md-6">
+                <a href="#" id="continue_picking" class="btn btn-success continue"> Continue this picking </a>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="exception_modal">
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center">
+                 <span class='fa fa-times error-icon'></span>
+            </div>
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+                <h2><t t-esc="error"/></h2>
+                <p class="error-message">
+                    <t t-esc="message"/>
+                </p>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="supplier_purchase_orders">
+        <div class="row">
+            <t t-foreach="purchase_orders" t-as="purchase">
+                <a href="#" class="btn btn-lg purchase-btn col-md-3" t-att-purchase-id="purchase.id" t-att-purchase-name="purchase.name">
+                    <span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> <t t-esc="purchase.name" />
+                </a>
+            </t>
+
+        </div>
+    </t>
+
+    <t t-name="confirm_unexpected_uncomplete_move">
+        <table class="table">
+            <tr>
+                <th></th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th></th>
+                <th>Box</th>
+                <th>Reason</th>
+                <th></th>
+            </tr>
+            <t t-foreach="moves" t-as="move">
+                <tr>
+                    <td width="15%">
+                        <t t-if="move.is_new"><span>Extra</span></t>
+                        <t t-if="!move.is_new"><span t-esc="move.picking_name"/></t>
+                    </td>
+                    <td width="25%">
+                        <span t-esc="move.product_name"/>
+                    </td>
+                    <td width="10%" class="text-center">
+                        <t t-if="move.is_new"><span t-esc="move.quantity_already_scanned" /></t>
+                        <t t-if="!move.is_new"><span><t t-esc="move.quantity_already_scanned" /> / <t t-esc="move.quantity" /></span></t>
+                    </td>
+                    <td class="text-center" width="5%">
+                        <span>in</span>
+                    </td>
+                    <td width="10%">
+                        <span t-esc="move.box"/>
+                    </td>
+                    <td width="20%">
+                        <div class="form-group">
+                            <select class="form-control">
+                                <t t-foreach="reasons" t-as="reason">
+                                    <option t-att-value="reason.id"><t t-esc="reason.name"/></option>
+                                </t>
+                            </select>
+                        </div>
+                    </td>
+                    <td width="10%">
+                        <a href="#" class="btn btn-success pull-right validate" t-att-id="moves.indexOf(move)" >Validate</a>
+                    </td>
+                </tr>
+            </t>
+            <t t-if="scrap_lines" t-foreach="scrap_lines" t-as="scrap_line">
+                <tr>
+                    <td width="15%">
+                        <span>Damaged</span>
+                    </td>
+                    <td width="25%">
+                        <span t-esc="scrap_line.name"/>
+                    </td>
+                    <td width="10%" class="text-center">
+                        <t t-esc="scrap_line.qty"/>
+                    </td>
+                    <td class="text-center" width="5%">
+                    </td>
+                    <td width="10%">
+                    </td>
+                    <td width="20%">
+                        <t t-esc="scrap_line.reason"/>
+                    </td>
+                    <td width="10%">
+                    </td>
+                </tr>
+            </t>
+        </table>
+    </t>
+
+    <t t-name="confirm_unexpected_uncomplete_move_footer">
+        <div class="row">
+            <h4 class="pull-left" style="margin-left: 25px;">Select A Cart</h4>
+        </div>
+        <t t-call="cart_result_body"/>
+        <a href="#" id="finish" class="btn btn-success pull-right hidden">Finish</a>
+    </t>
+
+    <t t-name="confirm_unexpected_uncomplete_move_destinations">
+        <select id="select_destination">
+            <option value="0">----</option>
+            <t t-foreach="destinations" t-as="destination">
+                <option t-att-value="destination.id"><t t-esc="destination.name"/></option>
+            </t>
+        </select>
+    </t>
+
+    <t t-name="packing_order_note">
+        <div class="row">
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 formfield">
+                <label for="packing_note">note : </label>
+                <textarea class="pull-right" id="packing_note" name="Note" rows="10"/>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="packing_order_note_footer">
+        <a href="#" id="confirm_note" class="btn btn-success pull-right">Confirm</a>
+    </t>
+
+
+    <t t-name="confirm_purchase_orders">
+        <a href="#" id="select_purchases" class="btn btn-success" style="display:none">Bound to Selected Purchases</a>
+        <a href="#" id="no_purchases" class="btn btn-success">Continue Without Purchases</a>
+    </t>
+
+    <t t-name="box_barcode_modal">
+        <input type="text" id="box_barcode"></input>
+    </t>
+
+    <t t-name="box_barcode_footer_modal">
+        <a href="#" id="confirm_box_barcode" class="btn btn-success pull-right" >Confirm</a>
+        <t t-if="show_cancel">
+            <a href="#" id="cancel" class="btn btn-danger pull-left">Cancel extra items</a>
+        </t>
+    </t>
+
+    <t t-name="select_another_box_footer_modal">
+        <a href="#" id="select_another" class="btn btn-success" >Select another box</a>
+    </t>
+
+    <t t-name="going_back_modal">
+        <div class="row">
+            <span class='fa fa-question-circle fa-5x space-10' style='color:orange'></span><b style='font-size: 2em'>If you continue, the following won't be added:</b>
+        </div>
+        <div class="row">
+            <div class="col-xs-2 col-md-2">
+                <a href="#" class="thumbnail">
+                    <div class="square" t-att-style="'background-image:url(\'' + image + '\');'"></div>
+                </a>
+            </div>
+            <div class="col-xs-2 col-md-2">
+               <h3> Quantity: <span t-esc="quantity"/></h3>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="going_back_modal_footer">
+        <a href="#" id="continue" class="btn btn-success">Continue with this product</a>
+        <a href="#" id="go_back" class="btn btn-danger pull-left">Cancel this product</a>
+    </t>
+
+
+    <t t-name="propose_close_box">
+        <div class="row">
+            <span class='fa fa-question-circle fa-5x space-10' style='color:orange'></span><b style='font-size: 2em'>Are you sure you want to close this box? </b>
+        </div>
+    </t>
+
+
+    <t t-name="propose_close_box_footer">
+        <a href="#" id="close" class="btn btn-lg btn-success pull-right"> Close This Box </a>
+        <a href="#" id="cancel" class="btn btn-lg btn-danger pull-left"> Cancel </a>
+    </t>
+
+    <t t-name="valide_po_line">
+        <div class="row">
+            <span class='fa fa-question-circle fa-5x space-10' style='color:green'></span><b style='font-size: 2em'>A PO line is now fullfilled</b>
+            <br/>
+            <t t-if="nb_product_more>0">
+                <span style='color:red'><b>There are <span t-esc="nb_product_more"/> extra items </b></span>
+            </t>
+            <t t-if="nb_product_more==0">
+                <span><b style='color:green'>The item count match the order!</b></span>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="validate_claim_line">
+        <div class="row">
+            <span class='fa fa-question-circle fa-5x space-10' style='color:green'></span><b style='font-size: 2em'>A claim line is now fullfilled</b>
+            <br/>
+            <t t-if="nb_product_more>0">
+                <span style='color:red'><b>There are <span t-esc="nb_product_more"/> extra items </b></span>
+            </t>
+            <t t-if="nb_product_more==0">
+                <span><b style='color:green'>The item count match the claim!</b></span>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="validate_po_line_footer">
+        <a href="#" id="validate" class="btn btn-lg btn-success pull-right">Validate this line
+            <t t-if="nb_product_more>0">
+                <span>and create an extra box</span>
+            </t>
+        </a>
+    </t>
+
+    <t t-name="select_next_destination">
+        <div class="row">
+            <b style='font-size: 2em'>Destination of your package:   </b><br/>
+            <span class='fa fa-arrow-right fa-5x space-10 col-md-3' style='color:green'></span>
+            <a href="#" class="btn btn-lg btn-success purchase-btn destination col-md-3">
+                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> <t t-esc="destination"/>
+            </a>
+        </div>
+    </t>
+
+    <t t-name="select_next_destination_footer">
+        <a href="#" id="confirm_next_destination" class="btn btn-success" >Confirm</a>
+    </t>
+
+    <t t-name="box_barcode_modal_staging">
+        <input type="text" id="box_barcode"></input>
+    </t>
+
+    <t t-name="box_barcode_modal_staging_footer">
+        <a href="#" id="confirm_box_barcode" class="btn btn-success" >Confirm</a>
+    </t>
+
+    <t t-name="rack_button">
+        <span class="glyphicon glyphicon-arrow-right"></span><span t-esc="name"/>/<span t-esc="index"/>
+    </t>
+
+    <t t-name="cart_navbar_item">
+        <a href="#"><span class="glyphicon glyphicon-inbox" aria-hidden="true"/> <t t-esc="cart.name"/></a>
+    </t>
+
+    <t t-name="damaged_product_modal">
+        <div class="row">
+            <div class="col-xs-8 formfield">
+                <div class="form-group">
+                    <label for="select_reason">Select Reason:</label>
+                    <select class="form-control" id="select_reason">
+                        <t t-foreach="damage_reasons" t-as="reason">
+                            <option><span t-esc="reason"/></option>
+                        </t>
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-4 formfield">
+                <label for="select_reason">Select quantity:</label>
+                <input type="number" id="qty_damaged" class="form-control" min="0"/>
+            </div>
+
+        </div>
+    </t>
+    
+    <t t-name="damaged_product_modal_footer">
+        <a href="#" id="move_to_damaged" class="btn btn-warning">Move to "Damaged"</a>
+        <a href="#" id="cancel" class="btn pull-left btn-default">Cancel</a>
+    </t>
+
+    <t t-name="incorrect_damaged_modal">
+        <div class="row">
+            <div class="col-xs-12">
+                <span class='fa fa-times fa-10x' style='color:red'></span><b style='font-size: 2em'>  Wrong quantity selected</b>
+                <a id="go_back_damaged" href="#" class="btn btn-lg btn-success">
+                    Go back
+                </a>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="customer_crm_claims">
+        <div class="row">
+            <t t-foreach="claims" t-as="claim">
+                <a href="#" class="btn btn-lg claim-btn col-md-3" t-att-claim-id="claim.id" t-att-claim-name="claim.name">
+                    <i class="fa fa-share-square" aria-hidden="true"/> <t t-esc="claim.name"/>
+                </a>
+            </t>
+
+        </div>
+    </t>
+
+    <t t-name="confirm_crm_claims">
+        <a href="#" id="select_claims" class="btn btn-success" style="display:none">Bound to Claims</a>
+    </t>
+
+</templates>

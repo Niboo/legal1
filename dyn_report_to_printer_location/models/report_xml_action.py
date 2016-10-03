@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api
+from openerp import models, fields
 
 from .printing import _available_action_types
 
@@ -9,4 +9,3 @@ class ReportXmlAction(models.Model):
 
     action = fields.Selection(_available_action_types,
                               required=True)
-

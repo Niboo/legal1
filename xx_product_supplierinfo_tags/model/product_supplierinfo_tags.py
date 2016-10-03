@@ -27,7 +27,7 @@ class product_supplierinfo_tags(models.Model):
 class product_supplierinfo(models.Model):
     _name = "product.supplierinfo"
     _inherit = "product.supplierinfo"
-
+    
     xx_tag_ids = fields.One2many('xx.product.supplierinfo.tags', 'res_id', string='Supplier Barcodes', domain=[('res_model', '=', _name)])
 
 class stock_picking(models.Model):
@@ -49,6 +49,10 @@ class product_product(models.Model):
     def search(self, cr, uid, search_args, offset=0, limit=None, order=None, context=None, count=False):
         if context is None:
             context = {}
+        if 'is_order_line_search' in context:
+            return super(product_product, self).search(
+                cr, uid, search_args, offset=offset, limit=limit,
+                order=order, context=context, count=count)
         if 'process_barcode_from_ui_picking_id' in context:
             sp = self.pool.get('stock.picking').browse(
                 cr, uid, context['process_barcode_from_ui_picking_id'], context=context)
@@ -120,7 +124,7 @@ class product_product(models.Model):
                         pp.ean13 ilike '%%{needle}%%' OR
                         psi.product_code ilike '%%{needle}%%' OR
                         psit.name ilike '%%{needle}%%')
-                    """.format(needle=arg[2].strip(),
+                    """.format(needle = arg[2] and arg[2].strip() or arg[2],
                         comp=self.pool.get('res.users').browse(cr,uid,[uid],context=context)[0].company_id.id))
                     query_result = cr.fetchall()
                     product_ids += [x[0] for x in query_result]

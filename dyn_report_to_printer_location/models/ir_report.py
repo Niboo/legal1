@@ -5,7 +5,8 @@ from openerp import models, fields, api
 class ReportXml(models.Model):
     _inherit = 'ir.actions.report.xml'
 
-    document_type_id = fields.Many2one('document_type', 'Document Type', required=False)
+    document_type_id = fields.Many2one(
+        'document_type', 'Document Type', required=False)
 
     @api.multi
     def behaviour(self):
@@ -31,7 +32,13 @@ class ReportXml(models.Model):
 
             # Override user defaults with location defaults
             work_location = self.env.user.work_location_id
-            if work_location and report_action and report_action.type == 'location_default':
+            if not work_location and self.env.user.reset_work_location:
+                # Force get_pdf by setting action to False
+                result[report.id] = {
+                    'printer': default_printer, 'action': False}
+                continue
+            if (work_location and report_action and
+                    report_action.type == 'location_default'):
                 for wl_printer in work_location.work_location_printer_ids:
                     if wl_printer.document_type_id == report.document_type_id:
                         if wl_printer.printing_action:
@@ -41,7 +48,8 @@ class ReportXml(models.Model):
                         break
 
             # Retrieve report default values
-            if report_action and report_action.type not in ['user_default', 'location_default']:
+            if report_action and report_action.type not in (
+                    'user_default', 'location_default'):
                 action = report_action.type
             if report.printing_printer_id:
                 printer = report.printing_printer_id
