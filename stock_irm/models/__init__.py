@@ -30,3 +30,4 @@ from . import stock_quant_package
 from . import inbound_damage_reason
 from . import stock_incomplete_reason
 from . import picking_dispatch
+from . import purchase

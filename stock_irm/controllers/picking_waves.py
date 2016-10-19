@@ -394,7 +394,8 @@ class InboundController(http.Controller):
                      'product_image':
                      "/web/binary/image?model=product.product&id=%s&field=image"
                      % move.product_id.id,
-                     'ean13': move.product_id.default_code,
+                     'ean13': move.product_id.ean13,
+                     'default_code': move.product_id.default_code,
                      'odw_code': move.product_id.odw_code,
                      'location_id': product_location.id,
                      'location_name': product_location.name,
