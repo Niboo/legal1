@@ -186,6 +186,7 @@
             $('#info_message').html($message)
 
             self.current_product_barcode = self.move_list[self.current_move_index]['product'].ean13;
+            self.current_product_default_code = self.move_list[self.current_move_index]['product'].default_code;
             self.current_product_odw_code = self.move_list[self.current_move_index]['product'].odw_code;
             self.current_destination_barcode = self.pickings[self.current_picking_index].box_barcode;
         },
@@ -284,7 +285,7 @@
                 self.add_package(barcode);
             }else{
                 // check if the barcode scanned is the barcode we needed
-                var is_product_barcode = (barcode == self.current_product_barcode || barcode == self.current_product_odw_code);
+                var is_product_barcode = (barcode == self.current_product_barcode || barcode == self.current_default_code || barcode == self.current_product_odw_code);
                 var is_destination_barcode = barcode == self.current_destination_barcode;
 
                 var qty = parseInt($('#quantity_wave input').val());
@@ -399,7 +400,8 @@
                     self.validate_wave();
                 }else{
                     self.current_product_barcode = self.move_list[self.current_move_index].product.ean13;
-                    self.current_product_odw_code = self.move_list[self.current_move_index]['product'].odw_code;
+                    self.current_product_odw_code = self.move_list[self.current_move_index].product.odw_code;
+                    self.current_product_default_code = self.move_list[self.current_move_index].product.default_code;
                     self.current_destination_barcode = self.move_list[self.current_move_index].location_dest_barcode;
                     self.display_page();
                 }
